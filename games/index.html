@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamer Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Base Styles */
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+    body, html { 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Orbitron', sans-serif; 
+      background: linear-gradient(270deg, #0f0f0f, #1a1a1a, #0f0f0f, #1a1a1a);
+      background-size: 800% 800%;
+      animation: gradientShift 30s ease infinite;
+      color: #fff; 
+      text-align: center; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    body.loaded {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Header */
+    header { 
+      padding-bottom: 20px; 
+      text-shadow:
+        0 0 8px #0ff,
+        0 0 20px #0ff,
+        0 0 30px #0ff,
+        0 0 40px #0ff7;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% {
+        text-shadow:
+          0 0 8px #0ff,
+          0 0 20px #0ff,
+          0 0 30px #0ff,
+          0 0 40px #0ff7;
+      }
+      50% {
+        text-shadow:
+          0 0 12px #0ff,
+          0 0 28px #0ff,
+          0 0 40px #0ff,
+          0 0 60px #0ff9;
+      }
+    }
+    header h1 { 
+      font-size: 2.5rem; 
+      color: #0ff; 
+      margin: 0; 
+    }
+    header p.tagline {
+      font-size: 1rem;
+      color: #0ff7;
+      margin-top: 8px;
+      font-weight: 400;
+    }
+    header p.emoji { 
+      font-size: 1.1rem; 
+      color: #0ff7; 
+      margin-bottom: 30px; 
+    }
+
+    /* Buttons */
+    nav.links { 
+      display: flex; 
+      justify-content: center; 
+      gap: 20px; 
+      flex-wrap: wrap; 
+      margin-bottom: 40px; 
+      max-width: 600px;
+    }
+    .btn { 
+      background: #111; 
+      border: 2px solid #0ff; 
+      color: #0ff; 
+      padding: 14px 22px; 
+      border-radius: 12px; 
+      text-decoration: none; 
+      transition: box-shadow 0.4s ease, background-color 0.4s ease, color 0.4s ease, transform 0.3s ease; 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      cursor: pointer; 
+      min-width: 130px;
+      box-shadow: 0 0 8px #0ff44d44;
+    }
+    .btn:hover { 
+      background: #0ff; 
+      color: #111; 
+      box-shadow: 0 0 40px #0ff, 0 0 20px #0ff inset; 
+      transform: scale(1.07); 
+    }
+
+    /* Cards */
+    main.cards { 
+      display: flex; 
+      justify-content: center; 
+      gap: 40px; 
+      flex-wrap: wrap; 
+      margin-bottom: 50px; 
+      max-width: 1200px;
+    }
+    main.cards a { 
+      flex: 1 1 320px; 
+      max-width: 380px;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      display: block;
+      will-change: transform, box-shadow;
+    }
+    main.cards a:hover {
+      transform: translateY(-12px) scale(1.12);
+      box-shadow: 0 15px 30px rgba(0,255,255,0.6), 0 0 40px #0ff, 0 0 50px #0ff inset;
+    }
+    main.cards img { 
+      border: 2px solid #0ff; 
+      border-radius: 12px; 
+      width: 100%; 
+      height: auto; 
+      transition: transform 0.4s ease, box-shadow 0.4s ease; 
+      animation: borderGlow 4s ease-in-out infinite alternate;
+      will-change: transform, box-shadow;
+    }
+    main.cards img:hover { 
+      transform: scale(1.07); 
+      box-shadow: 0 0 40px #0ff, 0 0 60px #0ffbb;
+    }
+    @keyframes borderGlow {
+      0% {
+        box-shadow: 0 0 8px #0ff, 0 0 15px #0ff44d4d;
+      }
+      100% {
+        box-shadow: 0 0 20px #0ffaa, 0 0 35px #0ffccbb;
+      }
+    }
+
+    /* Responsive */
+    @media(max-width: 600px) {
+      header h1 { font-size: 2rem; }
+      header p.tagline { font-size: 0.9rem; }
+      header p.emoji { font-size: 1rem; }
+      .btn { padding: 12px 18px; font-size: 1rem; min-width: 110px; }
+      main.cards { flex-direction: column; gap: 30px; margin-bottom: 40px; }
+      main.cards a { max-width: 90%; margin: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Gamer Hub</h1>
+    <p class="tagline">Your portal to gaming profiles and crypto keys</p>
+    <p class="emoji">🎮</p>
+  </header>
+
+  <nav class="links">
+    <a class="btn" href="https://www.bobsnadenica.com" target="_blank">Back to start</a>
+    <button class="btn" id="randomBitcoin">Random Bitcoin Key</button>
+    <button class="btn" id="randomEthereum">Random Ethereum Key</button>
+  </nav>
+
+  <main class="cards">
+    <!-- PSN Card -->
+    <a href="https://psnprofiles.com/privilegeduser" target="_blank" rel="noopener noreferrer">
+      <img src="https://card.psnprofiles.com/2/privilegeduser.png" alt="PSN Card">
+    </a>
+    
+    <!-- Steam Card -->
+    <a href="https://steamcommunity.com/id/cycnus" target="_blank" rel="noopener noreferrer">
+      <img src="https://shared.akamai.steamstatic.com/community_assets/images/items/1203420/866256673c521a3935be83765326ae43327b4cb5.gif" alt="Steam Profile">
+    </a>
+
+    <!-- WoW Armory Card -->
+    <a href="https://worldofwarcraft.blizzard.com/en-gb/character/eu/sylvanas/druidgirl" target="_blank" rel="noopener noreferrer">
+      <img src="https://assets-bwa.worldofwarcraft.blizzard.com/dab2428aa2f51e140c9a.png" alt="WoW Character: Druidgirl">
+    </a>
+  </main>
+
+  <script>
+    // Crypto Button Functionality
+    document.getElementById('randomBitcoin').addEventListener('click', () => {
+      if(confirm('Are you sure you want to open a random Bitcoin key?')) {
+        window.open('https://keys.lol/bitcoin/random', '_blank');
+      }
+    });
+    document.getElementById('randomEthereum').addEventListener('click', () => {
+      if(confirm('Are you sure you want to open a random Ethereum key?')) {
+        window.open('https://keys.lol/ethereum/random', '_blank');
+      }
+    });
+  </script>
+
+</body>
+</html>

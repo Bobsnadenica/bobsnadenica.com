@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#0f172a" id="theme-color-meta" />
+    <title>Random Tools</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-white dark:bg-slate-950 min-h-screen flex flex-col items-center justify-start p-4">
+
+<iframe class="video-bg"
+    src="https://www.youtube.com/embed/iYmvCUonukw?autoplay=1&mute=1&controls=0&loop=1&playlist=iYmvCUonukw&modestbranding=1&showinfo=0&playsinline=1"
+    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy">
+</iframe>
+<div class="video-overlay"></div>
+
+<div id="fade-wrapper">
+    <div id="page-content" class="flex flex-col items-center w-full">
+
+        <main class="relative z-10 w-full flex flex-col items-center">
+
+            <div class="bg-slate-100/70 dark:bg-slate-800/70 backdrop-blur-xl p-8 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700 transition-all duration-500 hover:scale-[1.02]">
+
+                <button id="theme-toggle" aria-label="Toggle Dark Mode" aria-pressed="true"
+                    class="absolute top-4 right-4 p-3 rounded-full bg-slate-300 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:rotate-12 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all">
+                    <svg id="sun-icon" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <svg id="moon-icon" class="h-6 w-6 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <h1 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 dark:text-gray-50 mb-6 drop-shadow-lg">Random Tools</h1>
+
+                <div class="space-y-4">
+                    <a href="converter/index.html" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">Converter</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">Convert various units and currencies.</p>
+                    </a>
+                    <a href="https://app.jetkvm.com/devices" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">My PC</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">Remotely access and control your PC with JetKVM.</p>
+                    </a>
+                    <a href="games/index.html" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">Random Games</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">Steam/PSN/Blizzard profile and others.</p>
+                    </a>
+                    <a href="iveto/index.html" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">Рецептите на мама</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">Рецептите на Ивето</p>
+                    </a>
+                    <a href="conspiracy/index.html" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">Random Conspiracy</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">Everyday Chatgpt/Grok/Gemini and Deepseek will create a new html page centered around "Conspiracies" - Test your luck, see what you'll get.</p>
+                    </a>
+                    <a href="whoami/whoami.html" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">Who Am I</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">View your public IP and other network info as long as you give permission.</p>
+                    </a>
+                    <a href="https://everydaylilly.com" class="block">
+                      <button class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 text-gray-900 dark:text-gray-100 font-semibold hover:scale-105 hover:shadow-lg transition-all">Everyday Lilly</button>
+                      <p class="text-xs text-center text-slate-500 dark:text-slate-400 mt-1">A website for the app "Everyday Lilly."</p>
+                    </a>
+                </div>
+            </div>
+
+            <div id="map-container" class="w-full max-w-3xl aspect-video rounded-xl overflow-hidden mt-6">
+                <div id="map" class="w-full h-full"></div>
+                <div class="map-buttons">
+                    <button id="user-location-btn" aria-label="Center map on my location" class="p-3 rounded-full bg-slate-300 dark:bg-slate-700 text-gray-800 dark:text-gray-200 shadow-lg hover:scale-110 transition-all">
+                        </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@joergdietrich/leaflet.terminator@1.1.0/L.Terminator.js"></script>
+<script src="js/front_page_map.js"></script>
+<script src="js/explosion.js"></script>
+</body>
+</html>
