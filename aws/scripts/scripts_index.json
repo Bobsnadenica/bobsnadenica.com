@@ -1,0 +1,14 @@
+{
+  "EC2": [
+    "ec2/ec2_describe.sh"
+  ],
+  "EXAMPLES": [
+    "examples/example.sh"
+  ],
+  "S3": [
+    "s3/s3_list.sh"
+  ],
+  "TEST": [
+    "test/test.sh"
+  ]
+}
