@@ -1,14 +1,30 @@
 {
+  "AWS SECRETS MANAGER": [
+    "AWS Secrets Manager/Secrets Manager overview.sh"
+  ],
+  "IAM": [
+    "IAM/IAM_overview.sh",
+    "IAM/cloudtrail.sh"
+  ],
+  "KMS": [
+    "KMS/KMS.sh"
+  ],
+  "SECURITY_GROUPS_AND_NETWORK_ACLS": [
+    "Security_Groups_And_Network_ACLs/overview.sh"
+  ],
+  "WAF": [
+    "WAF/overview.sh"
+  ],
   "EC2": [
     "ec2/ec2_describe.sh"
   ],
   "EXAMPLES": [
     "examples/example.sh"
   ],
+  "INSPECTOR": [
+    "inspector/overview.sh"
+  ],
   "S3": [
     "s3/s3_list.sh"
-  ],
-  "TEST": [
-    "test/test.sh"
   ]
 }
