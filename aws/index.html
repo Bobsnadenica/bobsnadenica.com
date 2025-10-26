@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AWS Console (Simulation)</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">AWS Console</div>
+    <span class="badge">Simulation</span>
+    <div class="spacer"></div>
+  </header>
+
+  <main>
+    <aside>
+      <div class="section-title">Scripts</div>
+      <div id="script-list" class="saved-list"></div>
+    </aside>
+
+    <section class="workbench">
+      <div class="toolbar">
+        <div class="title">Script Runner</div>
+        <div class="spacer"></div>
+        <div class="controls">
+          <button id="run-btn" class="btn primary" onclick="runScript()">Run ▷</button>
+        </div>
+      </div>
+
+      <div class="editor-area">
+        <div class="card">
+          <h3>Script</h3>
+          <pre id="script-view">Select a script from the left…\n</pre>
+        </div>
+        <div class="card">
+          <h3>Output</h3>
+          <div id="output-container" tabindex="0">
+            <pre id="output">Ready. Select a script and click Run.\n</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="statusbar">
+        <span class="status-dot" id="engine-dot" title="Engine status"></span>
+        <span id="engine-status">Mock engine loaded</span>
+        <span class="spacer"></span>
+        <span>Tips: Save (<span class="kbd">Ctrl/⌘+S</span>), Run (<span class="kbd">Ctrl/⌘+Enter</span>)</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/engine.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
