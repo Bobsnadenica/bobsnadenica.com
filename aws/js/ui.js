@@ -24,7 +24,7 @@ async function loadAvailableScripts() {
     files.forEach(file => {
       const btn = document.createElement("button");
       btn.className = "nav-btn";
-      btn.textContent = file;
+      btn.textContent = file.split("/").pop();
       btn.onclick = async () => {
         window.currentScriptFile = file; // track selected file
         try {
