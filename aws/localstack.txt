@@ -1,0 +1,4 @@
+localstack start
+
+localstack status services
+
