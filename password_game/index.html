@@ -131,8 +131,16 @@ const allRules = [
   { text: "Must mention your favorite animal (dog, frog, sloth...)", check: p => /(dog|frog|sloth|owl|bear|fox|penguin|koala)/i.test(p) },
   { text: "Must contain a food item (pizza, sushi, taco)", check: p => /(pizza|sushi|taco)/i.test(p) },
   { text: "Must include a random math equation (like 2+2=4)", check: p => /\d+\+\d+=\d+/.test(p) },
+  { 
+    text: "All numbers in your password must add up to exactly 69", 
+    check: p => {
+      const nums = p.match(/\d/g);
+      if (!nums) return false;
+      const sum = nums.map(Number).reduce((a, b) => a + b, 0);
+      return sum === 69;
+    } 
+  },
   { text: "Must include the word 'banana' — because potassium", check: p => /banana/i.test(p) },
-  { text: "Must include a philosophical statement (like 'I think therefore I am')", check: p => /(think therefore|existence|meaning of life|cogito)/i.test(p) },
   { text: "Must contain the word '404' to honor the internet gods", check: p => /404/.test(p) },
   { text: "Must include a hashtag (e.g., #winning)", check: p => /#\w+/.test(p) },
   { text: "Must mention a movie title (Matrix, Shrek, Inception)", check: p => /(matrix|shrek|inception)/i.test(p) },
