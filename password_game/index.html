@@ -97,6 +97,50 @@
   }
   #success.visible { opacity: 1; }
 </style>
+  @media (max-width: 600px) {
+    .container {
+      width: 95%;
+      padding: 20px;
+      margin: 20px 0 60px 0;
+      border-radius: 12px;
+    }
+    h1 {
+      font-size: 1.6em;
+    }
+    p {
+      font-size: 0.95em;
+      line-height: 1.4em;
+    }
+    textarea {
+      font-size: 1em !important;
+      padding: 10px !important;
+      max-height: 150px !important;
+    }
+    .rules {
+      font-size: 0.9em;
+      line-height: 1.4em;
+      max-height: 50vh;
+      padding-right: 4px;
+    }
+    .rule {
+      padding: 4px 8px;
+      border-left-width: 2px;
+    }
+    .rule.valid span, .rule.invalid span {
+      font-size: 0.9em;
+    }
+    #success {
+      font-size: 1em;
+    }
+    #reward {
+      font-size: 1em;
+      word-wrap: break-word;
+    }
+    canvas#confetti {
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+  }
 </head>
 <body>
   <div class="container">
