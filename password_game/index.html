@@ -135,57 +135,58 @@ renderRules();
 const passwordInput = document.getElementById("password");
 const success = document.getElementById("success");
 
-passwordInput.addEventListener("input", () => {
-  const value = passwordInput.value.trim();
-  let passed = 0;
-  let shouldUnlockNext = false;
-
-  // Always re-check all currently visible rules
-  allRules.slice(0, visibleRules).forEach(rule => {
-    const passedNow = rule.check(value);
-
-    if (passedNow && !rule.el.classList.contains("valid")) {
-      // Just turned valid
+function setRuleState(rule, ok) {
+  if (ok) {
+    if (!rule.el.classList.contains("valid")) {
       rule.el.classList.remove("invalid");
       rule.el.classList.add("valid");
       rule.el.innerHTML = `<span>✅</span>${rule.text}`;
       rule.el.style.boxShadow = "0 0 12px rgba(0,255,100,0.6)";
-      setTimeout(() => rule.el.style.boxShadow = "none", 300);
-
-      // If this is the last visible rule, prepare to unlock next
-      if (allRules.indexOf(rule) === visibleRules - 1) shouldUnlockNext = true;
-    } else if (!passedNow && rule.el.classList.contains("valid")) {
-      // Just turned invalid
+      setTimeout(() => rule.el.style.boxShadow = "none", 250);
+    }
+  } else {
+    if (!rule.el.classList.contains("invalid")) {
       rule.el.classList.remove("valid");
       rule.el.classList.add("invalid");
       rule.el.innerHTML = `<span>❌</span>${rule.text}`;
     }
+  }
+}
 
-    if (passedNow) passed++;
-  });
+function allPassedVisible(value) {
+  for (let i = 0; i < visibleRules; i++) {
+    if (!allRules[i].check(value)) return false;
+  }
+  return true;
+}
 
-  // Unlock next rule immediately when current last one becomes valid
-  if (shouldUnlockNext && visibleRules < allRules.length && passed === visibleRules) {
+passwordInput.addEventListener("input", () => {
+  const value = passwordInput.value; // do NOT trim; respect end-char rules exactly
+
+  // 1) Evaluate all currently visible rules
+  for (let i = 0; i < visibleRules; i++) {
+    const rule = allRules[i];
+    setRuleState(rule, rule.check(value));
+  }
+
+  // 2) Immediately unlock next rules as long as everything visible is valid
+  while (visibleRules < allRules.length && allPassedVisible(value)) {
     visibleRules++;
     const nextRule = allRules[visibleRules - 1];
     const el = document.createElement("div");
-    el.classList.add("rule", "invalid");
+    el.className = "rule invalid";
     el.innerHTML = `<span>❌</span>${nextRule.text}`;
     rulesContainer.appendChild(el);
     nextRule.el = el;
+
+    // Evaluate the newly revealed rule right away
+    setRuleState(nextRule, nextRule.check(value));
   }
 
-  // Ensure previously passed rules remain green
-  allRules.slice(0, visibleRules).forEach(rule => {
-    if (rule.check(value)) {
-      rule.el.classList.add("valid");
-      rule.el.classList.remove("invalid");
-      rule.el.innerHTML = `<span>✅</span>${rule.text}`;
-    }
-  });
-
-  // Success handling
-  if (passed === allRules.length) {
+  // 3) Win state if *all* rules exist and pass
+  const allExist = allRules.every(r => r.el);
+  const allPass = allExist && allRules.every(r => r.check(value));
+  if (allPass) {
     success.classList.add("visible");
   } else {
     success.classList.remove("visible");
