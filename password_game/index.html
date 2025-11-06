@@ -44,6 +44,18 @@
     text-align: left;
     font-size: 0.95em;
     line-height: 1.6em;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #00ff99 #222;
+  }
+  .rules::-webkit-scrollbar {
+    width: 8px;
+  }
+  .rules::-webkit-scrollbar-thumb {
+    background-color: #00ff99;
+    border-radius: 8px;
   }
   .rule {
     position: relative;
@@ -126,7 +138,7 @@ function renderRules() {
   const rule = allRules[visibleRules - 1];
   const el = document.createElement("div");
   el.classList.add("rule", "invalid");
-  el.innerHTML = `<span>❌</span>${rule.text}`;
+  el.innerHTML = `<span>❌</span><b>${visibleRules}.</b> ${rule.text}`;
   rulesContainer.appendChild(el);
   rule.el = el;
 }
@@ -140,7 +152,7 @@ function setRuleState(rule, ok) {
     if (!rule.el.classList.contains("valid")) {
       rule.el.classList.remove("invalid");
       rule.el.classList.add("valid");
-      rule.el.innerHTML = `<span>✅</span>${rule.text}`;
+      rule.el.innerHTML = `<span>✅</span><b>${allRules.indexOf(rule) + 1}.</b> ${rule.text}`;
       rule.el.style.boxShadow = "0 0 12px rgba(0,255,100,0.6)";
       setTimeout(() => rule.el.style.boxShadow = "none", 250);
     }
@@ -148,7 +160,7 @@ function setRuleState(rule, ok) {
     if (!rule.el.classList.contains("invalid")) {
       rule.el.classList.remove("valid");
       rule.el.classList.add("invalid");
-      rule.el.innerHTML = `<span>❌</span>${rule.text}`;
+      rule.el.innerHTML = `<span>❌</span><b>${allRules.indexOf(rule) + 1}.</b> ${rule.text}`;
     }
   }
 }
@@ -175,7 +187,7 @@ passwordInput.addEventListener("input", () => {
     const nextRule = allRules[visibleRules - 1];
     const el = document.createElement("div");
     el.className = "rule invalid";
-    el.innerHTML = `<span>❌</span>${nextRule.text}`;
+    el.innerHTML = `<span>❌</span><b>${visibleRules}.</b> ${nextRule.text}`;
     rulesContainer.appendChild(el);
     nextRule.el = el;
 
