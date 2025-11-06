@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Draw a Perfect Circle</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #222;
+        font-family: sans-serif;
+        color: white;
+        user-select: none;
+    }
+
+    #score {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        font-size: 26px;
+    }
+
+    #reset {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+<div id="score">Draw a circle!</div>
+<button id="reset">Reset</button>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let w, h;
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+// drawing variables
+let drawing = false;
+let points = [];
+
+canvas.addEventListener("mousedown", start);
+canvas.addEventListener("mouseup", end);
+canvas.addEventListener("mousemove", draw);
+
+canvas.addEventListener("touchstart", (e) => start(e.touches[0]));
+canvas.addEventListener("touchend", end);
+canvas.addEventListener("touchmove", (e) => draw(e.touches[0]));
+
+function start(e) {
+    drawing = true;
+    points = [];
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "white";
+    ctx.beginPath();
+    ctx.moveTo(e.clientX, e.clientY);
+}
+
+function draw(e) {
+    if(!drawing) return;
+    ctx.lineTo(e.clientX, e.clientY);
+    ctx.stroke();
+    points.push({x: e.clientX, y: e.clientY});
+}
+
+function end() {
+    drawing = false;
+    scoreCircle();
+}
+
+function scoreCircle() {
+    if(points.length < 10) return;
+
+    // compute center by averaging
+    let avgX = 0, avgY = 0;
+    points.forEach(p => {
+        avgX += p.x; avgY += p.y;
+    });
+    avgX /= points.length;
+    avgY /= points.length;
+
+    // compute average radius
+    let radii = points.map(p => Math.hypot(p.x - avgX, p.y - avgY));
+    let avgR = radii.reduce((a,b) => a+b) / radii.length;
+
+    // compute deviation
+    let variance = radii.reduce((sum,r) => sum + Math.abs(r - avgR), 0) / radii.length;
+
+    // score 0–100
+    let score = Math.max(0, 100 - variance * 4).toFixed(1);
+    document.getElementById("score").innerText = `Score: ${score}/100`;
+}
+
+document.getElementById("reset").onclick = () => {
+    ctx.clearRect(0,0,w,h);
+    document.getElementById("score").innerText = "Draw a circle!";
+};
+</script>
+</body>
+</html>
