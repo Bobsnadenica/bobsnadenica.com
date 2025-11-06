@@ -137,8 +137,13 @@ const pctx = particleCanvas.getContext("2d");
 
 let w, h;
 function resize() {
-    w = canvas.width = particleCanvas.width = window.innerWidth;
-    h = canvas.height = particleCanvas.height = window.innerHeight;
+    w = window.innerWidth;
+    h = window.innerHeight;
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = particleCanvas.width = window.innerWidth * ratio;
+    canvas.height = particleCanvas.height = window.innerHeight * ratio;
+    ctx.scale(ratio, ratio);
+    pctx.scale(ratio, ratio);
 }
 window.addEventListener("resize", resize);
 resize();
@@ -146,6 +151,8 @@ resize();
 let drawing = false;
 let points = [];
 let particles = [];
+
+let streak = parseInt(localStorage.getItem("streak") || "0");
 
 function start(e) {
     drawing = true;
@@ -156,6 +163,8 @@ function start(e) {
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = "#00ffff";
     ctx.beginPath();
     ctx.moveTo(e.clientX, e.clientY);
     document.getElementById("instructions").style.display = "none";
@@ -164,6 +173,7 @@ function start(e) {
 function draw(e) {
     if (!drawing) return;
     ctx.lineTo(e.clientX, e.clientY);
+    ctx.strokeStyle = "hsl(" + (180 + Math.random() * 20) + ", 100%, 70%)";
     ctx.stroke();
     points.push({ x: e.clientX, y: e.clientY });
     spawnParticle(e.clientX, e.clientY);
@@ -212,15 +222,32 @@ function scoreCircle() {
     const score = Math.max(0, Math.min(100, rawScore));
     const details = `Variance: ${variance.toFixed(1)} | Closure: ${closure.toFixed(1)}`;
 
+    let feedback;
+    if (score >= 90) {
+      feedback = "🌟 Masterful!";
+      streak++;
+    } else if (score >= 75) {
+      feedback = "👍 Almost there!";
+      streak = 0;
+    } else if (score >= 50) {
+      feedback = "Keep practicing!";
+      streak = 0;
+    } else {
+      feedback = "Try steadier lines!";
+      streak = 0;
+    }
+    localStorage.setItem("streak", streak);
     document.getElementById("score").innerText = `Score: ${score.toFixed(1)}/100`;
-    document.getElementById("details").innerText = details;
+    document.getElementById("details").innerText = `${details} — ${feedback}${streak >= 2 ? " 🔥 x" + streak + " Streak!" : ""}`;
 
-    // Overlay the perfect circle without clearing the user's drawing
     ctx.beginPath();
-    ctx.strokeStyle = "rgba(0,255,255,0.5)";
-    ctx.lineWidth = 2;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = "rgba(0,255,255,0.8)";
+    ctx.strokeStyle = "rgba(0,255,255,0.6)";
+    ctx.lineWidth = 2.5;
     ctx.arc(avgX, avgY, avgR, 0, Math.PI * 2);
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     popEffect(avgX, avgY, score);
     updateLeaderboard(score);
@@ -288,6 +315,7 @@ function resetGame() {
     document.getElementById("details").innerText = "";
     document.getElementById("instructions").style.display = "block";
     points = [];
+    ctx.shadowBlur = 0;
 }
 </script>
 </body>
