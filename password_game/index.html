@@ -101,6 +101,8 @@
     <input id="password" type="text" placeholder="Type your password..." autocomplete="off">
     <div class="rules" id="rules"></div>
     <div id="success">🎉 Perfect! You beat the password game!</div>
+    <div id="reward" style="display:none; margin-top:20px; font-size:1.1em; color:#00ff99;"></div>
+    <canvas id="confetti" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
   </div>
 
 <script>
@@ -115,18 +117,21 @@ const allRules = [
   { text: "Must include today's year", check: p => p.includes(new Date().getFullYear().toString()) },
   { text: "Must not contain the word 'password'", check: p => !/password/i.test(p) },
   { text: "Must include the word 'bacon'", check: p => /bacon/i.test(p) },
+  { text: "If it includes 'bacon', it must also include 'chicken'", check: p => /bacon/i.test(p) ? /chicken/i.test(p) : true },
   { text: "Must contain the name of a planet (Mars, Venus, Earth...)", check: p => /(mars|venus|earth|jupiter|saturn|neptune)/i.test(p) },
-  { text: "Must have at least 3 different vowels", check: p => {
+  { text: "Must include at least 3 different vowels", check: p => {
       const vowels = p.match(/[aeiou]/gi);
       return vowels && new Set(vowels.map(v => v.toLowerCase())).size >= 3;
     } 
   },
   { text: "Must include at least one Roman numeral (I, V, X, L, C, D, M)", check: p => /[IVXLCDM]/.test(p) },
-  { text: "If it includes 'bacon', it must also include 'chicken'", check: p => /bacon/i.test(p) ? /chicken/i.test(p) : true },
   { text: "Must reference time (like 12:00 or 3PM)", check: p => /(\d{1,2}(:\d{2})?\s?(am|pm)?)/i.test(p) },
   { text: "Must include at least one Greek letter (α, β, γ...)", check: p => /[αβγδεζηθικλμνξοπρστυφχψω]/i.test(p) },
   { text: "Must include the phrase '💪 strong'", check: p => /💪\s*strong/i.test(p) },
   { text: "Must mention your favorite animal (dog, frog, sloth...)", check: p => /(dog|frog|sloth|owl|bear|fox|penguin|koala)/i.test(p) },
+  { text: "Must contain a food item (pizza, sushi, taco)", check: p => /(pizza|sushi|taco)/i.test(p) },
+  { text: "Must include a random math equation (like 2+2=4)", check: p => /\d+\+\d+=\d+/.test(p) },
+  { text: "Must include the word 'banana' — because potassium", check: p => /banana/i.test(p) },
   { text: "Must end with a question mark (?) — because life is uncertain", check: p => p.endsWith("?") }
 ];
 
@@ -200,10 +205,49 @@ passwordInput.addEventListener("input", () => {
   const allPass = allExist && allRules.every(r => r.check(value));
   if (allPass) {
     success.classList.add("visible");
+    showReward(value);
   } else {
     success.classList.remove("visible");
+    reward.style.display = "none";
   }
 });
+
+const reward = document.getElementById("reward");
+const confettiCanvas = document.getElementById("confetti");
+const ctx = confettiCanvas.getContext("2d");
+let particles = [];
+
+function showReward(password) {
+  reward.style.display = "block";
+  reward.innerHTML = `🏆 Congratulations! Your final password is:<br><b style="color:#fff;background:#00ff99;padding:6px 10px;border-radius:8px;">${password}</b>`;
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const width = confettiCanvas.width = window.innerWidth;
+  const height = confettiCanvas.height = window.innerHeight;
+  particles = Array.from({ length: 200 }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height - height,
+    r: Math.random() * 6 + 2,
+    d: Math.random() * 2 + 1,
+    color: `hsl(${Math.random() * 360}, 100%, 60%)`
+  }));
+  animateConfetti();
+}
+
+function animateConfetti() {
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+    p.y += p.d;
+    if (p.y > confettiCanvas.height) p.y = -10;
+  });
+  requestAnimationFrame(animateConfetti);
+}
 </script>
 </body>
 </html>
