@@ -149,7 +149,11 @@ const allRules = [
   { text: "Must quote a number greater than 9000", check: p => /(900[1-9]|9[1-9][0-9]{2,})/.test(p) },
   { text: "Must mention 'AI' or 'robot' because we’re watching", check: p => /(ai|robot)/i.test(p) },
   { text: "Must include a weather word (rain, sun, storm, snow)", check: p => /(rain|sun|storm|snow)/i.test(p) },
-  { text: "Must end with a question mark (?) — because life is uncertain", check: p => p.endsWith("?") }
+  { text: "Must end with a question mark (?) — because life is uncertain", check: p => p.endsWith("?") },
+  { 
+    text: "Must include the missing word 'P. Sherman, 42 _______ Way, Sydney'", 
+    check: p => /wallaby/i.test(p) 
+  }
 ];
 
 const rulesContainer = document.getElementById("rules");
