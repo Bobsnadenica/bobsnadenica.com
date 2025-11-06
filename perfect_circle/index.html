@@ -2,115 +2,242 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Draw a Perfect Circle</title>
+<title>Perfect Circle Challenge</title>
 <style>
-    body {
+    html, body {
         margin: 0;
         overflow: hidden;
-        background: #222;
-        font-family: sans-serif;
+        height: 100%;
+        background: radial-gradient(circle at center, #0b0c10, #000);
+        font-family: 'Segoe UI', sans-serif;
         color: white;
         user-select: none;
     }
 
-    #score {
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+        touch-action: none;
+    }
+
+    #hud {
         position: fixed;
         top: 20px;
-        left: 20px;
-        font-size: 26px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        z-index: 2;
+    }
+
+    #score {
+        font-size: 42px;
+        font-weight: 900;
+        color: #00fff6;
+        text-shadow: 0 0 15px #00fff6;
+        transition: 0.4s;
+    }
+
+    #details {
+        font-size: 16px;
+        color: #aaa;
+        margin-top: 6px;
     }
 
     #reset {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #fff;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #0ff, #09f);
         border: none;
-        padding: 10px 20px;
+        padding: 12px 36px;
         font-size: 18px;
-        border-radius: 6px;
+        border-radius: 12px;
+        color: #000;
+        font-weight: bold;
         cursor: pointer;
+        transition: 0.3s;
+        z-index: 2;
+    }
+
+    #reset:hover {
+        transform: translateX(-50%) scale(1.1);
+        background: linear-gradient(90deg, #09f, #0ff);
+    }
+
+    #instructions {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-size: 24px;
+        color: #ccc;
+        opacity: 0.85;
+        animation: pulse 2s infinite;
+        z-index: 1;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 0.4; }
+    }
+
+    #particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 0;
     }
 </style>
 </head>
 
 <body>
 <canvas id="canvas"></canvas>
-<div id="score">Draw a circle!</div>
-<button id="reset">Reset</button>
+<div id="hud">
+  <div id="score">Draw a circle!</div>
+  <div id="details"></div>
+</div>
+<button id="reset">Try Again</button>
+<div id="instructions">Draw a perfect circle with your mouse or finger!</div>
+<canvas id="particles"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-let w, h;
+const particleCanvas = document.getElementById("particles");
+const pctx = particleCanvas.getContext("2d");
 
+let w, h;
 function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
+    w = canvas.width = particleCanvas.width = window.innerWidth;
+    h = canvas.height = particleCanvas.height = window.innerHeight;
 }
 window.addEventListener("resize", resize);
 resize();
 
-// drawing variables
 let drawing = false;
 let points = [];
-
-canvas.addEventListener("mousedown", start);
-canvas.addEventListener("mouseup", end);
-canvas.addEventListener("mousemove", draw);
-
-canvas.addEventListener("touchstart", (e) => start(e.touches[0]));
-canvas.addEventListener("touchend", end);
-canvas.addEventListener("touchmove", (e) => draw(e.touches[0]));
+let particles = [];
 
 function start(e) {
     drawing = true;
     points = [];
-    ctx.clearRect(0,0,w,h);
+    ctx.clearRect(0, 0, w, h);
     ctx.lineWidth = 3;
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.beginPath();
     ctx.moveTo(e.clientX, e.clientY);
+    document.getElementById("instructions").style.display = "none";
 }
 
 function draw(e) {
-    if(!drawing) return;
+    if (!drawing) return;
     ctx.lineTo(e.clientX, e.clientY);
     ctx.stroke();
-    points.push({x: e.clientX, y: e.clientY});
+    points.push({ x: e.clientX, y: e.clientY });
+    spawnParticle(e.clientX, e.clientY);
 }
 
 function end() {
+    if (!drawing) return;
     drawing = false;
+    if (points.length < 20) return;
     scoreCircle();
 }
 
-function scoreCircle() {
-    if(points.length < 10) return;
+canvas.addEventListener("mousedown", start);
+canvas.addEventListener("mouseup", end);
+canvas.addEventListener("mousemove", draw);
+canvas.addEventListener("touchstart", e => start(e.touches[0]));
+canvas.addEventListener("touchend", end);
+canvas.addEventListener("touchmove", e => draw(e.touches[0]));
 
-    // compute center by averaging
+function scoreCircle() {
     let avgX = 0, avgY = 0;
-    points.forEach(p => {
-        avgX += p.x; avgY += p.y;
-    });
+    points.forEach(p => { avgX += p.x; avgY += p.y; });
     avgX /= points.length;
     avgY /= points.length;
 
-    // compute average radius
-    let radii = points.map(p => Math.hypot(p.x - avgX, p.y - avgY));
-    let avgR = radii.reduce((a,b) => a+b) / radii.length;
+    const radii = points.map(p => Math.hypot(p.x - avgX, p.y - avgY));
+    const avgR = radii.reduce((a, b) => a + b) / radii.length;
+    const variance = radii.reduce((sum, r) => sum + Math.abs(r - avgR), 0) / radii.length;
+    const closure = Math.hypot(points[0].x - points.at(-1).x, points[0].y - points.at(-1).y);
+    const closurePenalty = closure / avgR * 10;
 
-    // compute deviation
-    let variance = radii.reduce((sum,r) => sum + Math.abs(r - avgR), 0) / radii.length;
+    const rawScore = 100 - variance * 3 - closurePenalty;
+    const score = Math.max(0, Math.min(100, rawScore));
+    const details = `Variance: ${variance.toFixed(1)} | Closure: ${closure.toFixed(1)}`;
 
-    // score 0–100
-    let score = Math.max(0, 100 - variance * 4).toFixed(1);
-    document.getElementById("score").innerText = `Score: ${score}/100`;
+    document.getElementById("score").innerText = `Score: ${score.toFixed(1)}/100`;
+    document.getElementById("details").innerText = details;
+
+    drawPerfectRing(avgX, avgY, avgR);
+    popEffect(avgX, avgY, score);
 }
 
+function drawPerfectRing(x, y, r) {
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(0,255,255,0.5)";
+    ctx.lineWidth = 2;
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function popEffect(x, y, score) {
+    for (let i = 0; i < 30; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            life: 60,
+            color: score > 80 ? "#0ff" : score > 50 ? "#0f9" : "#f55"
+        });
+    }
+}
+
+function spawnParticle(x, y) {
+    particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        life: 30,
+        color: "rgba(255,255,255,0.5)"
+    });
+}
+
+function animateParticles() {
+    pctx.clearRect(0, 0, w, h);
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        pctx.fillStyle = p.color;
+        pctx.beginPath();
+        pctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        pctx.fill();
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
 document.getElementById("reset").onclick = () => {
-    ctx.clearRect(0,0,w,h);
+    ctx.clearRect(0, 0, w, h);
     document.getElementById("score").innerText = "Draw a circle!";
+    document.getElementById("details").innerText = "";
+    document.getElementById("instructions").style.display = "block";
+    points = [];
 };
 </script>
 </body>
