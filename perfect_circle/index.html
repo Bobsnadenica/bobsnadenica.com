@@ -46,6 +46,7 @@
         color: #aaa;
         margin-top: 6px;
     }
+  <div id="leaderboard" style="margin-top:12px;font-size:14px;color:#ccc;"></div>
 
     #reset {
         position: fixed;
@@ -86,6 +87,10 @@
         0%, 100% { opacity: 0.8; }
         50% { opacity: 0.4; }
     }
+    @keyframes fadeOut {
+        from {opacity: 1; transform: translate(-50%, -50%) scale(1);}
+        to {opacity: 0; transform: translate(-50%, -50%) scale(1.3);}
+    }
 
     #particles {
         position: absolute;
@@ -96,6 +101,20 @@
         pointer-events: none;
         z-index: 0;
     }
+    #restartHint {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #888;
+        font-size: 16px;
+        opacity: 0;
+        transition: opacity 0.8s;
+        z-index: 3;
+    }
+    #restartHint.visible {
+        opacity: 0.7;
+    }
 </style>
 </head>
 
@@ -104,8 +123,9 @@
 <div id="hud">
   <div id="score">Draw a circle!</div>
   <div id="details"></div>
+  <div id="leaderboard" style="margin-top:12px;font-size:14px;color:#ccc;"></div>
 </div>
-<button id="reset">Try Again</button>
+<div id="restartHint">Tap or click anywhere to try again</div>
 <div id="instructions">Draw a perfect circle with your mouse or finger!</div>
 <canvas id="particles"></canvas>
 
@@ -130,6 +150,7 @@ let particles = [];
 function start(e) {
     drawing = true;
     points = [];
+    ctx.globalAlpha = 0.95; // smooth blend between strokes
     ctx.clearRect(0, 0, w, h);
     ctx.lineWidth = 3;
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
@@ -162,6 +183,19 @@ canvas.addEventListener("touchstart", e => start(e.touches[0]));
 canvas.addEventListener("touchend", end);
 canvas.addEventListener("touchmove", e => draw(e.touches[0]));
 
+function updateLeaderboard(score) {
+    let scores = JSON.parse(localStorage.getItem("circleScores") || "[]");
+    scores.push(score);
+    scores.sort((a, b) => b - a);
+    scores = scores.slice(0, 5);
+    localStorage.setItem("circleScores", JSON.stringify(scores));
+
+    const leaderboard = document.getElementById("leaderboard");
+    leaderboard.innerHTML = "<b>Top Circles</b><br>" + scores.map((s, i) =>
+        `#${i + 1}: ${s.toFixed(1)}`
+    ).join("<br>");
+}
+
 function scoreCircle() {
     let avgX = 0, avgY = 0;
     points.forEach(p => { avgX += p.x; avgY += p.y; });
@@ -181,16 +215,30 @@ function scoreCircle() {
     document.getElementById("score").innerText = `Score: ${score.toFixed(1)}/100`;
     document.getElementById("details").innerText = details;
 
-    drawPerfectRing(avgX, avgY, avgR);
-    popEffect(avgX, avgY, score);
-}
-
-function drawPerfectRing(x, y, r) {
+    // Overlay the perfect circle without clearing the user's drawing
     ctx.beginPath();
     ctx.strokeStyle = "rgba(0,255,255,0.5)";
     ctx.lineWidth = 2;
-    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.arc(avgX, avgY, avgR, 0, Math.PI * 2);
     ctx.stroke();
+
+    popEffect(avgX, avgY, score);
+    updateLeaderboard(score);
+    if (score >= 90) {
+        const msg = document.createElement("div");
+        msg.innerText = "PERFECT!";
+        msg.style.position = "fixed";
+        msg.style.top = "50%";
+        msg.style.left = "50%";
+        msg.style.transform = "translate(-50%, -50%)";
+        msg.style.fontSize = "72px";
+        msg.style.color = "#0ff";
+        msg.style.textShadow = "0 0 20px #0ff";
+        msg.style.animation = "fadeOut 2s forwards";
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 2000);
+    }
+    ctx.globalAlpha = 1;
 }
 
 function popEffect(x, y, score) {
@@ -232,13 +280,15 @@ function animateParticles() {
 }
 animateParticles();
 
-document.getElementById("reset").onclick = () => {
+function resetGame() {
+    pctx.clearRect(0, 0, w, h);
+    particles = [];
     ctx.clearRect(0, 0, w, h);
     document.getElementById("score").innerText = "Draw a circle!";
     document.getElementById("details").innerText = "";
     document.getElementById("instructions").style.display = "block";
     points = [];
-};
+}
 </script>
 </body>
 </html>
