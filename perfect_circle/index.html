@@ -8,7 +8,9 @@
         margin: 0;
         overflow: hidden;
         height: 100%;
-        background: radial-gradient(circle at center, #0b0c10, #000);
+        background: linear-gradient(45deg, #00111a, #001f33, #00334d, #004466);
+        background-size: 400% 400%;
+        /* animation: gradientShift 25s ease infinite; */
         font-family: 'Segoe UI', sans-serif;
         color: white;
         user-select: none;
@@ -115,6 +117,11 @@
     #restartHint.visible {
         opacity: 0.7;
     }
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 </style>
 </head>
 
@@ -124,6 +131,7 @@
   <div id="score">Draw a circle!</div>
   <div id="details"></div>
   <div id="leaderboard" style="margin-top:12px;font-size:14px;color:#ccc;"></div>
+  <div id="stats" style="margin-top:8px;font-size:14px;color:#aaa;"></div>
 </div>
 <div id="restartHint">Tap or click anywhere to try again</div>
 <div id="instructions">Draw a perfect circle with your mouse or finger!</div>
@@ -154,11 +162,23 @@ let particles = [];
 
 let streak = parseInt(localStorage.getItem("streak") || "0");
 
+let sessionScores = [];
+let bestScore = parseFloat(localStorage.getItem("bestScore") || "0");
+
+function updateBackgroundColor(score) {
+    const hue1 = Math.max(0, Math.min(120, score * 1.2)); // 0–120 hue range
+    const hue2 = hue1 + 60;
+    document.body.style.background = 
+      `linear-gradient(45deg, hsl(${hue1}, 70%, 15%), hsl(${hue2}, 70%, 25%))`;
+    document.body.style.backgroundSize = "400% 400%";
+    document.body.style.transition = "background 1.5s ease";
+}
+
 function start(e) {
     drawing = true;
     points = [];
     ctx.globalAlpha = 0.95; // smooth blend between strokes
-    ctx.clearRect(0, 0, w, h);
+    // ctx.clearRect(0, 0, w, h);  <-- removed for trail persistence
     ctx.lineWidth = 3;
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineCap = "round";
@@ -172,6 +192,8 @@ function start(e) {
 
 function draw(e) {
     if (!drawing) return;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, w, h);
     ctx.lineTo(e.clientX, e.clientY);
     ctx.strokeStyle = "hsl(" + (180 + Math.random() * 20) + ", 100%, 70%)";
     ctx.stroke();
@@ -240,6 +262,15 @@ function scoreCircle() {
     document.getElementById("score").innerText = `Score: ${score.toFixed(1)}/100`;
     document.getElementById("details").innerText = `${details} — ${feedback}${streak >= 2 ? " 🔥 x" + streak + " Streak!" : ""}`;
 
+    sessionScores.push(score);
+    const avgSession = sessionScores.reduce((a,b) => a + b, 0) / sessionScores.length;
+    if (score > bestScore) {
+      bestScore = score;
+      localStorage.setItem("bestScore", bestScore);
+    }
+    document.getElementById("stats").innerText = 
+      `Session Avg: ${avgSession.toFixed(1)} | Best: ${bestScore.toFixed(1)}`;
+
     ctx.beginPath();
     ctx.shadowBlur = 15;
     ctx.shadowColor = "rgba(0,255,255,0.8)";
@@ -251,6 +282,7 @@ function scoreCircle() {
 
     popEffect(avgX, avgY, score);
     updateLeaderboard(score);
+    updateBackgroundColor(score);
     if (score >= 90) {
         const msg = document.createElement("div");
         msg.innerText = "PERFECT!";
