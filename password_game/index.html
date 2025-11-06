@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Game</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: radial-gradient(circle at top, #1a1a1a, #000);
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .container {
+    width: 90%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    padding: 30px;
+    backdrop-filter: blur(8px);
+    text-align: center;
+  }
+  h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+  input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    margin-bottom: 20px;
+  }
+  .rules {
+    text-align: left;
+    font-size: 0.95em;
+    line-height: 1.6em;
+  }
+  .rule {
+    position: relative;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.4s ease;
+  }
+  .rule.valid {
+    color: #00ff99;
+    background: rgba(0, 255, 100, 0.1);
+    border-left: 3px solid #00ff99;
+    transform: translateX(4px);
+  }
+  .rule.invalid {
+    color: #ff5555;
+    background: rgba(255, 80, 80, 0.05);
+    border-left: 3px solid transparent;
+    transform: translateX(0);
+  }
+  .rule span {
+    display: inline-block;
+    margin-right: 6px;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+  }
+  .rule.valid span {
+    transform: scale(1.2) rotate(-10deg);
+  }
+  #success {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #00ffcc;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  #success.visible { opacity: 1; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 The Password Game</h1>
+    <p>Create a password that satisfies all the rules below.</p>
+    <input id="password" type="text" placeholder="Type your password..." autocomplete="off">
+    <div class="rules" id="rules"></div>
+    <div id="success">🎉 Perfect! You beat the password game!</div>
+  </div>
+
+<script>
+const allRules = [
+  { text: "Must be at least 5 characters long", check: p => p.length >= 5 },
+  { text: "Must include a number", check: p => /[0-9]/.test(p) },
+  { text: "Must include an uppercase letter", check: p => /[A-Z]/.test(p) },
+  { text: "Must include a lowercase letter", check: p => /[a-z]/.test(p) },
+  { text: "Must include the word 'cat'", check: p => /cat/i.test(p) },
+  { text: "Must include a color (red, green, blue)", check: p => /(red|green|blue)/i.test(p) },
+  { text: "Must include an emoji 😺", check: p => /[\u{1F300}-\u{1FAFF}]/u.test(p) },
+  { text: "Must include today's year", check: p => p.includes(new Date().getFullYear().toString()) },
+  { text: "Must not contain the word 'password'", check: p => !/password/i.test(p) },
+  { text: "Must include the word 'bacon'", check: p => /bacon/i.test(p) },
+  { text: "Must contain the name of a planet (Mars, Venus, Earth...)", check: p => /(mars|venus|earth|jupiter|saturn|neptune)/i.test(p) },
+  { text: "Must have at least 3 different vowels", check: p => {
+      const vowels = p.match(/[aeiou]/gi);
+      return vowels && new Set(vowels.map(v => v.toLowerCase())).size >= 3;
+    } 
+  },
+  { text: "Must include at least one Roman numeral (I, V, X, L, C, D, M)", check: p => /[IVXLCDM]/.test(p) },
+  { text: "If it includes 'bacon', it must also include 'chicken'", check: p => /bacon/i.test(p) ? /chicken/i.test(p) : true },
+  { text: "Must reference time (like 12:00 or 3PM)", check: p => /(\d{1,2}(:\d{2})?\s?(am|pm)?)/i.test(p) },
+  { text: "Must include at least one Greek letter (α, β, γ...)", check: p => /[αβγδεζηθικλμνξοπρστυφχψω]/i.test(p) },
+  { text: "Must include the phrase '💪 strong'", check: p => /💪\s*strong/i.test(p) },
+  { text: "Must mention your favorite animal (dog, frog, sloth...)", check: p => /(dog|frog|sloth|owl|bear|fox|penguin|koala)/i.test(p) },
+  { text: "Must end with a question mark (?) — because life is uncertain", check: p => p.endsWith("?") }
+];
+
+const rulesContainer = document.getElementById("rules");
+let visibleRules = 1;
+
+function renderRules() {
+  // Only append new rule, do not clear or rebuild all
+  const rule = allRules[visibleRules - 1];
+  const el = document.createElement("div");
+  el.classList.add("rule", "invalid");
+  el.innerHTML = `<span>❌</span>${rule.text}`;
+  rulesContainer.appendChild(el);
+  rule.el = el;
+}
+renderRules();
+
+const passwordInput = document.getElementById("password");
+const success = document.getElementById("success");
+
+passwordInput.addEventListener("input", () => {
+  const value = passwordInput.value.trim();
+  let passed = 0;
+  let shouldUnlockNext = false;
+
+  // Always re-check all currently visible rules
+  allRules.slice(0, visibleRules).forEach(rule => {
+    const passedNow = rule.check(value);
+
+    if (passedNow && !rule.el.classList.contains("valid")) {
+      // Just turned valid
+      rule.el.classList.remove("invalid");
+      rule.el.classList.add("valid");
+      rule.el.innerHTML = `<span>✅</span>${rule.text}`;
+      rule.el.style.boxShadow = "0 0 12px rgba(0,255,100,0.6)";
+      setTimeout(() => rule.el.style.boxShadow = "none", 300);
+
+      // If this is the last visible rule, prepare to unlock next
+      if (allRules.indexOf(rule) === visibleRules - 1) shouldUnlockNext = true;
+    } else if (!passedNow && rule.el.classList.contains("valid")) {
+      // Just turned invalid
+      rule.el.classList.remove("valid");
+      rule.el.classList.add("invalid");
+      rule.el.innerHTML = `<span>❌</span>${rule.text}`;
+    }
+
+    if (passedNow) passed++;
+  });
+
+  // Unlock next rule immediately when current last one becomes valid
+  if (shouldUnlockNext && visibleRules < allRules.length && passed === visibleRules) {
+    visibleRules++;
+    const nextRule = allRules[visibleRules - 1];
+    const el = document.createElement("div");
+    el.classList.add("rule", "invalid");
+    el.innerHTML = `<span>❌</span>${nextRule.text}`;
+    rulesContainer.appendChild(el);
+    nextRule.el = el;
+  }
+
+  // Ensure previously passed rules remain green
+  allRules.slice(0, visibleRules).forEach(rule => {
+    if (rule.check(value)) {
+      rule.el.classList.add("valid");
+      rule.el.classList.remove("invalid");
+      rule.el.innerHTML = `<span>✅</span>${rule.text}`;
+    }
+  });
+
+  // Success handling
+  if (passed === allRules.length) {
+    success.classList.add("visible");
+  } else {
+    success.classList.remove("visible");
+  }
+});
+</script>
+</body>
+</html>
