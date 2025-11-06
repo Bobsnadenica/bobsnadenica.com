@@ -123,17 +123,19 @@
 <script>
 const allRules = [
   { text: "Must be at least 5 characters long", check: p => p.length >= 5 },
+  { text: "Cannot contain any spaces", check: p => !/\s/.test(p) },
+  { text: "Cannot repeat numbers consecutively (like 11 or 222)", check: p => !/(\d)\1+/.test(p) },
   { text: "Must include a number", check: p => /[0-9]/.test(p) },
   { text: "Must include an uppercase letter", check: p => /[A-Z]/.test(p) },
   { text: "Must include a lowercase letter", check: p => /[a-z]/.test(p) },
   { text: "Must include the word 'cat'", check: p => /cat/i.test(p) },
-  { text: "Must include a color (red, green, blue)", check: p => /(red|green|blue)/i.test(p) },
+  { text: "Must include a color (red, green, blue)", check: p => /(red|green|blue|yellow|purple|orange|pink|cyan|magenta|black|white|brown|gray|grey|teal|gold|silver)/i.test(p) },
   { text: "Must include an emoji 😺", check: p => /[\u{1F300}-\u{1FAFF}]/u.test(p) },
   { text: "Must include today's year", check: p => p.includes(new Date().getFullYear().toString()) },
   { text: "Must not contain the word 'password'", check: p => !/password/i.test(p) },
   { text: "Must include the word 'bacon'", check: p => /bacon/i.test(p) },
   { text: "If it includes 'bacon', it must also include 'chicken'", check: p => /bacon/i.test(p) ? /chicken/i.test(p) : true },
-  { text: "Must contain the name of a planet (Mars, Venus, Earth...)", check: p => /(mars|venus|earth|jupiter|saturn|neptune)/i.test(p) },
+  { text: "Must contain the name of a planet (Mars, Venus, Earth...)", check: p => /(mercury|venus|earth|mars|jupiter|saturn|uranus|neptune|pluto)/i.test(p)  },
   { text: "Must include at least 3 different vowels", check: p => {
       const vowels = p.match(/[aeiou]/gi);
       return vowels && new Set(vowels.map(v => v.toLowerCase())).size >= 3;
@@ -142,9 +144,12 @@ const allRules = [
   { text: "Must include at least one Roman numeral (I, V, X, L, C, D, M)", check: p => /[IVXLCDM]/.test(p) },
   { text: "Must reference time (like 12:00 or 3PM)", check: p => /(\d{1,2}(:\d{2})?\s?(am|pm)?)/i.test(p) },
   { text: "Must include at least one Greek letter (α, β, γ...)", check: p => /[αβγδεζηθικλμνξοπρστυφχψω]/i.test(p) },
-  { text: "Must include the phrase '💪 strong'", check: p => /💪\s*strong/i.test(p) },
-  { text: "Must mention your favorite animal (dog, frog, sloth...)", check: p => /(dog|frog|sloth|owl|bear|fox|penguin|koala)/i.test(p) },
-  { text: "Must contain a food item (pizza, sushi, taco)", check: p => /(pizza|sushi|taco)/i.test(p) },
+  { text: "Must include the phrase '💪strong' (no space)", check: p => /(💪\s*strong|💪strong)/i.test(p) },
+  { 
+    text: "Must mention your favorite animal (dog, frog, sloth...)", 
+    check: p => /(dog|frog|sloth|owl|bear|fox|penguin|koala|cat|lion|tiger|elephant|monkey|giraffe|wolf|dolphin|panda|eagle|horse)/i.test(p) 
+  },
+  { text: "Must contain a food item (pizza, sushi, taco)", check: p => /(pizza|sushi|taco|burger|pasta|steak|noodles|ramen|salad|cookie|cake|bread|cheese|donut|icecream|burrito|fries|sandwich|pancake|waffle)/i.test(p) },
   { text: "Must include a random math equation (like 2+2=4)", check: p => /\d+\+\d+=\d+/.test(p) },
   { 
     text: "All numbers in your password must add up to exactly 69", 
@@ -158,12 +163,12 @@ const allRules = [
   { text: "Must include the word 'banana' — because potassium", check: p => /banana/i.test(p) },
   { text: "Must contain the word '404' to honor the internet gods", check: p => /404/.test(p) },
   { text: "Must include a hashtag (e.g., #winning)", check: p => /#\w+/.test(p) },
-  { text: "Must mention a movie title (Matrix, Shrek, Inception)", check: p => /(matrix|shrek|inception)/i.test(p) },
+  { text: "Must mention a movie title (Matrix, Shrek, Inception)", check: p => /(matrix|shrek|inception|avatar|titanic|rocky|terminator|gladiator|frozen|avengers|lotr|harrypotter|jurassicpark|starwars|spiderman|interstellar|batman|superman|dune|oppenheimer)/i.test(p)  },
   { text: "Must include 'coffee' or 'tea' to stay awake", check: p => /(coffee|tea)/i.test(p) },
   { text: "Must include laughter (haha or lol)", check: p => /(haha|lol)/i.test(p) },
   { text: "Must quote a number greater than 9000", check: p => /(900[1-9]|9[1-9][0-9]{2,})/.test(p) },
   { text: "Must mention 'AI' or 'robot' because we’re watching", check: p => /(ai|robot)/i.test(p) },
-  { text: "Must include a weather word (rain, sun, storm, snow)", check: p => /(rain|sun|storm|snow)/i.test(p) },
+  { text: "Must include a weather word (rain, sun, storm, snow)", check: p => /(rain|sun|storm|snow|fog|wind|hail|lightning|thunder|cloud|mist|hurricane|tornado|drizzle|rainbow)/i.test(p) },
   { text: "Must end with a question mark (?) — because life is uncertain", check: p => p.endsWith("?") },
   { 
     text: "Must include the missing word 'P. Sherman, 42 _______ Way, Sydney'", 
@@ -203,11 +208,91 @@ const allRules = [
   },
   {
     text: "If your password includes both 'AI' and 'robot', it must end with 'beep boop' 🤖",
-    check: p => (/ai/i.test(p) && /robot/i.test(p)) ? /beep\s*boop/i.test(p) : true
+    check: p => (/ai/i.test(p) && /robot/i.test(p)) ? /(beep\s*boop|beepboop)/i.test(p) : true
   },
   {
     text: "If your password includes 'bacon' and 'banana', it must also include 'breakfast' — obviously",
     check: p => (/bacon/i.test(p) && /banana/i.test(p)) ? /breakfast/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'moon', it must also include 'tides' — science demands balance",
+    check: p => /moon/i.test(p) ? /tides/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'fire', it must also include 'water' — elemental harmony",
+    check: p => /fire/i.test(p) ? /water/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'banana', it must also include 'monkey' — it’s only fair",
+    check: p => /banana/i.test(p) ? /monkey/i.test(p) : true
+  },
+  {
+    text: "If your password contains 'AI' and 'human', it must also include 'love' ❤️",
+    check: p => (/ai/i.test(p) && /human/i.test(p)) ? /love/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'snow', it must also mention 'winter is coming'",
+    check: p => /snow/i.test(p) ? /(winter\s*is\s*coming|winteriscoming)/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'taco', it must also include 'Tuesday' 🌮",
+    check: p => /taco/i.test(p) ? /tuesday/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'time', it must also include 'space' — we respect physics here",
+    check: p => /time/i.test(p) ? /space/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'pineapple', it must also contain 'controversy' 🍍",
+    check: p => /pineapple/i.test(p) ? /controversy/i.test(p) : true
+  },
+  {
+    text: "If your password contains 'rainbow', it must also contain 'unicorn' 🦄",
+    check: p => /rainbow/i.test(p) ? /unicorn/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'matrix', it must also include 'blue pill' or 'red pill' — your choice",
+    check: p => /matrix/i.test(p) ? /(blue\s*pill|red\s*pill|bluepill|redpill)/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'chicken' and 'egg', it must also include 'answer: both'",
+    check: p => (/chicken/i.test(p) && /egg/i.test(p)) ? /both/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'coffee', it must also include 'productivity' ☕️",
+    check: p => /coffee/i.test(p) ? /productivity/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'internet', it must also include 'cats' — the rule of the web",
+    check: p => /internet/i.test(p) ? /cats/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'Australia', it must also mention 'kangaroo' 🦘",
+    check: p => /australia/i.test(p) ? /kangaroo/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'wizard', it must also include 'staff' or 'wand' 🪄",
+    check: p => /wizard/i.test(p) ? /(staff|wand)/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'music', it must also include a note symbol 🎵",
+    check: p => /music/i.test(p) ? /🎵/.test(p) : true
+  },
+  {
+    text: "If your password mentions 'sun' and 'moon', it must also include 'eclipse' 🌘",
+    check: p => (/sun/i.test(p) && /moon/i.test(p)) ? /eclipse/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'king', it must also include 'queen' 👑",
+    check: p => /king/i.test(p) ? /queen/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'hacker', it must also include 'ethics' — we have standards here",
+    check: p => /hacker/i.test(p) ? /ethics/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'frog', it must also include 'ribbit' 🐸",
+    check: p => /frog/i.test(p) ? /ribbit/i.test(p) : true
   }
 ];
 
@@ -254,6 +339,7 @@ passwordInput.addEventListener("input", () => {
 
     // Evaluate the newly revealed rule right away
     setRuleState(nextRule, nextRule.check(value));
+    el.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 
   // 3) Win state if *all* rules exist and pass
