@@ -8,14 +8,15 @@
   html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    min-height: 100%;
     background: radial-gradient(circle at top, #1a1a1a, #000);
     color: #fff;
     font-family: "Inter", sans-serif;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   .container {
     width: 90%;
@@ -26,6 +27,7 @@
     padding: 30px;
     backdrop-filter: blur(8px);
     text-align: center;
+    margin: 40px 0 80px 0;
   }
   h1 {
     font-size: 2em;
@@ -98,7 +100,20 @@
   <div class="container">
     <h1>🔐 The Password Game</h1>
     <p>Create a password that satisfies all the rules below.</p>
-    <input id="password" type="text" placeholder="Type your password..." autocomplete="off">
+    <textarea id="password" rows="2" placeholder="Type your password masterpiece..." autocomplete="off" style="
+  width:100%;
+  resize:none;
+  overflow:hidden;
+  min-height:60px;
+  max-height:200px;
+  font-size:1.05em;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  padding:12px;
+  font-family:'Inter', sans-serif;
+  margin-bottom:20px;
+"></textarea>
     <div class="rules" id="rules"></div>
     <div id="success">🎉 Perfect! You beat the password game!</div>
     <div id="reward" style="display:none; margin-top:20px; font-size:1.1em; color:#00ff99;"></div>
@@ -153,6 +168,46 @@ const allRules = [
   { 
     text: "Must include the missing word 'P. Sherman, 42 _______ Way, Sydney'", 
     check: p => /wallaby/i.test(p) 
+  },
+  {
+    text: "If your password contains 'cat', it must also contain 'dog' — balance in nature",
+    check: p => /cat/i.test(p) ? /dog/i.test(p) : true
+  },
+  {
+    text: "If your password contains 'sun', it must also contain 'moon' — for cosmic harmony",
+    check: p => /sun/i.test(p) ? /moon/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'AI', it must also mention 'human' — to keep the peace",
+    check: p => /(ai)/i.test(p) ? /human/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'pizza', it must also include 'pineapple' — controversial, but fair",
+    check: p => /pizza/i.test(p) ? /pineapple/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'rain', it must also include 'umbrella' ☂️",
+    check: p => /rain/i.test(p) ? /umbrella/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'robot', it must also include 'laws' — Asimov demands it",
+    check: p => /robot/i.test(p) ? /laws/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'coffee', it cannot mention 'sleep' — that’s cheating",
+    check: p => /coffee/i.test(p) ? !/sleep/i.test(p) : true
+  },
+  {
+    text: "If your password mentions 'chicken', it must also mention 'egg' — which came first?",
+    check: p => /chicken/i.test(p) ? /egg/i.test(p) : true
+  },
+  {
+    text: "If your password includes both 'AI' and 'robot', it must end with 'beep boop' 🤖",
+    check: p => (/ai/i.test(p) && /robot/i.test(p)) ? /beep\s*boop/i.test(p) : true
+  },
+  {
+    text: "If your password includes 'bacon' and 'banana', it must also include 'breakfast' — obviously",
+    check: p => (/bacon/i.test(p) && /banana/i.test(p)) ? /breakfast/i.test(p) : true
   }
 ];
 
@@ -173,30 +228,10 @@ renderRules();
 const passwordInput = document.getElementById("password");
 const success = document.getElementById("success");
 
-function setRuleState(rule, ok) {
-  if (ok) {
-    if (!rule.el.classList.contains("valid")) {
-      rule.el.classList.remove("invalid");
-      rule.el.classList.add("valid");
-      rule.el.innerHTML = `<span>✅</span><b>${allRules.indexOf(rule) + 1}.</b> ${rule.text}`;
-      rule.el.style.boxShadow = "0 0 12px rgba(0,255,100,0.6)";
-      setTimeout(() => rule.el.style.boxShadow = "none", 250);
-    }
-  } else {
-    if (!rule.el.classList.contains("invalid")) {
-      rule.el.classList.remove("valid");
-      rule.el.classList.add("invalid");
-      rule.el.innerHTML = `<span>❌</span><b>${allRules.indexOf(rule) + 1}.</b> ${rule.text}`;
-    }
-  }
-}
-
-function allPassedVisible(value) {
-  for (let i = 0; i < visibleRules; i++) {
-    if (!allRules[i].check(value)) return false;
-  }
-  return true;
-}
+passwordInput.addEventListener("input", () => {
+  passwordInput.style.height = "auto";
+  passwordInput.style.height = Math.min(passwordInput.scrollHeight, 200) + "px";
+});
 
 passwordInput.addEventListener("input", () => {
   const value = passwordInput.value; // do NOT trim; respect end-char rules exactly
@@ -232,6 +267,31 @@ passwordInput.addEventListener("input", () => {
     reward.style.display = "none";
   }
 });
+
+function setRuleState(rule, ok) {
+  if (ok) {
+    if (!rule.el.classList.contains("valid")) {
+      rule.el.classList.remove("invalid");
+      rule.el.classList.add("valid");
+      rule.el.innerHTML = `<span>✅</span><b>${allRules.indexOf(rule) + 1}.</b> ${rule.text}`;
+      rule.el.style.boxShadow = "0 0 12px rgba(0,255,100,0.6)";
+      setTimeout(() => rule.el.style.boxShadow = "none", 250);
+    }
+  } else {
+    if (!rule.el.classList.contains("invalid")) {
+      rule.el.classList.remove("valid");
+      rule.el.classList.add("invalid");
+      rule.el.innerHTML = `<span>❌</span><b>${allRules.indexOf(rule) + 1}.</b> ${rule.text}`;
+    }
+  }
+}
+
+function allPassedVisible(value) {
+  for (let i = 0; i < visibleRules; i++) {
+    if (!allRules[i].check(value)) return false;
+  }
+  return true;
+}
 
 const reward = document.getElementById("reward");
 const confettiCanvas = document.getElementById("confetti");
