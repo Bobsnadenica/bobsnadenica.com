@@ -216,7 +216,6 @@ const allRules = [
   { text: "Must quote a number greater than 9000", check: p => /(900[1-9]|9[1-9][0-9]{2,})/.test(p) },
   { text: "Must mention 'AI' or 'robot' because we’re watching", check: p => /(ai|robot)/i.test(p) },
   { text: "Must include a weather word (rain, sun, storm, snow)", check: p => /(rain|sun|storm|snow|fog|wind|hail|lightning|thunder|cloud|mist|hurricane|tornado|drizzle|rainbow)/i.test(p) },
-  { text: "Must end with a question mark (?) — because life is uncertain", check: p => p.endsWith("?") },
   { 
     text: "Must include the missing word 'P. Sherman, 42 _______ Way, Sydney'", 
     check: p => /wallaby/i.test(p) 
@@ -249,6 +248,23 @@ const allRules = [
     text: "If your password mentions 'coffee', it cannot mention 'sleep' — that’s cheating",
     check: p => /coffee/i.test(p) ? !/sleep/i.test(p) : true
   },
+    { text: "The 3rd character must be a vowel (A, E, I, O, U)", check: p => p.length >= 3 && /[AEIOUaeiou]/.test(p[2]) },
+  { text: "Your password must start and end with the same letter", check: p => p.length > 1 && p[0].toLowerCase() === p[p.length - 1].toLowerCase() },
+  { text: "The 7th character (if it exists) must be a symbol like ! or ?", check: p => p.length >= 7 ? /[!@#$%^&*?]/.test(p[6]) : false },
+  { text: "Must contain exactly 3 uppercase letters", check: p => (p.match(/[A-Z]/g) || []).length === 3 },
+  { text: "Must include a palindrome of 3 letters (like 'aba' or 'pop')", check: p => /([a-zA-Z])([a-zA-Z])\1/i.test(p) },
+  { text: "The total number of characters must be a prime number", check: p => {
+      const len = p.length;
+      if (len < 2) return false;
+      for (let i = 2; i <= Math.sqrt(len); i++) if (len % i === 0) return false;
+      return true;
+    } 
+  },
+  { text: "Must contain a secret message 'SOS' (uppercase)", check: p => /SOS/.test(p) },
+  { text: "If it contains 'Mars', it must also contain '42' (because Hitchhiker)", check: p => /mars/i.test(p) ? /42/.test(p) : true },
+  { text: "If your password includes both 'cat' and 'dog', it must also include 'peace'", check: p => (/cat/i.test(p) && /dog/i.test(p)) ? /peace/i.test(p) : true },
+  { text: "Must include the word 'rule' or 'rules' — ironic, isn’t it?", check: p => /rules?/i.test(p) },
+  { text: "Must contain a Fibonacci number (1, 2, 3, 5, 8, 13, 21, 34)", check: p => /(1|2|3|5|8|13|21|34)/.test(p) },
   {
     text: "If your password mentions 'chicken', it must also mention 'egg' — which came first?",
     check: p => /chicken/i.test(p) ? /egg/i.test(p) : true
