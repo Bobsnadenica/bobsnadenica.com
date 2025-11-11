@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P.E.D.A.L. — Public Electronic Diary for Analysing Liabilities</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center py-8">
+  <h1 class="text-3xl font-bold mb-2">P.E.D.A.L.</h1>
+  <p class="text-sm text-gray-600 mb-6">Public Electronic Diary for Analysing Liabilities</p>
+
+  <input id="searchInput" type="text" placeholder="Search by folder name..." class="border border-gray-300 rounded-lg px-4 py-2 w-11/12 max-w-md mb-6 focus:outline-none focus:ring focus:border-blue-400"/>
+
+  <div id="folderGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-11/12 max-w-6xl">
+    <!-- Folders will appear here -->
+  </div>
+
+  <div id="viewerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+    <div class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center">
+      <button id="viewerClose" class="absolute top-4 right-4 bg-white/80 text-gray-900 rounded-full px-3 py-1 text-sm font-semibold shadow hover:bg-white">✕ Close</button>
+      <div id="viewerContent" class="w-full h-full flex items-center justify-center"></div>
+    </div>
+  </div>
+
+  <script>
+  let dataCache = null;
+  let currentView = 'regions';
+  let currentRegion = null;
+  let currentSubfolder = null;
+
+  async function loadData() {
+    try {
+      const response = await fetch('pedali/index.json');
+      const data = await response.json();
+      dataCache = data.folders;
+      renderRegions(Object.keys(dataCache));
+    } catch (e) {
+      document.getElementById('folderGrid').innerHTML = '<p class="col-span-full text-center text-gray-500">Could not load folder list.</p>';
+    }
+  }
+
+  function renderRegions(regions) {
+    currentView = 'regions';
+    currentRegion = null;
+    const grid = document.getElementById('folderGrid');
+    grid.innerHTML = '';
+    regions.forEach(region => {
+      const card = document.createElement('button');
+      card.className = 'bg-white p-4 rounded-xl shadow hover:shadow-lg hover:scale-105 transition transform text-center font-semibold w-full';
+      card.textContent = region;
+      card.onclick = () => renderSubfolders(region);
+      grid.appendChild(card);
+    });
+  }
+
+  function renderSubfolders(region) {
+    currentView = 'subfolders';
+    currentRegion = region;
+    const grid = document.getElementById('folderGrid');
+    grid.innerHTML = '';
+
+    const subfolders = Object.keys(dataCache[region]);
+    subfolders.forEach(sub => {
+      const card = document.createElement('button');
+      card.className = 'bg-white p-4 rounded-xl shadow hover:shadow-lg hover:scale-105 transition transform text-center font-semibold w-full';
+      card.textContent = sub;
+      card.onclick = () => renderFiles(region, sub);
+      grid.appendChild(card);
+    });
+  }
+
+  function renderFiles(region, sub) {
+    currentView = 'files';
+    currentSubfolder = sub;
+    const grid = document.getElementById('folderGrid');
+    grid.innerHTML = '';
+
+    const files = dataCache[region][sub];
+    files.forEach(file => {
+      const ext = file.split('.').pop().toLowerCase();
+      const card = document.createElement('div');
+      card.className = 'bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition';
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+        const img = document.createElement('img');
+        img.src = `pedali/${region}/${sub}/${file}`;
+        img.alt = file;
+        img.className = 'w-full h-48 object-cover';
+        card.appendChild(img);
+        card.onclick = () => openViewer('image', img.src);
+      } else if (['mp4', 'mov', 'webm'].includes(ext)) {
+        const video = document.createElement('video');
+        video.src = `pedali/${region}/${sub}/${file}`;
+        video.controls = true;
+        video.className = 'w-full h-48 object-cover';
+        card.appendChild(video);
+        card.onclick = () => openViewer('video', video.src);
+      } else {
+        const p = document.createElement('p');
+        p.textContent = file;
+        p.className = 'p-4 text-center text-gray-700';
+        card.appendChild(p);
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  function goBack() {
+    if (currentView === 'files') {
+      renderSubfolders(currentRegion);
+    } else if (currentView === 'subfolders') {
+      renderRegions(Object.keys(dataCache));
+    }
+  }
+
+  function openViewer(type, src) {
+    const modal = document.getElementById('viewerModal');
+    const content = document.getElementById('viewerContent');
+    content.innerHTML = '';
+    if (type === 'image') {
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'max-w-full max-h-[90vh] object-contain';
+      content.appendChild(img);
+    } else if (type === 'video') {
+      const video = document.createElement('video');
+      video.src = src;
+      video.controls = true;
+      video.autoplay = true;
+      video.className = 'max-w-full max-h-[90vh] object-contain';
+      content.appendChild(video);
+    }
+    modal.classList.remove('hidden');
+  }
+  function closeViewer() {
+    const modal = document.getElementById('viewerModal');
+    const content = document.getElementById('viewerContent');
+    content.innerHTML = '';
+    modal.classList.add('hidden');
+  }
+
+  document.getElementById('searchInput').addEventListener('input', e => {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#folderGrid button, #folderGrid div').forEach(card => {
+      card.style.display = card.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+    });
+  });
+
+  const backBtn = document.createElement('button');
+  backBtn.textContent = '← Back';
+  backBtn.className = 'mb-4 px-4 py-2 bg-slate-200 rounded hover:bg-slate-300';
+  backBtn.onclick = goBack;
+  document.body.insertBefore(backBtn, document.getElementById('searchInput'));
+
+  document.getElementById('viewerClose').addEventListener('click', closeViewer);
+  document.getElementById('viewerModal').addEventListener('click', (e) => {
+    if (e.target.id === 'viewerModal') {
+      closeViewer();
+    }
+  });
+
+  loadData();
+  </script>
+</body>
+</html>
