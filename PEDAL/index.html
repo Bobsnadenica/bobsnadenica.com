@@ -1,165 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P.E.D.A.L. — Public Electronic Diary for Analysing Liabilities</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>П.Е.Д.А.Л.ш — Публичен Електронен Достъп за Анализ на Лоши шофьори</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            asphalt: '#0f0f0f',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html, body { font-family: 'Inter', system-ui, sans-serif; }
+    * { scroll-behavior: smooth; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center py-8">
-  <h1 class="text-3xl font-bold mb-2">P.E.D.A.L.</h1>
-  <p class="text-sm text-gray-600 mb-6">Public Electronic Diary for Analysing Liabilities</p>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col gap-6">
+    <!-- Top App Bar -->
+    <header class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500 to-yellow-400 flex items-center justify-center shadow-lg">
+          <span class="font-extrabold text-slate-950 text-lg">П</span>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            П.Е.Д.А.Л.ш
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400">
+            Публичен Електронен Достъп за Анализ на Лоши шофьори — табло за неправилно паркиране и грубо поведение на пътя.
+          </p>
+        </div>
+      </div>
+    </header>
 
-  <input id="searchInput" type="text" placeholder="Search by folder name..." class="border border-gray-300 rounded-lg px-4 py-2 w-11/12 max-w-md mb-6 focus:outline-none focus:ring focus:border-blue-400"/>
+    <!-- Back + Search -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      <button
+        id="backBtn"
+        class="hidden px-4 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-800 hover:text-white hover:border-red-500/60 transition-all flex items-center gap-2"
+        type="button"
+      >
+        <span class="text-lg">&larr;</span>
+        <span>Назад</span>
+      </button>
 
-  <div id="folderGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-11/12 max-w-6xl">
-    <!-- Folders will appear here -->
+      <div class="flex-1">
+        <div class="relative">
+          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
+            🔍
+          </span>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Търси по регион (CB, E) или регистрационен номер (7072TH)..."
+            class="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/70 focus:border-red-500/70 transition-all"
+          />
+        </div>
+        <p class="mt-1 text-[9px] text-slate-500">
+          Разгледай докладите по регион, след това по регистрационен номер. Натисни върху елемент, за да отвориш доказателствата.
+        </p>
+      </div>
+    </div>
+
+    <!-- Context -->
+    <section class="text-[10px] sm:text-xs text-slate-500 leading-relaxed">
+      <p>
+        П.Е.Д.А.Л.ш е прост публичен дневник. Папките са организирани като:
+        <span class="text-slate-300">/pedali/&lt;REGION&gt;/&lt;PLATE&gt;/media-files</span>.
+        Изображенията и видеата се показват само като доказателства; имената на файловете нямат значение.
+      </p>
+    </section>
+
+    <!-- Dynamic Grid -->
+    <main>
+      <div
+        id="folderGrid"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
+      >
+        <!-- Populated by JavaScript -->
+      </div>
+    </main>
   </div>
 
-  <div id="viewerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
-    <div class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center">
-      <button id="viewerClose" class="absolute top-4 right-4 bg-white/80 text-gray-900 rounded-full px-3 py-1 text-sm font-semibold shadow hover:bg-white">✕ Close</button>
-      <div id="viewerContent" class="w-full h-full flex items-center justify-center"></div>
+  <!-- Fullscreen Viewer -->
+  <div
+    id="viewerModal"
+    class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 hidden"
+  >
+    <div class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center px-4">
+      <button
+        id="viewerClose"
+        type="button"
+        class="absolute top-4 right-6 bg-slate-900/90 border border-slate-600 text-slate-100 rounded-full px-3 py-1.5 text-xs font-semibold shadow-lg hover:bg-red-600 hover:border-red-400 hover:text-white transition-all"
+      >
+        ✕ Затвори
+      </button>
+      <div
+        id="viewerContent"
+        class="w-full h-full flex items-center justify-center"
+      ></div>
     </div>
   </div>
 
   <script>
-  let dataCache = null;
-  let currentView = 'regions';
-  let currentRegion = null;
-  let currentSubfolder = null;
+    // --- State ---
+    let dataCache = null;         // { REGION: { PLATE: [files...] } }
+    let basePedaliPath = 'pedali';
+    let currentView = 'regions';  // 'regions' | 'subfolders' | 'files'
+    let currentRegion = null;
+    let currentSubfolder = null;
 
-  async function loadData() {
-    try {
-      const response = await fetch('pedali/index.json');
-      const data = await response.json();
-      dataCache = data.folders;
-      renderRegions(Object.keys(dataCache));
-    } catch (e) {
-      document.getElementById('folderGrid').innerHTML = '<p class="col-span-full text-center text-gray-500">Could not load folder list.</p>';
-    }
-  }
+    const folderGrid = document.getElementById('folderGrid');
+    const backBtn = document.getElementById('backBtn');
+    const searchInput = document.getElementById('searchInput');
+    const viewerModal = document.getElementById('viewerModal');
+    const viewerClose = document.getElementById('viewerClose');
+    const viewerContent = document.getElementById('viewerContent');
 
-  function renderRegions(regions) {
-    currentView = 'regions';
-    currentRegion = null;
-    const grid = document.getElementById('folderGrid');
-    grid.innerHTML = '';
-    regions.forEach(region => {
-      const card = document.createElement('button');
-      card.className = 'bg-white p-4 rounded-xl shadow hover:shadow-lg hover:scale-105 transition transform text-center font-semibold w-full';
-      card.textContent = region;
-      card.onclick = () => renderSubfolders(region);
-      grid.appendChild(card);
-    });
-  }
-
-  function renderSubfolders(region) {
-    currentView = 'subfolders';
-    currentRegion = region;
-    const grid = document.getElementById('folderGrid');
-    grid.innerHTML = '';
-
-    const subfolders = Object.keys(dataCache[region]);
-    subfolders.forEach(sub => {
-      const card = document.createElement('button');
-      card.className = 'bg-white p-4 rounded-xl shadow hover:shadow-lg hover:scale-105 transition transform text-center font-semibold w-full';
-      card.textContent = sub;
-      card.onclick = () => renderFiles(region, sub);
-      grid.appendChild(card);
-    });
-  }
-
-  function renderFiles(region, sub) {
-    currentView = 'files';
-    currentSubfolder = sub;
-    const grid = document.getElementById('folderGrid');
-    grid.innerHTML = '';
-
-    const files = dataCache[region][sub];
-    files.forEach(file => {
-      const ext = file.split('.').pop().toLowerCase();
-      const card = document.createElement('div');
-      card.className = 'bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition';
-      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-        const img = document.createElement('img');
-        img.src = `pedali/${region}/${sub}/${file}`;
-        img.alt = file;
-        img.className = 'w-full h-48 object-cover';
-        card.appendChild(img);
-        card.onclick = () => openViewer('image', img.src);
-      } else if (['mp4', 'mov', 'webm'].includes(ext)) {
-        const video = document.createElement('video');
-        video.src = `pedali/${region}/${sub}/${file}`;
-        video.controls = true;
-        video.className = 'w-full h-48 object-cover';
-        card.appendChild(video);
-        card.onclick = () => openViewer('video', video.src);
-      } else {
-        const p = document.createElement('p');
-        p.textContent = file;
-        p.className = 'p-4 text-center text-gray-700';
-        card.appendChild(p);
+    // --- Data Loading ---
+    async function loadData() {
+      async function tryFetch(url) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) return null;
+          return await res.json();
+        } catch {
+          return null;
+        }
       }
-      grid.appendChild(card);
+
+      // Try local /PEDAL/pedali first, then root /pedali
+      let data = await tryFetch('pedali/index.json');
+      if (data && data.folders) {
+        basePedaliPath = 'pedali';
+      } else {
+        data = await tryFetch('/pedali/index.json');
+        if (data && data.folders) {
+          basePedaliPath = '/pedali';
+        }
+      }
+
+      if (!data || !data.folders || !Object.keys(data.folders).length) {
+        folderGrid.innerHTML =
+          '<p class="col-span-full text-center text-slate-500 text-sm py-8 border border-dashed border-slate-700/70 rounded-2xl bg-slate-900/40">Не може да се зареди списъкът с папки.<br/><span class="text-[10px] text-slate-600">Стартирайте през локален уеб сървър и се уверете, че <span class="text-red-400">pedali/index.json</span> съществува с правилната структура.</span></p>';
+        return;
+      }
+
+      dataCache = data.folders;
+      renderRegions();
+    }
+
+    // --- Helpers ---
+    function setBackVisibility() {
+      if (currentView === 'regions') {
+        backBtn.classList.add('hidden');
+      } else {
+        backBtn.classList.remove('hidden');
+      }
+    }
+
+    function clearGrid() {
+      folderGrid.innerHTML = '';
+    }
+
+    function createCard(baseClasses) {
+      const div = document.createElement('div');
+      div.className =
+        baseClasses ||
+        'group relative flex flex-col gap-1 p-3 sm:p-4 rounded-2xl bg-slate-900/85 border border-slate-800 hover:border-red-500/70 hover:bg-slate-900 shadow-sm hover:shadow-red-900/30 transition-all cursor-pointer overflow-hidden';
+      return div;
+    }
+
+    // --- Render: Regions ---
+    function renderRegions(filter = '') {
+      if (!dataCache) return;
+      currentView = 'regions';
+      currentRegion = null;
+      currentSubfolder = null;
+      setBackVisibility();
+      clearGrid();
+
+      let regions = Object.keys(dataCache);
+      if (filter) {
+        const f = filter.toLowerCase();
+        regions = regions.filter((r) => r.toLowerCase().includes(f));
+      }
+      regions.sort();
+
+      if (!regions.length) {
+        folderGrid.innerHTML =
+          '<p class="col-span-full text-center text-slate-500 text-xs py-6 border border-dashed border-slate-700/70 rounded-2xl bg-slate-900/40">Няма региони, отговарящи на търсенето.</p>';
+        return;
+      }
+
+      regions.forEach((region) => {
+        const card = createCard();
+        const label = document.createElement('div');
+        label.className =
+          'text-[9px] uppercase tracking-[0.16em] text-slate-500';
+        label.textContent = 'Регион';
+
+        const code = document.createElement('div');
+        code.className =
+          'text-xl sm:text-2xl font-extrabold text-red-400 leading-none';
+        code.textContent = region;
+
+        const hint = document.createElement('div');
+        hint.className = 'mt-1 text-[9px] text-slate-500';
+        hint.textContent = 'Натисни, за да видиш докладваните номера';
+
+        card.appendChild(label);
+        card.appendChild(code);
+        card.appendChild(hint);
+
+        card.addEventListener('click', () => renderSubfolders(region));
+        folderGrid.appendChild(card);
+      });
+    }
+
+    // --- Render: Subfolders (plates) ---
+    function renderSubfolders(region, filter = '') {
+      if (!dataCache || !dataCache[region]) {
+        renderRegions();
+        return;
+      }
+
+      currentView = 'subfolders';
+      currentRegion = region;
+      currentSubfolder = null;
+      setBackVisibility();
+      clearGrid();
+
+      let subfolders = Object.keys(dataCache[region]);
+      if (filter) {
+        const f = filter.toLowerCase();
+        subfolders = subfolders.filter((s) => s.toLowerCase().includes(f));
+      }
+      subfolders.sort();
+
+      if (!subfolders.length) {
+        folderGrid.innerHTML =
+          '<p class="col-span-full text-center text-slate-500 text-xs py-6 border border-dashed border-slate-700/70 rounded-2xl bg-slate-900/40">Няма номера, отговарящи на търсенето в този регион.</p>';
+        return;
+      }
+
+      subfolders.forEach((sub) => {
+        const files = dataCache[region][sub] || [];
+        const card = createCard();
+
+        const plate = document.createElement('div');
+        plate.className =
+          'inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-950/95 border border-slate-700 text-red-400 text-xs font-semibold';
+        plate.innerHTML =
+          '<span class="text-[9px] text-slate-500">Номер</span> ' +
+          sub;
+
+        const count = document.createElement('div');
+        count.className = 'text-[9px] text-slate-500';
+        count.textContent =
+          (files.length || 0) === 1
+            ? '1 доказателство'
+            : files.length + ' доказателства';
+
+        const hint = document.createElement('div');
+        hint.className = 'mt-auto text-[9px] text-red-400/80';
+        hint.textContent = 'Отвори доказателствата';
+
+        card.appendChild(plate);
+        card.appendChild(count);
+        card.appendChild(hint);
+
+        card.addEventListener('click', () => renderFiles(region, sub));
+        folderGrid.appendChild(card);
+      });
+    }
+
+    // --- Render: Files (evidence) ---
+    function renderFiles(region, sub) {
+      const files = dataCache?.[region]?.[sub] || [];
+      currentView = 'files';
+      currentRegion = region;
+      currentSubfolder = sub;
+      setBackVisibility();
+      clearGrid();
+
+      if (!files.length) {
+        folderGrid.innerHTML =
+          '<p class="col-span-full text-center text-slate-500 text-xs py-6 border border-dashed border-slate-700/70 rounded-2xl bg-slate-900/40">Няма намерени файлове за този номер.</p>';
+        return;
+      }
+
+      files.forEach((file) => {
+        const ext = file.split('.').pop().toLowerCase();
+        const src = `${basePedaliPath}/${region}/${sub}/${file}`;
+
+        const card = document.createElement('div');
+        card.className =
+          'relative group rounded-2xl bg-slate-900/95 border border-slate-800 overflow-hidden shadow-sm hover:shadow-red-900/40 transition-all cursor-pointer';
+
+        const badge = document.createElement('div');
+        badge.className =
+          'absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/75 text-[9px] text-red-300 border border-red-500/60 flex items-center gap-1';
+        badge.innerHTML =
+          '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Доказателство';
+        card.appendChild(badge);
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].includes(ext)) {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = file;
+          img.loading = 'lazy';
+          img.className =
+            'w-full h-40 sm:h-44 object-cover transform group-hover:scale-105 transition-all duration-300';
+          card.appendChild(img);
+          card.addEventListener('click', () => openViewer('image', src));
+        } else if (['mp4', 'mov', 'webm'].includes(ext)) {
+          const video = document.createElement('video');
+          video.src = src;
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.className =
+            'w-full h-40 sm:h-44 object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300';
+          video.addEventListener('mouseenter', () => video.play());
+          video.addEventListener('mouseleave', () => video.pause());
+          card.appendChild(video);
+
+          const playIcon = document.createElement('div');
+          playIcon.className =
+            'absolute inset-0 flex items-center justify-center pointer-events-none';
+          playIcon.innerHTML =
+            '<div class="w-9 h-9 rounded-full bg-black/65 border border-red-400 flex items-center justify-center text-red-400 text-xs font-bold group-hover:bg-red-600 group-hover:text-white group-hover:border-white transition-all">&#9658;</div>';
+          card.appendChild(playIcon);
+
+          card.addEventListener('click', () => openViewer('video', src));
+        } else {
+          const p = document.createElement('p');
+          p.textContent = file;
+          p.className =
+            'p-4 text-[10px] text-slate-300 break-all bg-slate-950/90';
+          card.appendChild(p);
+          card.addEventListener('click', () => openViewer('file', src));
+        }
+
+        folderGrid.appendChild(card);
+      });
+    }
+
+    // --- Viewer ---
+    function openViewer(type, src) {
+      viewerContent.innerHTML = '';
+
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className =
+          'max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border border-slate-700';
+        viewerContent.appendChild(img);
+      } else if (type === 'video') {
+        const video = document.createElement('video');
+        video.src = src;
+        video.controls = true;
+        video.autoplay = true;
+        video.className =
+          'max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border border-slate-700';
+        viewerContent.appendChild(video);
+      } else {
+        const link = document.createElement('a');
+        link.href = src;
+        link.target = '_blank';
+        link.className =
+          'px-4 py-2 rounded-xl bg-slate-900 text-slate-100 border border-slate-600 text-sm';
+        link.textContent = 'Отвори файл';
+        viewerContent.appendChild(link);
+      }
+
+      viewerModal.classList.remove('hidden');
+    }
+
+    function closeViewer() {
+      viewerContent.innerHTML = '';
+      viewerModal.classList.add('hidden');
+    }
+
+    // --- Events ---
+    backBtn.addEventListener('click', () => {
+      if (currentView === 'files') {
+        renderSubfolders(currentRegion);
+      } else if (currentView === 'subfolders') {
+        renderRegions();
+      }
     });
-  }
 
-  function goBack() {
-    if (currentView === 'files') {
-      renderSubfolders(currentRegion);
-    } else if (currentView === 'subfolders') {
-      renderRegions(Object.keys(dataCache));
-    }
-  }
+    viewerClose.addEventListener('click', closeViewer);
 
-  function openViewer(type, src) {
-    const modal = document.getElementById('viewerModal');
-    const content = document.getElementById('viewerContent');
-    content.innerHTML = '';
-    if (type === 'image') {
-      const img = document.createElement('img');
-      img.src = src;
-      img.className = 'max-w-full max-h-[90vh] object-contain';
-      content.appendChild(img);
-    } else if (type === 'video') {
-      const video = document.createElement('video');
-      video.src = src;
-      video.controls = true;
-      video.autoplay = true;
-      video.className = 'max-w-full max-h-[90vh] object-contain';
-      content.appendChild(video);
-    }
-    modal.classList.remove('hidden');
-  }
-  function closeViewer() {
-    const modal = document.getElementById('viewerModal');
-    const content = document.getElementById('viewerContent');
-    content.innerHTML = '';
-    modal.classList.add('hidden');
-  }
-
-  document.getElementById('searchInput').addEventListener('input', e => {
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll('#folderGrid button, #folderGrid div').forEach(card => {
-      card.style.display = card.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+    viewerModal.addEventListener('click', (e) => {
+      if (e.target === viewerModal) {
+        closeViewer();
+      }
     });
-  });
 
-  const backBtn = document.createElement('button');
-  backBtn.textContent = '← Back';
-  backBtn.className = 'mb-4 px-4 py-2 bg-slate-200 rounded hover:bg-slate-300';
-  backBtn.onclick = goBack;
-  document.body.insertBefore(backBtn, document.getElementById('searchInput'));
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.trim().toLowerCase();
 
-  document.getElementById('viewerClose').addEventListener('click', closeViewer);
-  document.getElementById('viewerModal').addEventListener('click', (e) => {
-    if (e.target.id === 'viewerModal') {
-      closeViewer();
-    }
-  });
+      if (!dataCache) return;
 
-  loadData();
+      if (currentView === 'regions') {
+        renderRegions(term);
+      } else if (currentView === 'subfolders' && currentRegion) {
+        renderSubfolders(currentRegion, term);
+      } else if (currentView === 'files') {
+        // In files view we filter visible cards client-side
+        Array.from(folderGrid.children).forEach((card) => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = term === '' || text.includes(term) ? '' : 'none';
+        });
+      }
+    });
+
+    // --- Init ---
+    loadData();
   </script>
 </body>
 </html>
