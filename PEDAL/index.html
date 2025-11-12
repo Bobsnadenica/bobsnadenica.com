@@ -58,6 +58,18 @@
       </button>
     </div>
 
+    <!-- Random Button and Last Uploaded -->
+    <div class="flex justify-center mt-3">
+      <button id="randomBtn" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-700 transition-all">
+        🎲 Случайна снимка
+      </button>
+    </div>
+
+    <section id="lastUploaded" class="hidden mt-4 text-center">
+      <h2 class="text-sm font-semibold text-red-400 mb-2">📸 Последно качено</h2>
+      <div id="lastUploadedContent"></div>
+    </section>
+
     <!-- Back + Search -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
       <button
@@ -467,8 +479,59 @@
       }
     });
 
+    // --- Last Uploaded & Random ---
+    async function showLastUploaded() {
+      if (!dataCache) return;
+      let latest = { src: null, region: '', plate: '', time: 0 };
+      const regions = Object.keys(dataCache);
+
+      for (const region of regions) {
+        for (const plate of Object.keys(dataCache[region])) {
+          for (const file of dataCache[region][plate]) {
+            const src = `${basePedaliPath}/${region}/${plate}/${file}`;
+            try {
+              const res = await fetch(src, { method: 'HEAD' });
+              const lastMod = res.headers.get('Last-Modified');
+              if (lastMod) {
+                const t = new Date(lastMod).getTime();
+                if (t > latest.time) latest = { src, region, plate, time: t };
+              }
+            } catch {}
+          }
+        }
+      }
+
+      if (latest.src) {
+        const d = new Date(latest.time);
+        const formatted = `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
+        const html = `
+          <img src="${latest.src}" class="mx-auto rounded-lg shadow-lg w-48 h-48 object-cover cursor-pointer" onclick="openViewer('image','${latest.src}')">
+          <p class="mt-1 text-xs text-slate-500">📅 ${formatted} — ${latest.region} / ${latest.plate}</p>
+        `;
+        document.getElementById('lastUploadedContent').innerHTML = html;
+        document.getElementById('lastUploaded').classList.remove('hidden');
+      }
+    }
+
+    function showRandom() {
+      if (!dataCache) return;
+      const regions = Object.keys(dataCache);
+      const region = regions[Math.floor(Math.random() * regions.length)];
+      const plates = Object.keys(dataCache[region]);
+      const plate = plates[Math.floor(Math.random() * plates.length)];
+      const files = dataCache[region][plate];
+      const file = files[Math.floor(Math.random() * files.length)];
+      const src = `${basePedaliPath}/${region}/${plate}/${file}`;
+      openViewer('image', src);
+    }
+
     // --- Init ---
-    loadData();
+    async function initPedal() {
+      await loadData();
+      showLastUploaded();
+      document.getElementById('randomBtn').addEventListener('click', showRandom);
+    }
+    initPedal();
   </script>
 </body>
 </html>
