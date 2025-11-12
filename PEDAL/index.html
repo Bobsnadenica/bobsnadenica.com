@@ -43,6 +43,21 @@
       </div>
     </header>
 
+    <!-- Slogan -->
+    <p class="text-center text-sm sm:text-base text-slate-400 font-medium mt-1">
+      Паркирай тук, стани част от П.Е.Д.А.Л.
+    </p>
+
+    <!-- Platform Buttons -->
+    <div class="flex justify-center gap-4 mt-2">
+      <button class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold flex items-center gap-2 opacity-70 cursor-not-allowed">
+        🤖 Android <span class="text-[10px] text-slate-500">(Скоро)</span>
+      </button>
+      <button class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold flex items-center gap-2 opacity-70 cursor-not-allowed">
+        🍎 iOS <span class="text-[10px] text-slate-500">(Скоро)</span>
+      </button>
+    </div>
+
     <!-- Back + Search -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
       <button
@@ -352,6 +367,30 @@
           card.appendChild(p);
           card.addEventListener('click', () => openViewer('file', src));
         }
+
+        // --- Add date under thumbnail ---
+        const dateLine = document.createElement('p');
+        dateLine.className = 'text-xs text-slate-500 mt-1 text-center';
+        dateLine.textContent = '📅 зареждане...';
+        card.appendChild(dateLine);
+
+        // Delay HEAD fetch to avoid blocking index.json loading
+        setTimeout(() => {
+          fetch(src, { method: 'HEAD' })
+            .then(res => {
+              const lastMod = res.headers.get('Last-Modified');
+              if (lastMod) {
+                const d = new Date(lastMod);
+                const formatted = `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth()+1).toString().padStart(2, '0')}.${d.getFullYear()}`;
+                dateLine.textContent = `📅 ${formatted}`;
+              } else {
+                dateLine.textContent = '📅 неизвестна дата';
+              }
+            })
+            .catch(() => {
+              dateLine.textContent = '📅 неизвестна дата';
+            });
+        }, 200);
 
         folderGrid.appendChild(card);
       });
