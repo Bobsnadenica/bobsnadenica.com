@@ -20,20 +20,116 @@
     };
   </script>
   <style>
-    html, body { font-family: 'Inter', system-ui, sans-serif; }
-    * { scroll-behavior: smooth; }
+    html, body {
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    * {
+      scroll-behavior: smooth;
+      box-sizing: border-box;
+    }
+    /* Smoother scrolling for all */
+    html {
+      scroll-padding-top: 70px;
+    }
+    /* Custom scrollbar for dark mode */
+    ::-webkit-scrollbar {
+      width: 10px;
+      background: #111827;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 6px;
+    }
+    /* Responsive container padding */
+    .pedal-container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      max-width: 100%;
+    }
+    @media (min-width: 640px) {
+      .pedal-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+    }
+    @media (min-width: 1024px) {
+      .pedal-container {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+        max-width: 90vw;
+      }
+    }
+    /* Ensures touch targets are large enough */
+    button, .cursor-pointer {
+      touch-action: manipulation;
+    }
+    /* Card transitions */
+    .pedal-card, .pedal-thumb {
+      transition: box-shadow 0.22s cubic-bezier(.4,0,.2,1), border-color 0.18s, background 0.18s, transform 0.22s cubic-bezier(.4,0,.2,1);
+    }
+    /* Button feedback */
+    .pedal-btn {
+      transition: background 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+      will-change: background, color, border-color, transform;
+    }
+    .pedal-btn:active {
+      background: #991b1b !important;
+      color: #fff !important;
+      border-color: #ef4444 !important;
+      transform: scale(0.97);
+    }
+    .pedal-btn:hover:not(:disabled) {
+      background: #1e293b !important;
+      color: #fff !important;
+      border-color: #ef4444 !important;
+      box-shadow: 0 2px 12px 0 #991b1b33;
+    }
+    /* Slight scale and shadow on card hover */
+    .pedal-card:hover, .pedal-thumb:hover {
+      box-shadow: 0 4px 32px 0 #991b1b22, 0 1.5px 8px 0 #0006;
+      border-color: #ef4444 !important;
+      background: #0f172a !important;
+      transform: translateY(-1px) scale(1.025);
+    }
+    /* Thumb aspect ratio for grid items */
+    .pedal-thumb-media {
+      aspect-ratio: 4/3;
+      width: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 0.75rem;
+      transition: transform 0.22s cubic-bezier(.4,0,.2,1), opacity 0.18s;
+    }
+    /* Responsive text sizing for legibility */
+    .pedal-text {
+      font-size: 1rem;
+    }
+    @media (max-width: 640px) {
+      .pedal-text {
+        font-size: 0.97rem;
+      }
+    }
+    /* Viewer modal: allow scroll on mobile but not on desktop */
+    @media (max-width: 640px) {
+      #viewerModal {
+        align-items: flex-start !important;
+        padding-top: 2.5rem !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
-  <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col gap-6">
+  <div class="pedal-container max-w-6xl mx-auto py-6 flex flex-col gap-6">
     <!-- Top App Bar -->
     <header class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500 to-yellow-400 flex items-center justify-center shadow-lg">
-          <span class="font-extrabold text-slate-950 text-lg">П</span>
+        <div class="w-12 h-12 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-red-500 to-yellow-400 flex items-center justify-center shadow-lg">
+          <span class="font-extrabold text-slate-950 text-xl sm:text-lg">П</span>
         </div>
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight pedal-text">
             П.Е.Д.А.Л.ш
           </h1>
           <p class="text-xs sm:text-sm text-slate-400">
@@ -44,23 +140,23 @@
     </header>
 
     <!-- Slogan -->
-    <p class="text-center text-sm sm:text-base text-slate-400 font-medium mt-1">
+    <p class="text-center text-sm sm:text-base text-slate-400 font-medium mt-1 pedal-text">
       Паркирай тук, стани част от П.Е.Д.А.Л.
     </p>
 
     <!-- Platform Buttons -->
     <div class="flex justify-center gap-4 mt-2">
-      <button class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold flex items-center gap-2 opacity-70 cursor-not-allowed">
-        🤖 Android <span class="text-[10px] text-slate-500">(Скоро)</span>
+      <button class="pedal-btn px-5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 text-base font-semibold flex items-center gap-2 opacity-70 cursor-not-allowed min-w-[120px]">
+        🤖 Android <span class="text-[11px] text-slate-500">(Скоро)</span>
       </button>
-      <button class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold flex items-center gap-2 opacity-70 cursor-not-allowed">
-        🍎 iOS <span class="text-[10px] text-slate-500">(Скоро)</span>
+      <button class="pedal-btn px-5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 text-base font-semibold flex items-center gap-2 opacity-70 cursor-not-allowed min-w-[120px]">
+        🍎 iOS <span class="text-[11px] text-slate-500">(Скоро)</span>
       </button>
     </div>
 
     <!-- Random Button and Last Uploaded -->
     <div class="flex justify-center mt-3">
-      <button id="randomBtn" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-700 transition-all">
+      <button id="randomBtn" class="pedal-btn px-5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 text-base font-semibold hover:bg-slate-700 transition-all min-w-[140px]">
         🎲 Случайна снимка
       </button>
     </div>
@@ -74,7 +170,7 @@
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
       <button
         id="backBtn"
-        class="hidden px-4 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-800 hover:text-white hover:border-red-500/60 transition-all flex items-center gap-2"
+        class="pedal-btn hidden px-5 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-700 text-slate-300 text-base font-medium hover:bg-slate-800 hover:text-white hover:border-red-500/60 transition-all flex items-center gap-2 min-w-[100px]"
         type="button"
       >
         <span class="text-lg">&larr;</span>
@@ -83,17 +179,20 @@
 
       <div class="flex-1">
         <div class="relative">
-          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
+          <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-base">
             🔍
           </span>
           <input
             id="searchInput"
             type="text"
             placeholder="Търси по регион (CB, E) или регистрационен номер (7072TH)..."
-            class="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/70 focus:border-red-500/70 transition-all"
+            class="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900/80 border border-slate-700 text-base text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/70 focus:border-red-500/70 transition-all"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
           />
         </div>
-        <p class="mt-1 text-[9px] text-slate-500">
+        <p class="mt-1 text-[10px] text-slate-500">
           Разгледай докладите по регион, след това по регистрационен номер. Натисни върху елемент, за да отвориш доказателствата.
         </p>
       </div>
@@ -113,6 +212,7 @@
       <div
         id="folderGrid"
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
+        style="min-height: 180px;"
       >
         <!-- Populated by JavaScript -->
       </div>
@@ -123,12 +223,16 @@
   <div
     id="viewerModal"
     class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 hidden"
+    tabindex="-1"
+    aria-modal="true"
+    role="dialog"
   >
     <div class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center px-4">
       <button
         id="viewerClose"
         type="button"
-        class="absolute top-4 right-6 bg-slate-900/90 border border-slate-600 text-slate-100 rounded-full px-3 py-1.5 text-xs font-semibold shadow-lg hover:bg-red-600 hover:border-red-400 hover:text-white transition-all"
+        class="pedal-btn absolute top-4 right-6 bg-slate-900/90 border border-slate-600 text-slate-100 rounded-full px-4 py-2 text-base font-semibold shadow-lg hover:bg-red-600 hover:border-red-400 hover:text-white transition-all"
+        style="min-width: 48px; min-height: 48px;"
       >
         ✕ Затвори
       </button>
@@ -147,6 +251,11 @@
     let currentRegion = null;
     let currentSubfolder = null;
 
+    // --- Configurable Storage Source ---
+    // Toggle between local and S3 storage (future AWS integration)
+    const useS3 = false; // set to true when connecting to S3
+    const s3BaseUrl = 'https://your-bucket-name.s3.eu-central-1.amazonaws.com';
+
     const folderGrid = document.getElementById('folderGrid');
     const backBtn = document.getElementById('backBtn');
     const searchInput = document.getElementById('searchInput');
@@ -163,6 +272,22 @@
           return await res.json();
         } catch {
           return null;
+        }
+      }
+
+      // If using S3, load from AWS directly
+      if (useS3) {
+        try {
+          const res = await fetch(`${s3BaseUrl}/index.json`);
+          if (res.ok) {
+            const s3Data = await res.json();
+            dataCache = s3Data.folders || {};
+            basePedaliPath = s3BaseUrl;
+            renderRegions();
+            return;
+          }
+        } catch (err) {
+          console.warn('S3 fetch failed, falling back to local:', err);
         }
       }
 
@@ -204,7 +329,7 @@
       const div = document.createElement('div');
       div.className =
         baseClasses ||
-        'group relative flex flex-col gap-1 p-3 sm:p-4 rounded-2xl bg-slate-900/85 border border-slate-800 hover:border-red-500/70 hover:bg-slate-900 shadow-sm hover:shadow-red-900/30 transition-all cursor-pointer overflow-hidden';
+        'pedal-card group relative flex flex-col gap-1 p-3 sm:p-4 rounded-2xl bg-slate-900/85 border border-slate-800 shadow-sm cursor-pointer overflow-hidden transition-all';
       return div;
     }
 
@@ -232,6 +357,7 @@
 
       regions.forEach((region) => {
         const card = createCard();
+        card.tabIndex = 0;
         const label = document.createElement('div');
         label.className =
           'text-[9px] uppercase tracking-[0.16em] text-slate-500';
@@ -251,6 +377,9 @@
         card.appendChild(hint);
 
         card.addEventListener('click', () => renderSubfolders(region));
+        card.addEventListener('keydown', (e) => {
+          if (e.key === "Enter" || e.key === " ") renderSubfolders(region);
+        });
         folderGrid.appendChild(card);
       });
     }
@@ -284,6 +413,7 @@
       subfolders.forEach((sub) => {
         const files = dataCache[region][sub] || [];
         const card = createCard();
+        card.tabIndex = 0;
 
         const plate = document.createElement('div');
         plate.className =
@@ -308,6 +438,9 @@
         card.appendChild(hint);
 
         card.addEventListener('click', () => renderFiles(region, sub));
+        card.addEventListener('keydown', (e) => {
+          if (e.key === "Enter" || e.key === " ") renderFiles(region, sub);
+        });
         folderGrid.appendChild(card);
       });
     }
@@ -333,11 +466,12 @@
 
         const card = document.createElement('div');
         card.className =
-          'relative group rounded-2xl bg-slate-900/95 border border-slate-800 overflow-hidden shadow-sm hover:shadow-red-900/40 transition-all cursor-pointer';
+          'pedal-thumb relative group rounded-2xl bg-slate-900/95 border border-slate-800 overflow-hidden shadow-sm cursor-pointer transition-all flex flex-col';
+        card.tabIndex = 0;
 
         const badge = document.createElement('div');
         badge.className =
-          'absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/75 text-[9px] text-red-300 border border-red-500/60 flex items-center gap-1';
+          'absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/75 text-[9px] text-red-300 border border-red-500/60 flex items-center gap-1 z-10';
         badge.innerHTML =
           '<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Доказателство';
         card.appendChild(badge);
@@ -348,29 +482,36 @@
           img.alt = file;
           img.loading = 'lazy';
           img.className =
-            'w-full h-40 sm:h-44 object-cover transform group-hover:scale-105 transition-all duration-300';
+            'pedal-thumb-media group-hover:scale-105';
           card.appendChild(img);
           card.addEventListener('click', () => openViewer('image', src));
+          card.addEventListener('keydown', (e) => {
+            if (e.key === "Enter" || e.key === " ") openViewer('image', src);
+          });
         } else if (['mp4', 'mov', 'webm'].includes(ext)) {
           const video = document.createElement('video');
           video.src = src;
           video.muted = true;
           video.loop = true;
           video.playsInline = true;
+          video.loading = "lazy";
           video.className =
-            'w-full h-40 sm:h-44 object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300';
+            'pedal-thumb-media opacity-90 group-hover:opacity-100 group-hover:scale-105';
           video.addEventListener('mouseenter', () => video.play());
           video.addEventListener('mouseleave', () => video.pause());
           card.appendChild(video);
 
           const playIcon = document.createElement('div');
           playIcon.className =
-            'absolute inset-0 flex items-center justify-center pointer-events-none';
+            'absolute inset-0 flex items-center justify-center pointer-events-none z-10';
           playIcon.innerHTML =
-            '<div class="w-9 h-9 rounded-full bg-black/65 border border-red-400 flex items-center justify-center text-red-400 text-xs font-bold group-hover:bg-red-600 group-hover:text-white group-hover:border-white transition-all">&#9658;</div>';
+            '<div class="w-11 h-11 rounded-full bg-black/65 border border-red-400 flex items-center justify-center text-red-400 text-lg font-bold group-hover:bg-red-600 group-hover:text-white group-hover:border-white transition-all">&#9658;</div>';
           card.appendChild(playIcon);
 
           card.addEventListener('click', () => openViewer('video', src));
+          card.addEventListener('keydown', (e) => {
+            if (e.key === "Enter" || e.key === " ") openViewer('video', src);
+          });
         } else {
           const p = document.createElement('p');
           p.textContent = file;
@@ -378,6 +519,9 @@
             'p-4 text-[10px] text-slate-300 break-all bg-slate-950/90';
           card.appendChild(p);
           card.addEventListener('click', () => openViewer('file', src));
+          card.addEventListener('keydown', (e) => {
+            if (e.key === "Enter" || e.key === " ") openViewer('file', src);
+          });
         }
 
         // --- Add date under thumbnail ---
@@ -415,6 +559,7 @@
       if (type === 'image') {
         const img = document.createElement('img');
         img.src = src;
+        img.loading = "lazy";
         img.className =
           'max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border border-slate-700';
         viewerContent.appendChild(img);
@@ -423,6 +568,7 @@
         video.src = src;
         video.controls = true;
         video.autoplay = true;
+        video.playsInline = true;
         video.className =
           'max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border border-slate-700';
         viewerContent.appendChild(video);
@@ -431,12 +577,16 @@
         link.href = src;
         link.target = '_blank';
         link.className =
-          'px-4 py-2 rounded-xl bg-slate-900 text-slate-100 border border-slate-600 text-sm';
+          'px-4 py-2 rounded-xl bg-slate-900 text-slate-100 border border-slate-600 text-base';
         link.textContent = 'Отвори файл';
         viewerContent.appendChild(link);
       }
 
       viewerModal.classList.remove('hidden');
+      // Focus close button for accessibility
+      setTimeout(() => {
+        viewerClose && viewerClose.focus();
+      }, 10);
     }
 
     function closeViewer() {
@@ -505,7 +655,7 @@
         const d = new Date(latest.time);
         const formatted = `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
         const html = `
-          <img src="${latest.src}" class="mx-auto rounded-lg shadow-lg w-48 h-48 object-cover cursor-pointer" onclick="openViewer('image','${latest.src}')">
+          <img src="${latest.src}" loading="lazy" class="mx-auto rounded-xl shadow-lg w-52 aspect-[4/3] object-cover cursor-pointer transition-all hover:scale-105" style="max-width:100%;height:auto;" onclick="openViewer('image','${latest.src}')">
           <p class="mt-1 text-xs text-slate-500">📅 ${formatted} — ${latest.region} / ${latest.plate}</p>
         `;
         document.getElementById('lastUploadedContent').innerHTML = html;
@@ -525,6 +675,10 @@
       openViewer('image', src);
     }
 
+    // To enable AWS S3 mode:
+    // 1. Set useS3 = true above.
+    // 2. Ensure your S3 bucket has public-read or Amplify Storage permissions.
+    // 3. index.json must exist at s3BaseUrl root.
     // --- Init ---
     async function initPedal() {
       await loadData();
