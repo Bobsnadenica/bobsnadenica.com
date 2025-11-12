@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dimitar &mdash; Cloud &amp; Mobile Engineer</title>
+  <meta name="description" content="Minimal, focused CV site for Dimitar &mdash; Cloud engineer and mobile developer." />
+  <style>
+    :root {
+      --bg: #050811;
+      --bg-soft: #0e1320;
+      --accent: #46c2ff;
+      --accent-soft: rgba(70, 194, 255, 0.08);
+      --text: #e9edf4;
+      --muted: #9aa4b8;
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.6);
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, -system-ui, sans-serif;
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at top, #19233a 0, var(--bg) 48%) fixed;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .cv-shell {
+      width: 100%;
+      max-width: 1120px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.88));
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 24px 22px;
+      backdrop-filter: blur(24px) saturate(140%);
+      display: grid;
+      grid-template-columns: minmax(0, 2.6fr) minmax(260px, 1.4fr);
+      gap: 22px;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 18px 10px;
+      }
+      .cv-shell {
+        grid-template-columns: 1fr;
+        padding: 18px 16px 16px;
+        border-radius: 24px;
+      }
+    }
+
+    /* Left column */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 14px 18px;
+      padding: 16px 16px 14px;
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top left, var(--accent-soft), transparent) border-box;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 0, var(--accent), #151b29);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 22px;
+      color: #050811;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+      flex-shrink: 0;
+    }
+
+    .headline {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .headline h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .headline span.role {
+      font-size: 13px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .headline span.tagline {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 520px;
+    }
+
+    .header-meta {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .header-meta a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(4, 8, 18, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .pill span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .section {
+      padding: 13px 14px 12px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top right, rgba(255,255,255,0.02), transparent),
+                  rgba(3, 6, 15, 0.96);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 18px;
+      height: 1px;
+      background: linear-gradient(to right, var(--accent), transparent);
+      border-radius: 999px;
+    }
+
+    .section p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .bullet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 6px 14px;
+      margin-top: 2px;
+    }
+
+    .bullet-label {
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .bullet-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: minmax(120px, 0.9fr) minmax(0, 2.4fr);
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .timeline-role {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .timeline-company {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .timeline-time {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .timeline-desc {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .projects-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .project-card {
+      padding: 8px 9px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(circle at top, var(--accent-soft), transparent), rgba(2, 6, 16, 0.98);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 11px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      cursor: default;
+    }
+
+    .project-card strong {
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .project-tag {
+      margin-top: 2px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+    }
+
+    .project-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Right column */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .right-block {
+      border-radius: var(--radius-lg);
+      padding: 11px 11px 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(3, 6, 14, 0.98);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .right-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .skill-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .chip {
+      padding: 4px 9px 5px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 10px;
+      color: var(--text);
+      background: rgba(7, 12, 24, 0.98);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .stack-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3px 10px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .mini-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .contact-line {
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .contact-line a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer-note {
+      margin-top: auto;
+      font-size: 9px;
+      color: var(--muted);
+      text-align: right;
+      opacity: 0.65;
+    }
+
+    /* Simple focus outline */
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <main class="cv-shell">
+    <!-- LEFT COLUMN -->
+    <section class="left-col">
+      <header class="header">
+        <div class="avatar">D</div>
+        <div class="headline">
+          <span class="role">Cloud &amp; Mobile Engineer</span>
+          <h1>Dimitar [Surname]</h1>
+          <span class="tagline">Designing, building and operating reliable cloud platforms and mobile apps &mdash; from VPC to App Store.</span>
+        </div>
+        <div class="header-meta">
+          <div class="pill"><span class="dot"></span><span>Open to selected projects</span></div>
+          <div>Based in Sofia, Bulgaria &bull; Remote friendly (EU/UK)</div>
+          <div>
+            <a href="mailto:you@example.com">you@example.com</a>
+            &nbsp;&mdash;&nbsp;
+            <a href="https://www.linkedin.com/in/your-handle" target="_blank" rel="noreferrer">LinkedIn</a>
+          </div>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section-title">Profile</div>
+        <p>
+          Cloud &amp; platform engineer with strong hands-on experience in AWS, Kubernetes and networking,
+          combined with practical mobile development (Flutter, iOS, Android). I focus on simple architectures,
+          clear observability, security by default, and products that actually ship.
+        </p>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Core strengths</div>
+        <div class="bullet-grid">
+          <div>
+            <div class="bullet-label">Cloud architecture</div>
+            <div class="bullet-sub">VPC, subnets, SG/NACL, ALB/NLB, EC2, ECS/EKS, RDS, S3, CloudFront.</div>
+          </div>
+          <div>
+            <div class="bullet-label">Platform &amp; automation</div>
+            <div class="bullet-sub">CI/CD, GitHub Actions, IaC, secure baselines, patching, golden images.</div>
+          </div>
+          <div>
+            <div class="bullet-label">Application delivery</div>
+            <div class="bullet-sub">Flutter apps (iOS/Android), APIs, authentication, monitoring, tracing.</div>
+          </div>
+          <div>
+            <div class="bullet-label">Reliability mindset</div>
+            <div class="bullet-sub">SLOs, alerting that matters, cost-aware designs, clear documentation.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Experience snapshot</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div>
+              <div class="timeline-role">Senior Cloud Engineer</div>
+              <div class="timeline-company">Company / Client Name</div>
+              <div class="timeline-time">2022 &mdash; Present</div>
+            </div>
+            <div class="timeline-desc">
+              Designed and operated secure AWS landing zones, automated patching flows, and observability for
+              production workloads. Partnered with teams to reduce toil and make deployments boring.
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div>
+              <div class="timeline-role">Cloud &amp; DevOps Engineer</div>
+              <div class="timeline-company">Company Name</div>
+              <div class="timeline-time">2019 &mdash; 2022</div>
+            </div>
+            <div class="timeline-desc">
+              Implemented CI/CD, containerized services, and improved security posture (IAM, KMS, WAF, backups)
+              across multiple teams.
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div>
+              <div class="timeline-role">Software / Mobile Engineer</div>
+              <div class="timeline-company">Earlier roles</div>
+              <div class="timeline-time">2016 &mdash; 2019</div>
+            </div>
+            <div class="timeline-desc">
+              Built internal tools and mobile apps, giving me end-to-end ownership from UI to infrastructure.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Selected work</div>
+        <div class="projects-list">
+          <div class="project-card">
+            <strong>Everyday Apps Suite</strong>
+            <div class="project-tag">Product &amp; Mobile</div>
+            <div>Concept, architecture and development of privacy-first Flutter apps (iOS &amp; Android) for journaling, media and storage.</div>
+          </div>
+          <div class="project-card">
+            <strong>AWS Landing Zone &amp; Platform</strong>
+            <div class="project-tag">Cloud Architecture</div>
+            <div>Multi-account setup, secure networking, observability, backups and guardrails for regulated workloads.</div>
+          </div>
+          <div class="project-card">
+            <strong>Automation &amp; Tooling</strong>
+            <div class="project-tag">DevEx</div>
+            <div>Internal console-style tools for IAM, logging and incident response to simplify complex AWS tasks.</div>
+          </div>
+          <div class="project-card">
+            <strong>Client projects</strong>
+            <div class="project-tag">Consulting</div>
+            <div>Helping teams design pragmatic architectures, cost optimizations and resilient deployments.</div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <aside class="right-col">
+      <div class="right-block">
+        <div class="right-label">Key skills</div>
+        <div class="skill-chips">
+          <div class="chip"><span class="dot"></span>AWS &amp; cloud networking</div>
+          <div class="chip"><span class="dot"></span>Kubernetes / containers</div>
+          <div class="chip"><span class="dot"></span>CI/CD &amp; GitHub Actions</div>
+          <div class="chip"><span class="dot"></span>Infrastructure as Code</div>
+          <div class="chip"><span class="dot"></span>Linux &amp; automation</div>
+          <div class="chip"><span class="dot"></span>Flutter (iOS / Android)</div>
+          <div class="chip"><span class="dot"></span>Observability &amp; logging</div>
+          <div class="chip"><span class="dot"></span>Security &amp; compliance aware</div>
+        </div>
+      </div>
+
+      <div class="right-block">
+        <div class="mini-title">Tech stack</div>
+        <div class="stack-list">
+          <div>AWS, Terraform, CloudFormation</div>
+          <div>VPC, ALB/NLB, Route53, VPN</div>
+          <div>EC2, ECS/EKS, Lambda</div>
+          <div>RDS, DynamoDB, S3, SQS/SNS</div>
+          <div>Prometheus, Grafana, CloudWatch</div>
+          <div>GitHub Actions, ArgoCD</div>
+          <div>Docker, Linux, Bash/Python</div>
+          <div>Flutter, Dart, REST/JSON</div>
+        </div>
+      </div>
+
+      <div class="right-block">
+        <div class="mini-title">Certs &amp; highlights</div>
+        <ul style="list-style:none; padding-left:0; margin:0; font-size:10px; color:var(--muted); display:flex; flex-direction:column; gap:3px;">
+          <li>&bull; AWS-focused engineer (Solution design, security, cost).</li>
+          <li>&bull; Experience with production incident response &amp; on-call.</li>
+          <li>&bull; Used to working with non-technical stakeholders.</li>
+          <li>&bull; Comfortable owning roadmaps end-to-end.</li>
+        </ul>
+      </div>
+
+      <div class="right-block">
+        <div class="mini-title">Contact</div>
+        <div class="contact-line">
+          Available for roles where I can design, harden and ship platforms or products.
+        </div>
+        <div class="contact-line">
+          Email: <a href="mailto:you@example.com">you@example.com</a>
+        </div>
+        <div class="contact-line">
+          LinkedIn / GitHub / Portfolio links here.
+        </div>
+      </div>
+
+      <div class="footer-note">
+        One clean page. No noise. Replace placeholders with your real details.
+      </div>
+    </aside>
+  </main>
+</body>
+</html>
