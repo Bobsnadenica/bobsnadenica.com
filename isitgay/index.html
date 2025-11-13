@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is it gay?</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0f0f0f, #1a1a1a, #111);
+        color: #fff;
+        text-align: center;
+        padding: 40px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        font-size: 2.8em;
+        margin-top: 10px;
+    }
+
+    #question-box {
+        margin-top: 40px;
+        background: #222;
+        padding: 30px;
+        border-radius: 12px;
+        display: inline-block;
+        max-width: 400px;
+        width: 90%;
+        position: relative;
+        touch-action: pan-y;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    #question-box::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        padding: 2px;
+        background: linear-gradient(135deg, #ff5faa, #00ffbf, #ffe600);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        -webkit-mask-composite: xor;
+        opacity: 0.2;
+        transition: opacity 0.4s ease;
+    }
+
+    #question-box:hover::before {
+        opacity: 0.45;
+    }
+
+
+    .card-animate {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    .card-animate.show {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    #meter {
+        margin-top: 20px;
+        width: 80%;
+        height: 20px;
+        background: #333;
+        border-radius: 10px;
+        margin-left: auto;
+        margin-right: auto;
+        overflow: hidden;
+        display: none;
+    }
+
+    #meter-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #0f0, #ff0, #f00, #ff00ff);
+        transition: width 1s ease-in-out;
+    }
+
+    #profile-bar {
+        margin-top: 25px;
+        width: 80%;
+        height: 14px;
+        background: #333;
+        border-radius: 8px;
+        margin-left: auto;
+        margin-right: auto;
+        overflow: hidden;
+    }
+
+    #profile-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #0ff, #0f0, #ff0, #f00, #ff00ff);
+        transition: width 0.8s ease-in-out;
+    }
+
+    #profile-text {
+        margin-top: 8px;
+        font-size: 0.9em;
+        opacity: 0.8;
+    }
+
+    #question-image {
+        width: 100%;
+        max-width: 300px;
+        border-radius: 10px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    button {
+        font-size: 1.2em;
+        padding: 12px 24px;
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #444;
+        color: #fff;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #666;
+    }
+
+    #result {
+        margin-top: 30px;
+        font-size: 2em;
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<h1 id="title-main" style="font-weight:800; letter-spacing:1.5px; text-shadow:0 6px 22px rgba(0,0,0,0.7); font-size:2.8em; margin-top:10px;">
+    Is it gay?
+</h1>
+<div id="lang-switch" style="margin-bottom:20px;">
+    <button onclick="setLang('en')" style="padding:6px 12px;">🇬🇧 English</button>
+    <button onclick="setLang('bg')" style="padding:6px 12px;">🇧🇬 Български</button>
+</div>
+<div id="profile-bar" style="margin-top:10px; width:300px; height:16px; background:#333; border-radius:10px; overflow:hidden;">
+    <div id="profile-fill" style="height:100%; width:0%; background:linear-gradient(90deg,#0ff,#0f0,#ff0,#f00,#ff00ff); transition:width 0.8s ease-in-out;"></div>
+</div>
+<div id="profile-text" style="margin-top:6px; font-size:1em; opacity:0.85;">Total gayness: 0%</div>
+
+<div id="question-box" 
+     class="card-animate"
+     ontouchstart="handleTouchStart(event)" 
+     ontouchmove="handleTouchMove(event)"
+     ontouchend="handleTouchEnd(event)"
+     onmousedown="handleMouseDown(event)"
+     onmousemove="handleMouseMove(event)"
+     onmouseup="handleMouseUp(event)"
+     onmouseleave="handleMouseUp(event)"
+>
+    <h2 id="question">Loading question...</h2>
+    <div id="swipe-hint-left" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:0; font-size:1.5em; color:#ff5080; text-shadow:0 0 14px rgba(255,80,128,0.7); pointer-events:none;">NO 👈</div>
+    <div id="swipe-hint-right" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); opacity:0; font-size:1.5em; color:#00ffb3; text-shadow:0 0 14px rgba(0,255,179,0.7); pointer-events:none;">👉 YES</div>
+    <img id="question-image" src="" alt="">
+
+    <button id="btn-yes" onclick="answer('yes')" style="display:none;">Yes</button>
+    <button id="btn-no" onclick="answer('no')" style="display:none;">No</button>
+
+    <div id="result" style="display:none;"></div>
+    <div id="meter"><div id="meter-fill"></div></div>
+</div>
+
+<div id="popup" style="display:none; opacity:0; transition:opacity 0.25s ease-out; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(30,30,30,0.9); padding:32px 46px; border-radius:20px; font-size:1.8em; z-index:999; box-shadow:0 25px 45px rgba(0,0,0,0.55); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.1);">
+    <span id="popup-text"></span>
+</div>
+
+<script>
+    let questionsEN = [];
+    let questionsBG = [];
+    let lang = 'en';
+    let totalPoints = 0;
+    let answeredQuestions = 0;
+    let yesNoResponses = { yes: [], no: [] };
+
+    // Tinder-style drag & release
+    let isDragging = false;
+    let dragStartX = null;
+    let dragStartY = null;
+    let lastDragX = null;
+    let lastDragY = null;
+    let isLocked = false;
+
+    function getCardElement() {
+        return document.getElementById("question-box");
+    }
+
+    function startDrag(x, y) {
+        if (isLocked) return;
+        isDragging = true;
+        dragStartX = x;
+        dragStartY = y;
+        lastDragX = x;
+        lastDragY = y;
+        const card = getCardElement();
+        card.style.transition = "none";
+    }
+
+    function moveDrag(x, y) {
+        if (!isDragging) return;
+        lastDragX = x;
+        lastDragY = y;
+        const dx = x - dragStartX;
+        const rotation = dx / 20;
+        const card = getCardElement();
+
+        card.style.transform = `translateX(${dx}px) rotate(${rotation}deg)`;
+
+        const hintLeft = document.getElementById("swipe-hint-left");
+        const hintRight = document.getElementById("swipe-hint-right");
+
+        const show = Math.min(Math.abs(dx) / 120, 1);
+
+        if (dx < 0) {
+            hintLeft.style.opacity = show;
+            hintRight.style.opacity = 0;
+        } else {
+            hintRight.style.opacity = show;
+            hintLeft.style.opacity = 0;
+        }
+
+        const intensity = Math.min(Math.abs(dx) / 150, 1);
+        if (dx > 0) {
+            card.style.boxShadow = `0 18px 40px rgba(0, 255, 170, ${0.2 + intensity * 0.4})`;
+        } else if (dx < 0) {
+            card.style.boxShadow = `0 18px 40px rgba(255, 60, 130, ${0.2 + intensity * 0.4})`;
+        } else {
+            card.style.boxShadow = "0 12px 30px rgba(0, 0, 0, 0.4)";
+        }
+    }
+
+    function endDrag(x, y) {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const card = getCardElement();
+        const dx = x - dragStartX;
+        const threshold = 80;
+
+        if (Math.abs(dx) > threshold && !isLocked) {
+            const direction = dx > 0 ? "yes" : "no";
+            const offscreenX = dx > 0 ? window.innerWidth : -window.innerWidth;
+
+            card.style.transition = "transform 0.25s ease-out, box-shadow 0.25s ease-out";
+            card.style.transform = `translateX(${offscreenX}px) rotate(${dx > 0 ? 20 : -20}deg)`;
+
+            setTimeout(() => {
+                // Reset for next card; answer() will trigger popup + new question
+                card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+                card.style.transform = "translateX(0) rotate(0deg)";
+                card.style.boxShadow = "0 12px 30px rgba(0, 0, 0, 0.4)";
+                answer(direction);
+            }, 220);
+        } else {
+            // Not enough swipe -> snap back
+            card.style.transition = "transform 0.2s ease-out, box-shadow 0.2s ease-out";
+            card.style.transform = "translateX(0) rotate(0deg)";
+            card.style.boxShadow = "0 12px 30px rgba(0, 0, 0, 0.4)";
+            setTimeout(() => {
+                card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+            }, 220);
+        }
+        document.getElementById("swipe-hint-left").style.opacity = 0;
+        document.getElementById("swipe-hint-right").style.opacity = 0;
+    }
+
+    // Touch wrappers
+    function handleTouchStart(evt) {
+        const t = evt.touches[0];
+        startDrag(t.clientX, t.clientY);
+    }
+
+    function handleTouchMove(evt) {
+        if (!isDragging) return;
+        const t = evt.touches[0];
+        moveDrag(t.clientX, t.clientY);
+    }
+
+    function handleTouchEnd(evt) {
+        if (dragStartX === null || dragStartY === null) return;
+        endDrag(lastDragX ?? dragStartX, lastDragY ?? dragStartY);
+    }
+
+    // Mouse wrappers (desktop)
+    function handleMouseDown(evt) {
+        startDrag(evt.clientX, evt.clientY);
+    }
+
+    function handleMouseMove(evt) {
+        if (!isDragging) return;
+        moveDrag(evt.clientX, evt.clientY);
+    }
+
+    function handleMouseUp(evt) {
+        if (!dragStartX && !dragStartY) return;
+        endDrag(evt.clientX, evt.clientY);
+    }
+
+    function loadQuestions() {
+        fetch('questions.json')
+            .then(r => r.json())
+            .then(data => {
+                questionsEN = data.questions_en;
+                questionsBG = data.questions_bg;
+                return fetch('yes_no.json');
+            })
+            .then(r => r.json())
+            .then(responses => {
+                yesNoResponses = responses;
+                loadRandomQuestion();
+            })
+            .catch(err => {
+                console.error("Failed to load questions or responses:", err);
+                const qEl = document.getElementById("question");
+                if (qEl) {
+                    qEl.textContent = "Error loading questions.";
+                }
+            });
+    }
+
+    function setLang(l) {
+        lang = l;
+
+        const yesBtn = document.getElementById("btn-yes");
+        const noBtn = document.getElementById("btn-no");
+
+        if (lang === 'bg') {
+            yesBtn.textContent = "Да";
+            noBtn.textContent = "Не";
+            document.getElementById("profile-text").textContent = "Обща гейност: 0%";
+        } else {
+            yesBtn.textContent = "Yes";
+            noBtn.textContent = "No";
+            document.getElementById("profile-text").textContent = "Total gayness: 0%";
+        }
+
+        document.getElementById("title-main").textContent =
+            lang === 'bg' ? "Гей ли е?" : "Is it gay?";
+
+        document.getElementById("swipe-hint-left").textContent =
+            lang === 'bg' ? "НЕ 👈" : "NO 👈";
+
+        document.getElementById("swipe-hint-right").textContent =
+            lang === 'bg' ? "👉 ДА" : "👉 YES";
+
+        loadRandomQuestion();
+    }
+
+    function getList() {
+        return lang === 'en' ? questionsEN : questionsBG;
+    }
+
+    function resetButtons() {
+        document.getElementById("btn-yes").disabled = false;
+        document.getElementById("btn-no").disabled = false;
+    }
+
+    function loadRandomQuestion() {
+        isLocked = false;
+
+        const box = document.getElementById("question-box");
+        box.style.transform = "translateX(0) rotate(0deg)";
+        box.style.boxShadow = "0 12px 30px rgba(0, 0, 0, 0.4)";
+        box.classList.remove("show");
+        void box.offsetWidth;
+        box.classList.add("show");
+
+        const list = getList();
+        if (list.length === 0) return;
+        const q = list[Math.floor(Math.random() * list.length)];
+
+        document.getElementById("question").textContent = q.text;
+        window.currentPointsYes = q.points_yes || 0;
+        window.currentPointsNo = q.points_no || 100;
+
+        const img = document.getElementById("question-image");
+        if (q.image) {
+            img.src = "pictures/" + q.image;
+            img.style.display = "block";
+        } else {
+            img.style.display = "none";
+        }
+
+        document.getElementById("result").style.display = "none";
+        document.getElementById("meter").style.display = "none";
+        document.getElementById("meter-fill").style.width = "0%";
+
+        resetButtons();
+    }
+
+    function updateProfileBar() {
+        // totalPoints now maps to max 1000 → 100%
+        let percent = Math.min(100, Math.floor((totalPoints / 1000) * 100));
+        const fillEl = document.getElementById("profile-fill");
+        const textEl = document.getElementById("profile-text");
+        if (fillEl) {
+            fillEl.style.width = percent + "%";
+        }
+        if (textEl) {
+            textEl.textContent = (lang === 'bg' ? "Обща гейност: " : "Total gayness: ") + percent + "%";
+        }
+
+        // Dynamic background changes
+        const body = document.body;
+        if (percent < 20) {
+            body.style.background = "linear-gradient(135deg, #0f0f0f, #1a1a1a, #111)";
+        } else if (percent < 40) {
+            body.style.background = "linear-gradient(135deg, #112233, #223344, #334455)";
+        } else if (percent < 60) {
+            body.style.background = "linear-gradient(135deg, #331144, #552277, #663388)";
+        } else if (percent < 80) {
+            body.style.background = "linear-gradient(135deg, #550044, #aa0066, #ff0099)";
+        } else {
+            body.style.background = "linear-gradient(135deg, #ff0088, #ff33aa, #ff66cc)";
+        }
+    }
+
+    function answer(choice) {
+        if (isLocked) return;
+        isLocked = true;
+
+        const result = document.getElementById("result");
+        const meter = document.getElementById("meter");
+        const fill = document.getElementById("meter-fill");
+
+        result.style.display = "block";
+        meter.style.display = "block";
+
+        document.getElementById("btn-yes").disabled = true;
+        document.getElementById("btn-no").disabled = true;
+
+        let list = choice === 'yes' ? yesNoResponses.yes : yesNoResponses.no;
+        let randomResponse = "OK";
+        if (Array.isArray(list) && list.length > 0) {
+            randomResponse = list[Math.floor(Math.random() * list.length)];
+        }
+
+        document.getElementById("popup-text").textContent = randomResponse;
+        const popup = document.getElementById("popup");
+        popup.style.display = "block";
+        setTimeout(() => { popup.style.opacity = 1; }, 20);
+
+        setTimeout(() => {
+            popup.style.opacity = 0;
+            setTimeout(() => { popup.style.display = "none"; }, 250);
+        }, 1500);
+
+        if (choice === 'yes') {
+            fill.style.width = "0%";
+            totalPoints += currentPointsYes;
+        } else {
+            fill.style.width = "100%";
+            totalPoints += currentPointsNo;
+        }
+
+        answeredQuestions++;
+        updateProfileBar();
+
+        setTimeout(() => {
+            loadRandomQuestion();
+        }, 1600);
+    }
+
+    loadQuestions();
+</script>
+
+</body>
+</html>
