@@ -69,55 +69,16 @@
         opacity: 1;
     }
 
-    #meter {
-        margin-top: 20px;
-        width: 80%;
-        height: 20px;
-        background: #333;
-        border-radius: 10px;
-        margin-left: auto;
-        margin-right: auto;
-        overflow: hidden;
-        display: none;
-    }
-
-    #meter-fill {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #0f0, #ff0, #f00, #ff00ff);
-        transition: width 1s ease-in-out;
-    }
-
-    #profile-bar {
-        margin-top: 25px;
-        width: 80%;
-        height: 14px;
-        background: #333;
-        border-radius: 8px;
-        margin-left: auto;
-        margin-right: auto;
-        overflow: hidden;
-    }
-
-    #profile-fill {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #0ff, #0f0, #ff0, #f00, #ff00ff);
-        transition: width 0.8s ease-in-out;
-    }
-
-    #profile-text {
-        margin-top: 8px;
-        font-size: 0.9em;
-        opacity: 0.8;
-    }
 
     #question-image {
         width: 100%;
         max-width: 300px;
+        max-height: 45vh;
         border-radius: 10px;
-        margin-top: 15px;
+        margin: 25px auto 0 auto;
         display: none;
+        object-fit: cover;
+        object-position: center 10%;
     }
 
     button {
@@ -136,10 +97,39 @@
         background: #666;
     }
 
-    #result {
-        margin-top: 30px;
-        font-size: 2em;
-        display: none;
+    #profile-vertical {
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255,255,255,0.14);
+        backdrop-filter: blur(10px);
+    }
+
+    #profile-vertical-text {
+        text-shadow: 0 0 14px rgba(0,0,0,0.8);
+        max-width: 180px;
+        text-align: right;
+        line-height: 1.3;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 24px 12px;
+        }
+        h1 {
+            font-size: 2.2em;
+            margin-top: 4px;
+        }
+        #question-box {
+            margin-top: 24px;
+            padding: 20px 16px;
+        }
+        #profile-vertical {
+            right: 10px;
+            height: 220px;
+        }
+        #profile-vertical-text {
+            right: 52px;
+            font-size: 0.95em;
+        }
     }
 </style>
 </head>
@@ -148,14 +138,19 @@
 <h1 id="title-main" style="font-weight:800; letter-spacing:1.5px; text-shadow:0 6px 22px rgba(0,0,0,0.7); font-size:2.8em; margin-top:10px;">
     Is it gay?
 </h1>
-<div id="lang-switch" style="margin-bottom:20px;">
-    <button onclick="setLang('en')" style="padding:6px 12px;">🇬🇧 English</button>
-    <button onclick="setLang('bg')" style="padding:6px 12px;">🇧🇬 Български</button>
+<div id="profile-vertical" style="position:fixed; right:20px; top:50%; transform:translateY(-50%); width:22px; height:320px; background:rgba(15,15,15,0.9); border-radius:14px; overflow:hidden; z-index:50; box-shadow:0 12px 32px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(10px);">
+    <div id="gay-ticks" style="position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none;">
+        <div style="position:absolute; bottom:0%; width:100%; height:2px; background:rgba(255,255,255,0.35);"></div>
+        <div style="position:absolute; bottom:25%; width:100%; height:2px; background:rgba(255,255,255,0.25);"></div>
+        <div style="position:absolute; bottom:50%; width:100%; height:2px; background:rgba(255,255,255,0.25);"></div>
+        <div style="position:absolute; bottom:75%; width:100%; height:2px; background:rgba(255,255,255,0.25);"></div>
+        <div style="position:absolute; bottom:100%; width:100%; height:2px; background:rgba(255,255,255,0.45);"></div>
+    </div>
+    <div id="profile-vertical-fill" style="width:100%; height:0%; background:linear-gradient(180deg,#0ff,#0f0,#ff0,#f00,#ff00ff); transition:height 0.8s ease-in-out;"></div>
 </div>
-<div id="profile-bar" style="margin-top:10px; width:300px; height:16px; background:#333; border-radius:10px; overflow:hidden;">
-    <div id="profile-fill" style="height:100%; width:0%; background:linear-gradient(90deg,#0ff,#0f0,#ff0,#f00,#ff00ff); transition:width 0.8s ease-in-out;"></div>
+<div id="profile-vertical-text" style="position:fixed; right:60px; top:50%; transform:translateY(-50%); font-size:1.1em; opacity:0.9; text-shadow:0 0 14px rgba(0,0,0,0.7); max-width:180px; text-align:right;">
+    Total gayness: 0%
 </div>
-<div id="profile-text" style="margin-top:6px; font-size:1em; opacity:0.85;">Total gayness: 0%</div>
 
 <div id="question-box" 
      class="card-animate"
@@ -171,12 +166,6 @@
     <div id="swipe-hint-left" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:0; font-size:1.5em; color:#ff5080; text-shadow:0 0 14px rgba(255,80,128,0.7); pointer-events:none;">NO 👈</div>
     <div id="swipe-hint-right" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); opacity:0; font-size:1.5em; color:#00ffb3; text-shadow:0 0 14px rgba(0,255,179,0.7); pointer-events:none;">👉 YES</div>
     <img id="question-image" src="" alt="">
-
-    <button id="btn-yes" onclick="answer('yes')" style="display:none;">Yes</button>
-    <button id="btn-no" onclick="answer('no')" style="display:none;">No</button>
-
-    <div id="result" style="display:none;"></div>
-    <div id="meter"><div id="meter-fill"></div></div>
 </div>
 
 <div id="popup" style="display:none; opacity:0; transition:opacity 0.25s ease-out; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(30,30,30,0.9); padding:32px 46px; border-radius:20px; font-size:1.8em; z-index:999; box-shadow:0 25px 45px rgba(0,0,0,0.55); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.1);">
@@ -185,11 +174,13 @@
 
 <script>
     let questionsEN = [];
-    let questionsBG = [];
-    let lang = 'en';
     let totalPoints = 0;
     let answeredQuestions = 0;
     let yesNoResponses = { yes: [], no: [] };
+    let usedQuestions = new Set();
+    const gayFinale = new Audio("azis.mp3");
+    gayFinale.volume = 1.0;
+    let gayFinaleStarted = false;
 
     // Tinder-style drag & release
     let isDragging = false;
@@ -219,10 +210,11 @@
         lastDragX = x;
         lastDragY = y;
         const dx = x - dragStartX;
-        const rotation = dx / 20;
+        const rotation = dx / 25;
         const card = getCardElement();
 
-        card.style.transform = `translateX(${dx}px) rotate(${rotation}deg)`;
+        const scale = 1 + Math.min(Math.abs(dx) / 600, 0.05);
+        card.style.transform = `translateX(${dx}px) rotate(${rotation}deg) scale(${scale})`;
 
         const hintLeft = document.getElementById("swipe-hint-left");
         const hintRight = document.getElementById("swipe-hint-right");
@@ -253,7 +245,7 @@
 
         const card = getCardElement();
         const dx = x - dragStartX;
-        const threshold = 80;
+        const threshold = 70;
 
         if (Math.abs(dx) > threshold && !isLocked) {
             const direction = dx > 0 ? "yes" : "no";
@@ -319,7 +311,6 @@
             .then(r => r.json())
             .then(data => {
                 questionsEN = data.questions_en;
-                questionsBG = data.questions_bg;
                 return fetch('yes_no.json');
             })
             .then(r => r.json())
@@ -336,41 +327,30 @@
             });
     }
 
-    function setLang(l) {
-        lang = l;
-
-        const yesBtn = document.getElementById("btn-yes");
-        const noBtn = document.getElementById("btn-no");
-
-        if (lang === 'bg') {
-            yesBtn.textContent = "Да";
-            noBtn.textContent = "Не";
-            document.getElementById("profile-text").textContent = "Обща гейност: 0%";
-        } else {
-            yesBtn.textContent = "Yes";
-            noBtn.textContent = "No";
-            document.getElementById("profile-text").textContent = "Total gayness: 0%";
+    function launchConfetti() {
+        const body = document.body;
+        for (let i = 0; i < 20; i++) {
+            const c = document.createElement("div");
+            c.style.position = "fixed";
+            c.style.width = "8px";
+            c.style.height = "8px";
+            c.style.background = `hsl(${Math.random()*360}, 90%, 60%)`;
+            c.style.top = "-10px";
+            c.style.left = (Math.random() * window.innerWidth) + "px";
+            c.style.opacity = "0.9";
+            c.style.transform = "translateY(0)";
+            c.style.transition = "transform 1.4s ease-out, opacity 1.4s ease-out";
+            body.appendChild(c);
+            requestAnimationFrame(() => {
+                c.style.transform = "translateY(120vh)";
+                c.style.opacity = "0";
+            });
+            setTimeout(() => c.remove(), 1500);
         }
-
-        document.getElementById("title-main").textContent =
-            lang === 'bg' ? "Гей ли е?" : "Is it gay?";
-
-        document.getElementById("swipe-hint-left").textContent =
-            lang === 'bg' ? "НЕ 👈" : "NO 👈";
-
-        document.getElementById("swipe-hint-right").textContent =
-            lang === 'bg' ? "👉 ДА" : "👉 YES";
-
-        loadRandomQuestion();
     }
 
     function getList() {
-        return lang === 'en' ? questionsEN : questionsBG;
-    }
-
-    function resetButtons() {
-        document.getElementById("btn-yes").disabled = false;
-        document.getElementById("btn-no").disabled = false;
+        return questionsEN;
     }
 
     function loadRandomQuestion() {
@@ -385,7 +365,17 @@
 
         const list = getList();
         if (list.length === 0) return;
-        const q = list[Math.floor(Math.random() * list.length)];
+
+        if (usedQuestions.size === list.length) {
+            usedQuestions.clear();
+        }
+
+        let q;
+        do {
+            q = list[Math.floor(Math.random() * list.length)];
+        } while (usedQuestions.has(q.text) && usedQuestions.size < list.length);
+
+        usedQuestions.add(q.text);
 
         document.getElementById("question").textContent = q.text;
         window.currentPointsYes = q.points_yes || 0;
@@ -398,29 +388,35 @@
         } else {
             img.style.display = "none";
         }
-
-        document.getElementById("result").style.display = "none";
-        document.getElementById("meter").style.display = "none";
-        document.getElementById("meter-fill").style.width = "0%";
-
-        resetButtons();
     }
 
     function updateProfileBar() {
         // totalPoints now maps to max 1000 → 100%
         let percent = Math.min(100, Math.floor((totalPoints / 1000) * 100));
-        const fillEl = document.getElementById("profile-fill");
-        const textEl = document.getElementById("profile-text");
+        const fillEl = document.getElementById("profile-vertical-fill");
+        const textEl = document.getElementById("profile-vertical-text");
         if (fillEl) {
-            fillEl.style.width = percent + "%";
+            fillEl.style.height = percent + "%";
+            if (percent === 25 || percent === 50 || percent === 75) {
+                launchConfetti();
+            }
+            if (percent === 100 && !gayFinaleStarted) {
+                launchConfetti();
+                gayFinaleStarted = true;
+                gayFinale.currentTime = 0;
+                gayFinale.loop = true;
+                gayFinale.play();
+            }
         }
         if (textEl) {
-            textEl.textContent = (lang === 'bg' ? "Обща гейност: " : "Total gayness: ") + percent + "%";
+            textEl.textContent = "Total gayness: " + percent + "%";
         }
 
-        // Dynamic background changes
         const body = document.body;
-        if (percent < 20) {
+
+        if (percent >= 90) {
+            body.style.background = "url('gay.jpg') center center / cover no-repeat fixed";
+        } else if (percent < 20) {
             body.style.background = "linear-gradient(135deg, #0f0f0f, #1a1a1a, #111)";
         } else if (percent < 40) {
             body.style.background = "linear-gradient(135deg, #112233, #223344, #334455)";
@@ -437,42 +433,40 @@
         if (isLocked) return;
         isLocked = true;
 
-        const result = document.getElementById("result");
-        const meter = document.getElementById("meter");
-        const fill = document.getElementById("meter-fill");
-
-        result.style.display = "block";
-        meter.style.display = "block";
-
-        document.getElementById("btn-yes").disabled = true;
-        document.getElementById("btn-no").disabled = true;
-
         let list = choice === 'yes' ? yesNoResponses.yes : yesNoResponses.no;
         let randomResponse = "OK";
         if (Array.isArray(list) && list.length > 0) {
             randomResponse = list[Math.floor(Math.random() * list.length)];
         }
 
-        document.getElementById("popup-text").textContent = randomResponse;
         const popup = document.getElementById("popup");
+        document.getElementById("popup-text").textContent = randomResponse;
         popup.style.display = "block";
-        setTimeout(() => { popup.style.opacity = 1; }, 20);
+        popup.style.transition = "opacity 0.25s ease-out, transform 0.25s ease-out";
+        popup.style.transform = "translate(-50%, -50%) scale(0.9)";
+        popup.style.opacity = 0;
 
         setTimeout(() => {
-            popup.style.opacity = 0;
-            setTimeout(() => { popup.style.display = "none"; }, 250);
-        }, 1500);
+            popup.style.opacity = 1;
+            popup.style.transform = "translate(-50%, -50%) scale(1)";
+        }, 20);
 
         if (choice === 'yes') {
-            fill.style.width = "0%";
             totalPoints += currentPointsYes;
         } else {
-            fill.style.width = "100%";
             totalPoints += currentPointsNo;
         }
 
         answeredQuestions++;
         updateProfileBar();
+
+        setTimeout(() => {
+            popup.style.opacity = 0;
+            popup.style.transform = "translate(-50%, -50%) scale(0.9)";
+            setTimeout(() => {
+                popup.style.display = "none";
+            }, 250);
+        }, 1500);
 
         setTimeout(() => {
             loadRandomQuestion();
