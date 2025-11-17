@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dimitar Todorov &mdash; CloudOps Engineer</title>
-  <meta name="description" content="Minimal, focused CV site for Dimitar &mdash; Cloud engineer and mobile developer." />
+  <meta name="description" content="Minimal, focused CV site for Dimitar Todorov — CloudOps engineer with AWS, Kubernetes and automation experience." />
   <style>
     :root {
       --bg: #050811;
@@ -13,11 +13,11 @@
       --accent-soft: rgba(70, 194, 255, 0.08);
       --text: #e9edf4;
       --muted: #9aa4b8;
-      --border-subtle: rgba(255, 255, 255, 0.04);
-      --radius-xl: 24px;
-      --radius-lg: 18px;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
       --radius-md: 12px;
-      --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.6);
+      --shadow-soft: 0 26px 80px rgba(0, 0, 0, 0.75);
       --font-sans: system-ui, -apple-system, BlinkMacSystemFont, -system-ui, sans-serif;
       --transition-fast: 0.18s ease-out;
     }
@@ -32,13 +32,15 @@
       min-height: 100vh;
       margin: 0;
       font-family: var(--font-sans);
-      background: radial-gradient(circle at top, #19233a 0, var(--bg) 48%) fixed;
+      background:
+        radial-gradient(circle at top, #1b2640 0, var(--bg) 50%) fixed;
       color: var(--text);
       display: flex;
       justify-content: center;
       padding: 32px 16px;
     }
 
+    /* Animated ambient gradients */
     body::before {
       content: "";
       position: fixed;
@@ -47,26 +49,42 @@
       width: 140%;
       height: 140%;
       background: radial-gradient(circle at center, rgba(70,194,255,0.12), transparent 60%);
-      animation: pulseGlow 6s ease-in-out infinite;
+      animation: pulseGlow 7s ease-in-out infinite;
       pointer-events: none;
       z-index: -1;
     }
 
+    body::after {
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at 18% 78%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(circle at 82% 18%, rgba(255,255,255,0.04), transparent 60%);
+      animation: gradientShift 14s ease-in-out infinite alternate;
+      z-index:-2;
+    }
+
     @keyframes pulseGlow {
-      0% { opacity: 0.18; transform: scale(1); }
-      50% { opacity: 0.28; transform: scale(1.08); }
+      0%   { opacity: 0.18; transform: scale(1); }
+      50%  { opacity: 0.28; transform: scale(1.06); }
       100% { opacity: 0.18; transform: scale(1); }
+    }
+
+    @keyframes gradientShift {
+      0%   { transform: translateY(0px);   opacity: 0.35; }
+      100% { transform: translateY(-26px); opacity: 0.55; }
     }
 
     .cv-shell {
       width: 100%;
       max-width: 1120px;
-      background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(0,0,0,0.88));
+      background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(2,4,12,0.95));
       border-radius: 32px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.10);
       box-shadow: var(--shadow-soft);
-      padding: 24px 24px 22px;
-      backdrop-filter: blur(24px) saturate(140%);
+      padding: 24px 24px 20px;
+      backdrop-filter: blur(26px) saturate(140%);
       display: grid;
       grid-template-columns: minmax(0, 2.6fr) minmax(260px, 1.4fr);
       gap: 22px;
@@ -97,23 +115,33 @@
       gap: 14px 18px;
       padding: 16px 16px 14px;
       border-radius: var(--radius-xl);
-      background: radial-gradient(circle at top left, var(--accent-soft), transparent) border-box;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.06), rgba(2,4,10,0.96));
       border: 1px solid var(--border-subtle);
     }
 
+    /* Gradient avatar badge (no letter) */
     .avatar {
-      width: 54px;
-      height: 54px;
-      border-radius: 18px;
-      background: radial-gradient(circle at 30% 0, var(--accent), #151b29);
+      width: 56px;
+      height: 56px;
+      border-radius: 20px;
+      background: conic-gradient(from 210deg, #46c2ff, #7ee3ff, #f3fbff, #46c2ff);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 22px;
-      color: #050811;
-      box-shadow: 0 0 18px rgba(70,194,255,0.45), 0 12px 28px rgba(0,0,0,0.55);
+      position: relative;
+      box-shadow: 0 16px 40px rgba(70,194,255,0.55);
+      overflow: hidden;
       flex-shrink: 0;
+    }
+
+    .avatar::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 0, #fdfefe, #141a28);
+      opacity: 0.96;
     }
 
     .headline {
@@ -128,21 +156,24 @@
       font-weight: 600;
       letter-spacing: 0.02em;
       position: relative;
+      margin-bottom: 18px;
     }
 
     .headline h1::after {
       content: "";
       position: absolute;
-      bottom: -6px;
+      bottom: -8px;
       left: 0;
       width: 0%;
       height: 2px;
       background: var(--accent);
+      border-radius: 999px;
       animation: underlineReveal 1.4s ease-out forwards;
     }
+
     @keyframes underlineReveal {
       from { width: 0%; }
-      to { width: 42%; }
+      to   { width: 40%; }
     }
 
     .headline span.role {
@@ -156,6 +187,7 @@
       font-size: 13px;
       color: var(--muted);
       max-width: 520px;
+      margin-top: 9px;
     }
 
     .header-meta {
@@ -176,7 +208,7 @@
     .pill {
       padding: 3px 9px;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.10);
       font-size: 10px;
       color: var(--accent);
       text-transform: uppercase;
@@ -200,8 +232,9 @@
       padding: 13px 14px 12px;
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-subtle);
-      background: radial-gradient(circle at top right, rgba(255,255,255,0.02), transparent),
-                  rgba(3, 6, 15, 0.96);
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent),
+        rgba(3, 6, 15, 0.96);
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -291,22 +324,27 @@
 
     .projects-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       gap: 10px;
       margin-top: 2px;
+      perspective: 900px;
     }
 
     .project-card {
       padding: 8px 9px;
       border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: radial-gradient(circle at top, var(--accent-soft), transparent), rgba(2, 6, 16, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background:
+        radial-gradient(circle at top, var(--accent-soft), transparent),
+        rgba(2, 6, 16, 0.98);
       display: flex;
       flex-direction: column;
       gap: 2px;
       font-size: 11px;
       transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
       cursor: default;
+      transform-style: preserve-3d;
+      transform-origin: center;
     }
 
     .project-card strong {
@@ -323,9 +361,9 @@
     }
 
     .project-card:hover {
-      transform: translateY(-2px);
+      transform: perspective(900px) rotateX(6deg) rotateY(-4deg) translateY(-4px);
       border-color: var(--accent);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.9);
     }
 
     /* Right column */
@@ -358,40 +396,6 @@
       color: var(--muted);
     }
 
-    .skill-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 2px;
-    }
-
-    .chip {
-      padding: 4px 9px 5px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      font-size: 10px;
-      color: var(--text);
-      background: rgba(7, 12, 24, 0.98);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .chip span.dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .stack-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 3px 10px;
-      font-size: 10px;
-      color: var(--muted);
-    }
-
     .mini-title {
       font-size: 10px;
       text-transform: uppercase;
@@ -400,6 +404,59 @@
       margin-bottom: 2px;
     }
 
+    .footer-note {
+      margin-top: auto;
+      font-size: 9px;
+      color: var(--muted);
+      text-align: right;
+      opacity: 0.65;
+    }
+
+    /* Skill blocks with animated bars */
+    .skill-block {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 100%;
+    }
+
+    .skill-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .skill-name {
+      color: var(--text);
+    }
+
+    .skill-level {
+      opacity: 0.8;
+    }
+
+    .skill-bar-track {
+      width: 100%;
+      background: #0a0f1a;
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .skill-bar-fill {
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #9ae6ff);
+      width: 0%;
+      animation: fillBar 1.4s forwards ease-out;
+    }
+
+    @keyframes fillBar {
+      from { width: 0%; }
+      to   { width: var(--level, 80%); }
+    }
+
+    /* Contact line */
     .contact-line {
       font-size: 10px;
       color: var(--muted);
@@ -413,12 +470,82 @@
       text-decoration: none;
     }
 
-    .footer-note {
-      margin-top: auto;
+    /* Copy email button */
+    .copy-btn {
+      background: rgba(7,12,24,0.96);
+      border: 1px solid var(--accent);
+      color: var(--accent);
       font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      cursor: pointer;
+      margin-left: 6px;
+      transition: background 0.15s ease-out, color 0.15s ease-out, transform 0.1s ease-out;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent);
+      color: #050811;
+      transform: translateY(-1px);
+    }
+
+    /* Fade-in on load */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(14px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Collapsible sections */
+    .section-toggle,
+    .right-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+    }
+
+    .section-toggle .section-title,
+    .right-toggle .right-label {
+      pointer-events: none;
+    }
+
+    .section-chevron {
+      font-size: 11px;
       color: var(--muted);
-      text-align: right;
-      opacity: 0.65;
+      transition: transform 0.2s ease-out;
+    }
+
+    .section-toggle.collapsed .section-chevron,
+    .right-toggle.collapsed .section-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .section-content,
+    .block-content {
+      max-height: 800px;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out, opacity 0.25s ease-out, margin-top 0.25s ease-out;
+      opacity: 1;
+      margin-top: 6px;
+    }
+
+    .section-content.collapsed,
+    .block-content.collapsed {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
     }
 
     /* Simple focus outline */
@@ -426,23 +553,54 @@
       outline: 2px solid var(--accent);
       outline-offset: 3px;
     }
-    .fade-in {
-      opacity: 0;
-      transform: translateY(14px);
-      animation: fadeInUp 0.8s ease-out forwards;
+    #nav-dots {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
     }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(14px); }
-      100% { opacity: 1; transform: translateY(0); }
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      cursor: pointer;
+      transition: background 0.2s ease-out, transform 0.2s ease-out;
+    }
+    .nav-dot:hover {
+      background: var(--accent);
+      transform: scale(1.3);
+    }
+    .nav-dot.active {
+      background: var(--accent);
+      transform: scale(1.4);
+    }
+    .section-content.expanded {
+      animation: sectionOpen 0.25s ease-out;
+    }
+    @keyframes sectionOpen {
+      0% { opacity: 0; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
 <body>
+  <div id="nav-dots">
+    <div class="nav-dot" data-target="profile"></div>
+    <div class="nav-dot" data-target="core"></div>
+    <div class="nav-dot" data-target="experience"></div>
+    <div class="nav-dot" data-target="education"></div>
+    <div class="nav-dot" data-target="projects"></div>
+  </div>
   <main class="cv-shell">
     <!-- LEFT COLUMN -->
     <section class="left-col">
       <header class="header fade-in">
-        <div class="avatar">D</div>
+        <div class="avatar"></div>
         <div class="headline">
           <span class="role">CloudOps Engineer</span>
           <h1>Dimitar Todorov</h1>
@@ -451,125 +609,158 @@
         <div class="header-meta">
           <div class="pill"><span class="dot"></span><span>Open to selected projects</span></div>
           <div>Based in Sofia, Bulgaria &bull; Remote friendly (EU/UK)</div>
-          <div>
-            <a href="mailto:theprivilegeduser@gmail.com">theprivilegeduser@gmail.com</a>
-            &nbsp;&bull;&nbsp;
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+            <span>
+              <a href="mailto:theprivilegeduser@gmail.com">theprivilegeduser@gmail.com</a>
+            </span>
+            <button class="copy-btn" type="button" onclick="copyEmail()">Copy</button>
+            <span>&bull;</span>
             <span>+359 885 201 561</span>
-            &nbsp;&bull;&nbsp;
+            <span>&bull;</span>
             <a href="https://www.linkedin.com/in/privileged/" target="_blank" rel="noreferrer">LinkedIn</a>
-          <a href="cv.pdf" download style="color:var(--accent); font-size:11px; margin-top:2px;">Download PDF</a>
           </div>
+          <a href="Dimitar_Todorov_CV.pdf" download style="color:var(--accent); font-size:11px; margin-top:2px; text-decoration:none;">Download PDF</a>
         </div>
       </header>
 
+      <!-- Profile (collapsible) -->
       <section class="section fade-in">
-        <div class="section-title">Profile</div>
-        <p>
-          CloudOps engineer with hands-on experience in AWS, Kubernetes, automation, incident response and production systems. Background across cloud operations, support engineering, and system administration with strong troubleshooting and optimization skills. On the side I build Flutter mobile apps as a hobby to prototype ideas and stay close to end users.
-        </p>
-      </section>
-
-      <section class="section fade-in">
-        <div class="section-title">Core strengths</div>
-        <div class="bullet-grid">
-          <div>
-            <div class="bullet-label">Cloud architecture</div>
-            <div class="bullet-sub">VPC, subnets, SG/NACL, ALB/NLB, EC2, ECS/EKS, RDS, S3, CloudFront.</div>
-          </div>
-          <div>
-            <div class="bullet-label">Platform &amp; automation</div>
-            <div class="bullet-sub">CI/CD, GitHub Actions, IaC, secure baselines, patching, golden images.</div>
-          </div>
-          <div>
-            <div class="bullet-label">Application delivery</div>
-            <div class="bullet-sub">Flutter apps (iOS/Android), APIs, authentication, monitoring, tracing.</div>
-          </div>
-          <div>
-            <div class="bullet-label">Reliability mindset</div>
-            <div class="bullet-sub">SLOs, alerting that matters, cost-aware designs, clear documentation.</div>
-          </div>
+        <button class="section-toggle" type="button">
+          <div class="section-title">Profile</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="profile">
+          <p>
+            CloudOps engineer with hands-on experience in AWS, Kubernetes, automation, incident response and production systems.
+            Background across cloud operations, support engineering, and system administration with strong troubleshooting and optimization skills.
+            On the side I build Flutter mobile apps as a hobby to prototype ideas and stay close to end users.
+          </p>
         </div>
       </section>
 
       <section class="section fade-in">
-        <div class="section-title">Experience snapshot</div>
-        <div class="timeline">
-          <div class="timeline-item">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Core strengths</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="core">
+          <div class="bullet-grid">
             <div>
-              <div class="timeline-role">CloudOps Engineer</div>
-              <div class="timeline-company">DXC Technology</div>
-              <div class="timeline-time">21 Mar 2022 — Present · Sofia, Bulgaria</div>
+              <div class="bullet-label">Cloud architecture</div>
+              <div class="bullet-sub">VPC, subnets, SG/NACL, ALB/NLB, EC2, ECS/EKS, RDS, S3, CloudFront.</div>
             </div>
-            <div class="timeline-desc">
-              System maintenance and optimization in the cloud; handling client requests; training and mentoring new team members; incident management; continuous improvement through automation and scalability; designing secure and compliant cloud infrastructures; documentation and knowledge sharing.
-            </div>
-          </div>
-          <div class="timeline-item">
             <div>
-              <div class="timeline-role">Software Support Engineer</div>
-              <div class="timeline-company">Tek-Experts EOOD</div>
-              <div class="timeline-time">5 Jan 2020 — 15 Feb 2022 · Sofia, Bulgaria</div>
+              <div class="bullet-label">Platform &amp; automation</div>
+              <div class="bullet-sub">CI/CD, GitHub Actions, IaC, secure baselines, patching, golden images.</div>
             </div>
-            <div class="timeline-desc">
-              Supporting Microfocus customers on Vertica; troubleshooting, answering queries, reproducing issues, assisting with database administration and optimization.
-            </div>
-          </div>
-          <div class="timeline-item">
             <div>
-              <div class="timeline-role">ICT System Administrator</div>
-              <div class="timeline-company">Gamer 2001 EOOD</div>
-              <div class="timeline-time">19 May 2019 — 30 Nov 2019 · Sofia, Bulgaria</div>
+              <div class="bullet-label">Application delivery</div>
+              <div class="bullet-sub">Flutter apps (iOS/Android), APIs, authentication, monitoring, tracing.</div>
             </div>
-            <div class="timeline-desc">
-              Upkeep, configuration, and reliable operation of computer and network systems; workstation/server administration; automation of routine tasks; troubleshooting; software deployment and security updates.
-            </div>
-          </div>
-          <div class="timeline-item">
             <div>
-              <div class="timeline-role">ICT Network Administrator</div>
-              <div class="timeline-company">Technical University of Sofia</div>
-              <div class="timeline-time">14 Jan 2019 — 19 May 2019 · Sofia, Bulgaria</div>
-            </div>
-            <div class="timeline-desc">
-              Network address assignment, maintenance and administration of servers (file servers, VPN gateways), routers, switches, firewalls, software deployment, routing network cables.
+              <div class="bullet-label">Reliability mindset</div>
+              <div class="bullet-sub">SLOs, alerting that matters, cost-aware designs, clear documentation.</div>
             </div>
           </div>
         </div>
       </section>
 
       <section class="section fade-in">
-        <div class="section-title">Education and Training</div>
-        <div style="font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-line;">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Experience snapshot</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="experience">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">CloudOps Engineer</div>
+                <div class="timeline-company">DXC Technology</div>
+                <div class="timeline-time">21 Mar 2022 — Present · Sofia, Bulgaria</div>
+              </div>
+              <div class="timeline-desc">
+                System maintenance and optimization in the cloud; handling client requests; training and mentoring new team members; incident management; continuous improvement through automation and scalability; designing secure and compliant cloud infrastructures; documentation and knowledge sharing.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">Software Support Engineer</div>
+                <div class="timeline-company">Tek-Experts EOOD</div>
+                <div class="timeline-time">5 Jan 2020 — 15 Feb 2022 · Sofia, Bulgaria</div>
+              </div>
+              <div class="timeline-desc">
+                Supporting Microfocus customers on Vertica; troubleshooting, answering queries, reproducing issues, assisting with database administration and optimization.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">ICT System Administrator</div>
+                <div class="timeline-company">Gamer 2001 EOOD</div>
+                <div class="timeline-time">19 May 2019 — 30 Nov 2019 · Sofia, Bulgaria</div>
+              </div>
+              <div class="timeline-desc">
+                Upkeep, configuration, and reliable operation of computer and network systems; workstation/server administration; automation of routine tasks; troubleshooting; software deployment and security updates.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">ICT Network Administrator</div>
+                <div class="timeline-company">Technical University of Sofia</div>
+                <div class="timeline-time">14 Jan 2019 — 19 May 2019 · Sofia, Bulgaria</div>
+              </div>
+              <div class="timeline-desc">
+                Network address assignment, maintenance and administration of servers (file servers, VPN gateways), routers, switches, firewalls, software deployment, routing network cables.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Education and Training</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="education">
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-line;">
 21 Mar 2022 — Current: CloudOps L2 Engineer, DXC Technology  
 6 Jan 2022 — 6 Apr 2022: DevOps – Containerization, CI/CD & Monitoring, SoftUni  
 Kubernetes Administration — SoftUni  
 Vertica Database Administration — Microfocus  
 Industrial Engineer — Technical University of Sofia  
 Hardware Engineer — ELSYS
+          </div>
         </div>
       </section>
+
+      <!-- Projects & Side Work (collapsible) -->
       <section class="section fade-in">
-        <div class="section-title">Projects & Side Work</div>
-        <div class="projects-list">
-          <div class="project-card">
-            <strong>Everyday Lilly</strong>
-            <div class="project-tag">Mobile App</div>
-            <div>A daily photo journal with timelapse generation and cloud-ready storage architecture.</div>
-          </div>
-          <div class="project-card">
-            <strong>Everyday Dandelion</strong>
-            <div class="project-tag">Mobile App</div>
-            <div>Lightweight video capture and gallery with smooth UI and custom animations.</div>
-          </div>
-          <div class="project-card">
-            <strong>Everyday Filetrap</strong>
-            <div class="project-tag">Mobile App</div>
-            <div>Receipt, storage and tagging tool built with structure, search and cloud integration in mind.</div>
-          </div>
-          <div class="project-card">
-            <strong>P.E.D.A.L.</strong>
-            <div class="project-tag">Web App</div>
-            <div>Public diary for logging and exploring license plates across regions.</div>
+        <button class="section-toggle" type="button">
+          <div class="section-title">Projects &amp; Side Work</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="projects">
+          <div class="projects-list">
+            <div class="project-card">
+              <strong>Everyday Lilly</strong>
+              <div class="project-tag">Mobile App</div>
+              <div>A daily photo journal with timelapse generation and cloud-ready storage architecture.</div>
+            </div>
+            <div class="project-card">
+              <strong>Everyday Dandelion</strong>
+              <div class="project-tag">Mobile App</div>
+              <div>Lightweight video capture and gallery with smooth UI and custom animations.</div>
+            </div>
+            <div class="project-card">
+              <strong>Everyday Filetrap</strong>
+              <div class="project-tag">Mobile App</div>
+              <div>Receipt, storage and tagging tool built with structure, search and cloud integration in mind.</div>
+            </div>
+            <div class="project-card">
+              <strong>P.E.D.A.L.</strong>
+              <div class="project-tag">Web App</div>
+              <div>Public diary for logging and exploring license plates across regions.</div>
+            </div>
           </div>
         </div>
       </section>
@@ -577,60 +768,140 @@ Hardware Engineer — ELSYS
 
     <!-- RIGHT COLUMN -->
     <aside class="right-col">
+      <!-- Key skills block removed -->
+
       <div class="right-block fade-in">
-        <div class="right-label">Key skills</div>
-        <div class="skill-chips">
-          <div class="chip"><span class="dot"></span>AWS &amp; CloudOps</div>
-          <div class="chip"><span class="dot"></span>Kubernetes</div>
-          <div class="chip"><span class="dot"></span>Docker</div>
-          <div class="chip"><span class="dot"></span>Linux System Administration</div>
-          <div class="chip"><span class="dot"></span>CI/CD</div>
-          <div class="chip"><span class="dot"></span>GitHub Actions</div>
-          <div class="chip"><span class="dot"></span>Networking</div>
-          <div class="chip"><span class="dot"></span>Troubleshooting</div>
-          <div class="chip"><span class="dot"></span>Automation</div>
-          <div class="chip"><span class="dot"></span>Flutter (hobby projects)</div>
-          <div class="chip"><span class="dot"></span>SQL &amp; Databases</div>
-          <div class="chip"><span class="dot"></span>Observability</div>
-          <div class="chip"><span class="dot"></span>Security Basics</div>
+        <button class="right-toggle" type="button">
+          <div class="mini-title">Tech stack</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="block-content">
+          <div style="display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:3px 10px; font-size:10px; color:var(--muted);">
+            <div>AWS, Kubernetes, Docker</div>
+            <div>Linux (Debian/Ubuntu/RedHat)</div>
+            <div>GitHub Actions, CI/CD</div>
+            <div>Terraform, IaC</div>
+            <div>SQL (MySQL/Vertica)</div>
+            <div>Networking, VPN, Firewalls</div>
+            <div>VMware, VirtualBox, KVM</div>
+            <div>Flutter, Dart</div>
+          </div>
         </div>
       </div>
 
       <div class="right-block fade-in">
-        <div class="mini-title">Tech stack</div>
-        <div class="stack-list">
-          <div>AWS, Kubernetes, Docker</div>
-          <div>Linux, Debian/Ubuntu/RedHat</div>
-          <div>GitHub Actions, CI/CD</div>
-          <div>Terraform, IaC</div>
-          <div>SQL (MySQL/Vertica)</div>
-          <div>Networking, VPN, Firewalls</div>
-          <div>VMware, VirtualBox, KVM</div>
-          <div>Flutter, Dart</div>
+        <button class="right-toggle" type="button">
+          <div class="mini-title">Certs &amp; highlights</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="block-content">
+          <ul style="list-style:none; padding-left:0; margin:0; font-size:10px; color:var(--muted); display:flex; flex-direction:column; gap:3px;">
+            <li>&bull; AWS-focused engineer (solution design, security, cost awareness).</li>
+            <li>&bull; Experience with production incident response &amp; on-call.</li>
+            <li>&bull; Comfortable working with non-technical stakeholders.</li>
+            <li>&bull; Used to owning roadmaps end-to-end.</li>
+          </ul>
         </div>
       </div>
 
       <div class="right-block fade-in">
-        <div class="mini-title">Certs &amp; highlights</div>
-        <ul style="list-style:none; padding-left:0; margin:0; font-size:10px; color:var(--muted); display:flex; flex-direction:column; gap:3px;">
-          <li>&bull; AWS-focused engineer (Solution design, security, cost).</li>
-          <li>&bull; Experience with production incident response &amp; on-call.</li>
-          <li>&bull; Used to working with non-technical stakeholders.</li>
-          <li>&bull; Comfortable owning roadmaps end-to-end.</li>
-        </ul>
+        <button class="right-toggle" type="button">
+          <div class="mini-title">Languages</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="block-content">
+          <div class="contact-line">
+            Bulgarian &mdash; native
+          </div>
+          <div class="contact-line">
+            English &mdash; C1/C2 working proficiency
+          </div>
+        </div>
       </div>
 
-      <div class="right-block fade-in">
-        <div class="mini-title">Languages</div>
-        <div class="contact-line">
-          Bulgarian &mdash; native
-        </div>
-        <div class="contact-line">
-          English &mdash; C1/C2 working proficiency
-        </div>
+      <div class="footer-note">
+        One clean page. No noise. Kept current and focused on cloud.
       </div>
     </aside>
   </main>
+
+  <script>
+    function copyEmail() {
+      const email = 'theprivilegeduser@gmail.com';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email);
+      } else {
+        const temp = document.createElement('textarea');
+        temp.value = email;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Collapsible main sections (Profile, Projects)
+      document.querySelectorAll('.section-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('collapsed');
+          const chevron = btn.querySelector('.section-chevron');
+          const content = btn.nextElementSibling;
+          if (!content) return;
+          content.classList.toggle('collapsed');
+          if (chevron) chevron.classList.toggle('collapsed');
+        });
+      });
+
+      // Collapsible right blocks (Key skills)
+      document.querySelectorAll('.right-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('collapsed');
+          const chevron = btn.querySelector('.section-chevron');
+          const content = btn.nextElementSibling;
+          if (!content) return;
+          content.classList.toggle('collapsed');
+          if (chevron) chevron.classList.toggle('collapsed');
+        });
+      });
+
+      // Smooth auto-scroll when opening sections
+      document.querySelectorAll('.section-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const content = btn.nextElementSibling;
+          if (!content) return;
+          setTimeout(() => {
+            content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 120);
+          content.classList.add('expanded');
+          setTimeout(() => content.classList.remove('expanded'), 300);
+        });
+      });
+
+      // Floating nav dots scroll
+      document.querySelectorAll('#nav-dots .nav-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          const target = dot.getAttribute('data-target');
+          const section = document.querySelector(`[data-collapsible="${target}"]`) || document.getElementById(target);
+          if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      });
+
+      // Expand all / Collapse all
+      const expandCollapseBtn = document.createElement('button');
+      expandCollapseBtn.textContent = "Expand All / Collapse All";
+      expandCollapseBtn.style.cssText = "margin-bottom:10px;padding:6px 14px;border-radius:10px;border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer;font-size:11px;";
+      document.querySelector('.left-col').prepend(expandCollapseBtn);
+
+      expandCollapseBtn.addEventListener('click', () => {
+        document.querySelectorAll('.section-content, .block-content').forEach(el => {
+          const isCollapsed = el.classList.contains('collapsed');
+          if (isCollapsed) el.classList.remove('collapsed');
+          else el.classList.add('collapsed');
+        });
+        document.querySelectorAll('.section-toggle, .right-toggle').forEach(el => el.classList.toggle('collapsed'));
+      });
+    });
+  </script>
 </body>
 </html>
- 
