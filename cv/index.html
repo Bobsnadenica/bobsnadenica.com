@@ -121,6 +121,13 @@
       perspective: 800px;
     }
 
+    .avatar-wrap {
+      width: 80px;
+      height: 80px;
+      perspective: 1500px;
+      transform-style: preserve-3d;
+    }
+
     /* Gradient avatar badge (no letter) */
     .avatar {
       width: 80px;
@@ -169,18 +176,19 @@
     .headline h1::after {
       content: "";
       position: absolute;
-      bottom: -8px;
+      bottom: -6px;
       left: 0;
-      width: 0%;
       height: 2px;
+      width: 100%;
       background: var(--accent);
       border-radius: 999px;
-      animation: underlineReveal 1.4s ease-out forwards;
+      transform-origin: left;
+      transform: scaleX(0);
+      animation: underlineApple 0.9s ease-out forwards;
     }
-
-    @keyframes underlineReveal {
-      from { width: 0%; }
-      to   { width: 100%; }
+    @keyframes underlineApple {
+      from { transform: scaleX(0); opacity: 0; }
+      to { transform: scaleX(1); opacity: 1; }
     }
 
     .headline span.role {
@@ -607,7 +615,9 @@
     <!-- LEFT COLUMN -->
     <section class="left-col">
       <header class="header fade-in">
-        <div class="avatar"></div>
+        <div class="avatar-wrap">
+          <div class="avatar"></div>
+        </div>
         <div class="headline">
           <span class="role">CloudOps Engineer</span>
           <h1>Dimitar Todorov</h1>
@@ -906,17 +916,17 @@ Hardware Engineer — ELSYS
       });
     });
 
-  // 3D tilt effect for avatar
-  const avatar = document.querySelector('.avatar');
-  if (avatar) {
-    avatar.addEventListener('mousemove', e => {
-      const rect = avatar.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width/2;
-      const y = e.clientY - rect.top - rect.height/2;
-      avatar.style.transform = `translateZ(20px) rotateX(${(-y/15)}deg) rotateY(${(x/15)}deg)`;
+  // 3D tilt effect for avatar-wrap
+  const avatarWrap = document.querySelector('.avatar-wrap');
+  if (avatarWrap) {
+    avatarWrap.addEventListener('mousemove', e => {
+      const rect = avatarWrap.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) / 10;
+      const y = (e.clientY - rect.top - rect.height / 2) / 10;
+      avatarWrap.style.transform = `rotateX(${-y}deg) rotateY(${x}deg)`;
     });
-    avatar.addEventListener('mouseleave', () => {
-      avatar.style.transform = 'translateZ(0px) rotateX(0deg) rotateY(0deg)';
+    avatarWrap.addEventListener('mouseleave', () => {
+      avatarWrap.style.transform = 'rotateX(0deg) rotateY(0deg)';
     });
   }
 
