@@ -122,27 +122,30 @@
 
     /* Gradient avatar badge (no letter) */
     .avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 20px;
-      background: conic-gradient(from 210deg, #46c2ff, #7ee3ff, #f3fbff, #46c2ff);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #b7e8ff 20%, #46c2ff 45%, #0b1728 100%);
+      box-shadow: 0 0 18px rgba(70,194,255,0.45), inset 0 0 18px rgba(255,255,255,0.35);
       position: relative;
-      box-shadow: 0 16px 40px rgba(70,194,255,0.55);
       overflow: hidden;
-      flex-shrink: 0;
+      transition: transform 0.25s ease-out;
+      transform-style: preserve-3d;
     }
-
-    .avatar::after {
-      content: "";
-      position: absolute;
-      inset: 6px;
-      border-radius: 16px;
-      background: radial-gradient(circle at 30% 0, #fdfefe, #141a28);
-      opacity: 0.96;
-    }
+  .role-dot {
+    display:inline-block;
+    width:6px;
+    height:6px;
+    background:var(--accent);
+    border-radius:50%;
+    margin-left:6px;
+    animation:pulseDot 1.8s infinite ease-in-out;
+  }
+  @keyframes pulseDot {
+    0% { transform:scale(1); opacity:0.8; }
+    50% { transform:scale(1.6); opacity:1; }
+    100% { transform:scale(1); opacity:0.8; }
+  }
 
     .headline {
       display: flex;
@@ -156,7 +159,7 @@
       font-weight: 600;
       letter-spacing: 0.02em;
       position: relative;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     .headline h1::after {
@@ -187,7 +190,7 @@
       font-size: 13px;
       color: var(--muted);
       max-width: 520px;
-      margin-top: 9px;
+      margin-top: 6px;
     }
 
     .header-meta {
@@ -818,10 +821,6 @@ Hardware Engineer — ELSYS
           </div>
         </div>
       </div>
-
-      <div class="footer-note">
-        One clean page. No noise. Kept current and focused on cloud.
-      </div>
     </aside>
   </main>
 
@@ -902,6 +901,32 @@ Hardware Engineer — ELSYS
         document.querySelectorAll('.section-toggle, .right-toggle').forEach(el => el.classList.toggle('collapsed'));
       });
     });
+
+  // 3D tilt effect for avatar
+  const avatar = document.querySelector('.avatar');
+  if (avatar) {
+    avatar.addEventListener('mousemove', e => {
+      const rect = avatar.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      avatar.style.transform = `rotateX(${(-y/20)}deg) rotateY(${(x/20)}deg)`;
+    });
+    avatar.addEventListener('mouseleave', () => {
+      avatar.style.transform = 'rotateX(0deg) rotateY(0deg)';
+    });
+  }
+
+  // Soft underline glow
+  const nameEl = document.querySelector('.headline h1');
+  if (nameEl) {
+    nameEl.style.textShadow = '0 0 8px rgba(70,194,255,0.4)';
+  }
+
+  // Role accent bouncing dot
+  const roleEl = document.querySelector('.headline .role');
+  if (roleEl) {
+    roleEl.insertAdjacentHTML('beforeend', '<span class="role-dot"></span>');
+  }
   </script>
 </body>
 </html>
