@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dimitar &mdash; Cloud &amp; Mobile Engineer</title>
+  <title>Dimitar Todorov &mdash; CloudOps Engineer</title>
   <meta name="description" content="Minimal, focused CV site for Dimitar &mdash; Cloud engineer and mobile developer." />
   <style>
     :root {
@@ -37,6 +37,25 @@
       display: flex;
       justify-content: center;
       padding: 32px 16px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: -20%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(circle at center, rgba(70,194,255,0.12), transparent 60%);
+      animation: pulseGlow 6s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.18; transform: scale(1); }
+      50% { opacity: 0.28; transform: scale(1.08); }
+      100% { opacity: 0.18; transform: scale(1); }
     }
 
     .cv-shell {
@@ -93,7 +112,7 @@
       font-weight: 700;
       font-size: 22px;
       color: #050811;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 0 18px rgba(70,194,255,0.45), 0 12px 28px rgba(0,0,0,0.55);
       flex-shrink: 0;
     }
 
@@ -105,9 +124,25 @@
     }
 
     .headline h1 {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 600;
       letter-spacing: 0.02em;
+      position: relative;
+    }
+
+    .headline h1::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--accent);
+      animation: underlineReveal 1.4s ease-out forwards;
+    }
+    @keyframes underlineReveal {
+      from { width: 0%; }
+      to { width: 42%; }
     }
 
     .headline span.role {
@@ -170,6 +205,12 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      transition: border-color 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .section:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
     }
 
     .section-title {
@@ -302,6 +343,12 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      transition: border-color 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .right-block:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
     }
 
     .right-label {
@@ -379,40 +426,50 @@
       outline: 2px solid var(--accent);
       outline-offset: 3px;
     }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(14px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
   <main class="cv-shell">
     <!-- LEFT COLUMN -->
     <section class="left-col">
-      <header class="header">
+      <header class="header fade-in">
         <div class="avatar">D</div>
         <div class="headline">
-          <span class="role">Cloud &amp; Mobile Engineer</span>
-          <h1>Dimitar [Surname]</h1>
-          <span class="tagline">Designing, building and operating reliable cloud platforms and mobile apps &mdash; from VPC to App Store.</span>
+          <span class="role">CloudOps Engineer</span>
+          <h1>Dimitar Todorov</h1>
+          <span class="tagline">Building secure, scalable AWS cloud foundations — automation-first, reliability-focused.</span>
         </div>
         <div class="header-meta">
           <div class="pill"><span class="dot"></span><span>Open to selected projects</span></div>
           <div>Based in Sofia, Bulgaria &bull; Remote friendly (EU/UK)</div>
           <div>
-            <a href="mailto:you@example.com">you@example.com</a>
-            &nbsp;&mdash;&nbsp;
-            <a href="https://www.linkedin.com/in/your-handle" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="mailto:theprivilegeduser@gmail.com">theprivilegeduser@gmail.com</a>
+            &nbsp;&bull;&nbsp;
+            <span>+359 885 201 561</span>
+            &nbsp;&bull;&nbsp;
+            <a href="https://www.linkedin.com/in/privileged/" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a href="cv.pdf" download style="color:var(--accent); font-size:11px; margin-top:2px;">Download PDF</a>
           </div>
         </div>
       </header>
 
-      <section class="section">
+      <section class="section fade-in">
         <div class="section-title">Profile</div>
         <p>
-          Cloud &amp; platform engineer with strong hands-on experience in AWS, Kubernetes and networking,
-          combined with practical mobile development (Flutter, iOS, Android). I focus on simple architectures,
-          clear observability, security by default, and products that actually ship.
+          CloudOps engineer with hands-on experience in AWS, Kubernetes, automation, incident response and production systems. Background across cloud operations, support engineering, and system administration with strong troubleshooting and optimization skills. On the side I build Flutter mobile apps as a hobby to prototype ideas and stay close to end users.
         </p>
       </section>
 
-      <section class="section">
+      <section class="section fade-in">
         <div class="section-title">Core strengths</div>
         <div class="bullet-grid">
           <div>
@@ -434,66 +491,85 @@
         </div>
       </section>
 
-      <section class="section">
+      <section class="section fade-in">
         <div class="section-title">Experience snapshot</div>
         <div class="timeline">
           <div class="timeline-item">
             <div>
-              <div class="timeline-role">Senior Cloud Engineer</div>
-              <div class="timeline-company">Company / Client Name</div>
-              <div class="timeline-time">2022 &mdash; Present</div>
+              <div class="timeline-role">CloudOps Engineer</div>
+              <div class="timeline-company">DXC Technology</div>
+              <div class="timeline-time">21 Mar 2022 — Present · Sofia, Bulgaria</div>
             </div>
             <div class="timeline-desc">
-              Designed and operated secure AWS landing zones, automated patching flows, and observability for
-              production workloads. Partnered with teams to reduce toil and make deployments boring.
+              System maintenance and optimization in the cloud; handling client requests; training and mentoring new team members; incident management; continuous improvement through automation and scalability; designing secure and compliant cloud infrastructures; documentation and knowledge sharing.
             </div>
           </div>
           <div class="timeline-item">
             <div>
-              <div class="timeline-role">Cloud &amp; DevOps Engineer</div>
-              <div class="timeline-company">Company Name</div>
-              <div class="timeline-time">2019 &mdash; 2022</div>
+              <div class="timeline-role">Software Support Engineer</div>
+              <div class="timeline-company">Tek-Experts EOOD</div>
+              <div class="timeline-time">5 Jan 2020 — 15 Feb 2022 · Sofia, Bulgaria</div>
             </div>
             <div class="timeline-desc">
-              Implemented CI/CD, containerized services, and improved security posture (IAM, KMS, WAF, backups)
-              across multiple teams.
+              Supporting Microfocus customers on Vertica; troubleshooting, answering queries, reproducing issues, assisting with database administration and optimization.
             </div>
           </div>
           <div class="timeline-item">
             <div>
-              <div class="timeline-role">Software / Mobile Engineer</div>
-              <div class="timeline-company">Earlier roles</div>
-              <div class="timeline-time">2016 &mdash; 2019</div>
+              <div class="timeline-role">ICT System Administrator</div>
+              <div class="timeline-company">Gamer 2001 EOOD</div>
+              <div class="timeline-time">19 May 2019 — 30 Nov 2019 · Sofia, Bulgaria</div>
             </div>
             <div class="timeline-desc">
-              Built internal tools and mobile apps, giving me end-to-end ownership from UI to infrastructure.
+              Upkeep, configuration, and reliable operation of computer and network systems; workstation/server administration; automation of routine tasks; troubleshooting; software deployment and security updates.
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div>
+              <div class="timeline-role">ICT Network Administrator</div>
+              <div class="timeline-company">Technical University of Sofia</div>
+              <div class="timeline-time">14 Jan 2019 — 19 May 2019 · Sofia, Bulgaria</div>
+            </div>
+            <div class="timeline-desc">
+              Network address assignment, maintenance and administration of servers (file servers, VPN gateways), routers, switches, firewalls, software deployment, routing network cables.
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
-        <div class="section-title">Selected work</div>
+      <section class="section fade-in">
+        <div class="section-title">Education and Training</div>
+        <div style="font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-line;">
+21 Mar 2022 — Current: CloudOps L2 Engineer, DXC Technology  
+6 Jan 2022 — 6 Apr 2022: DevOps – Containerization, CI/CD & Monitoring, SoftUni  
+Kubernetes Administration — SoftUni  
+Vertica Database Administration — Microfocus  
+Industrial Engineer — Technical University of Sofia  
+Hardware Engineer — ELSYS
+        </div>
+      </section>
+      <section class="section fade-in">
+        <div class="section-title">Projects & Side Work</div>
         <div class="projects-list">
           <div class="project-card">
-            <strong>Everyday Apps Suite</strong>
-            <div class="project-tag">Product &amp; Mobile</div>
-            <div>Concept, architecture and development of privacy-first Flutter apps (iOS &amp; Android) for journaling, media and storage.</div>
+            <strong>Everyday Lilly</strong>
+            <div class="project-tag">Mobile App</div>
+            <div>A daily photo journal with timelapse generation and cloud-ready storage architecture.</div>
           </div>
           <div class="project-card">
-            <strong>AWS Landing Zone &amp; Platform</strong>
-            <div class="project-tag">Cloud Architecture</div>
-            <div>Multi-account setup, secure networking, observability, backups and guardrails for regulated workloads.</div>
+            <strong>Everyday Dandelion</strong>
+            <div class="project-tag">Mobile App</div>
+            <div>Lightweight video capture and gallery with smooth UI and custom animations.</div>
           </div>
           <div class="project-card">
-            <strong>Automation &amp; Tooling</strong>
-            <div class="project-tag">DevEx</div>
-            <div>Internal console-style tools for IAM, logging and incident response to simplify complex AWS tasks.</div>
+            <strong>Everyday Filetrap</strong>
+            <div class="project-tag">Mobile App</div>
+            <div>Receipt, storage and tagging tool built with structure, search and cloud integration in mind.</div>
           </div>
           <div class="project-card">
-            <strong>Client projects</strong>
-            <div class="project-tag">Consulting</div>
-            <div>Helping teams design pragmatic architectures, cost optimizations and resilient deployments.</div>
+            <strong>P.E.D.A.L.</strong>
+            <div class="project-tag">Web App</div>
+            <div>Public diary for logging and exploring license plates across regions.</div>
           </div>
         </div>
       </section>
@@ -501,35 +577,40 @@
 
     <!-- RIGHT COLUMN -->
     <aside class="right-col">
-      <div class="right-block">
+      <div class="right-block fade-in">
         <div class="right-label">Key skills</div>
         <div class="skill-chips">
-          <div class="chip"><span class="dot"></span>AWS &amp; cloud networking</div>
-          <div class="chip"><span class="dot"></span>Kubernetes / containers</div>
-          <div class="chip"><span class="dot"></span>CI/CD &amp; GitHub Actions</div>
-          <div class="chip"><span class="dot"></span>Infrastructure as Code</div>
-          <div class="chip"><span class="dot"></span>Linux &amp; automation</div>
-          <div class="chip"><span class="dot"></span>Flutter (iOS / Android)</div>
-          <div class="chip"><span class="dot"></span>Observability &amp; logging</div>
-          <div class="chip"><span class="dot"></span>Security &amp; compliance aware</div>
+          <div class="chip"><span class="dot"></span>AWS &amp; CloudOps</div>
+          <div class="chip"><span class="dot"></span>Kubernetes</div>
+          <div class="chip"><span class="dot"></span>Docker</div>
+          <div class="chip"><span class="dot"></span>Linux System Administration</div>
+          <div class="chip"><span class="dot"></span>CI/CD</div>
+          <div class="chip"><span class="dot"></span>GitHub Actions</div>
+          <div class="chip"><span class="dot"></span>Networking</div>
+          <div class="chip"><span class="dot"></span>Troubleshooting</div>
+          <div class="chip"><span class="dot"></span>Automation</div>
+          <div class="chip"><span class="dot"></span>Flutter (hobby projects)</div>
+          <div class="chip"><span class="dot"></span>SQL &amp; Databases</div>
+          <div class="chip"><span class="dot"></span>Observability</div>
+          <div class="chip"><span class="dot"></span>Security Basics</div>
         </div>
       </div>
 
-      <div class="right-block">
+      <div class="right-block fade-in">
         <div class="mini-title">Tech stack</div>
         <div class="stack-list">
-          <div>AWS, Terraform, CloudFormation</div>
-          <div>VPC, ALB/NLB, Route53, VPN</div>
-          <div>EC2, ECS/EKS, Lambda</div>
-          <div>RDS, DynamoDB, S3, SQS/SNS</div>
-          <div>Prometheus, Grafana, CloudWatch</div>
-          <div>GitHub Actions, ArgoCD</div>
-          <div>Docker, Linux, Bash/Python</div>
-          <div>Flutter, Dart, REST/JSON</div>
+          <div>AWS, Kubernetes, Docker</div>
+          <div>Linux, Debian/Ubuntu/RedHat</div>
+          <div>GitHub Actions, CI/CD</div>
+          <div>Terraform, IaC</div>
+          <div>SQL (MySQL/Vertica)</div>
+          <div>Networking, VPN, Firewalls</div>
+          <div>VMware, VirtualBox, KVM</div>
+          <div>Flutter, Dart</div>
         </div>
       </div>
 
-      <div class="right-block">
+      <div class="right-block fade-in">
         <div class="mini-title">Certs &amp; highlights</div>
         <ul style="list-style:none; padding-left:0; margin:0; font-size:10px; color:var(--muted); display:flex; flex-direction:column; gap:3px;">
           <li>&bull; AWS-focused engineer (Solution design, security, cost).</li>
@@ -539,23 +620,17 @@
         </ul>
       </div>
 
-      <div class="right-block">
-        <div class="mini-title">Contact</div>
+      <div class="right-block fade-in">
+        <div class="mini-title">Languages</div>
         <div class="contact-line">
-          Available for roles where I can design, harden and ship platforms or products.
+          Bulgarian &mdash; native
         </div>
         <div class="contact-line">
-          Email: <a href="mailto:you@example.com">you@example.com</a>
+          English &mdash; C1/C2 working proficiency
         </div>
-        <div class="contact-line">
-          LinkedIn / GitHub / Portfolio links here.
-        </div>
-      </div>
-
-      <div class="footer-note">
-        One clean page. No noise. Replace placeholders with your real details.
       </div>
     </aside>
   </main>
 </body>
 </html>
+ 
