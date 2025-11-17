@@ -118,6 +118,7 @@
       background:
         linear-gradient(135deg, rgba(255,255,255,0.06), rgba(2,4,10,0.96));
       border: 1px solid var(--border-subtle);
+      perspective: 600px;
     }
 
     /* Gradient avatar badge (no letter) */
@@ -171,12 +172,12 @@
       height: 2px;
       background: var(--accent);
       border-radius: 999px;
-      animation: underlineReveal 1.4s ease-out forwards;
+      animation: underlineReveal 1.4s ease-out forwards; width: 100%;
     }
 
     @keyframes underlineReveal {
       from { width: 0%; }
-      to   { width: 40%; }
+      to   { width: 100%; }
     }
 
     .headline span.role {
