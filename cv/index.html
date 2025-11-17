@@ -143,6 +143,22 @@
       cursor: pointer;
     }
 
+    .avatar::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(70,194,255,0.45);
+      box-shadow: 0 0 18px rgba(70,194,255,0.35);
+      animation: spinGlow 8s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes spinGlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
     .avatar::before {
       content: "";
       position: absolute;
@@ -298,10 +314,11 @@
 
     .section-title::before {
       content: "";
-      width: 18px;
-      height: 1px;
-      background: linear-gradient(to right, var(--accent), transparent);
+      width: 36px;
+      height: 2px;
+      background: linear-gradient(to right, var(--accent), transparent 70%);
       border-radius: 999px;
+      box-shadow: 0 0 8px rgba(70,194,255,0.35);
     }
 
     .section p {
