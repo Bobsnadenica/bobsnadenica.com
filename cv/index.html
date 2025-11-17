@@ -142,6 +142,29 @@
       will-change: transform;
       cursor: pointer;
     }
+
+    .avatar::before {
+      content: "";
+      position: absolute;
+      top: -100%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.0) 100%);
+      transform: rotate(25deg);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease-out;
+    }
+    .avatar-wrap:hover .avatar::before {
+      animation: glossSweep 1.2s ease-out forwards;
+      opacity: 1;
+    }
+    @keyframes glossSweep {
+      0% { transform: translateX(-120%) rotate(25deg); opacity: 0; }
+      50% { opacity: 0.6; }
+      100% { transform: translateX(120%) rotate(25deg); opacity: 0; }
+    }
   .role-dot {
     display:inline-block;
     width:6px;
@@ -269,6 +292,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      text-shadow: 0 0 8px rgba(70,194,255,0.25);
     }
 
     .section-title::before {
@@ -941,6 +965,30 @@ Hardware Engineer — ELSYS
   if (roleEl) {
     roleEl.insertAdjacentHTML('beforeend', '<span class="role-dot"></span>');
   }
+    // Highlight active nav dot on scroll
+    const sectionsMap = {
+      profile: document.querySelector('[data-collapsible="profile"]'),
+      core: document.querySelector('[data-collapsible="core"]'),
+      experience: document.querySelector('[data-collapsible="experience"]'),
+      education: document.querySelector('[data-collapsible="education"]'),
+      projects: document.querySelector('[data-collapsible="projects"]')
+    };
+    const dots = document.querySelectorAll('.nav-dot');
+
+    window.addEventListener('scroll', () => {
+      let current = null;
+      for (const key in sectionsMap) {
+        const sec = sectionsMap[key];
+        if (!sec) continue;
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.4 && rect.bottom >= window.innerHeight * 0.4) {
+          current = key;
+        }
+      }
+      dots.forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.target === current);
+      });
+    });
   </script>
 </body>
 </html>
