@@ -646,7 +646,7 @@
         <div class="headline">
           <span class="role">DevOps Engineer</span>
           <h1>Dimitar Todorov</h1>
-          <span class="tagline">Building secure, scalable AWS cloud foundations — automation-first, reliability-focused.</span>
+          <span class="tagline">Automating cloud infrastructure with AWS best practices, secure baselines, and reliability engineering.</span>
         </div>
         <div class="header-meta">
           <div class="pill"><span class="dot"></span><span>Open to new opportunities</span></div>
@@ -827,7 +827,7 @@
               <div class="project-card">
                 <strong>БАБХ Дневниците</strong>
                 <div class="project-tag">Mobile / Web App</div>
-                <div>Receipt, storage and tagging tool built with structure, search and cloud integration in mind.</div>
+                <div>An app created to simplify and digitize БАБХ requirements when working with food.</div>
               </div>
             </a>
             <a href="https://www.bobsnadenica.com/aws/index.html" target="_blank" rel="noreferrer" style="text-decoration:none;color:inherit;">
@@ -921,6 +921,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+      // Start all sections collapsed
+      document.querySelectorAll('.section-content, .block-content').forEach(el => {
+        el.classList.add('collapsed');
+      });
+      document.querySelectorAll('.section-toggle, .right-toggle').forEach(btn => {
+        btn.classList.add('collapsed');
+      });
       // Collapsible main sections (Profile, Projects)
       document.querySelectorAll('.section-toggle').forEach(btn => {
         btn.addEventListener('click', () => {
