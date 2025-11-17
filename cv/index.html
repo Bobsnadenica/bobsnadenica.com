@@ -143,13 +143,34 @@
       cursor: pointer;
     }
 
+  .avatar-glow {
+    position:absolute;
+    inset:-14px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(70,194,255,0.35) 0%, rgba(70,194,255,0.05) 55%, transparent 80%);
+    filter:blur(18px);
+    opacity:0.55;
+    animation: avatarPulse 4s ease-in-out infinite;
+    pointer-events:none;
+    z-index:-1;
+  }
+
+  @keyframes avatarPulse {
+    0%   { transform: scale(1);   opacity:0.45; }
+    50%  { transform: scale(1.12); opacity:0.75; }
+    100% { transform: scale(1);   opacity:0.45; }
+  }
+
     .avatar::after {
       content: "";
       position: absolute;
-      inset: -6px;
+      inset: 0;
       border-radius: 50%;
-      border: 2px solid rgba(70,194,255,0.45);
-      box-shadow: 0 0 18px rgba(70,194,255,0.35);
+      border: 2px solid rgba(70,194,255,0.55);
+      box-shadow:
+        0 0 16px rgba(70,194,255,0.65),
+        0 0 28px rgba(70,194,255,0.45),
+        inset 0 0 8px rgba(70,194,255,0.35);
       animation: spinGlow 8s linear infinite;
       pointer-events: none;
     }
@@ -658,7 +679,8 @@
     <!-- LEFT COLUMN -->
     <section class="left-col">
       <header class="header fade-in">
-        <div class="avatar-wrap">
+        <div class="avatar-wrap" style="position:relative;">
+          <div class="avatar-glow"></div>
           <div class="avatar"></div>
         </div>
         <div class="headline">
