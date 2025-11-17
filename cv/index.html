@@ -118,7 +118,7 @@
       background:
         linear-gradient(135deg, rgba(255,255,255,0.06), rgba(2,4,10,0.96));
       border: 1px solid var(--border-subtle);
-      perspective: 600px;
+      perspective: 800px;
     }
 
     /* Gradient avatar badge (no letter) */
@@ -132,6 +132,8 @@
       overflow: hidden;
       transition: transform 0.25s ease-out;
       transform-style: preserve-3d;
+      will-change: transform;
+      cursor: pointer;
     }
   .role-dot {
     display:inline-block;
@@ -161,6 +163,7 @@
       letter-spacing: 0.02em;
       position: relative;
       margin-bottom: 14px;
+      display: inline-block;
     }
 
     .headline h1::after {
@@ -172,7 +175,7 @@
       height: 2px;
       background: var(--accent);
       border-radius: 999px;
-      animation: underlineReveal 1.4s ease-out forwards; width: 100%;
+      animation: underlineReveal 1.4s ease-out forwards;
     }
 
     @keyframes underlineReveal {
@@ -910,10 +913,10 @@ Hardware Engineer — ELSYS
       const rect = avatar.getBoundingClientRect();
       const x = e.clientX - rect.left - rect.width/2;
       const y = e.clientY - rect.top - rect.height/2;
-      avatar.style.transform = `rotateX(${(-y/20)}deg) rotateY(${(x/20)}deg)`;
+      avatar.style.transform = `translateZ(20px) rotateX(${(-y/15)}deg) rotateY(${(x/15)}deg)`;
     });
     avatar.addEventListener('mouseleave', () => {
-      avatar.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      avatar.style.transform = 'translateZ(0px) rotateX(0deg) rotateY(0deg)';
     });
   }
 
