@@ -126,6 +126,7 @@
       height: 80px;
       perspective: 1500px;
       transform-style: preserve-3d;
+      pointer-events: none;
     }
 
     /* Gradient avatar badge (no letter) */
@@ -141,6 +142,35 @@
       transform-style: preserve-3d;
       will-change: transform;
       cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .avatar-arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 28px;
+      height: 3px;
+      background: linear-gradient(to right, #ffffff, var(--accent));
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(70,194,255,0.7);
+      transform: translate(-50%, -50%) rotate(0deg);
+      transform-origin: 50% 50%;
+      transition: transform 0.08s linear;
+      pointer-events: none;
+      margin-left: -2px;
+    }
+
+    .avatar-arrow::after {
+      content: "";
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 4px 0 4px 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent #ffffff;
+      filter: drop-shadow(0 0 6px rgba(70,194,255,0.9));
     }
 
   .avatar-glow {
@@ -681,7 +711,9 @@
       <header class="header fade-in">
         <div class="avatar-wrap" style="position:relative;">
           <div class="avatar-glow"></div>
-          <div class="avatar"></div>
+          <div class="avatar">
+  <div class="avatar-arrow"></div>
+</div>
         </div>
         <div class="headline">
           <span class="role">DevOps Engineer</span>
@@ -801,7 +833,7 @@
                 <div class="timeline-time">2012–2018</div>
               </div>
               <div class="timeline-desc">
-                Various non-technical roles during long-term work and travel period in the United States.
+                Logistics management role involving inventory coordination, warehouse support, operational assistance, and building an internal warehouse database using QR codes for item/shelf placement tracking.
               </div>
             </div>
           </div>
@@ -894,14 +926,22 @@
         </button>
         <div class="block-content">
           <div style="display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:3px 10px; font-size:10px; color:var(--muted);">
-            <div>AWS, Kubernetes, Docker</div>
+            <div>Kubernetes, Docker</div>
+            <div>AWS</div>
+            <div>Azure</div>
             <div>Linux (Debian/Ubuntu/RedHat)</div>
-            <div>GitHub Actions, CI/CD</div>
+            <div>GitHub Actions</div>
+            <div>CI/CD</div>
             <div>Terraform, IaC</div>
             <div>SQL (MySQL/Vertica)</div>
             <div>Networking, VPN, Firewalls</div>
             <div>VMware, VirtualBox, KVM</div>
             <div>Flutter, Dart</div>
+            <div>Bash scripting</div>
+            <div>Python automation</div>
+            <div>Helm</div>
+            <div>Prometheus / Grafana</div>
+            <div>Nginx</div>
           </div>
         </div>
       </div>
@@ -1024,6 +1064,34 @@
     });
   }
 
+  // Avatar arrow rotation toward cursor (smooth)
+  const avatarEl = document.querySelector('.avatar');
+  const avatarArrow = avatarEl ? avatarEl.querySelector('.avatar-arrow') : null;
+
+  let targetAngle = 0;
+  let currentAngle = 0;
+  let arrowRaf = null;
+
+  function animateArrow() {
+    currentAngle += (targetAngle - currentAngle) * 0.18;
+    if (avatarArrow) {
+      avatarArrow.style.transform =
+        `translate(-50%, -50%) rotate(${currentAngle}deg)`;
+    }
+    arrowRaf = requestAnimationFrame(animateArrow);
+  }
+
+  if (avatarArrow && avatarEl) {
+    window.addEventListener('mousemove', e => {
+      const rect = avatarEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (!arrowRaf) arrowRaf = requestAnimationFrame(animateArrow);
+    });
+  }
   // Soft underline glow
   const nameEl = document.querySelector('.headline h1');
   if (nameEl) {
