@@ -180,6 +180,20 @@
     let usedQuestions = new Set();
     const gayFinale = new Audio("azis.mp3");
     gayFinale.volume = 1.0;
+    // 🔊 Mobile autoplay fix — browsers block audio until a user gesture unlocks it
+    let audioUnlocked = false;
+    function unlockAudio() {
+        if (!audioUnlocked) {
+            gayFinale.play().then(() => {
+                gayFinale.pause();
+                gayFinale.currentTime = 0;
+                audioUnlocked = true;
+                console.log("Audio unlocked on mobile");
+            }).catch(() => {});
+        }
+    }
+    window.addEventListener("touchstart", unlockAudio, { once: true });
+    window.addEventListener("click", unlockAudio, { once: true });
     let gayFinaleStarted = false;
 
     // Tinder-style drag & release
