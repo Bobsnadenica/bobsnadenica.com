@@ -419,10 +419,13 @@
                 gayFinaleStarted = true;
                 gayFinale.currentTime = 0;
                 gayFinale.volume = 1.0; // blast max volume
-                if (navigator.vibrate) {
-                    navigator.vibrate([200, 100, 300]); // vibration pattern
-                }
                 gayFinale.loop = true;
+                // Sync vibration pattern with Azis beat (~120 BPM → beat every 500ms)
+                if (navigator.vibrate) {
+                    window.azisVibeInterval = setInterval(() => {
+                        navigator.vibrate([80, 40, 80]); // short–pause–short beat
+                    }, 500);
+                }
                 gayFinale.play();
             }
         }
