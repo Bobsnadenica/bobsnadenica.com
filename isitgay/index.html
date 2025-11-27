@@ -418,6 +418,10 @@
                 launchConfetti();
                 gayFinaleStarted = true;
                 gayFinale.currentTime = 0;
+                gayFinale.volume = 1.0; // blast max volume
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 300]); // vibration pattern
+                }
                 gayFinale.loop = true;
                 gayFinale.play();
             }
