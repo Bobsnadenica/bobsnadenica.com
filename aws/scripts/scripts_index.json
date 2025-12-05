@@ -21,10 +21,8 @@
     "ec2/Describe.sh",
     "ec2/Report.sh",
     "ec2/Search.sh",
-    "ec2/create.sh"
-  ],
-  "EXAMPLES": [
-    "examples/example.sh"
+    "ec2/create.sh",
+    "ec2/ssm_crawl.sh"
   ],
   "INSPECTOR": [
     "inspector/overview.sh"
