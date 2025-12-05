@@ -4,590 +4,1135 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AWS Console (Simulation)</title>
-  <meta name="description" content="Lightweight AWS Config and CloudTrail script simulator for quick insights and mock testing.">
+  <meta name="description" content="Lightweight AWS script simulator for quick insights and mock testing.">
   <style>
-:root {
-  --bg: #0b0d10;
-  --panel: #111418;
-  --panel-2: #161b22;
-  --text: #e6edf3;
-  --muted: #9aa4af;
-  --accent: #ff9900; /* AWS orange */
-  --border: #222831;
-  --good: #22c55e;
-  --warn: #eab308;
-  --bad: #ef4444;
-  --code: #0d1117;
-}
+    :root {
+      --bg: #05070a;
+      --panel: #0c1016;
+      --panel-2: #111722;
+      --panel-3: #0b1320;
+      --text: #e6edf3;
+      --muted: #9aa4af;
+      --accent: #ff9900; /* AWS orange */
+      --accent-soft: rgba(255, 153, 0, 0.1);
+      --border: #222733;
+      --border-soft: #191f2b;
+      --good: #22c55e;
+      --warn: #eab308;
+      --bad: #ef4444;
+      --code: #050812;
+    }
 
-* { box-sizing: border-box; }
-html {
-  scroll-behavior: smooth;
-}
-html, body { height: 100%; }
+    * { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      height: 100%;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(circle at top, #141b2a 0, #05070a 45%, #020308 100%);
+      color: var(--text);
+      display: grid;
+      grid-template-rows: 56px 1fr;
+      overflow: hidden;
+    }
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background: var(--bg);
-  color: var(--text);
-  display: grid;
-  grid-template-rows: 56px 1fr;
-  overflow-y: hidden;
-  overflow-x: hidden;
-}
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: linear-gradient(180deg, #0e131a, #060910);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 10;
+    }
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .logo-pill {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .badge {
+      font-size: 12px;
+      color: #111;
+      background: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .spacer { flex: 1; }
+    .header-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-link:hover {
+      border-color: var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+    }
 
-/* Top bar */
-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  background: linear-gradient(180deg, #0e131a, #0a0e13);
-  border-bottom: 1px solid var(--border);
-}
-.logo { font-weight: 700; letter-spacing: .2px; }
-.badge {
-  font-size: 12px;
-  color: #111;
-  background: var(--accent);
-  padding: 2px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.spacer { flex: 1; }
-.top-actions button { margin-left: 8px; }
+    /* Layout */
+    main {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: 0;
+      max-height: 100%;
+    }
 
-/* Layout */
-main { display: grid; grid-template-columns: 280px 1fr; min-height: 100%; }
-aside {
-  background: var(--panel);
-  border-right: 1px solid var(--border);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* prevent double scrollbars; let #script-list scroll */
-  padding: 12px;
-  box-shadow: inset -1px 0 0 var(--border);
-}
-.section-title {
-  font-size: 12px;
-  color: var(--accent);
-  font-weight: 700;
-  margin: 16px 8px 8px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 4px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.section-title:hover {
-  color: #ffd580;
-}
+    /* Sidebar */
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      min-height: 0;
+      box-shadow: inset -1px 0 0 rgba(0,0,0,0.6);
+    }
+    .sidebar-header {
+      margin-bottom: 10px;
+    }
+    .sidebar-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .sidebar-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .search-box {
+      position: relative;
+      margin-bottom: 10px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 6px 24px 6px 24px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #050910;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .search-box input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      display: none;
+    }
 
-/* Make the script list the only scrollable area in the sidebar */
-#script-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1 1 auto;
-  min-height: 0;               /* critical for flex children to allow scrolling */
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 4px;          /* room for custom scrollbar */
-  max-height: calc(100vh - 56px); /* header height offset */
-}
-.nav-btn {
-  width: 100%;
-  text-align: left;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.nav-btn:hover { background: var(--panel-2); border-color: var(--border); }
-.nav-btn.active {
-  background: var(--panel-2);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-pre { line-height: 1.45; }
+    .sidebar-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #283040 #050910;
+    }
+    .sidebar-body::-webkit-scrollbar { width: 8px; }
+    .sidebar-body::-webkit-scrollbar-thumb {
+      background: #283040;
+      border-radius: 999px;
+    }
 
-.saved-list {
-  margin: 8px 0;
-  display: grid;
-  gap: 6px;
-}
-.saved-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel-2);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.saved-item-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.icon-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  padding: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.icon-btn:hover {
-  color: var(--text);
-  border-color: var(--text);
-}
+    .category {
+      margin-bottom: 10px;
+    }
+    .category-title {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 4px 4px 2px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .category-list {
+      margin-top: 4px;
+      display: grid;
+      gap: 4px;
+    }
 
-/* Workbench */
-.workbench {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100%;
-}
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--panel);
-}
-.toolbar .title { font-weight: 600; }
+    .script-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.16s, border-color 0.16s, transform 0.08s;
+      font-size: 13px;
+    }
+    .script-item:hover {
+      background: #111826;
+      border-color: var(--border-soft);
+      transform: translateY(-1px);
+    }
+    .script-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .script-main { flex: 1; min-width: 0; }
+    .script-name {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .script-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .script-pill {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      color: var(--muted);
+      background: rgba(0,0,0,0.3);
+      text-transform: uppercase;
+    }
+    .star-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .star-btn.favorited { color: var(--accent); }
 
-.editor-area {
-  display: grid;
-  grid-template-columns: 1fr 40%;
-  gap: 12px;
-  padding: 12px;
-  height: 100%;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
-}
-.card {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--panel-2);
-  position: relative; /* ensure the button stays pinned inside */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.card h3 {
-  margin: 0;
-  padding: 10px 12px;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
-  background: #0f1420;
-}
+    .sidebar-footer {
+      font-size: 11px;
+      color: var(--muted);
+      padding-top: 6px;
+      border-top: 1px solid var(--border-soft);
+      margin-top: 6px;
+    }
 
-textarea {
-  width: 100%;
-  height: 100%;
-  resize: none;
-  padding: 12px;
-  border: 0;
-  outline: none;
-  background: var(--code);
-  color: #d1d9e0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 13px;
-  line-height: 1.5;
-}
+    /* Content area */
+    .content {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      min-height: 0;
+      background: var(--panel-3);
+    }
 
-pre {
-  margin: 0;
-  padding: 12px;
-  background: var(--code);
-  color: #d1d9e0;
-  overflow: auto;
-}
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(255,153,0,0.1) 0, transparent 50%),
+                  #05070a;
+    }
+    .toolbar-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .toolbar-path {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(5, 9, 16, 0.9);
+      max-width: 60%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-#output {
-  display: inline-block;
-  min-width: max-content; /* keep columns/tables intact; enable horizontal scroll */
-  background: transparent;
-  color: inherit;
-  padding: 0;
-  margin: 0;
-}
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 14px 8px;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--panel-3);
+    }
+    .tab-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn span.icon { font-size: 14px; }
+    .tab-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
 
-.controls { display: flex; align-items: center; gap: 8px; }
-.btn {
-  border: 1px solid var(--border);
-  background: #0f1420;
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.btn.primary {
-  background: var(--accent);
-  color: #111;
-  border-color: #d97f00;
-  font-weight: 700;
-}
-.btn.ghost { background: transparent; }
-.btn:disabled { opacity: .6; cursor: not-allowed; }
+    .tab-panels {
+      padding: 10px 14px 12px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .tab-panel {
+      display: none;
+      height: 100%;
+      overflow: hidden;
+    }
+    .tab-panel.active { display: block; }
 
-.statusbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background: #0e141f;
-  color: var(--muted);
-  font-size: 12px;
-}
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--warn);
-  display: inline-block;
-}
-.status--ok { color: var(--muted); }
-.status--warn { color: var(--warn); }
-.status--error { color: var(--bad); }
-.kbd {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
-  border: 1px solid var(--border);
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: #0e141f;
-  color: var(--muted);
-}
+    .details-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+      gap: 12px;
+      height: 100%;
+      min-height: 0;
+    }
+    .card {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.02) 0, transparent 45%),
+                  #050910;
+      padding: 10px 12px 12px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card h3 {
+      margin: 0 0 4px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+    }
 
-@media (max-width: 1100px) {
-  .editor-area { grid-template-columns: 1fr; }
-}
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .meta-row:last-child { border-bottom: none; }
+    .meta-label { color: var(--muted); }
 
+    .meta-value-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
 
-#output-container {
-  max-height: 70vh;
-  min-height: 160px;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: auto;
-  white-space: pre; /* preserve structure */
-  word-break: normal; /* don’t break words mid-line */
-  background: var(--code);
-  color: #d1d9e0;
-  padding: 12px;
-  border-radius: 8px;
-  resize: vertical; /* only allow up/down resize */
-  box-sizing: border-box; /* keep padding inside bounds */
-}
+    .description-text {
+      font-size: 13px;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
 
-#output-container:focus {
-  outline: 2px solid var(--accent);
-}
+    .script-viewer,
+    .run-viewer {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #050910;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+    }
+    .script-header,
+    .run-header {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-/* Fullscreen output mode */
-#output-container.fullscreen {
-  position: fixed;
-  z-index: 1000;
-  top: 56px; /* header height */
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: calc(100vh - 56px);
-  max-height: none;
-  border-radius: 0;
-  margin: 0;
-  resize: none; /* disable manual resize in fullscreen */
-}
-body.no-scroll { overflow: hidden; }
+    pre.code-block {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--code);
+      color: #d1d9e0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+      white-space: pre;
+    }
 
-/* Subtle custom scrollbars (WebKit) */
-#output-container::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
-}
-#output-container::-webkit-scrollbar-thumb {
-  background: #2a3240;
-  border-radius: 8px;
-}
-#output-container::-webkit-scrollbar-track {
-  background: #0f1420;
-}
+    .run-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 12px;
+      background: #050910;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .field-label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .field-input {
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-soft);
+      background: #02050b;
+      color: var(--text);
+      font-size: 12px;
+      min-width: 120px;
+    }
 
-/* Firefox scrollbar */
-#output-container {
-  scrollbar-width: thin;
-  scrollbar-color: #2a3240 #0f1420;
-}
+    .btn {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      font-size: 13px;
+      background: #0e1421;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s, transform 0.08s, box-shadow 0.08s;
+    }
+    .btn.primary {
+      background: var(--accent);
+      border-color: #d97f00;
+      color: #111;
+      font-weight: 600;
+      box-shadow: 0 0 0 1px rgba(217,127,0,0.35), 0 8px 18px rgba(0,0,0,0.6);
+    }
+    .btn.primary:hover {
+      background: #ffad33;
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(217,127,0,0.45), 0 10px 22px rgba(0,0,0,0.8);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
 
-@media (max-width: 1100px) {
-  #output-container { max-height: 65vh; }
-}
-  #toggle-fullscreen {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    z-index: 10;
-    margin: 0;
-  }
+    .run-output-container {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 8px 10px 10px;
+      overflow: auto;
+      background: var(--code);
+      scrollbar-width: thin;
+      scrollbar-color: #283040 #050910;
+    }
+    .run-output-container::-webkit-scrollbar { width: 8px; height: 8px; }
+    .run-output-container::-webkit-scrollbar-thumb {
+      background: #283040;
+      border-radius: 999px;
+    }
+
+    .command-preview {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: #02050b;
+      border: 1px solid var(--border-soft);
+      color: #d1d9e0;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .command-preview code { color: #e5e7eb; }
+
+    .run-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    table.mock-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: #050910;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    table.mock-table thead {
+      background: #0b1320;
+    }
+    table.mock-table th,
+    table.mock-table td {
+      border: 1px solid #141b2b;
+      padding: 4px 6px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    table.mock-table th {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    table.mock-table tbody tr:nth-child(even) {
+      background: #050912;
+    }
+
+    pre.raw-output {
+      margin: 0;
+      padding: 6px 8px;
+      background: #02050b;
+      border-radius: 6px;
+      border: 1px solid var(--border-soft);
+      color: #d1d9e0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      background: #050910;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warn);
+    }
+    .status--ok { color: var(--muted); }
+    .status--warn { color: var(--warn); }
+    .status--error { color: var(--bad); }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 6px;
+      background: #050910;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 240px) minmax(0, 1fr);
+      }
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .toolbar-path { display: none; }
+      .run-controls { flex-direction: column; align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">AWS Console</div>
-    <span class="badge" tabindex="0" aria-label="Simulation badge">Simulation</span>
+    <div class="logo">
+      AWS Console
+      <span class="logo-pill">Scripts</span>
+    </div>
+    <span class="badge" aria-label="Simulation mode">Simulation</span>
     <div class="spacer"></div>
+    <a href="/" class="header-link" title="Back to bobsnadenica.com">
+      ← Back to site
+    </a>
   </header>
 
   <main>
-    <aside>
-      <div class="section-title" tabindex="0">Scripts</div>
-      <div id="script-list" class="saved-list"></div>
-    </aside>
-
-    <section class="workbench">
-      <div class="toolbar">
-        <div class="title">Script Runner</div>
-        <div class="spacer"></div>
-        <div class="controls">
-          <button id="run-btn" class="btn primary" aria-label="Run script" title="Run script" onclick="runScript()">Run ▷</button>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Script catalog</div>
+        <div class="sidebar-subtitle">Browse local AWS helper scripts grouped by service.</div>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input id="script-search" type="search" placeholder="Search scripts…" autocomplete="off" />
+          <span id="search-clear" class="search-clear" title="Clear search">✕</span>
         </div>
       </div>
+      <div id="sidebar-body" class="sidebar-body"></div>
+      <div class="sidebar-footer">
+        Local-only simulation. No real AWS calls are made.
+      </div>
+    </aside>
 
-      <div class="editor-area">
-        <div class="card">
-          <h3>Script</h3>
-          <pre id="script-view">Select a script from the left…\n</pre>
+    <section class="content">
+      <div class="toolbar">
+        <div class="toolbar-title">Script Workbench</div>
+        <div id="toolbar-path" class="toolbar-path">No script selected</div>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="details" type="button"><span class="icon">ⓘ</span> Details</button>
+        <button class="tab-btn" data-tab="script" type="button"><span class="icon"></span> Script</button>
+        <button class="tab-btn" data-tab="run" type="button"><span class="icon">▶</span> Run</button>
+      </div>
+
+      <div class="tab-panels">
+        <!-- Details tab -->
+        <div id="tab-details" class="tab-panel active">
+          <div class="details-grid">
+            <div class="card">
+              <h3>Overview</h3>
+              <div class="meta-row">
+                <span class="meta-label">Name</span>
+                <span id="detail-name">Select a script…</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Service</span>
+                <span id="detail-service" class="meta-value-pill">—</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Type</span>
+                <span id="detail-type" class="meta-value-pill">—</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Path</span>
+                <span id="detail-path" style="font-size:11px;color:var(--muted);"></span>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Description</h3>
+              <div id="detail-desc" class="description-text">Choose a script on the left to see what it does and how its mock response looks.</div>
+            </div>
+          </div>
         </div>
-        <div class="card">
-          <h3>Output</h3>
-          <button id="toggle-fullscreen" class="btn small" style="float:right; margin-bottom:6px;" aria-label="Expand output fullscreen" title="Expand or collapse output" onclick="toggleOutputFullscreen()">Expand ↗︎</button>
-          <div id="output-container" tabindex="0">
-            <pre id="output" aria-live="polite">Ready. Select a script and click Run.\n</pre>
+
+        <!-- Script tab -->
+        <div id="tab-script" class="tab-panel">
+          <div class="script-viewer">
+            <div class="script-header">
+              <span>Script contents (mock section hidden for readability)</span>
+            </div>
+            <pre id="script-view" class="code-block">Select a script from the left…
+</pre>
+          </div>
+        </div>
+
+        <!-- Run tab -->
+        <div id="tab-run" class="tab-panel">
+          <div class="run-viewer">
+            <div class="run-header">
+              <span>Run mock</span>
+              <span style="font-size:11px;color:var(--muted);">Keyboard: <span class="kbd">Ctrl/⌘</span> + <span class="kbd">Enter</span></span>
+            </div>
+            <div class="run-controls">
+              <div class="field-group">
+                <span class="field-label">AWS region (simulated)</span>
+                <select id="run-region" class="field-input">
+                  <option value="eu-central-1">eu-central-1</option>
+                  <option value="us-east-1">us-east-1</option>
+                  <option value="us-west-2">us-west-2</option>
+                  <option value="ap-southeast-1">ap-southeast-1</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <span class="field-label">AWS profile (label only)</span>
+                <input id="run-profile" class="field-input" type="text" placeholder="default" />
+              </div>
+              <button id="run-btn" class="btn primary" type="button">
+                <span>Run mock</span> <span>▶</span>
+              </button>
+            </div>
+            <div class="run-output-container" id="run-output" aria-live="polite">
+              <div class="run-note">Select a script and click <strong>Run mock</strong> to see the simulated command and its mock output.</div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="statusbar">
-        <span class="status-dot" id="engine-dot" title="Engine status"></span>
+        <span id="engine-dot" class="status-dot"></span>
         <span id="engine-status" class="status--ok">Ready</span>
-        <span class="spacer"></span>
-        <span>Tips: Save (<span class="kbd">Ctrl/⌘+S</span>), Run (<span class="kbd">Ctrl/⌘+Enter</span>)</span>
+        <div class="spacer"></div>
+        <span>Shortcuts: <span class="kbd">Ctrl/⌘</span> + <span class="kbd">Enter</span> to run</span>
       </div>
     </section>
   </main>
 
-  <!-- removed stray </main> and removed engine.js script tag -->
-  <button id="exit-fullscreen" class="btn small" style="display:none; position:fixed; top:12px; right:16px; z-index:1100;" aria-label="Close fullscreen output" title="Close fullscreen output" onclick="toggleOutputFullscreen()">✕ Close</button>
-  <script defer>
-// Core script execution engine with inline mock response support
+  <script>
+    // Global state
+    const LAST_SCRIPT_KEY = 'aws-sim:lastScript';
+    const FAVORITES_KEY = 'aws-sim:favorites';
 
-function showStatus(msg, kind = 'ok') {
-  const el = document.getElementById('engine-status');
-  el.textContent = msg;
-  el.classList.remove('status--ok', 'status--warn', 'status--error');
-  el.classList.add(kind === 'error' ? 'status--error' : kind === 'warn' ? 'status--warn' : 'status--ok');
-}
+    let scriptsIndex = {};
+    let favorites = new Set();
+    let currentScriptFile = null;
+    let currentScriptContent = '';
+    let currentService = '';
 
-function extractMockResponse(code) {
-  const mockStart = code.indexOf("# ---MOCK_RESPONSE---");
-  const mockEnd = code.indexOf("# ---END_MOCK---");
-  if (mockStart !== -1 && mockEnd !== -1 && mockEnd > mockStart) {
-    return code
-      .slice(mockStart + "# ---MOCK_RESPONSE---".length, mockEnd)
-      .split("\n")
-      .map(l => l.replace(/^# ?/, "")) // remove leading #
-      .join("\n")
-      .trim() + "\n";
-  }
-  return null;
-}
-
-function appendOutput(text) {
-  const out = document.getElementById("output");
-  out.textContent += text;
-  out.scrollTo({ top: out.scrollHeight, behavior: 'smooth' });
-}
-
-function clearOutput() {
-  document.getElementById("output").textContent = "";
-}
-
-async function runScript() {
-  showStatus('Running…', 'warn');
-  const btn = document.getElementById("run-btn");
-  btn.disabled = true;
-  btn.textContent = "Running…";
-  clearOutput(); // Clear previous output at the start
-  try {
-    const code = document.getElementById("script-view").textContent || ""; // ✅ fixed
-    const lines = code.split(/\r?\n/);
-    for (const raw of lines) {
-      const line = raw.trim();
-      if (!line || line.startsWith("#")) continue;
-      appendOutput(`$ ${line}\n`);
-      // Fake delay to simulate execution
-      await new Promise(r => setTimeout(r, 50));
-    }
-
-    // Extract mock from full file if available
-    let mock = null;
-    if (window.currentScriptFile) {
-      try {
-        const res = await fetch("./scripts/" + window.currentScriptFile);
-        const fullCode = await res.text();
-        mock = extractMockResponse(fullCode);
-      } catch {
-        appendOutput("[!] Could not load full script file for mock output.\n");
-      }
-    }
-
-    // Fallback to editor content
-    if (!mock) {
-      mock = extractMockResponse(code);
-    }
-
-    if (mock) {
-      appendOutput(mock + "\n");
-    } else {
-      appendOutput("No mock response found in this script.\n");
-    }
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Run ▷";
-    document.getElementById("output-container").scrollTop = 0;
-    showStatus('Done', 'ok');
-  }
-}
-</script>
-  <script defer>
-    function toggleOutputFullscreen() {
-      const container = document.getElementById('output-container');
-      const btn = document.getElementById('toggle-fullscreen');
-      const exitBtn = document.getElementById('exit-fullscreen');
-      if (!container.classList.contains('fullscreen')) {
-        container.classList.add('fullscreen');
-        document.body.classList.add('no-scroll');
-        btn.textContent = 'Collapse ↙︎';
-        exitBtn.style.display = 'block';
+    function setEngineStatus(message, kind = 'ok') {
+      const status = document.getElementById('engine-status');
+      const dot = document.getElementById('engine-dot');
+      status.textContent = message;
+      status.classList.remove('status--ok', 'status--warn', 'status--error');
+      if (kind === 'error') {
+        status.classList.add('status--error');
+        dot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bad');
+      } else if (kind === 'warn') {
+        status.classList.add('status--warn');
+        dot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--warn');
       } else {
-        container.classList.remove('fullscreen');
-        document.body.classList.remove('no-scroll');
-        btn.textContent = 'Expand ↗︎';
-        exitBtn.style.display = 'none';
+        status.classList.add('status--ok');
+        dot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--good');
       }
     }
-  </script>
-<script defer>
-// Minimal UI for AWS Console Simulation – Only shows scripts and lets you run them
 
-const LAST_SCRIPT_KEY = 'aws-sim:lastScript';
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
-async function loadAvailableScripts() {
-  const list = document.getElementById("script-list");
-  list.innerHTML = "";
-  showStatus('Loading scripts…', 'warn');
-  let data = null;
+    function extractMockResponse(code) {
+      const startMarker = '# ---MOCK_RESPONSE---';
+      const endMarker = '# ---END_MOCK---';
+      const mockStart = code.indexOf(startMarker);
+      const mockEnd = code.indexOf(endMarker);
+      if (mockStart !== -1 && mockEnd !== -1 && mockEnd > mockStart) {
+        return code
+          .slice(mockStart + startMarker.length, mockEnd)
+          .split('\n')
+          .map(l => l.replace(/^# ?/, ''))
+          .join('\n')
+          .trim();
+      }
+      return null;
+    }
 
-  try {
-    const resp = await fetch("./scripts/scripts_index.json");
-    data = await resp.json();
-    showStatus('Scripts loaded', 'ok');
-  } catch {
-    data = ["example.sh", "sample.json"];
-    showStatus('Using fallback script list', 'warn');
-  }
+    function stripMockSection(code) {
+      const startMarker = '# ---MOCK_RESPONSE---';
+      const endMarker = '# ---END_MOCK---';
+      const mockStart = code.indexOf(startMarker);
+      const mockEnd = code.indexOf(endMarker);
+      if (mockStart !== -1 && mockEnd !== -1 && mockEnd > mockStart) {
+        return code.slice(0, mockStart).trim();
+      }
+      return code.trim();
+    }
 
-  // If object → categorized scripts
-  const categories = typeof data === "object" && !Array.isArray(data) ? data : { "Scripts": data };
-  const lastScript = localStorage.getItem(LAST_SCRIPT_KEY);
-  let firstButton = null;
-  let lastButtonToSelect = null;
+    function parseMockToTableHTML(mockText) {
+      if (!mockText) return '';
+      const lines = mockText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return '';
 
-  for (const [category, files] of Object.entries(categories)) {
-    const header = document.createElement("div");
-    header.className = "section-title";
-    header.textContent = category;
-    list.appendChild(header);
+      // Try to detect a delimiter: prefer comma, then tab
+      const first = lines[0];
+      let delimiter = null;
+      if (first.includes(',')) delimiter = ',';
+      else if (first.includes('\t')) delimiter = '\t';
 
-    files.forEach(file => {
-      const btn = document.createElement("button");
-      btn.className = "nav-btn";
-      btn.textContent = file.split("/").pop();
-      btn.setAttribute('tabindex', '0');
-      btn.onclick = async () => {
-        showStatus('Loading script…', 'warn');
-        // Remove active from all nav-btns, add to this
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        localStorage.setItem(LAST_SCRIPT_KEY, file);
-        document.getElementById('script-view').textContent = 'Loading…';
-        document.getElementById('output').textContent = 'Ready. Select a script and click Run.\n';
-        window.currentScriptFile = file; // track selected file
-        try {
-          const res = await fetch("./scripts/" + file);
-          let content = await res.text();
-          // Strip mock section for cleaner view
-          const start = content.indexOf("# ---MOCK_RESPONSE---");
-          const end = content.indexOf("# ---END_MOCK---");
-          if (start !== -1 && end !== -1 && end > start) {
-            content = content.slice(0, start).trim();
-          }
-          document.getElementById("script-view").textContent = content || "(empty)";
-          showStatus('Script loaded', 'ok');
-        } catch {
-          showStatus('Failed to load ' + file, 'error');
-          appendOutput("\n[ERROR] Failed to load " + file + "\n");
+      if (!delimiter) {
+        // Fallback: render as raw preformatted text
+        return '<pre class="raw-output">' + escapeHTML(mockText) + '</pre>';
+      }
+
+      const headers = first.split(delimiter).map(h => h.trim()).filter(Boolean);
+      const rows = lines.slice(1).map(line => line.split(delimiter).map(v => v.trim()));
+      if (!headers.length) {
+        return '<pre class="raw-output">' + escapeHTML(mockText) + '</pre>';
+      }
+
+      let html = '<table class="mock-table"><thead><tr>';
+      for (const h of headers) {
+        html += '<th>' + escapeHTML(h) + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+      for (const row of rows) {
+        if (!row.some(cell => cell)) continue;
+        html += '<tr>';
+        for (let i = 0; i < headers.length; i++) {
+          const cell = row[i] ?? '';
+          html += '<td>' + escapeHTML(cell) + '</td>';
         }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      return html;
+    }
+
+    function parseScriptMetadata(path, service, content) {
+      const name = path.split('/').pop() || path;
+      const ext = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+      const type = ext === 'sh' ? 'Shell script (.sh)' : ext === 'json' ? 'JSON file (.json)' : ext ? ext.toUpperCase() + ' file' : 'File';
+
+      let desc = '';
+      const lines = content.split(/\r?\n/);
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line.startsWith('#')) continue;
+        if (line.startsWith('# ---')) continue; // skip mock markers
+        if (line.toUpperCase().startsWith('# DESC:')) {
+          desc = line.replace(/^# DESC:/i, '').trim();
+          break;
+        }
+        if (!desc) {
+          desc = line.replace(/^# ?/, '').trim();
+        }
+      }
+
+      return { name, type, service, path, description: desc || 'No description found in script comments.' };
+    }
+
+    function renderDetails(meta) {
+      document.getElementById('detail-name').textContent = meta.name || '—';
+      document.getElementById('detail-service').textContent = meta.service || '—';
+      document.getElementById('detail-path').textContent = meta.path || '';
+      document.getElementById('detail-type').textContent = meta.type || '—';
+      document.getElementById('detail-desc').textContent = meta.description || '';
+      document.getElementById('toolbar-path').textContent = meta.path || 'No script selected';
+    }
+
+    function renderScriptContent(content) {
+      const stripped = stripMockSection(content || '');
+      document.getElementById('script-view').textContent = stripped || '(empty)';
+    }
+
+    function renderRunIdle() {
+      const container = document.getElementById('run-output');
+      container.innerHTML = '<div class="run-note">Select a script and click <strong>Run mock</strong> to see the simulated command and its mock output.</div>';
+    }
+
+    function renderRunOutput(command, mockText) {
+      const container = document.getElementById('run-output');
+      const escapedCmd = escapeHTML(command);
+      const tableHTML = parseMockToTableHTML(mockText);
+      const safeTable = tableHTML || '<pre class="raw-output">' + escapeHTML(mockText || 'No mock response found in this script.') + '</pre>';
+
+      container.innerHTML = `
+        <div class="command-preview"><code>$ ${escapedCmd}</code></div>
+        <div class="run-note">This is a local-only simulation based on the script's <code># ---MOCK_RESPONSE---</code> section. No real AWS calls are executed.</div>
+        ${safeTable}
+      `;
+    }
+
+    function loadFavorites() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+        favorites = new Set(stored);
+      } catch {
+        favorites = new Set();
+      }
+    }
+
+    function saveFavorites() {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(favorites)));
+    }
+
+    function buildSidebar() {
+      const container = document.getElementById('sidebar-body');
+      container.innerHTML = '';
+      const last = localStorage.getItem(LAST_SCRIPT_KEY);
+      let buttonToAutoSelect = null;
+
+      const entries = Object.entries(scriptsIndex);
+      entries.sort(([a],[b]) => a.localeCompare(b));
+
+      for (const [service, files] of entries) {
+        const category = document.createElement('div');
+        category.className = 'category';
+
+        const title = document.createElement('div');
+        title.className = 'category-title';
+        title.textContent = service;
+        category.appendChild(title);
+
+        const list = document.createElement('div');
+        list.className = 'category-list';
+
+        files.forEach(path => {
+          const item = document.createElement('div');
+          item.className = 'script-item';
+          item.dataset.path = path;
+          item.dataset.service = service;
+          item.dataset.name = path.split('/').pop();
+
+          const main = document.createElement('div');
+          main.className = 'script-main';
+
+          const nameEl = document.createElement('div');
+          nameEl.className = 'script-name';
+          nameEl.textContent = item.dataset.name;
+
+          const metaEl = document.createElement('div');
+          metaEl.className = 'script-meta';
+          metaEl.textContent = service + ' · ' + path;
+
+          main.appendChild(nameEl);
+          main.appendChild(metaEl);
+
+          const pill = document.createElement('div');
+          pill.className = 'script-pill';
+          const ext = item.dataset.name.includes('.') ? item.dataset.name.split('.').pop().toLowerCase() : '';
+          pill.textContent = ext || 'file';
+
+          const star = document.createElement('button');
+          star.type = 'button';
+          star.className = 'star-btn';
+          star.innerHTML = favorites.has(path) ? '★' : '☆';
+          if (favorites.has(path)) star.classList.add('favorited');
+
+          star.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            if (favorites.has(path)) {
+              favorites.delete(path);
+              star.classList.remove('favorited');
+              star.innerHTML = '☆';
+            } else {
+              favorites.add(path);
+              star.classList.add('favorited');
+              star.innerHTML = '★';
+            }
+            saveFavorites();
+          });
+
+          item.addEventListener('click', () => selectScript(path, service));
+
+          item.appendChild(main);
+          item.appendChild(pill);
+          item.appendChild(star);
+          list.appendChild(item);
+
+          if (path === last) {
+            buttonToAutoSelect = item;
+          }
+        });
+
+        category.appendChild(list);
+        container.appendChild(category);
+      }
+
+      if (buttonToAutoSelect) {
+        buttonToAutoSelect.click();
+      } else {
+        const firstItem = container.querySelector('.script-item');
+        if (firstItem) firstItem.click();
+      }
+    }
+
+    async function selectScript(path, service) {
+      currentScriptFile = path;
+      currentService = service;
+      setEngineStatus('Loading script…', 'warn');
+
+      document.querySelectorAll('.script-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.path === path);
+      });
+
+      localStorage.setItem(LAST_SCRIPT_KEY, path);
+      renderRunIdle();
+
+      try {
+        const res = await fetch('./scripts/' + path);
+        const text = await res.text();
+        currentScriptContent = text;
+        const meta = parseScriptMetadata(path, service, text);
+        renderDetails(meta);
+        renderScriptContent(text);
+        setEngineStatus('Script loaded', 'ok');
+      } catch (err) {
+        console.error(err);
+        setEngineStatus('Failed to load script', 'error');
+      }
+    }
+
+    async function runScript() {
+      if (!currentScriptFile || !currentScriptContent) {
+        setEngineStatus('Select a script first', 'warn');
+        return;
+      }
+
+      const btn = document.getElementById('run-btn');
+      btn.disabled = true;
+      setEngineStatus('Running mock…', 'warn');
+
+      try {
+        const region = document.getElementById('run-region').value || 'eu-central-1';
+        const profile = (document.getElementById('run-profile').value || 'default').trim();
+        const cmd = `${profile ? `AWS_PROFILE=${profile} ` : ''}AWS_REGION=${region} ./scripts/${currentScriptFile}`;
+
+        // Prefer mock from full script file (in case editor view is stripped)
+        let mock = extractMockResponse(currentScriptContent);
+        if (!mock) {
+          try {
+            const res = await fetch('./scripts/' + currentScriptFile);
+            const fullText = await res.text();
+            mock = extractMockResponse(fullText) || mock;
+          } catch {
+            // ignore secondary error
+          }
+        }
+
+        renderRunOutput(cmd, mock || 'No mock response found in this script.');
+        setEngineStatus('Mock run complete', 'ok');
+      } catch (err) {
+        console.error(err);
+        setEngineStatus('Mock run failed', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function setupTabs() {
+      const buttons = document.querySelectorAll('.tab-btn');
+      const panels = {
+        details: document.getElementById('tab-details'),
+        script: document.getElementById('tab-script'),
+        run: document.getElementById('tab-run')
       };
-      list.appendChild(btn);
-      if (!firstButton) firstButton = btn;
-      if (file === lastScript) lastButtonToSelect = btn;
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.tab;
+          buttons.forEach(b => b.classList.toggle('active', b === btn));
+          Object.entries(panels).forEach(([key, panel]) => {
+            panel.classList.toggle('active', key === tab);
+          });
+        });
+      });
+    }
+
+    function setupSearch() {
+      const input = document.getElementById('script-search');
+      const clearBtn = document.getElementById('search-clear');
+
+      function applyFilter() {
+        const q = input.value.toLowerCase().trim();
+        clearBtn.style.display = q ? 'block' : 'none';
+        const items = document.querySelectorAll('.script-item');
+        items.forEach(item => {
+          const name = (item.dataset.name || '').toLowerCase();
+          const path = (item.dataset.path || '').toLowerCase();
+          const match = !q || name.includes(q) || path.includes(q);
+          item.style.display = match ? '' : 'none';
+        });
+      }
+
+      input.addEventListener('input', applyFilter);
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        applyFilter();
+        input.focus();
+      });
+    }
+
+    async function loadScriptsIndex() {
+      setEngineStatus('Loading scripts…', 'warn');
+      try {
+        const resp = await fetch('./scripts/scripts_index.json');
+        const data = await resp.json();
+        scriptsIndex = data && typeof data === 'object' && !Array.isArray(data) ? data : { Scripts: data };
+        setEngineStatus('Scripts loaded', 'ok');
+        buildSidebar();
+      } catch (err) {
+        console.error(err);
+        scriptsIndex = { Scripts: ['example.sh', 'sample.json'] };
+        setEngineStatus('Using fallback script list', 'warn');
+        buildSidebar();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const runBtn = document.getElementById('run-btn');
+      runBtn.addEventListener('click', runScript);
+
+      setupTabs();
+      setupSearch();
+      loadFavorites();
+
+      const localMode = location.protocol === 'file:';
+      if (localMode) {
+        setEngineStatus('Local file mode: start a server for full script access', 'warn');
+        document.getElementById('sidebar-body').innerHTML = "<p style='font-size:12px;color:var(--muted);margin:0;'>Local mode — directory listing disabled. Run <code>python3 -m http.server 8080</code> from the site root and open <code>http://localhost:8080/aws/</code>.</p>";
+        renderRunIdle();
+      } else {
+        loadScriptsIndex();
+      }
+
+      // Keyboard shortcut: Ctrl/⌘ + Enter runs current script
+      document.addEventListener('keydown', (e) => {
+        const isMac = navigator.platform.toUpperCase().includes('MAC');
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'Enter') {
+          const btn = document.getElementById('run-btn');
+          if (!btn.disabled) runScript();
+        }
+      });
     });
-  }
-  // Auto-select previously opened script or the first item
-  (lastButtonToSelect || firstButton)?.click();
-}
-
-// Local mode fallback message
-const localMode = location.protocol === "file:";
-if (localMode) {
-  window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("script-view").textContent =
-      "# Local mode active\n# Run a local server for full script access:\n#   python3 -m http.server 8080\n# Then open http://localhost:8080/aws/\n";
-    document.getElementById("script-list").innerHTML =
-      "<p style='color:var(--muted);margin:8px;'>Local mode — directory listing disabled.</p>";
-  });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (!localMode) loadAvailableScripts();
-});
-
-// Keyboard shortcut: Ctrl/⌘ + Enter runs the current script
-document.addEventListener('keydown', (e) => {
-  const isMac = navigator.platform.toUpperCase().includes('MAC');
-  if ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'Enter') {
-    const runBtn = document.getElementById('run-btn');
-    if (!runBtn.disabled) runBtn.click();
-  }
-});
-</script>
+  </script>
 </body>
 </html>
