@@ -286,5 +286,34 @@ EOF
 
 
 # ---MOCK_RESPONSE---
-# test test
+# ================================================================================
+# INSTANCE #1: i-0123456789abcdef0 (prod-web-01)
+# Hostname: ip-10-0-1-15
+# Kernel: 5.15.0-1067-aws
+# OS: PRETTY_NAME="Ubuntu 22.04.5 LTS"
+#
+# ================================================================================
+# INSTANCE #2: i-0fedcba9876543210 (prod-bastion-windows)
+# ---BEGIN OUTPUT---
+# Uptime: 12 days, 04 hrs, 33 mins
+# Falcon Service: Running
+# Pending Updates:
+# - 2024-10 Cumulative Update for Windows Server 2019 (KB5034129)
+# - 2024-10 Security Update for .NET Framework 4.8 (KB5035075)
+# - 2024-10 Servicing Stack Update for Windows Server 2019 (KB5034361)
+# ---END OUTPUT---
+#
+# ================================================================================
+# INSTANCE #3: i-0a1b2c3d4e5f6a7b8 (dev-app-01)
+# [Instance: i-0a1b2c3d4e5f6a7b8] Skipped (state: stopped)
+#
+# Run complete. Results:
+#   Successes: 2
+#   Failures:  0
+#   Duration:  37s
+#   Success %: 66%
+# Reports:
+#   - Raw output: ssm_report_20250101_120000.md
+#   - Parsed CSV: ssm_report_20250101_120000.csv
+#   - Excel file: ssm_report_20250101_120000.xlsx
 # ---END_MOCK---
