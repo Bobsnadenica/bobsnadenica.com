@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velizar V е измамник</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Neue', cursive;
+      background: linear-gradient(135deg, #ff6b6b, #feca57, #1dd1a1);
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 4em;
+      margin-top: 50px;
+      text-shadow: 2px 2px #000;
+      animation: wobble 1s infinite alternate;
+    }
+
+    @keyframes wobble {
+      0% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+      100% { transform: rotate(-3deg); }
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: #fff;
+      top: -10px;
+      animation: fall linear infinite;
+      opacity: 0.8;
+      border-radius: 50%;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); }
+    }
+
+    p {
+      font-size: 1.5em;
+      margin-top: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 10px;
+      background: #ff9ff3;
+      color: #000;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.2) rotate(-5deg);
+      background: #f368e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Velizar V е измамник!</h1>
+  <p>Не се доверявай на нищо, което ти каже!</p>
+  <button onclick="alert('Сериозно ли? Това беше шега 😜')">Натисни за шега</button>
+
+  <script>
+    // Generate falling confetti
+    for(let i=0; i<100; i++){
+      let confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+      confetti.style.backgroundColor = `hsl(${Math.random()*360}, 80%, 60%)`;
+      document.body.appendChild(confetti);
+    }
+  </script>
+</body>
+</html>
