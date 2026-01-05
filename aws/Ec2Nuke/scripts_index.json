@@ -1,0 +1,33 @@
+{
+  "AWS SECRETS MANAGER": [
+    "AWS Secrets Manager/Report.sh"
+  ],
+  "IAM": [
+    "IAM/Report.sh"
+  ],
+  "KMS": [
+    "KMS/Report.sh"
+  ],
+  "SECURITY_GROUPS_AND_NETWORK_ACLS": [
+    "Security_Groups_And_Network_ACLs/overview.sh"
+  ],
+  "WAF": [
+    "WAF/overview.sh"
+  ],
+  "CONFIG": [
+    "config/example.sh"
+  ],
+  "EC2": [
+    "ec2/Describe.sh",
+    "ec2/Report.sh",
+    "ec2/Search.sh",
+    "ec2/create.sh",
+    "ec2/ssm_crawl.sh"
+  ],
+  "INSPECTOR": [
+    "inspector/overview.sh"
+  ],
+  "S3": [
+    "s3/s3_list.sh"
+  ]
+}
