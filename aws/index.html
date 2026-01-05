@@ -3,51 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CloudFormation Simulator</title>
+<title>AWS CloudFormation Simulator</title>
 <link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23121833'/><path d='M20 60h60v10H20zM30 30h40v20H30z' fill='%236ee7ff'/></svg>">
 </head>
 <body>
 
-<header>
-  <h1>CloudFormation Simulator</h1>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"></div>
+    <div class="titles">
+      <div class="title">AWS CloudFormation Simulator</div>
+      <div class="subtitle">Infrastructure-as-Code • Visual Execution • Safe Sandbox</div>
+    </div>
+  </div>
   <div class="actions">
-    <button id="deployBtn" class="primary">Deploy</button>
-    <button id="destroyBtn">Cleanup</button>
-    <a id="zipDownload" class="btn" download>Download ZIP</a>
+    <button id="deployBtn" class="primary">Deploy Stack</button>
+    <button id="destroyBtn">Delete Stack</button>
+    <a id="zipDownload" class="btn" download>Download Artifacts</a>
   </div>
 </header>
 
-<main>
-  <aside>
-    <section>
+<div class="statusbar">
+  <div class="status-item">
+    <span class="label">Environment</span>
+    <span class="value">Simulation</span>
+  </div>
+  <div class="status-item">
+    <span class="label">Execution Mode</span>
+    <span class="value">Dry Run</span>
+  </div>
+  <div class="status-item">
+    <span class="label">Region</span>
+    <span class="value">eu-central-1</span>
+  </div>
+</div>
+
+<main class="layout">
+  <aside class="sidebar">
+    <section class="sidebar-section">
       <h3>Projects</h3>
-      <div id="projects"></div>
+      <div id="projects" class="sidebar-list"></div>
     </section>
-    <section>
+
+    <section class="sidebar-section">
       <h3>Stacks</h3>
-      <div id="stacks"></div>
+      <div id="stacks" class="sidebar-list"></div>
     </section>
-    <section>
-      <h3>Events</h3>
-      <div id="events"></div>
+
+    <section class="sidebar-section">
+      <h3>Execution Events</h3>
+      <div id="events" class="events"></div>
     </section>
   </aside>
 
   <section class="workspace">
-    <div id="diagram">
-      <svg id="edges"></svg>
+    <div class="workspace-header">
+      <div class="breadcrumbs">
+        <span>Repository</span>
+        <span class="sep">/</span>
+        <span id="breadcrumbProject">Project</span>
+        <span class="sep">/</span>
+        <span id="breadcrumbStack">Stack</span>
+      </div>
     </div>
 
-    <div class="viewer">
-      <header id="viewerTitle">Select a stack</header>
-      <pre id="viewerContent"></pre>
-      <div class="cli">
-        <span>$</span>
-        <span id="cliCommand"></span>
+    <div class="workspace-body">
+      <div class="diagram-container">
+        <div id="diagram" class="diagram">
+          <svg id="edges"></svg>
+        </div>
+      </div>
+
+      <div class="viewer">
+        <header class="viewer-header" id="viewerTitle">Select a stack template</header>
+        <pre id="viewerContent" class="viewer-content"></pre>
+        <div class="cli">
+          <span class="prompt">$</span>
+          <span id="cliCommand" class="command"></span>
+        </div>
       </div>
     </div>
   </section>
 </main>
+
+<footer class="footer">
+  <div class="footer-left">CloudFormation Simulator</div>
+  <div class="footer-right">No AWS resources are created • Educational & Testing Tool</div>
+</footer>
 
 <script src="app.js"></script>
 </body>
