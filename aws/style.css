@@ -1,0 +1,139 @@
+:root {
+  --bg:#0b1020;
+  --panel:#121833;
+  --border:#1f2a5a;
+  --accent:#6ee7ff;
+  --ok:#4ade80;
+  --warn:#facc15;
+  --danger:#f87171;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto;
+  background: radial-gradient(1200px 600px at 20% -10%, #1b245a, transparent), var(--bg);
+  color: var(--text);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.actions { display: flex; gap: 10px; }
+
+button, .btn {
+  background: linear-gradient(180deg, #1f2a5a, #121833);
+  border: 1px solid #2b3aa0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button.primary { border-color: var(--accent); }
+
+main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 64px);
+}
+
+aside {
+  padding: 14px;
+  border-right: 1px solid var(--border);
+  background: rgba(18,24,51,.6);
+}
+
+aside section { margin-bottom: 16px; }
+
+aside h3 {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+aside div > div {
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+aside div > div.active {
+  background: #1b245a;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 14px;
+  padding: 14px;
+}
+
+#diagram {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(180deg,#0f1636,#0b1020);
+}
+
+.node {
+  position: absolute;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg,#1b245a,#121833);
+  border: 1px solid #2b3aa0;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.node.active { border-color: var(--accent); }
+
+.node.ok { border-color: var(--ok); }
+.node.warn { border-color: var(--warn); }
+.node.danger { border-color: var(--danger); }
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.viewer header {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.viewer pre {
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+}
+
+.cli {
+  border-top: 1px solid var(--border);
+  padding: 8px;
+  font-family: ui-monospace, Menlo, monospace;
+  background: #0f1533;
+}
+
+#events {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  max-height: 160px;
+  overflow: auto;
+}

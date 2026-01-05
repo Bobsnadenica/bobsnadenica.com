@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ECS Fargate test service
+
+Parameters:
+  VpcId:
+    Type: String
+  PrivateSubnets:
+    Type: String
+  AlbTargetGroup:
+    Type: String
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+
+  TaskDef:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ContainerDefinitions:
+        - Name: nginx
+          Image: nginx
+          PortMappings:
+            - ContainerPort: 80
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref TaskDef
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets:
+            - !Ref PrivateSubnets
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - ContainerName: nginx
+          ContainerPort: 80
+          TargetGroupArn: !Ref AlbTargetGroup

@@ -1,0 +1,16 @@
+Purpose: simulate a real production-like stack without being dangerous.
+
+Resources created
+
+VPC (multi-AZ)
+Public + Private subnets
+Internet Gateway + NAT
+ALB
+ECS Fargate service (dummy nginx)
+IAM roles
+S3 bucket (encrypted)
+CloudWatch log groups
+
+
+
+1️⃣ root.yaml (orchestrator)
