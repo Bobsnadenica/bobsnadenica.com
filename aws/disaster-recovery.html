@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 12: Disaster Recovery | Tech Knowledge Hub</title>
+  <style>
+    :root {
+      --bg-body: #0a0d12;
+      --bg-surface: #161b22;
+      --bg-card: #0d1117;
+      --border-subtle: rgba(240, 246, 252, 0.1);
+      --border-hover: rgba(56, 139, 253, 0.4);
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      
+      --accent-primary: #ff7b72; /* Red for Danger/Disaster */
+      --accent-safe: #2ea043;    /* Green for Safety */
+      --accent-warn: #d29922;    /* Orange for Warning */
+      --accent-cost: #e3b341;    /* Gold for Money */
+      
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-body);
+      background-image: 
+        radial-gradient(circle at 90% 10%, rgba(255, 123, 114, 0.08), transparent 25%),
+        radial-gradient(circle at 10% 90%, rgba(227, 179, 65, 0.05), transparent 25%);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding-bottom: 4rem;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* HEADER */
+    header { padding: 3rem 0; border-bottom: 1px solid var(--border-subtle); margin-bottom: 3rem; }
+    .breadcrumb { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+    .breadcrumb a:hover { color: var(--accent-primary); }
+    
+    h1 {
+      font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem;
+      background: linear-gradient(90deg, #fff, var(--accent-primary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    
+    .intro { font-size: 1.25rem; color: var(--text-secondary); max-width: 700px; }
+
+    /* CARDS */
+    .section-title { 
+      font-size: 1.75rem; margin: 4rem 0 1.5rem; color: var(--text-primary); 
+      display: flex; align-items: center; gap: 12px;
+      border-left: 4px solid var(--accent-primary);
+      padding-left: 1rem;
+    }
+
+    .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: 12px; padding: 1.5rem;
+      transition: transform 0.2s; position: relative; overflow: hidden;
+    }
+    .card:hover { border-color: var(--accent-primary); transform: translateY(-2px); }
+    .card h3 { color: var(--accent-primary); margin-bottom: 0.5rem; font-size: 1.1rem; }
+    .card p { color: var(--text-secondary); font-size: 0.95rem; }
+    
+    /* DEFINITION BOXES */
+    .def-box {
+      background: #161b22; padding: 1rem; border-radius: 8px; margin-top: 1rem;
+      border-left: 3px solid #30363d; font-size: 0.9rem;
+    }
+    .def-term { font-weight: bold; color: #fff; margin-bottom: 4px; display: block; }
+
+    /* GAMIFICATION: DOOMSDAY SIM */
+    .sim-console {
+      background: #0d1117; border: 1px solid #30363d; border-radius: 12px;
+      padding: 2rem; margin: 2rem 0; overflow: hidden;
+    }
+    
+    /* STRATEGY SELECTOR */
+    .strategy-bar {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 2rem;
+    }
+    .strat-btn {
+      background: #21262d; border: 1px solid #30363d; padding: 10px; border-radius: 6px;
+      color: #8b949e; cursor: pointer; text-align: center; transition: all 0.2s;
+    }
+    .strat-btn:hover { background: #30363d; }
+    .strat-btn.active { background: var(--accent-primary); color: #000; font-weight: bold; border-color: var(--accent-primary); }
+
+    /* VISUAL MAP */
+    .world-map {
+      display: flex; gap: 2rem; align-items: center; justify-content: center;
+      background: #010409; border: 1px solid #30363d; border-radius: 8px;
+      padding: 3rem 1rem; position: relative; min-height: 250px;
+    }
+    
+    .region {
+      width: 120px; height: 120px; border-radius: 12px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative; transition: all 0.5s;
+    }
+    
+    /* Region A (Primary) */
+    .region-a { background: #1f6feb; border: 2px solid #58a6ff; }
+    .region-a.destroyed { background: #3d1f1f; border-color: #ff7b72; animation: shake 0.5s; }
+    .region-a.destroyed::after { content: "🔥"; font-size: 3rem; position: absolute; }
+    
+    /* Region B (DR) */
+    .region-b { background: #21262d; border: 2px dashed #30363d; opacity: 0.5; }
+    .region-b.active { background: #238636; border: 2px solid #2ea043; opacity: 1; transform: scale(1.1); }
+    
+    .region-icon { font-size: 2rem; margin-bottom: 5px; }
+    .region-label { font-size: 0.7rem; font-weight: bold; color: rgba(255,255,255,0.8); text-transform: uppercase; }
+
+    /* CONTROLS */
+    .control-deck {
+      display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;
+      border-top: 1px solid #30363d; padding-top: 1.5rem;
+    }
+    .doom-btn {
+      background: var(--accent-primary); color: #000; font-weight: bold; padding: 15px 30px;
+      border-radius: 6px; border: none; font-size: 1.1rem; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 123, 114, 0.3); transition: transform 0.1s;
+    }
+    .doom-btn:active { transform: scale(0.95); }
+    .doom-btn:disabled { filter: grayscale(1); cursor: not-allowed; opacity: 0.5; }
+
+    .stats { text-align: right; font-family: var(--font-mono); font-size: 0.9rem; }
+    .stat-row { margin-bottom: 5px; }
+    .stat-val { color: #fff; font-weight: bold; margin-left: 10px; }
+
+    @keyframes shake {
+      0% { transform: translateX(0); } 25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="breadcrumb"><a href="index.html">← Back to Hub</a> / Reliability</div>
+      <h1>Disaster Recovery (DR)</h1>
+      <p class="intro">
+        Everything fails eventually. A meteor hits the datacenter. A hacker deletes the database. 
+        DR is the plan for <span style="color:var(--accent-primary)">how fast</span> you come back online.
+      </p>
+    </header>
+
+    <h2 class="section-title">⏱️ The Two "R"s of DR</h2>
+    <div class="concept-grid">
+      <div class="card">
+        <h3>RTO (Time)</h3>
+        <p><strong>Recovery Time Objective.</strong><br>How long can you be offline?</p>
+        <div class="def-box">
+          <span class="def-term">Analogy:</span>
+          If you fall down, how many seconds does it take you to stand back up?
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>RPO (Point)</h3>
+        <p><strong>Recovery Point Objective.</strong><br>How much data can you lose?</p>
+        <div class="def-box">
+          <span class="def-term">Analogy:</span>
+          If your essay crashes, did you save 1 minute ago, or 1 hour ago?
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">🕹️ Doomsday Simulator</h2>
+    <p style="margin-bottom:1rem; color:var(--text-secondary);">
+      <strong>Mission:</strong> Choose a recovery strategy, then destroy the main datacenter.
+    </p>
+
+    <div class="sim-console">
+      
+      <div style="text-align:center; margin-bottom:10px; color:#8b949e; font-size:0.8rem;">SELECT A STRATEGY</div>
+      <div class="strategy-bar">
+        <div class="strat-btn active" onclick="setStrat(0)">
+          📦 Backup & Restore
+          <div style="font-size:0.7rem; margin-top:5px;">Cheap & Slow</div>
+        </div>
+        <div class="strat-btn" onclick="setStrat(1)">
+          🕯️ Pilot Light
+          <div style="font-size:0.7rem; margin-top:5px;">Database Ready, App Off</div>
+        </div>
+        <div class="strat-btn" onclick="setStrat(2)">
+          🔥 Warm Standby
+          <div style="font-size:0.7rem; margin-top:5px;">Running but Small</div>
+        </div>
+        <div class="strat-btn" onclick="setStrat(3)">
+          ⚡ Active / Active
+          <div style="font-size:0.7rem; margin-top:5px;">Instant & Expensive</div>
+        </div>
+      </div>
+
+      <div class="world-map">
+        <div class="region region-a" id="regionA">
+          <div class="region-icon">🏙️</div>
+          <div class="region-label">Primary (NY)</div>
+          <div style="font-size:0.7rem; color:#fff; margin-top:5px;">ONLINE</div>
+        </div>
+
+        <div style="width: 100px; height: 2px; background: #30363d; position: relative;">
+          <div id="syncLine" style="position:absolute; top:0; left:0; height:100%; width:0%; background:var(--accent-safe); transition:width 2s;"></div>
+        </div>
+
+        <div class="region region-b" id="regionB">
+          <div class="region-icon">🏜️</div>
+          <div class="region-label">DR Site (LA)</div>
+          <div id="statusB" style="font-size:0.7rem; color:#8b949e; margin-top:5px;">OFFLINE</div>
+        </div>
+      </div>
+
+      <div class="control-deck">
+        <button class="doom-btn" id="doomBtn" onclick="triggerDisaster()">
+          ☄️ TRIGGER DISASTER
+        </button>
+
+        <div class="stats">
+          <div class="stat-row">Cost to Build: <span class="stat-val" id="costVal" style="color:var(--accent-cost)">$</span></div>
+          <div class="stat-row">Est. Recovery Time: <span class="stat-val" id="rtoVal">24 Hours</span></div>
+          <div class="stat-row">Status: <span class="stat-val" id="simStatus" style="color:#8b949e">Ready</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <h2 class="section-title">📋 The Strategies Explained</h2>
+    <div class="concept-grid">
+      <div class="card">
+        <h3>1. Backup & Restore</h3>
+        <p>Data is saved to S3. To recover, you must manually build new servers and download data. <br><strong>Cost:</strong> $ <br><strong>RTO:</strong> Hours/Days</p>
+      </div>
+      <div class="card">
+        <h3>2. Pilot Light</h3>
+        <p>Data is live in Region B (syncing). Servers are "turned off" (only the pilot light is on). To recover, you switch the servers on. <br><strong>Cost:</strong> $$ <br><strong>RTO:</strong> ~10-30 Mins</p>
+      </div>
+      <div class="card">
+        <h3>3. Warm Standby</h3>
+        <p>Everything is running in Region B, but small (miniature scale). To recover, you just scale it up (add more servers). <br><strong>Cost:</strong> $$$ <br><strong>RTO:</strong> Minutes</p>
+      </div>
+      <div class="card">
+        <h3>4. Active / Active</h3>
+        <p>Both regions take traffic 24/7. If one fails, the other just takes the extra load. Zero downtime. <br><strong>Cost:</strong> $$$$ <br><strong>RTO:</strong> Near Zero</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const regionA = document.getElementById('regionA');
+    const regionB = document.getElementById('regionB');
+    const statusB = document.getElementById('statusB');
+    const doomBtn = document.getElementById('doomBtn');
+    const simStatus = document.getElementById('simStatus');
+    const rtoVal = document.getElementById('rtoVal');
+    const costVal = document.getElementById('costVal');
+    const btns = document.querySelectorAll('.strat-btn');
+
+    const strats = [
+      { name: "Backup", cost: "$", rto: "24 Hours", recoveryTime: 3000 },
+      { name: "Pilot", cost: "$$", rto: "30 Mins", recoveryTime: 1500 },
+      { name: "Warm", cost: "$$$", rto: "5 Mins", recoveryTime: 800 },
+      { name: "Active", cost: "$$$$", rto: "0 Mins", recoveryTime: 0 }
+    ];
+
+    let currentStrat = 0;
+
+    function setStrat(index) {
+      currentStrat = index;
+      
+      // Update Buttons
+      btns.forEach(b => b.classList.remove('active'));
+      btns[index].classList.add('active');
+
+      // Update Stats
+      costVal.innerText = strats[index].cost;
+      rtoVal.innerText = strats[index].rto;
+
+      // Reset Visuals
+      resetSim();
+      
+      // Visual Feedback on Region B state
+      if (index === 0) { // Backup
+        statusB.innerText = "COLD STORAGE";
+        regionB.style.opacity = '0.3';
+      } else if (index === 1) { // Pilot
+        statusB.innerText = "DB ONLY";
+        regionB.style.opacity = '0.5';
+      } else if (index === 2) { // Warm
+        statusB.innerText = "SCALED DOWN";
+        regionB.style.opacity = '0.7';
+      } else { // Active
+        statusB.innerText = "ONLINE";
+        regionB.classList.add('active');
+        regionB.style.opacity = '1';
+      }
+    }
+
+    function resetSim() {
+      regionA.classList.remove('destroyed');
+      regionA.querySelector('.region-label').innerText = "Primary (NY)";
+      if(currentStrat !== 3) regionB.classList.remove('active');
+      simStatus.innerText = "Ready";
+      simStatus.style.color = "#8b949e";
+      doomBtn.disabled = false;
+    }
+
+    function triggerDisaster() {
+      doomBtn.disabled = true;
+      simStatus.innerText = "DISASTER DETECTED!";
+      simStatus.style.color = "#ff7b72";
+
+      // 1. Destroy Region A
+      regionA.classList.add('destroyed');
+      regionA.querySelector('.region-label').innerText = "OFFLINE";
+
+      // 2. Start Recovery based on Strategy
+      const time = strats[currentStrat].recoveryTime;
+
+      if (time === 0) {
+        // Instant
+        simStatus.innerText = "FAILOVER COMPLETE (Zero Downtime)";
+        simStatus.style.color = "#2ea043";
+        regionB.classList.add('active');
+        statusB.innerText = "TAKING TRAFFIC";
+      } else {
+        simStatus.innerText = "RECOVERING...";
+        
+        setTimeout(() => {
+          regionB.classList.add('active');
+          statusB.innerText = "ONLINE";
+          simStatus.innerText = "RECOVERY COMPLETE";
+          simStatus.style.color = "#2ea043";
+        }, time);
+      }
+
+      setTimeout(() => {
+        doomBtn.disabled = false;
+        doomBtn.innerText = "RESET SCENARIO";
+        doomBtn.onclick = () => {
+          resetSim();
+          doomBtn.innerText = "☄️ TRIGGER DISASTER";
+          doomBtn.onclick = triggerDisaster;
+          setStrat(currentStrat); // Re-apply current strat look
+        };
+      }, time + 500);
+    }
+
+    // Init
+    setStrat(0);
+  </script>
+
+</body>
+</html>
