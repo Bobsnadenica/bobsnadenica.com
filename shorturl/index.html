@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bob's Shortener</title>
+</head>
+<body>
+    <h1>Shorten URL</h1>
+    <input type="text" id="longUrl" placeholder="https://..." style="width: 300px; padding: 5px;">
+    <button onclick="shorten()">Shorten</button>
+    <p id="result" style="font-weight: bold; color: blue;"></p>
+
+    <script>
+        // --- CONFIGURATION ---
+        // PASTE YOUR TERRAFORM OUTPUT URL HERE (keep the quotes)
+        const API_URL = "https://4xq5819ymd.execute-api.eu-west-1.amazonaws.com/"; 
+        // ---------------------
+
+        async function shorten() {
+            const url = document.getElementById('longUrl').value;
+            if (!url) return;
+
+            // Remove trailing slash if present in API_URL config
+            const cleanApi = API_URL.replace(/\/$/, ""); 
+
+            try {
+                const res = await fetch(`${cleanApi}/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!res.ok) throw new Error("Request failed");
+                
+                const data = await res.json();
+                document.getElementById('result').innerHTML = 
+                    `<a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>`;
+            } catch (e) {
+                console.error(e);
+                alert('Error creating link. Check console.');
+            }
+        }
+    </script>
+</body>
+</html>
