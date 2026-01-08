@@ -4,43 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bob's Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        header { text-align: center; margin-bottom: 2rem; }
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.025em; }
+        p.subtitle { color: var(--text-muted); font-size: 0.95rem; }
+
+        .input-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.15s ease;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        button.primary-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button.primary-btn:hover { background-color: var(--primary-hover); }
+        button.primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .result-card {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: none; 
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .result-card.visible { display: flex; }
+        
+        .short-link {
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .copy-btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover { border-color: var(--text-muted); }
+
+        .message { margin-top: 1rem; text-align: center; font-size: 0.875rem; min-height: 1.25rem; }
+        .error { color: var(--danger); }
+    </style>
 </head>
 <body>
-    <h1>Shorten URL</h1>
-    <input type="text" id="longUrl" placeholder="https://..." style="width: 300px; padding: 5px;">
-    <button onclick="shorten()">Shorten</button>
-    <p id="result" style="font-weight: bold; color: blue;"></p>
 
-    <script>
-        // --- CONFIGURATION ---
-        // PASTE YOUR TERRAFORM OUTPUT URL HERE (keep the quotes)
-        const API_URL = "https://4xq5819ymd.execute-api.eu-west-1.amazonaws.com/"; 
-        // ---------------------
+<div class="container">
+    <header>
+        <h1>Bob's Shortener</h1>
+        <p class="subtitle">Enter a long URL to generate a short link.</p>
+    </header>
 
-        async function shorten() {
-            const url = document.getElementById('longUrl').value;
-            if (!url) return;
+    <div class="input-group">
+        <label for="longUrl">Destination URL</label>
+        <input type="text" id="longUrl" placeholder="https://example.com/very-long-url..." autofocus>
+    </div>
 
-            // Remove trailing slash if present in API_URL config
-            const cleanApi = API_URL.replace(/\/$/, ""); 
+    <button class="primary-btn" id="shortenBtn" onclick="shorten()">Shorten URL</button>
 
-            try {
-                const res = await fetch(`${cleanApi}/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
+    <div class="message" id="message"></div>
 
-                if (!res.ok) throw new Error("Request failed");
-                
-                const data = await res.json();
-                document.getElementById('result').innerHTML = 
-                    `<a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>`;
-            } catch (e) {
-                console.error(e);
-                alert('Error creating link. Check console.');
-            }
+    <div class="result-card" id="resultCard">
+        <a href="#" target="_blank" class="short-link" id="shortLink"></a>
+        <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    // PASTE YOUR TERRAFORM OUTPUT URL HERE
+    const API_URL = "https://4xq5819ymd.execute-api.eu-west-1.amazonaws.com/"; 
+    // ---------------------
+
+    const shortenBtn = document.getElementById('shortenBtn');
+    const messageEl = document.getElementById('message');
+    const resultCard = document.getElementById('resultCard');
+    const shortLinkEl = document.getElementById('shortLink');
+
+    async function shorten() {
+        const input = document.getElementById('longUrl');
+        const url = input.value.trim();
+
+        messageEl.textContent = '';
+        messageEl.className = 'message';
+        resultCard.classList.remove('visible');
+
+        if (!url) {
+            showError("Please enter a valid URL.");
+            return;
         }
-    </script>
+
+        setLoading(true);
+
+        try {
+            const cleanApi = API_URL.replace(/\/$/, ""); 
+            
+            const res = await fetch(`${cleanApi}/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+
+            if (!res.ok) throw new Error("Server error");
+            
+            const data = await res.json();
+            
+            shortLinkEl.href = data.shortUrl;
+            shortLinkEl.textContent = data.shortUrl;
+            resultCard.classList.add('visible');
+            input.value = ''; 
+        } catch (e) {
+            console.error(e);
+            showError("Failed to create link. Check console.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function setLoading(isLoading) {
+        if (isLoading) {
+            shortenBtn.disabled = true;
+            shortenBtn.textContent = "Shortening...";
+        } else {
+            shortenBtn.disabled = false;
+            shortenBtn.textContent = "Shorten URL";
+        }
+    }
+
+    function showError(msg) {
+        messageEl.textContent = msg;
+        messageEl.classList.add('error');
+    }
+
+    function copyToClipboard() {
+        const url = shortLinkEl.textContent;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.textContent;
+            btn.textContent = "Copied!";
+            setTimeout(() => btn.textContent = originalText, 2000);
+        });
+    }
+
+    document.getElementById('longUrl').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') shorten();
+    });
+</script>
+
 </body>
 </html>
