@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 99: The Playbook | Tech Knowledge Hub</title>
+  <style>
+    :root {
+      --bg-body: #0a0d12;
+      --bg-surface: #161b22;
+      --bg-card: #0d1117;
+      --border-subtle: rgba(240, 246, 252, 0.1);
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      --accent-guide: #2ea043;
+      --accent-warn: #d29922;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding-bottom: 4rem;
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+
+    header { padding: 3rem 0; border-bottom: 1px solid var(--border-subtle); margin-bottom: 3rem; }
+    .breadcrumb { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+    .breadcrumb a:hover { color: var(--accent-guide); }
+    h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(90deg, #fff, var(--accent-guide)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* WIZARD UI */
+    .wizard-console {
+      background: #0d1117; border: 1px solid #30363d; border-radius: 12px;
+      padding: 2rem; margin-bottom: 3rem; box-shadow: 0 0 20px rgba(46, 160, 67, 0.1);
+    }
+    
+    .step-container { display: none; animation: fadeIn 0.3s ease-out; }
+    .step-container.active { display: block; }
+    
+    .wizard-question { font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem; }
+    
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    
+    .option-btn {
+      background: #21262d; border: 1px solid #30363d; padding: 1.5rem;
+      border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: left;
+    }
+    .option-btn:hover { border-color: var(--accent-guide); transform: translateY(-2px); }
+    .option-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+    .option-title { font-weight: bold; display: block; }
+
+    .solution-box {
+      background: #161b22; border-left: 4px solid var(--accent-guide);
+      padding: 1.5rem; margin-top: 1rem;
+    }
+    .cmd-block {
+      background: #000; padding: 1rem; border-radius: 6px; font-family: var(--font-mono);
+      margin: 1rem 0; color: #a5d6ff; border: 1px solid #30363d;
+    }
+
+    /* GRID OF GUIDES */
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .guide-card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.2s;
+    }
+    .guide-card:hover { border-color: var(--accent-guide); }
+    .guide-tag { font-size: 0.7rem; text-transform: uppercase; color: #8b949e; letter-spacing: 1px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="breadcrumb"><a href="index.html">← Back to Hub</a> / Guides</div>
+      <h1>How-To Playbook</h1>
+      <p style="color:#8b949e; font-size:1.2rem;">Interactive troubleshooting and step-by-step guides for common engineering disasters.</p>
+    </header>
+
+    <h2 style="margin-bottom:1rem;">🧙‍♂️ Troubleshoot-o-Matic</h2>
+    <div class="wizard-console" id="wizard">
+      
+      <div class="step-container active" id="step1">
+        <div class="wizard-question">What is the symptom?</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="nextStep('slow')">
+            <span class="option-icon">🐌</span>
+            <span class="option-title">It's too slow</span>
+          </button>
+          <button class="option-btn" onclick="nextStep('crash')">
+            <span class="option-icon">🔥</span>
+            <span class="option-title">It crashed (500 Error)</span>
+          </button>
+          <button class="option-btn" onclick="nextStep('connect')">
+            <span class="option-icon">🔌</span>
+            <span class="option-title">Connection Refused</span>
+          </button>
+          <button class="option-btn" onclick="nextStep('disk')">
+            <span class="option-icon">💾</span>
+            <span class="option-title">Disk Full</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="step-container" id="sol-slow">
+        <div class="wizard-question">Diagnosis: Latency or Resource Starvation</div>
+        <div class="solution-box">
+          <p><strong>1. Check CPU/RAM Usage:</strong></p>
+          <div class="cmd-block">top</div>
+          <p><strong>2. Check Disk I/O (is disk slow?):</strong></p>
+          <div class="cmd-block">iotop</div>
+          <p><strong>3. Check Network Traffic:</strong></p>
+          <div class="cmd-block">iftop -n</div>
+          <button class="option-btn" style="margin-top:1rem; width:auto; display:inline-block;" onclick="resetWizard()">Start Over</button>
+        </div>
+      </div>
+
+      <div class="step-container" id="sol-crash">
+        <div class="wizard-question">Diagnosis: Application Error</div>
+        <div class="solution-box">
+          <p><strong>1. Check System Logs:</strong></p>
+          <div class="cmd-block">journalctl -xe</div>
+          <p><strong>2. Check Application Logs (Standard):</strong></p>
+          <div class="cmd-block">tail -f /var/log/nginx/error.log</div>
+          <p><strong>3. Did you run out of memory? (OOM Killer):</strong></p>
+          <div class="cmd-block">dmesg | grep -i "killed"</div>
+          <button class="option-btn" style="margin-top:1rem; width:auto; display:inline-block;" onclick="resetWizard()">Start Over</button>
+        </div>
+      </div>
+
+      <div class="step-container" id="sol-connect">
+        <div class="wizard-question">Diagnosis: Network or Firewall</div>
+        <div class="solution-box">
+          <p><strong>1. Is the service running?</strong></p>
+          <div class="cmd-block">systemctl status nginx</div>
+          <p><strong>2. Is the port listening?</strong></p>
+          <div class="cmd-block">netstat -tulpn | grep 80</div>
+          <p><strong>3. Is the Firewall blocking it?</strong></p>
+          <div class="cmd-block">sudo ufw status</div>
+          <button class="option-btn" style="margin-top:1rem; width:auto; display:inline-block;" onclick="resetWizard()">Start Over</button>
+        </div>
+      </div>
+
+      <div class="step-container" id="sol-disk">
+        <div class="wizard-question">Diagnosis: No Space Left on Device</div>
+        <div class="solution-box">
+          <p><strong>1. Find which partition is full:</strong></p>
+          <div class="cmd-block">df -h</div>
+          <p><strong>2. Find the biggest folders (This takes a while):</strong></p>
+          <div class="cmd-block">du -h --max-depth=1 / | sort -hr</div>
+          <p><strong>3. Clean package cache (Ubuntu/Debian):</strong></p>
+          <div class="cmd-block">sudo apt clean</div>
+          <button class="option-btn" style="margin-top:1rem; width:auto; display:inline-block;" onclick="resetWizard()">Start Over</button>
+        </div>
+      </div>
+
+    </div>
+
+    <h2 style="margin-bottom:1rem;">📚 Standard Procedures</h2>
+    <div class="guide-grid">
+      <div class="guide-card">
+        <div class="guide-tag">GIT</div>
+        <h3>Undo the last commit</h3>
+        <p style="color:#8b949e; font-size:0.9rem; margin-top:5px;">Keeps your changes in files.</p>
+        <div class="cmd-block" style="font-size:0.8rem;">git reset --soft HEAD~1</div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-tag">SSH</div>
+        <h3>Generate SSH Key</h3>
+        <p style="color:#8b949e; font-size:0.9rem; margin-top:5px;">For GitHub or Server access.</p>
+        <div class="cmd-block" style="font-size:0.8rem;">ssh-keygen -t ed25519 -C "me@email.com"</div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-tag">DOCKER</div>
+        <h3>Kill all containers</h3>
+        <p style="color:#8b949e; font-size:0.9rem; margin-top:5px;">Emergency cleanup.</p>
+        <div class="cmd-block" style="font-size:0.8rem;">docker rm -f $(docker ps -aq)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function nextStep(id) {
+      document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+      document.getElementById('sol-' + id).classList.add('active');
+    }
+
+    function resetWizard() {
+      document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+      document.getElementById('step1').classList.add('active');
+    }
+  </script>
+
+</body>
+</html>

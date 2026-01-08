@@ -22,6 +22,8 @@
       --badge-cloud-bg: rgba(235, 111, 146, 0.1); --badge-cloud-text: #eb6f92;
       --badge-data-bg: rgba(234, 154, 151, 0.1); --badge-data-text: #ea9a97;
       --badge-dev-bg: rgba(46, 160, 67, 0.1); --badge-dev-text: #3fb950;
+      --badge-ops-bg: rgba(210, 153, 34, 0.1); --badge-ops-text: #d29922;
+      --badge-extra-bg: rgba(227, 179, 65, 0.1); --badge-extra-text: #e3b341;
       
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
@@ -112,6 +114,8 @@
     .badge.cloud { background: var(--badge-cloud-bg); color: var(--badge-cloud-text); }
     .badge.data, .badge.security { background: var(--badge-data-bg); color: var(--badge-data-text); }
     .badge.dev { background: var(--badge-dev-bg); color: var(--badge-dev-text); }
+    .badge.ops { background: var(--badge-ops-bg); color: var(--badge-ops-text); }
+    .badge.extra { background: var(--badge-extra-bg); color: var(--badge-extra-text); }
 
     .topic-card h3 { color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1.15rem; }
     .topic-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
@@ -146,10 +150,74 @@
 
     <section class="category-section">
       <div class="section-header">
-        <h2>Networking</h2>
-        <span class="count-badge">7</span>
+        <h2 style="color:#e3b341">Resources & Extras</h2>
+        <span class="count-badge">2</span>
       </div>
       <div class="grid">
+        <a class="topic-card" href="how_to.html" data-tags="guide howto troubleshooting playbook">
+          <span class="badge extra">Guides</span>
+          <h3>How-To Playbook</h3>
+          <p>Interactive troubleshooting wizard. Diagnose crashes, slow servers, and network issues.</p>
+        </a>
+
+        <a class="topic-card" href="scripts.html" data-tags="scripts code snippets bash python sql">
+          <span class="badge extra">Tools</span>
+          <h3>Script Vault</h3>
+          <p>Production-ready code snippets. Copy/paste Bash, Python, and SQL commands instantly.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="category-section">
+      <div class="section-header">
+        <h2>DevOps & Observability</h2>
+        <span class="count-badge">5</span>
+      </div>
+      <div class="grid">
+        <a class="topic-card" href="cicd.html" data-tags="devops cicd jenkins github actions pipeline">
+          <span class="badge ops">Automation</span>
+          <h3>CI/CD Pipelines</h3>
+          <p>Continuous Integration & Deployment. Jenkins, GitHub Actions, and the art of shipping code automatically.</p>
+        </a>
+
+        <a class="topic-card" href="monitoring.html" data-tags="devops monitoring prometheus metrics alert">
+          <span class="badge ops">Observability</span>
+          <h3>Prometheus</h3>
+          <p>Time-series database for monitoring. How to scrape metrics and set alerts.</p>
+        </a>
+
+        <a class="topic-card" href="monitoring.html" data-tags="devops monitoring grafana dashboard visualization">
+          <span class="badge ops">Observability</span>
+          <h3>Grafana</h3>
+          <p>The visualization layer. Turning Prometheus metrics into beautiful, actionable dashboards.</p>
+        </a>
+
+        <a class="topic-card" href="cicd.html" data-tags="devops github git version control">
+          <span class="badge ops">SCM</span>
+          <h3>GitHub & Git</h3>
+          <p>Version control fundamentals. Branching, Pull Requests, and collaborative coding.</p>
+        </a>
+
+        <a class="topic-card" href="cicd.html" data-tags="devops jenkins automation server groovy">
+          <span class="badge ops">Automation</span>
+          <h3>Jenkins</h3>
+          <p>The classic automation server. Building pipelines with Groovy and plugins.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="category-section">
+      <div class="section-header">
+        <h2>Networking</h2>
+        <span class="count-badge">9</span>
+      </div>
+      <div class="grid">
+        <a class="topic-card" href="cdn.html" data-tags="networking cdn cache cloudfront akamai edge">
+          <span class="badge net">Performance</span>
+          <h3>CDN</h3>
+          <p>Content Delivery Network. Caching content at the edge to serve users globally in milliseconds.</p>
+        </a>
+
         <a class="topic-card" href="nat.html" data-tags="networking nat ip private public">
           <span class="badge net">Networking</span>
           <h3>NAT</h3>
@@ -192,10 +260,10 @@
           <p>Virtual firewalls that control traffic at the instance level.</p>
         </a>
 
-         <a class="topic-card" href="udp_tcp.html" data-tags="udp tcp networking protocol">
+        <a class="topic-card" href="udp_tcp.html" data-tags="networking udp tcp protocol transport">
           <span class="badge net">Networking</span>
-          <h3>UDP vs TCP</h3>
-          <p>Understanding the differences between User Datagram Protocol and Transmission Control Protocol.</p>
+          <h3>TCP vs UDP</h3>
+          <p>Reliable delivery (TCP) vs speed (UDP). The two languages of the internet.</p>
         </a>
       </div>
     </section>
@@ -283,7 +351,7 @@
     <section class="category-section">
       <div class="section-header">
         <h2>Data & Reliability</h2>
-        <span class="count-badge">4</span>
+        <span class="count-badge">5</span>
       </div>
       <div class="grid">
         <a class="topic-card" href="database-types.html" data-tags="data sql nosql rds dynamodb">
@@ -310,21 +378,26 @@
           <p>Strategies for restoring systems after catastrophic failure.</p>
         </a>
 
-         <a class="topic-card" href="llm.html" data-tags="data ai llm gpt chatgpt">
-          <span class="badge data">Data</span>
+        <a class="topic-card" href="llm.html" data-tags="data ai llm gpt machine learning">
+          <span class="badge data">AI</span>
           <h3>Large Language Models</h3>
-          <p>Advanced AI systems trained on vast datasets to generate human-like text and perform various tasks.</p>
+          <p>How LLMs work (Tokens, Probability, Temperature) and how to use them.</p>
         </a>
-
       </div>
     </section>
 
     <section class="category-section">
       <div class="section-header">
         <h2>Development & OS</h2>
-        <span class="count-badge">4</span>
+        <span class="count-badge">5</span>
       </div>
       <div class="grid">
+        <a class="topic-card" href="graphql.html" data-tags="dev api graphql query schema">
+          <span class="badge dev">API</span>
+          <h3>GraphQL</h3>
+          <p>The alternative to REST. Fetch exactly the data you need in a single request.</p>
+        </a>
+
         <a class="topic-card" href="linux-commands.html" data-tags="dev linux bash terminal cli">
           <span class="badge dev">OS</span>
           <h3>Linux Commands</h3>
