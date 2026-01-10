@@ -4,36 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bob's Shortener</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Professional Color Palette */
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --primary-light: #eff6ff;
+            /* PlayStation-esque Palette */
+            --primary: #2e6db4; /* PS Blue */
+            --primary-hover: #00439c;
+            --accent: #003791;
             
-            --bg-gradient-start: #f8fafc;
-            --bg-gradient-end: #e2e8f0;
+            --surface: rgba(255, 255, 255, 0.85); /* Frosted Glass */
             
-            --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --text-main: #1d1d1f;
+            --text-secondary: #5e5e5e;
             
-            --danger: #ef4444;
-            --success: #10b981;
+            --border: rgba(255, 255, 255, 0.4);
             
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --danger: #ff3b30;
+            --radius-lg: 24px;
+            --radius-md: 14px;
+            
+            --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
             color: var(--text-main);
             display: flex;
             flex-direction: column;
@@ -42,189 +38,271 @@
             min-height: 100vh;
             padding: 20px;
             -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+            position: relative;
         }
 
+        /* --- PLAYSTATION "FLOW" BACKGROUND --- */
+        .bg-flow {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(to bottom, #000000, #0a0a2a);
+            overflow: hidden;
+        }
+
+        .flow-particle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        /* The "Flow" Ribbons */
+        .fp-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #00439c; animation-duration: 25s; }
+        .fp-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #5822b4; animation-duration: 30s; animation-direction: reverse; }
+        .fp-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #00a8e8; opacity: 0.3; animation-duration: 40s; }
+
+        /* Subtle sparkle/dust */
+        .dust {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 5s infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0; transform: translateY(0); }
+            50% { opacity: 0.8; }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* --- CARD UI --- */
         .container {
             background: var(--surface);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             width: 100%;
-            max-width: 500px;
-            padding: 3rem;
-            border-radius: 24px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255,255,255,0.7);
+            max-width: 580px;
+            padding: 3.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+            position: relative;
         }
 
         /* HEADER */
-        header { text-align: center; margin-bottom: 2.5rem; }
+        header { text-align: center; margin-bottom: 3rem; }
         
         .logo-area {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 0.75rem;
-            color: var(--primary);
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00439c, #00a8e8);
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 67, 156, 0.4);
         }
         
         h1 { 
-            font-size: 1.75rem; 
-            font-weight: 800; 
-            letter-spacing: -0.03em;
+            font-size: 2.5rem; 
+            font-weight: 700; 
+            letter-spacing: -0.02em;
             color: var(--text-main);
+            margin-bottom: 0.5rem;
         }
         
         p.subtitle { 
-            color: var(--text-muted); 
-            font-size: 1rem; 
-            line-height: 1.5;
+            color: var(--text-secondary); 
+            font-size: 1.1rem; 
+            font-weight: 400;
+            line-height: 1.4;
         }
 
         /* INPUTS */
-        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        .input-group { margin-bottom: 2rem; text-align: left; }
         
         label { 
             display: block; 
-            font-size: 0.875rem; 
-            font-weight: 600; 
-            margin-bottom: 0.5rem; 
-            color: var(--text-main);
-            margin-left: 2px;
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            margin-bottom: 0.6rem; 
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         input[type="text"] {
             width: 100%;
-            padding: 1rem 1.25rem;
-            background-color: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 18px 20px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
             color: var(--text-main);
             transition: all 0.2s ease;
             outline: none;
         }
         
-        input[type="text"]::placeholder { color: #94a3b8; }
-        
         input[type="text"]:focus { 
             background-color: #fff;
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px var(--primary-light); 
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(46, 109, 180, 0.15); 
         }
 
         /* BUTTON */
         button.primary-btn {
             width: 100%;
-            padding: 1rem;
-            background-color: var(--primary);
+            padding: 18px;
+            background: linear-gradient(to right, #2e6db4, #00439c);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 67, 156, 0.3);
         }
         
         button.primary-btn:hover { 
-            background-color: var(--primary-dark); 
-            transform: translateY(-1px);
-            box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 67, 156, 0.4);
         }
         
-        button.primary-btn:active { transform: translateY(0); }
+        button.primary-btn:active { transform: scale(0.98); }
         
         button.primary-btn:disabled { 
-            opacity: 0.7; 
-            cursor: not-allowed; 
+            opacity: 0.6; 
+            cursor: default; 
             transform: none; 
         }
 
         /* RESULT CARD */
         .result-card {
-            margin-top: 2rem;
-            padding: 1rem 1.25rem;
-            background-color: var(--primary-light);
-            border: 1px solid #dbeafe;
-            border-radius: 12px;
+            margin-top: 2.5rem;
+            padding: 0;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-md);
             display: none; 
-            align-items: center;
+            align-items: center; 
             justify-content: space-between;
-            gap: 12px;
             opacity: 0;
             transform: translateY(10px);
+            overflow: hidden;
         }
         
         .result-card.visible { 
             display: flex; 
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
         
-        @keyframes slideUp {
+        @keyframes fadeIn {
             to { opacity: 1; transform: translateY(0); }
         }
         
+        .short-link-wrapper {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
         .short-link {
             font-weight: 600;
             color: var(--primary);
             text-decoration: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
+            white-space: normal;
+            word-break: break-all;
+            line-height: 1.4;
         }
         
         .short-link:hover { text-decoration: underline; }
 
         .copy-btn {
-            background: white;
-            border: 1px solid #bfdbfe;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
+            background: transparent;
+            border: none;
+            border-left: 1px solid rgba(0,0,0,0.1);
+            padding: 0 24px;
+            font-size: 0.9rem;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary);
             transition: all 0.2s;
-            flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
+            height: 100%; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 70px;
         }
         
-        .copy-btn:hover { 
-            background-color: #eff6ff;
-            border-color: var(--primary); 
-        }
+        .copy-btn:hover { background-color: rgba(255, 255, 255, 0.5); }
 
         /* ALERTS */
         .message { 
-            margin-top: 1rem; 
+            margin-top: 1.5rem; 
             text-align: center; 
             font-size: 0.9rem; 
             min-height: 1.5rem; 
             font-weight: 500;
         }
+        
         .error { color: var(--danger); }
         
         footer {
-            margin-top: 3rem;
-            color: var(--text-muted);
-            font-size: 0.875rem;
+            margin-top: 4rem;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        @media (max-width: 600px) {
+            .container { padding: 2rem; }
+            h1 { font-size: 2rem; }
+            .result-card { flex-direction: column; align-items: stretch; }
+            .copy-btn { border-left: none; border-top: 1px solid rgba(0,0,0,0.1); padding: 15px; }
         }
     </style>
 </head>
 <body>
 
+<div class="bg-flow">
+    <div class="flow-particle fp-1"></div>
+    <div class="flow-particle fp-2"></div>
+    <div class="flow-particle fp-3"></div>
+    <div class="dust" style="top: 20%; left: 30%; animation-delay: 0s;"></div>
+    <div class="dust" style="top: 70%; left: 80%; animation-delay: 2s;"></div>
+    <div class="dust" style="top: 40%; left: 10%; animation-delay: 4s;"></div>
+</div>
+
 <div class="container">
     <header>
         <div class="logo-area">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
         </div>
         <h1>Bob's Shortener</h1>
-        <p class="subtitle">Shorten long URLs into secure, trackable links.</p>
+        <p class="subtitle">Secure link management for the modern player.</p>
     </header>
 
     <div class="input-group">
         <label for="longUrl">Destination URL</label>
-        <input type="text" id="longUrl" placeholder="https://example.com/very-long-url..." autofocus>
+        <input type="text" id="longUrl" placeholder="https://example.com" autofocus>
     </div>
 
     <button class="primary-btn" id="shortenBtn" onclick="shorten()">Shorten URL</button>
@@ -232,8 +310,12 @@
     <div class="message" id="message"></div>
 
     <div class="result-card" id="resultCard">
-        <a href="#" target="_blank" class="short-link" id="shortLink"></a>
-        <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+        <div class="short-link-wrapper">
+            <a href="#" target="_blank" class="short-link" id="shortLink"></a>
+        </div>
+        <button class="copy-btn" onclick="copyToClipboard()">
+            Copy
+        </button>
     </div>
 </div>
 
@@ -267,7 +349,6 @@
         setLoading(true);
 
         try {
-            // Remove trailing slash if present
             const cleanApi = API_URL.replace(/\/$/, ""); 
             
             const res = await fetch(`${cleanApi}/create`, {
@@ -286,7 +367,7 @@
             input.value = ''; 
         } catch (e) {
             console.error(e);
-            showError("Failed to create link. Check console.");
+            showError("Failed to create link. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -295,12 +376,10 @@
     function setLoading(isLoading) {
         if (isLoading) {
             shortenBtn.disabled = true;
-            shortenBtn.textContent = "Shortening...";
-            shortenBtn.style.opacity = "0.7";
+            shortenBtn.textContent = "Processing...";
         } else {
             shortenBtn.disabled = false;
             shortenBtn.textContent = "Shorten URL";
-            shortenBtn.style.opacity = "1";
         }
     }
 
@@ -315,22 +394,16 @@
             const btn = document.querySelector('.copy-btn');
             const originalText = btn.textContent;
             
-            // Visual feedback
-            btn.textContent = "Copied!";
-            btn.style.backgroundColor = "#10b981"; // Green
-            btn.style.borderColor = "#10b981";
-            btn.style.color = "white";
+            btn.textContent = "Copied";
+            btn.style.color = "#2e6db4"; 
 
             setTimeout(() => {
                 btn.textContent = originalText;
-                btn.style.backgroundColor = ""; // Revert to CSS default
-                btn.style.borderColor = "";
-                btn.style.color = "";
+                btn.style.color = ""; 
             }, 2000);
         });
     }
 
-    // Allow pressing Enter to submit
     document.getElementById('longUrl').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') shorten();
     });
