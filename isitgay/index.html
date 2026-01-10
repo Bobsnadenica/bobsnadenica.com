@@ -320,12 +320,15 @@
     gayFinale.volume = 1.0;
     
     // Audio Unlocker for Mobile
+    // FIX: Mute the audio during the unlock phase so it's silent on first touch
     let audioUnlocked = false;
     function unlockAudio() {
         if (!audioUnlocked) {
+            gayFinale.muted = true; // Mute initially
             gayFinale.play().then(() => {
                 gayFinale.pause();
                 gayFinale.currentTime = 0;
+                gayFinale.muted = false; // Unmute so it's ready for the finale
                 audioUnlocked = true;
             }).catch(() => {});
         }
@@ -425,9 +428,8 @@
     }
 
     function updateMeter() {
-        // Cap at 100% (assuming max 1000 points game loop logic, adjusting for infinite play)
-        // Let's make it climb 10% per "Gay" answer (100 points)
-        let percent = Math.min(100, Math.floor((totalPoints / 800) * 100)); // ~8 bad answers to max out
+        // Let's make it climb ~12% per "Gay" answer to reach 100% faster
+        let percent = Math.min(100, Math.floor((totalPoints / 800) * 100));
         
         const fill = document.getElementById("meter-fill");
         const label = document.getElementById("meter-label");
@@ -445,9 +447,22 @@
         // Finale Logic
         if (percent >= 100 && !gayFinaleStarted) {
             gayFinaleStarted = true;
+            // Ensure volume is up for the finale
+            gayFinale.muted = false;
             gayFinale.currentTime = 0;
             gayFinale.loop = true;
-            gayFinale.play();
+            
+            // Promise handling for play
+            let playPromise = gayFinale.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Playback started
+                })
+                .catch(error => {
+                    console.log("Audio play blocked, user interaction needed");
+                });
+            }
+            
             triggerConfetti();
             document.querySelector('h1').textContent = "ULTIMATE GAY!";
         }
