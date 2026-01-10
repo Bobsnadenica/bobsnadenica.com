@@ -75,6 +75,81 @@
       "text": "Using deodorant?",
       "points_yes": 0,
       "points_no": 100
+    },
+    {
+      "text": "Using an umbrella when it rains?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Wiping after using the toilet?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Checking the expiration date on milk?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Sleeping with a blanket?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Using sunscreen at the beach?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Liking women?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Blowing on food when it's hot?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Reading the instructions?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Washing your face?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Locking your front door?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Using GPS to find a location?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Cooking meat until it's done?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Having a job?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Breathing air?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Wearing sunglasses when it's sunny?",
+      "points_yes": 0,
+      "points_no": 100
     }
   ],
   "questions_bg": [
@@ -151,6 +226,81 @@
     },
     {
       "text": "Да използваш дезодорант?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да използваш чадър, когато вали?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да се бършеш след тоалетна?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да гледаш срока на годност на млякото?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да спиш със завивка?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да ползваш слънцезащитен крем?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да харесваш жени?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да си духаш на храната, когато е гореща?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да четеш упътването?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да си миеш лицето?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да заключваш входната врата?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да използваш навигация?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да готвиш месото докато стане готово?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да ходиш на работа?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да дишаш въздух?",
+      "points_yes": 0,
+      "points_no": 100
+    },
+    {
+      "text": "Да носиш слънчеви очила?",
       "points_yes": 0,
       "points_no": 100
     }
