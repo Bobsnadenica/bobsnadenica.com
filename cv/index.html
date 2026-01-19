@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dimitar Todorov &mdash; DevOps Engineer</title>
-  <meta name="description" content="CV site for Dimitar Todorov — DevOps engineer with AWS, Kubernetes and automation experience." />
+  <meta name="description" content="CV site for Dimitar Todorov" />
   <style>
     :root {
       --bg: #050811;
@@ -40,7 +40,6 @@
       padding: 32px 16px;
     }
 
-    /* Animated ambient gradients */
     body::before {
       content: "";
       position: fixed;
@@ -129,7 +128,7 @@
       pointer-events: none;
     }
 
-    /* Gradient avatar badge (no letter) */
+
     .avatar {
       width: 80px;
       height: 80px;
@@ -521,7 +520,6 @@
       opacity: 0.65;
     }
 
-    /* Skill blocks with animated bars */
     .skill-block {
       display: flex;
       flex-direction: column;
@@ -565,7 +563,6 @@
       to   { width: var(--level, 80%); }
     }
 
-    /* Contact line */
     .contact-line {
       font-size: 10px;
       color: var(--muted);
@@ -597,8 +594,6 @@
       color: #050811;
       transform: translateY(-1px);
     }
-
-    /* Fade-in on load */
     .fade-in {
       opacity: 0;
       transform: translateY(14px);
@@ -610,7 +605,6 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Collapsible sections */
     .section-toggle,
     .right-toggle {
       display: flex;
@@ -657,7 +651,6 @@
       margin-top: 0;
     }
 
-    /* Simple focus outline */
     a:focus-visible, button:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 3px;
@@ -706,7 +699,7 @@
     <div class="nav-dot" data-target="projects"></div>
   </div>
   <main class="cv-shell">
-    <!-- LEFT COLUMN -->
+
     <section class="left-col">
       <header class="header fade-in">
         <div class="avatar-wrap" style="position:relative;">
@@ -737,7 +730,7 @@
         </div>
       </header>
 
-      <!-- Profile (collapsible) -->
+
       <section class="section fade-in">
         <button class="section-toggle" type="button">
           <div class="section-title">Profile</div>
@@ -876,7 +869,7 @@
         </div>
       </section>
 
-      <!-- Projects & Side Work (collapsible) -->
+
       <section class="section fade-in">
         <button class="section-toggle" type="button">
           <div class="section-title">Projects &amp; Side Work</div>
@@ -916,7 +909,7 @@
       </section>
     </section>
 
-    <!-- RIGHT COLUMN -->
+
     <aside class="right-col">
 
       <div class="right-block fade-in">
@@ -995,14 +988,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      // Start all sections collapsed
+
       document.querySelectorAll('.section-content, .block-content').forEach(el => {
         el.classList.add('collapsed');
       });
       document.querySelectorAll('.section-toggle, .right-toggle').forEach(btn => {
         btn.classList.add('collapsed');
       });
-      // Collapsible main sections (Profile, Projects)
+
       document.querySelectorAll('.section-toggle').forEach(btn => {
         btn.addEventListener('click', () => {
           btn.classList.toggle('collapsed');
@@ -1014,7 +1007,7 @@
         });
       });
 
-      // Collapsible right blocks (Key skills)
+
       document.querySelectorAll('.right-toggle').forEach(btn => {
         btn.addEventListener('click', () => {
           btn.classList.toggle('collapsed');
@@ -1026,7 +1019,7 @@
         });
       });
 
-      // Smooth auto-scroll when opening sections
+
       document.querySelectorAll('.section-toggle').forEach(btn => {
         btn.addEventListener('click', () => {
           const content = btn.nextElementSibling;
@@ -1039,7 +1032,7 @@
         });
       });
 
-      // Floating nav dots scroll
+
       document.querySelectorAll('#nav-dots .nav-dot').forEach(dot => {
         dot.addEventListener('click', () => {
           const target = dot.getAttribute('data-target');
@@ -1050,7 +1043,7 @@
 
     });
 
-  // 3D tilt effect for avatar-wrap
+
   const avatarWrap = document.querySelector('.avatar-wrap');
   if (avatarWrap) {
     avatarWrap.addEventListener('mousemove', e => {
@@ -1064,7 +1057,7 @@
     });
   }
 
-  // Avatar arrow rotation toward cursor (smooth)
+
   const avatarEl = document.querySelector('.avatar');
   const avatarArrow = avatarEl ? avatarEl.querySelector('.avatar-arrow') : null;
 
@@ -1092,18 +1085,18 @@
       if (!arrowRaf) arrowRaf = requestAnimationFrame(animateArrow);
     });
   }
-  // Soft underline glow
+
   const nameEl = document.querySelector('.headline h1');
   if (nameEl) {
     nameEl.style.textShadow = '0 0 8px rgba(70,194,255,0.4)';
   }
 
-  // Role accent bouncing dot
+
   const roleEl = document.querySelector('.headline .role');
   if (roleEl) {
     roleEl.insertAdjacentHTML('beforeend', '<span class="role-dot"></span>');
   }
-    // Highlight active nav dot on scroll
+
     const sectionsMap = {
       profile: document.querySelector('[data-collapsible="profile"]'),
       core: document.querySelector('[data-collapsible="core"]'),
