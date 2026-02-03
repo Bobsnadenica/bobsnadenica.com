@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dimitar Todorov &mdash; DevOps Engineer</title>
+  <meta name="description" content="CV site for Dimitar Todorov" />
+  <style>
+    :root {
+      --bg: #050811;
+      --bg-soft: #0e1320;
+      --accent: #46c2ff;
+      --accent-soft: rgba(70, 194, 255, 0.08);
+      --text: #e9edf4;
+      --muted: #9aa4b8;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --shadow-soft: 0 26px 80px rgba(0, 0, 0, 0.75);
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, -system-ui, sans-serif;
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: var(--font-sans);
+      background:
+        radial-gradient(circle at top, #1b2640 0, var(--bg) 50%) fixed;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: -20%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(circle at center, rgba(70,194,255,0.12), transparent 60%);
+      animation: pulseGlow 7s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::after {
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at 18% 78%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(circle at 82% 18%, rgba(255,255,255,0.04), transparent 60%);
+      animation: gradientShift 14s ease-in-out infinite alternate;
+      z-index:-2;
+    }
+
+    @keyframes pulseGlow {
+      0%   { opacity: 0.18; transform: scale(1); }
+      50%  { opacity: 0.28; transform: scale(1.06); }
+      100% { opacity: 0.18; transform: scale(1); }
+    }
+
+    @keyframes gradientShift {
+      0%   { transform: translateY(0px);   opacity: 0.35; }
+      100% { transform: translateY(-26px); opacity: 0.55; }
+    }
+
+    .cv-shell {
+      width: 100%;
+      max-width: 1120px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(2,4,12,0.95));
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 24px 20px;
+      backdrop-filter: blur(26px) saturate(140%);
+      display: grid;
+      grid-template-columns: minmax(0, 2.6fr) minmax(260px, 1.4fr);
+      gap: 22px;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 18px 10px;
+      }
+      .cv-shell {
+        grid-template-columns: 1fr;
+        padding: 18px 16px 16px;
+        border-radius: 24px;
+      }
+    }
+
+    /* Left column */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 14px 18px;
+      padding: 16px 16px 14px;
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.06), rgba(2,4,10,0.96));
+      border: 1px solid var(--border-subtle);
+      perspective: 800px;
+    }
+
+    .avatar-wrap {
+      width: 80px;
+      height: 80px;
+      perspective: 1500px;
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #b7e8ff 20%, #46c2ff 45%, #0b1728 100%);
+      box-shadow: 0 0 18px rgba(70,194,255,0.45), inset 0 0 18px rgba(255,255,255,0.35);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease-out;
+      transform-style: preserve-3d;
+      will-change: transform;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .avatar-arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 28px;
+      height: 3px;
+      background: linear-gradient(to right, #ffffff, var(--accent));
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(70,194,255,0.7);
+      transform: translate(-50%, -50%) rotate(0deg);
+      transform-origin: 50% 50%;
+      transition: transform 0.08s linear;
+      pointer-events: none;
+      margin-left: -2px;
+    }
+
+    .avatar-arrow::after {
+      content: "";
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 4px 0 4px 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent #ffffff;
+      filter: drop-shadow(0 0 6px rgba(70,194,255,0.9));
+    }
+
+  .avatar-glow {
+    position:absolute;
+    inset:-14px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(70,194,255,0.35) 0%, rgba(70,194,255,0.05) 55%, transparent 80%);
+    filter:blur(18px);
+    opacity:0.55;
+    animation: avatarPulse 4s ease-in-out infinite;
+    pointer-events:none;
+    z-index:-1;
+  }
+
+  @keyframes avatarPulse {
+    0%   { transform: scale(1);   opacity:0.45; }
+    50%  { transform: scale(1.12); opacity:0.75; }
+    100% { transform: scale(1);   opacity:0.45; }
+  }
+
+    .avatar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(70,194,255,0.55);
+      box-shadow:
+        0 0 16px rgba(70,194,255,0.65),
+        0 0 28px rgba(70,194,255,0.45),
+        inset 0 0 8px rgba(70,194,255,0.35);
+      animation: spinGlow 8s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes spinGlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .avatar::before {
+      content: "";
+      position: absolute;
+      top: -100%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.0) 100%);
+      transform: rotate(25deg);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease-out;
+    }
+    .avatar-wrap:hover .avatar::before {
+      animation: glossSweep 1.2s ease-out forwards;
+      opacity: 1;
+    }
+    @keyframes glossSweep {
+      0% { transform: translateX(-120%) rotate(25deg); opacity: 0; }
+      50% { opacity: 0.6; }
+      100% { transform: translateX(120%) rotate(25deg); opacity: 0; }
+    }
+  .role-dot {
+    display:inline-block;
+    width:6px;
+    height:6px;
+    background:var(--accent);
+    border-radius:50%;
+    margin-left:6px;
+    animation:pulseDot 1.8s infinite ease-in-out;
+  }
+  @keyframes pulseDot {
+    0% { transform:scale(1); opacity:0.8; }
+    50% { transform:scale(1.6); opacity:1; }
+    100% { transform:scale(1); opacity:0.8; }
+  }
+
+    .headline {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .headline h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      position: relative;
+      margin-bottom: 14px;
+      display: inline-block;
+    }
+
+    .headline h1::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      height: 2px;
+      width: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transform-origin: left;
+      transform: scaleX(0);
+      animation: underlineApple 0.9s ease-out forwards;
+    }
+    @keyframes underlineApple {
+      from { transform: scaleX(0); opacity: 0; }
+      to { transform: scaleX(1); opacity: 1; }
+    }
+
+    .headline span.role {
+      font-size: 13px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .headline span.tagline {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 520px;
+      margin-top: 6px;
+      text-shadow: 0 0 14px rgba(70,194,255,0.25);
+    }
+
+    .header-meta {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .header-meta a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      font-size: 10px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(4, 8, 18, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .pill span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .section {
+      padding: 13px 14px 12px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent),
+        rgba(3, 6, 15, 0.96);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .section:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 8px rgba(70,194,255,0.25);
+    }
+
+    .section-title::before {
+      content: "";
+      width: 36px;
+      height: 2px;
+      background: linear-gradient(to right, var(--accent), transparent 70%);
+      border-radius: 999px;
+      box-shadow: 0 0 8px rgba(70,194,255,0.35);
+    }
+
+    .section p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .bullet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 6px 14px;
+      margin-top: 2px;
+    }
+
+    .bullet-label {
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .bullet-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: minmax(120px, 0.9fr) minmax(0, 2.4fr);
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .timeline-role {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .timeline-company {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .timeline-time {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .timeline-desc {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .projects-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 2px;
+      perspective: 900px;
+    }
+
+    .project-card {
+      padding: 8px 9px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background:
+        radial-gradient(circle at top, var(--accent-soft), transparent),
+        rgba(2, 6, 16, 0.98);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 11px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      cursor: default;
+      transform-style: preserve-3d;
+      transform-origin: center;
+      text-align: center;
+    }
+
+    .project-card strong {
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .project-tag {
+      margin-top: 2px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+    }
+
+    .project-card:hover {
+      transform: perspective(900px) rotateX(6deg) rotateY(-4deg) translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Right column */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .right-block {
+      border-radius: var(--radius-lg);
+      padding: 11px 11px 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(3, 6, 14, 0.98);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.25s ease-out, transform 0.25s ease-out;
+    }
+
+    .right-block:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .right-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+
+    .mini-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .footer-note {
+      margin-top: auto;
+      font-size: 9px;
+      color: var(--muted);
+      text-align: right;
+      opacity: 0.65;
+    }
+
+    .skill-block {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 100%;
+    }
+
+    .skill-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .skill-name {
+      color: var(--text);
+    }
+
+    .skill-level {
+      opacity: 0.8;
+    }
+
+    .skill-bar-track {
+      width: 100%;
+      background: #0a0f1a;
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .skill-bar-fill {
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #9ae6ff);
+      width: 0%;
+      animation: fillBar 1.4s forwards ease-out;
+    }
+
+    @keyframes fillBar {
+      from { width: 0%; }
+      to   { width: var(--level, 80%); }
+    }
+
+    .contact-line {
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .contact-line a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Copy email button */
+    .copy-btn {
+      background: rgba(7,12,24,0.96);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      cursor: pointer;
+      margin-left: 6px;
+      transition: background 0.15s ease-out, color 0.15s ease-out, transform 0.1s ease-out;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent);
+      color: #050811;
+      transform: translateY(-1px);
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(14px);
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(14px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-toggle,
+    .right-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+    }
+
+    .section-toggle .section-title,
+    .right-toggle .right-label {
+      pointer-events: none;
+    }
+
+    .section-chevron {
+      font-size: 11px;
+      color: var(--muted);
+      transition: transform 0.2s ease-out;
+    }
+
+    .section-toggle.collapsed .section-chevron,
+    .right-toggle.collapsed .section-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .section-content,
+    .block-content {
+      max-height: 800px;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out, opacity 0.25s ease-out, margin-top 0.25s ease-out;
+      opacity: 1;
+      margin-top: 6px;
+    }
+
+    .section-content.collapsed,
+    .block-content.collapsed {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+    }
+
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    #nav-dots {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+    }
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      cursor: pointer;
+      transition: background 0.2s ease-out, transform 0.2s ease-out;
+    }
+    .nav-dot:hover {
+      background: var(--accent);
+      transform: scale(1.3);
+    }
+    .nav-dot.active {
+      background: var(--accent);
+      transform: scale(1.4);
+    }
+    .section-content.expanded {
+      animation: sectionOpen 0.25s ease-out;
+    }
+    @keyframes sectionOpen {
+      0% { opacity: 0; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="nav-dots">
+    <div class="nav-dot" data-target="profile"></div>
+    <div class="nav-dot" data-target="core"></div>
+    <div class="nav-dot" data-target="experience"></div>
+    <div class="nav-dot" data-target="education"></div>
+    <div class="nav-dot" data-target="projects"></div>
+  </div>
+  <main class="cv-shell">
+
+    <section class="left-col">
+      <header class="header fade-in">
+        <div class="avatar-wrap" style="position:relative;">
+          <div class="avatar-glow"></div>
+          <div class="avatar">
+  <div class="avatar-arrow"></div>
+</div>
+        </div>
+        <div class="headline">
+          <span class="role">DevOps Engineer</span>
+          <h1>Dimitar Todorov</h1>
+          <span class="tagline">Automating cloud infrastructure with AWS best practices, secure baselines, and reliability engineering.</span>
+        </div>
+        <div class="header-meta">
+          <div class="pill"><span class="dot"></span><span>Open to new opportunities</span></div>
+          <div>Based in Sofia, Bulgaria &bull; Remote friendly (EU/UK)</div>
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+            <span>
+              <a href="mailto:dimitar.n.todorov94@icloud.com">dimitar.n.todorov94@icloud.com</a>
+            </span>
+            <button class="copy-btn" type="button" onclick="copyEmail()">Copy</button>
+            <span>&bull;</span>
+            <span>+359 88 404 6042</span>
+            <span>&bull;</span>
+            <a href="https://www.linkedin.com/in/privileged/" target="_blank" rel="noreferrer">LinkedIn</a>
+          </div>
+          <a href="Dimitar_Todorov_CV.pdf" download style="color:var(--accent); font-size:11px; margin-top:2px; text-decoration:none;">Download PDF</a>
+        </div>
+      </header>
+
+
+      <section class="section fade-in">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Profile</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="profile">
+          <p>
+            CloudOps engineer with hands-on experience in AWS, Kubernetes, automation, incident response and production systems.
+            Background across cloud operations, support engineering, and system administration with strong troubleshooting and optimization skills.
+            On the side I build mobile apps as a hobby to prototype ideas and stay close to end users.
+          </p>
+        </div>
+      </section>
+
+      <section class="section fade-in">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Core strengths</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="core">
+          <div class="bullet-grid">
+            <div>
+              <div class="bullet-label">Cloud architecture</div>
+              <div class="bullet-sub">VPC, subnets, SG/NACL, ALB/NLB, EC2, ECS/EKS, RDS, S3, CloudFront.</div>
+            </div>
+            <div>
+              <div class="bullet-label">Platform &amp; automation</div>
+              <div class="bullet-sub">CI/CD, GitHub Actions, IaC, secure baselines, patching, golden images.</div>
+            </div>
+            <div>
+              <div class="bullet-label">Application delivery</div>
+              <div class="bullet-sub">Mobile apps (iOS/Android), APIs, authentication, monitoring, tracing.</div>
+            </div>
+            <div>
+              <div class="bullet-label">Reliability mindset</div>
+              <div class="bullet-sub">SLOs, alerting that matters, cost-aware designs, clear documentation.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Experience snapshot</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="experience">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">CloudOps Engineer</div>
+                <div class="timeline-company">DXC Technology</div>
+                <div class="timeline-time">2022 — Present</div>
+              </div>
+              <div class="timeline-desc">
+                System maintenance and optimization in the cloud; handling client requests; training and mentoring new team members; incident management; continuous improvement through automation and scalability; designing secure and compliant cloud infrastructures; documentation and knowledge sharing.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">Software Support Engineer</div>
+                <div class="timeline-company">Tek-Experts EOOD</div>
+                <div class="timeline-time">2020-2022</div>
+              </div>
+              <div class="timeline-desc">
+                Supporting Microfocus customers on Vertica; troubleshooting, answering queries, reproducing issues, assisting with database administration and optimization.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">ICT System Administrator</div>
+                <div class="timeline-company">Gamer 2001 EOOD</div>
+                <div class="timeline-time">2019</div>
+              </div>
+              <div class="timeline-desc">
+                Upkeep, configuration, and reliable operation of computer and network systems; workstation/server administration; automation of routine tasks; troubleshooting; software deployment and security updates.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">ICT Network Administrator</div>
+                <div class="timeline-company">Technical University of Sofia</div>
+                <div class="timeline-time">2018</div>
+              </div>
+              <div class="timeline-desc">
+                Network address assignment, maintenance and administration of servers (file servers, VPN gateways), routers, switches, firewalls, routing network cables.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div>
+                <div class="timeline-role">Unrelated experience</div>
+                <div class="timeline-company">Standard Resturant Supply, USA</div>
+                <div class="timeline-time">2012–2018</div>
+              </div>
+              <div class="timeline-desc">
+                Logistics management role involving inventory coordination, warehouse support, operational assistance, and building an internal warehouse database using QR codes for item/shelf placement tracking.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Education and Training</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="education">
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">
+            <strong style="font-size:11px; color:var(--accent); margin-top:4px;">Cloud Certifications</strong>
+            <div style="height:1px; width:100%; background:rgba(255,255,255,0.06); margin:2px 0 6px;"></div>
+
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">📘 AWS Solutions Architect (in progress) (AWS)</span>
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">☁️ AWS Cloud Practitioner (AWS)</span>
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">🔷 Azure AZ‑104 (Microsoft)</span>
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">🔷 Azure AZ‑900 (Microsoft) </span>
+
+            <strong style="font-size:11px; color:var(--accent); margin-top:10px;">DevOps & Platform</strong>
+            <div style="height:1px; width:100%; background:rgba(255,255,255,0.06); margin:2px 0 6px;"></div>
+
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">🐳 Kubernetes Administration</span>
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">🔧 CI/CD, Containers, Monitoring</span>
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">📜 ITIL Foundations</span>
+
+            <strong style="font-size:11px; color:var(--accent); margin-top:10px;">Data Systems</strong>
+            <div style="height:1px; width:100%; background:rgba(255,255,255,0.06); margin:2px 0 6px;"></div>
+
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text);">📊 Vertica DB Administration (Microfocus)</span>
+
+            <strong style="font-size:11px; color:var(--accent); margin-top:10px;">Academic Background</strong>
+            <div style="height:1px; width:100%; background:rgba(255,255,255,0.06); margin:2px 0 6px;"></div>
+
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text); opacity:0.8;">🎓 Industrial Engineer (TU‑Sofia)</span>
+            <span style="padding:6px 10px; border-radius:999px; background:rgba(70,194,255,0.10); border:1px solid rgba(255,255,255,0.10); color:var(--text); opacity:0.8;">💻 Hardware Engineer (ELSYS)</span>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="section fade-in">
+        <button class="section-toggle" type="button">
+          <div class="section-title">Projects &amp; Side Work</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="section-content" data-collapsible="projects">
+          <div class="projects-list">
+            <a href="https://www.everydaylilly.com/" target="_blank" rel="noreferrer" style="text-decoration:none;color:inherit;">
+              <div class="project-card">
+                <strong>Everyday Lilly</strong>
+                <div class="project-tag">Mobile App</div>
+                <div>A daily photo journal with timelapse generation and cloud-ready storage architecture.</div>
+              </div>
+            </a>
+            <a href="https://www.bobsnadenica.com/shorturl/index.html" target="_blank" rel="noreferrer" style="text-decoration:none;color:inherit;">
+              <div class="project-card">
+                <strong>URL Shortener</strong>
+                <div class="project-tag">Web App</div>
+                <div>A simple service to shorten URL's</div>
+              </div>
+            </a>
+            <a href="https://www.bobsnadenica.com/secret/index.html" target="_blank" rel="noreferrer" style="text-decoration:none;color:inherit;">
+              <div class="project-card">
+                <strong>Тва стана много известно, тайна</strong>
+                <div class="project-tag">Mobile App</div>
+                <div>A tool for active civil society</div>
+              </div>
+            </a>
+            <a href="https://www.bobsnadenica.com/secret/index.html" target="_blank" rel="noreferrer" style="text-decoration:none;color:inherit; grid-column:1 / -1; display:block;">
+              <div class="project-card">
+                <strong>Secret</strong>
+                <div class="project-tag">Ask me on the interview, it's fun</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </section>
+
+
+    <aside class="right-col">
+
+      <div class="right-block fade-in">
+        <button class="right-toggle" type="button">
+          <div class="mini-title">Tech stack</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="block-content">
+          <div style="display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:3px 10px; font-size:10px; color:var(--muted);">
+            <div>Kubernetes, Docker</div>
+            <div>AWS</div>
+            <div>Azure</div>
+            <div>Linux (Debian/Ubuntu/RedHat)</div>
+            <div>GitHub Actions</div>
+            <div>CI/CD</div>
+            <div>Terraform, IaC</div>
+            <div>SQL (MySQL/Vertica)</div>
+            <div>Networking, VPN, Firewalls</div>
+            <div>VMware, VirtualBox, KVM</div>
+            <div>Flutter, Dart</div>
+            <div>Bash scripting</div>
+            <div>Python automation</div>
+            <div>Helm</div>
+            <div>Prometheus / Grafana</div>
+            <div>Nginx</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-block fade-in">
+        <button class="right-toggle" type="button">
+          <div class="mini-title">Highlights</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="block-content">
+          <ul style="list-style:none; padding-left:0; margin:0; font-size:10px; color:var(--muted); display:flex; flex-direction:column; gap:3px;">
+            <li>&bull; AWS-focused engineer (solution design, security, cost awareness).</li>
+            <li>&bull; Experience with production incident response &amp; on-call.</li>
+            <li>&bull; Comfortable working with non-technical stakeholders.</li>
+            <li>&bull; Used to owning roadmaps end-to-end.</li>
+            <li>&bull; Never failed a security test.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="right-block fade-in">
+        <button class="right-toggle" type="button">
+          <div class="mini-title">Languages</div>
+          <span class="section-chevron">⌄</span>
+        </button>
+        <div class="block-content">
+          <div class="contact-line">
+            Bulgarian &mdash; native
+          </div>
+          <div class="contact-line">
+            English &mdash; C1/C2 working proficiency
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    function copyEmail() {
+      const email = 'dimitar.n.todorov94@icloud.com';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email);
+      } else {
+        const temp = document.createElement('textarea');
+        temp.value = email;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      document.querySelectorAll('.section-content, .block-content').forEach(el => {
+        el.classList.add('collapsed');
+      });
+      document.querySelectorAll('.section-toggle, .right-toggle').forEach(btn => {
+        btn.classList.add('collapsed');
+      });
+
+      document.querySelectorAll('.section-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('collapsed');
+          const chevron = btn.querySelector('.section-chevron');
+          const content = btn.nextElementSibling;
+          if (!content) return;
+          content.classList.toggle('collapsed');
+          if (chevron) chevron.classList.toggle('collapsed');
+        });
+      });
+
+
+      document.querySelectorAll('.right-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('collapsed');
+          const chevron = btn.querySelector('.section-chevron');
+          const content = btn.nextElementSibling;
+          if (!content) return;
+          content.classList.toggle('collapsed');
+          if (chevron) chevron.classList.toggle('collapsed');
+        });
+      });
+
+
+      document.querySelectorAll('.section-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const content = btn.nextElementSibling;
+          if (!content) return;
+          setTimeout(() => {
+            content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 120);
+          content.classList.add('expanded');
+          setTimeout(() => content.classList.remove('expanded'), 300);
+        });
+      });
+
+
+      document.querySelectorAll('#nav-dots .nav-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+          const target = dot.getAttribute('data-target');
+          const section = document.querySelector(`[data-collapsible="${target}"]`) || document.getElementById(target);
+          if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      });
+
+    });
+
+
+  const avatarWrap = document.querySelector('.avatar-wrap');
+  if (avatarWrap) {
+    avatarWrap.addEventListener('mousemove', e => {
+      const rect = avatarWrap.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) / 10;
+      const y = (e.clientY - rect.top - rect.height / 2) / 10;
+      avatarWrap.style.transform = `rotateX(${-y}deg) rotateY(${x}deg)`;
+    });
+    avatarWrap.addEventListener('mouseleave', () => {
+      avatarWrap.style.transform = 'rotateX(0deg) rotateY(0deg)';
+    });
+  }
+
+
+  const avatarEl = document.querySelector('.avatar');
+  const avatarArrow = avatarEl ? avatarEl.querySelector('.avatar-arrow') : null;
+
+  let targetAngle = 0;
+  let currentAngle = 0;
+  let arrowRaf = null;
+
+  function animateArrow() {
+    currentAngle += (targetAngle - currentAngle) * 0.18;
+    if (avatarArrow) {
+      avatarArrow.style.transform =
+        `translate(-50%, -50%) rotate(${currentAngle}deg)`;
+    }
+    arrowRaf = requestAnimationFrame(animateArrow);
+  }
+
+  if (avatarArrow && avatarEl) {
+    window.addEventListener('mousemove', e => {
+      const rect = avatarEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+      if (!arrowRaf) arrowRaf = requestAnimationFrame(animateArrow);
+    });
+  }
+
+  const nameEl = document.querySelector('.headline h1');
+  if (nameEl) {
+    nameEl.style.textShadow = '0 0 8px rgba(70,194,255,0.4)';
+  }
+
+
+  const roleEl = document.querySelector('.headline .role');
+  if (roleEl) {
+    roleEl.insertAdjacentHTML('beforeend', '<span class="role-dot"></span>');
+  }
+
+    const sectionsMap = {
+      profile: document.querySelector('[data-collapsible="profile"]'),
+      core: document.querySelector('[data-collapsible="core"]'),
+      experience: document.querySelector('[data-collapsible="experience"]'),
+      education: document.querySelector('[data-collapsible="education"]'),
+      projects: document.querySelector('[data-collapsible="projects"]')
+    };
+    const dots = document.querySelectorAll('.nav-dot');
+
+    window.addEventListener('scroll', () => {
+      let current = null;
+      for (const key in sectionsMap) {
+        const sec = sectionsMap[key];
+        if (!sec) continue;
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.4 && rect.bottom >= window.innerHeight * 0.4) {
+          current = key;
+        }
+      }
+      dots.forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.target === current);
+      });
+    });
+  </script>
+</body>
+</html>
