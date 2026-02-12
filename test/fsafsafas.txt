@@ -1,0 +1,50 @@
+1. How does DNS work?
+DNS translates domain names (like google.com) into IP addresses. It queries from local cache → resolver → root → TLD → authoritative server to get the final IP.
+
+2. What is a Security Group?
+A virtual firewall in AWS that controls inbound and outbound traffic for EC2 instances at the instance level.
+
+3. What is VLAN?
+Virtual LAN logically separates network segments within the same physical switch, improving security and reducing broadcast domains.
+
+4. What is a Subnet and why do we need it?
+A subnet divides a VPC/network into smaller segments. It helps organize and isolate resources for performance, security, and routing control.
+
+5. Tell me 5 Linux commands off the top of your head:
+ls, cd, top, grep, chmod
+
+6. What is Backup and why do we need it?
+A backup is a copy of data stored to recover in case of loss, corruption, or disasters. It ensures business continuity.
+
+7. What is a Resource Group?
+In Azure, it’s a container that holds related resources (VMs, NICs, IPs) for easier management, access control, and billing.
+
+8. What is a Subscription?
+In Azure, a subscription is a billing container for resources. It defines access boundaries and cost allocation.
+
+9. What is REST API?
+A stateless, HTTP-based API that uses standard methods (GET, POST, PUT, DELETE) to interact with web services.
+
+10. What is an API Server?
+In Kubernetes, it’s the front end that exposes the cluster's API and handles communication between users and the control plane.
+
+11. Kubernetes Architecture:
+Control Plane (API Server, Scheduler, Controller Manager, etcd) and Worker Nodes (kubelet, kube-proxy, container runtime).
+
+12. What is Terraform?
+An open-source Infrastructure as Code tool that lets you define and provision cloud infrastructure using declarative configuration files.
+
+13. What is the difference between application load balancer and network load balancer give me example
+
+14. What type of storage there is in aws
+
+15. What is a VPC
+
+16. What is the difference between a normal change request and a standart change request
+
+17. In terraform what is datasources
+
+18. In terraform if you want to deploy to DEV and PROD and TEST for example but have the same values - what is the folder structure?
+
+19. What is load balancer? what types of load balancers are there
+
