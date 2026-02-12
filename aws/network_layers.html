@@ -14,7 +14,7 @@
       --text-primary: #f0f6fc;
       --text-secondary: #8b949e;
       
-      /* Layer Colors (Rainbow-ish for distinction) */
+      /* Layer Colors */
       --l7: #ff7b72; /* App */
       --l6: #ffa657; /* Pres */
       --l5: #d29922; /* Sess */
@@ -66,7 +66,7 @@
 
     .lab-interface {
       display: flex; gap: 2rem; margin-top: 2rem;
-      flex-direction: column-reverse; /* Stack layers bottom up usually, but visual needs flow */
+      flex-direction: column-reverse; 
     }
     
     @media (min-width: 800px) {
@@ -169,6 +169,15 @@
     }
     .layer-card h3 { margin-bottom: 0.5rem; }
     .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: #21262d; margin-right: 5px; }
+
+    /* VLAN CARD */
+    .vlan-box {
+      grid-column: span 1; 
+      background: rgba(63, 185, 80, 0.1); border: 1px dashed var(--l2);
+      padding: 1rem; border-radius: 8px; margin-top: 10px;
+    }
+    .vlan-title { color: var(--l2); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
+    .vlan-text { font-size: 0.85rem; color: #c9d1d9; }
 
   </style>
 </head>
@@ -291,11 +300,19 @@
 
       <div class="layer-card" data-num="2" style="border-top: 4px solid var(--l2)">
         <h3>Layer 2: Data Link</h3>
-        <p><strong>What it does:</strong> Physical addressing. Moves "Frames" between devices on the SAME network.</p>
-        <div style="margin-top:1rem">
-          <span class="badge">MAC Address</span> <span class="badge">Switch</span> <span class="badge">VLAN</span>
+        <p><strong>What it does:</strong> Physical addressing. Moves "Frames" between devices on the SAME network (Switching).</p>
+        <div style="margin-top:1rem; margin-bottom:1rem;">
+          <span class="badge">MAC Address</span> <span class="badge">Switch</span>
         </div>
-      </div>
+        
+        <div class="vlan-box">
+          <div class="vlan-title">🔍 What is a VLAN?</div>
+          <div class="vlan-text">
+            <strong>Virtual LAN.</strong> It logically separates network segments within the same physical switch. 
+            It improves <strong>Security</strong> (HR can't see Engineering traffic) and reduces <strong>Broadcast Domains</strong>.
+          </div>
+        </div>
+        </div>
 
       <div class="layer-card" data-num="1" style="border-top: 4px solid var(--l1)">
         <h3>Layer 1: Physical</h3>
@@ -338,10 +355,8 @@
       infoDesc.textContent = layerInfo[layer].desc;
     }
 
-    // Recursive function to wrap content in a new colored box
     function wrapContent(contentHTML, layer) {
       if (layer === 1) {
-        // Special case for physical: Turn it into binary visual
         return `<div style="font-family:monospace; word-break:break-all; color:#58a6ff; font-weight:bold; font-size:1.2rem;">
                   10110 01101 00110 11010...<br>
                   <span style="font-size:0.7rem; color:#888;">(Sent via Cable)</span>
@@ -362,7 +377,6 @@
       const msg = input.value || "DATA";
       btn.disabled = true;
       
-      // Reset
       stage.innerHTML = `<div class="data-box">${msg}</div>`;
       updateInfo(7);
       
@@ -371,17 +385,13 @@
 
       function step() {
         if (currentLayer > 1) {
-          // Delay for visual effect
           setTimeout(() => {
             currentLayer--;
             updateInfo(currentLayer);
-            currentHTML = wrapContent(currentHTML, currentLayer + 1); // Wrap previous content
+            currentHTML = wrapContent(currentHTML, currentLayer + 1); 
             
-            // For Layer 2, we actually wrap the Layer 3 output
             if(currentLayer === 1) {
-              // Final Step: Physical
               stage.innerHTML = wrapContent(null, 1);
-              
               setTimeout(() => {
                 btn.disabled = false;
                 btn.textContent = "Send Another";
@@ -391,24 +401,9 @@
                 infoTitle.style.color = "#fff";
               }, 1500);
             } else {
-              // Update HTML with new wrapper
-              // We reconstruct the wrap based on visual nesting
-              // Ideally, we just append a div around existing, but innerHTML replace is easier for simple demo
-              // Re-rendering the stack visually
-              
-              // Let's cheat a bit for smoother animation: 
-              // We aren't actually parsing HTML string, we are just updating the DOM
-              // But my wrapContent function returns string. Let's just use the string method for simplicity.
-              
-              // Actually, to make it look like "wrapping", let's build the HTML string iteratively
-              // Re-call wrap on the PREVIOUS result
-              // Wait, my wrapContent logic above was slightly flawed for iteration.
-              // Let's fix the logic inside the loop:
-              
               const prevContent = stage.innerHTML;
               const color = layerInfo[currentLayer].color;
               
-              // New Wrapper
               const newWrapper = document.createElement('div');
               newWrapper.className = 'header-wrap';
               newWrapper.style.background = color;
@@ -420,7 +415,7 @@
               label.textContent = `L${currentLayer} HDR`;
               
               newWrapper.appendChild(label);
-              newWrapper.innerHTML += prevContent; // Nest existing
+              newWrapper.innerHTML += prevContent; 
               
               if(currentLayer === 2) {
                 newWrapper.innerHTML += `<span class="header-label" style="color:#000; margin-top:4px;">TRLR</span>`;
@@ -431,24 +426,9 @@
               
               step();
             }
-          }, 1200); // Speed of animation
-        } else {
-           // Physical Layer Transformation
-           setTimeout(() => {
-             updateInfo(1);
-             stage.innerHTML = `<div style="font-family:monospace; word-break:break-all; color:#58a6ff; font-weight:bold; font-size:1.5rem; text-align:center;">
-                  01011010101100101...<br>
-                  <span style="font-size:0.9rem; color:#888;">(Pulsing on the Wire)</span>
-                </div>`;
-             
-             setTimeout(() => {
-                btn.disabled = false;
-                btn.textContent = "Reset";
-             }, 1000);
-           }, 1200);
-        }
+          }, 1200); 
+        } 
       }
-      
       step();
     }
   </script>

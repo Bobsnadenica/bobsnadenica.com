@@ -181,11 +181,35 @@
       </div>
       <div class="card">
         <h3>2. The Plan</h3>
-        <p>The safety check. Before building anything, Terraform calculates exactly what it will do (Add +1, Change ~2, Destroy -0) so you can approve it.</p>
+        <p>The safety check. Terraform calculates exactly what it will do (Add +1, Change ~2, Destroy -0) so you can approve it.</p>
       </div>
       <div class="card">
         <h3>3. The State</h3>
-        <p>The "Brain". A file (<code>terraform.tfstate</code>) that remembers what resources exist in real life. It maps your code to the real world IDs.</p>
+        <p>The "Brain". A file that remembers what resources exist in real life, mapping your code to real IDs.</p>
+      </div>
+      <div class="card" style="border-color: #58a6ff;">
+        <h3>4. Data Sources</h3>
+        <p><strong>Read-Only.</strong> Allows you to fetch info about existing resources (e.g., finding the ID of the latest Amazon Machine Image) without creating them.</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">📂 Best Practice: Folder Structure</h2>
+    <div class="card" style="background:#0d1117; font-family:var(--font-mono); font-size:0.9rem;">
+      <pre style="color:#8b949e; margin:0;">
+my-project/
+├── <strong style="color:#fff">modules/</strong>        <span style="color:#2ea043">// Reusable blueprints</span>
+│   ├── vpc/
+│   └── ec2/
+├── <strong style="color:#fff">environments/</strong>   <span style="color:#2ea043">// Live deployments</span>
+│   ├── <strong style="color:#a371f7">dev/</strong>
+│   │   ├── main.tf
+│   │   └── terraform.tfvars  <span style="color:#e3b341">(Small size)</span>
+│   └── <strong style="color:#ff7b72">prod/</strong>
+│       ├── main.tf
+│       └── terraform.tfvars  <span style="color:#e3b341">(Large size)</span>
+      </pre>
+      <div style="margin-top:1rem; border-top:1px solid #30363d; padding-top:10px; font-family:var(--font-sans); color:var(--text-primary);">
+        Always separate <strong>DEV</strong> and <strong>PROD</strong> into different folders (or workspaces) so they have separate <strong>State Files</strong>.
       </div>
     </div>
 
@@ -237,22 +261,6 @@
         <div class="cloud-zone zone-gcp" id="gcpZone"></div>
       </div>
 
-    </div>
-
-    <h2 class="section-title">🧠 Why use Terraform over CloudFormation?</h2>
-    <div class="concept-grid">
-      <div class="card">
-        <h3>Multi-Cloud Strategy</h3>
-        <p>CloudFormation only works on AWS. Terraform works on AWS, Azure, Google, Kubernetes, Datadog, Cloudflare... all with the same syntax.</p>
-      </div>
-      <div class="card">
-        <h3>Modular Design</h3>
-        <p>Terraform <strong>Modules</strong> let you package standard infrastructure (e.g., "Company Standard VPC") and reuse it 50 times with one line of code.</p>
-      </div>
-      <div class="card">
-        <h3>State Management</h3>
-        <p>Terraform's state allows you to import existing resources, or query outputs from one stack to use in another (e.g., pass DB address to App stack).</p>
-      </div>
     </div>
 
   </div>

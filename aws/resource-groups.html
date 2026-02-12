@@ -74,6 +74,17 @@
     .card h3 { color: var(--accent-rg); margin-bottom: 0.5rem; font-size: 1.1rem; }
     .card p { color: var(--text-secondary); font-size: 0.95rem; }
 
+    /* HIERARCHY TREE */
+    .hierarchy-tree {
+      background: #161b22; padding: 2rem; border-radius: 8px; border: 1px dashed #30363d;
+      text-align: center;
+    }
+    .tree-node {
+      display: inline-block; padding: 10px 20px; border-radius: 6px; border: 1px solid;
+      margin-bottom: 10px; font-weight: bold;
+    }
+    .tree-line { width: 2px; height: 20px; background: #30363d; margin: 0 auto 10px; }
+
     /* GAMIFICATION: ORGANIZER SIMULATOR */
     .org-console {
       background: #0d1117; border: 1px solid #30363d; border-radius: 12px;
@@ -154,6 +165,19 @@
         Resource Groups act as <span style="color:var(--accent-rg)">logical containers</span> to manage lifecycle, billing, and access control for related items.
       </p>
     </header>
+
+    <h2 class="section-title">🏢 The Hierarchy (Azure Model)</h2>
+    <div class="hierarchy-tree">
+      <div class="tree-node" style="border-color:#d29922; color:#d29922;">Management Group</div>
+      <div class="tree-line"></div>
+      <div class="tree-node" style="border-color:#a371f7; color:#a371f7;">Subscription</div>
+      <div style="color:#8b949e; font-size:0.8rem; margin-bottom:10px;">(Billing & Quota Boundary)</div>
+      <div class="tree-line"></div>
+      <div class="tree-node" style="border-color:var(--accent-rg); color:var(--accent-rg);">Resource Group</div>
+      <div style="color:#8b949e; font-size:0.8rem; margin-bottom:10px;">(Lifecycle Boundary)</div>
+      <div class="tree-line"></div>
+      <div class="tree-node" style="border-color:#fff; color:#fff;">Resource (VM, DB, etc.)</div>
+    </div>
 
     <h2 class="section-title">🗂️ Why organize?</h2>
     <div class="concept-grid">
