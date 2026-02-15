@@ -1,0 +1,57 @@
+To ensure data integrity in an IoT → S3 → Kubernetes pipeline, I would address reliability at multiple layers:
+
+1️⃣ Ingestion layer
+
+Use Kinesis Data Streams or IoT Core instead of direct S3 writes.
+
+Enable retries and dead-letter queues (DLQ).
+
+Use idempotent writes to prevent duplicates.
+
+2️⃣ Storage layer (S3)
+
+Enable versioning.
+
+Use object checksums (MD5/SHA256).
+
+Apply bucket policies to prevent accidental overwrites.
+
+3️⃣ Validation layer
+
+Schema validation (JSON schema / Avro).
+
+Reject malformed data.
+
+Compare anomaly metrics against historical baselines.
+
+4️⃣ Processing layer (Kubernetes)
+
+Make processing idempotent.
+
+Store processing offsets or checkpoints.
+
+Use retries with exponential backoff.
+
+5️⃣ Monitoring
+
+Prometheus metrics for:
+
+ingestion rate
+
+error rate
+
+processing lag
+
+data freshness
+
+Grafana dashboards
+
+Alerting on anomalies or missing data
+
+6️⃣ Data Quality Checks
+
+Row count validation
+
+Null checks
+
+Range checks (e.g., solar inverter voltage must be within expected bounds)

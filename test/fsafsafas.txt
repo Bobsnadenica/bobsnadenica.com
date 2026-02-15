@@ -1,5 +1,41 @@
+X: Load Balancers
+Application load balancers - Layer 7 (HTTP/HTTPS)It looks inside the packet. It can route `/api` to Server A and `/images` to Server B. It handles SSL termination and is best for websites/APIs. 
+Network load balancers: Layer 4 (TCP/UDP) - Fast. It doesn't look inside. It just forwards packets at lightning speed. It handles millions of requests per second. Used for gaming or extreme performance. 
+Gateway load balancers: Layer 3
+Algorithms: Round Robin , Least Connections, IP Hash: User A always goes to Server 1 (Sticky). 
+
+X: OSI
+1. Physical: Sending raw bits (1s and 0s) over a physical medium.
+2. Data: Moves "Frames" between devices on the SAME network
+3. Network:  Moves "Packets" between different networks.
+4. Transport: Reliability and error checking. Chops data into "Segments". (TCP/UDP)
+5. Session: Starts, keeps, and ends the conversation between devices.
+6. Presentation: Formatting, encryption, and compression. It translates data into a readable format.
+7. Application: This is what you see. It creates the data and talks to the user.
+
+
+X: Storage - S3
+Block storage - EBS - Hard Drive - Databases, Boot drives - attach to one server
+File storage - EFS - Shared storage 
+Object storage - S3 - Images, Videos - stores data as objects with metadata accessible via URL
+
+X: REST API 
+
+
+
+
+
+
+
+
+
+
+
+
+
 1. How does DNS work?
-DNS translates domain names (like google.com) into IP addresses. It queries from local cache → resolver → root → TLD → authoritative server to get the final IP.
+DNS translates domain names (like google.com) into IP addresses. 
+It queries from local cache → resolver → root → TLD → authoritative server to get the final IP.
 
 2. What is a Security Group?
 A virtual firewall in AWS that controls inbound and outbound traffic for EC2 instances at the instance level.
@@ -9,12 +45,6 @@ Virtual LAN logically separates network segments within the same physical switch
 
 4. What is a Subnet and why do we need it?
 A subnet divides a VPC/network into smaller segments. It helps organize and isolate resources for performance, security, and routing control.
-
-5. Tell me 5 Linux commands off the top of your head:
-ls, cd, top, grep, chmod
-
-6. What is Backup and why do we need it?
-A backup is a copy of data stored to recover in case of loss, corruption, or disasters. It ensures business continuity.
 
 7. What is a Resource Group?
 In Azure, it’s a container that holds related resources (VMs, NICs, IPs) for easier management, access control, and billing.
@@ -35,6 +65,8 @@ Control Plane (API Server, Scheduler, Controller Manager, etcd) and Worker Nodes
 An open-source Infrastructure as Code tool that lets you define and provision cloud infrastructure using declarative configuration files.
 
 13. What is the difference between application load balancer and network load balancer give me example
+An Application Load Balancer (ALB) operates at Layer 7 (HTTP/HTTPS) to route traffic based on content (URLs, headers), ideal for web apps
+A Network Load Balancer (NLB) operates at Layer 4 (TCP/UDP), forwarding traffic based on IP/port, ideal for high-performance, low-latency needs
 
 14. What type of storage there is in aws
 
