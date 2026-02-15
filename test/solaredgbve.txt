@@ -1,57 +1,86 @@
-To ensure data integrity in an IoT → S3 → Kubernetes pipeline, I would address reliability at multiple layers:
+Here is your Panic Button Cheat Sheet. Copy-paste this directly into Notepad. It covers the core "Senior" answers we practiced.
 
-1️⃣ Ingestion layer
+--- AWS NETWORKING & INFRASTRUCTURE ---
 
-Use Kinesis Data Streams or IoT Core instead of direct S3 writes.
+X: What is the difference between a Security Group and a Network ACL?
+A: Security Groups are stateful (allow inbound = allow outbound automatically) and operate at the instance level. NACLs are stateless (must explicitly allow both in/out) and operate at the subnet level.
 
-Enable retries and dead-letter queues (DLQ).
+X: How do you privately connect a VPC to S3 without using the internet?
+A: Use a Gateway VPC Endpoint. It modifies the route table to send traffic to S3 internally, avoiding the NAT Gateway and public internet.
 
-Use idempotent writes to prevent duplicates.
+X: What is the difference between a Public and Private Subnet?
+A: A Public Subnet has a Route Table entry to an Internet Gateway (IGW). A Private Subnet does not; it uses a NAT Gateway in a public subnet to access the internet for updates (outbound only).
 
-2️⃣ Storage layer (S3)
+X: How do you secure data in S3?
+A: 1. Enable Server-Side Encryption (SSE-S3 or KMS). 2. Block Public Access at the bucket level. 3. Use Bucket Policies to restrict access to specific IAM Roles or VPC Endpoints.
 
-Enable versioning.
+X: A Lambda function in a VPC is timing out trying to reach an external API. Why?
+A: Lambda in a VPC does not have default internet access. It must route traffic through a NAT Gateway (in a public subnet) to reach the internet.
 
-Use object checksums (MD5/SHA256).
+X: What is the difference between Horizontal and Vertical Scaling?
+A: Vertical Scaling means increasing the size of the instance (CPU/RAM). Horizontal Scaling means adding more instances (Auto Scaling Group). Horizontal is preferred for cloud-native apps.
 
-Apply bucket policies to prevent accidental overwrites.
+X: How does Route 53 Routing work?
+A: It translates domain names to IP addresses. Common policies: Simple (Round Robin), Weighted (A/B testing), Latency (fastest region), and Failover (Active-Passive DR).
 
-3️⃣ Validation layer
+--- KUBERNETES ---
 
-Schema validation (JSON schema / Avro).
+X: What is the difference between a Deployment and a StatefulSet?
+A: Deployments treat pods as stateless and interchangeable (random names like web-xc91). StatefulSets maintain sticky identity (web-0, web-1) and stable storage, which is required for databases.
 
-Reject malformed data.
+X: A Pod is stuck in CrashLoopBackOff. How do you debug it?
+A: 1. kubectl logs <pod> to see application errors. 2. kubectl describe pod <pod> to check for OOMKilled or Liveness Probe failures.
 
-Compare anomaly metrics against historical baselines.
+X: How do Services work (ClusterIP vs NodePort vs LoadBalancer)?
+A: ClusterIP is internal-only (default). NodePort opens a port on every worker node IP. LoadBalancer provisions an external cloud LB (AWS ALB) to expose traffic to the world.
 
-4️⃣ Processing layer (Kubernetes)
+X: What are Taints and Tolerations?
+A: Taints are placed on Nodes to repel pods (e.g., "NoSchedule"). Tolerations are placed on Pods to allow them to schedule on tainted nodes (e.g., dedicated GPU nodes).
 
-Make processing idempotent.
+X: How do you pass secrets to a Pod securely?
+A: Create a Kubernetes Secret. Mount it as a Volume (updates automatically without restart) or inject it as an Environment Variable (requires restart to update).
 
-Store processing offsets or checkpoints.
+--- TERRAFORM (IaC) ---
 
-Use retries with exponential backoff.
+X: What is the Terraform State file?
+A: It is a JSON file that maps your code to real-world resources. It tracks metadata and dependencies. It must be stored remotely (S3) and locked (DynamoDB) to prevent corruption.
 
-5️⃣ Monitoring
+X: What happens if I manually delete a resource in AWS but not in Terraform?
+A: Terraform detects "Drift" during the next plan. It will attempt to recreate the missing resource to match the configuration.
 
-Prometheus metrics for:
+X: How do you handle secrets in Terraform?
+A: Never store them in plain text. Use a secret manager (AWS Secrets Manager) and reference it as a data source, or pass them as environment variables (TF_VAR_password) during runtime.
 
-ingestion rate
+X: What is the difference between count and for_each?
+A: count uses a list index (0, 1, 2) which is fragile if you remove an item from the middle. for_each uses a map key (name) which is stable and safer for managing lists of resources.
 
-error rate
+--- DATAOPS & VERTICA (SOLAREDGE SPECIALS) ---
 
-processing lag
+X: Why is a Columnar Database (Vertica) faster for analytics than a Row-based DB (Postgres)?
+A: Analytics queries usually aggregate specific columns (e.g., SUM(energy)). Columnar storage reads only the required columns from disk, drastically reducing I/O compared to reading entire rows.
 
-data freshness
+X: What is "Spilling to Disk"?
+A: When a query operation (sort/join) requires more memory than allocated, the database writes temporary data to the disk. This causes a massive performance drop due to slow Disk I/O.
 
-Grafana dashboards
+X: How do you handle High Availability in Vertica?
+A: Vertica uses K-Safety. If K=1, every piece of data is replicated on at least one other node ("Buddy Projection"). If a node falls, the cluster continues serving data from the replica.
 
-Alerting on anomalies or missing data
+X: How do you handle massive IoT ingestion (Time-Series)?
+A: Use a buffering layer (Kafka/Kinesis) to handle the high-throughput write stream. Then batch load into the Data Warehouse (Vertica) or use a specialized Time-Series DB (Timestream) for hot data.
 
-6️⃣ Data Quality Checks
+X: What is the difference between ETL and ELT?
+A: ETL transforms data before loading (slow, rigid). ELT loads raw data immediately into the lake/warehouse and transforms it later using the DB's power (faster, more flexible).
 
-Row count validation
+--- LINUX & TROUBLESHOOTING ---
 
-Null checks
+X: High Load Average but Low CPU. What is the cause?
+A: High I/O Wait. The CPU is idle because it is waiting for the Disk to read/write data. Fix by increasing disk IOPS or checking for "noisy neighbor" processes.
 
-Range checks (e.g., solar inverter voltage must be within expected bounds)
+X: You get "Permission Denied (publickey)" on SSH.
+A: The server's ~/.ssh/authorized_keys file is missing your public key, or the permissions on the .ssh folder are too open (must be 700 for dir, 600 for file).
+
+X: How do you check which process is using a specific port?
+A: netstat -tulpn or lsof -i :<port>.
+
+X: What is an HTTP 504 Gateway Timeout?
+A: The Load Balancer (or proxy) did not receive a response from the backend server in time. Usually means the backend is overloaded or hanging.
