@@ -1,0 +1,9 @@
+Currently, I work as a CloudOps Engineer, where I focus on the foundational side of infrastructure—building environments, patching systems, managing compliance, and creating the alerts that keep us online.
+
+My day-to-day is very hands-on with AWS and Terraform (mostly cloudformation). I’m responsible for making sure our infrastructure is not just running, but running correctly. I spend a lot of time automating routine processes to prevent issues before they happen.
+
+Before moving into Cloud, I built a strong background in Database Operations with Vertica. I spent years testing features, reproducing complex bugs, reporting bugs to developers and documenting how the database works under the hood. This gave me a i hope strong intuition for Data Reliability—I know that infrastructure exists to serve the data, not the other way around.
+
+To be transparent, I am not a Senior Architect yet, but I think that i'm a deep learner. I am at the stage of my career where I want to absorb as much as possible. I’m not someone who likes to jump between jobs every year; I value stability and depth.
+
+I’m interested in SolarEdge because I want to find a long-term home—a place with complex challenges (like your massive IoT scale) where I can apply my skills, learn from a strong team, and grow into an expert over the next few years."
