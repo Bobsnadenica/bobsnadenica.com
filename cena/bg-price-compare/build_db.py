@@ -3,23 +3,64 @@ import json
 import os
 import glob
 import re
+import urllib.request
+import io
 
+# Folders
 DATA_DIR = './data'
 OUTPUT_DIR = './public/api'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(DATA_DIR, exist_ok=True)
 
-# Map EKATTE codes to human-readable names for the frontend
-EKATTE_NAMES = {
-    "68134": "София (Sofia)",
-    "56784": "Пловдив (Plovdiv)",
-    "10135": "Варна (Varna)",
-    "07079": "Бургас (Burgas)",
-    "63427": "Русе (Ruse)",
-    "68850": "Стара Загора (Stara Zagora)",
-    "56722": "Плевен (Pleven)",
-    "72624": "Добрич (Dobrich)",
-    "ONLINE": "Онлайн Доставка (National Online)"
-}
+def load_ekatte_mapping():
+    """Fetches the official Bulgarian EKATTE mapping from an open-source repo to resolve all 5000+ settlements."""
+    mapping = {"ONLINE": "Онлайн Доставка (National Online)"}
+    cache_path = os.path.join(DATA_DIR, 'ekatte_cache.json')
+    
+    # 1. Use local cache if available to prevent hitting the internet every build
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+            
+    print("Downloading official EKATTE dataset for 5000+ Bulgarian settlements...")
+    url = "https://raw.githubusercontent.com/yurukov/Bulgaria-geocoding/master/settlements.csv"
+    
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
+            csv_data = response.read().decode('utf-8')
+            
+        reader = csv.DictReader(io.StringIO(csv_data))
+        for row in reader:
+            ekatte = row.get('ekatte', '').strip()
+            name_bg = row.get('name_bg', '').strip()
+            name_en = row.get('name_en', '').strip()
+            
+            if ekatte and name_bg:
+                # Creates beautiful names like "София (Sofia)"
+                mapping[ekatte] = f"{name_bg} ({name_en})" if name_en else name_bg
+                
+        # Save local cache so it runs instantly next time
+        with open(cache_path, 'w', encoding='utf-8') as f:
+            json.dump(mapping, f, ensure_ascii=False)
+            
+    except Exception as e:
+        print(f"Warning: Could not download EKATTE mapping: {e}")
+        # Fallback to the top 8 cities if the user is completely offline
+        mapping.update({
+            "68134": "София (Sofia)", "56784": "Пловдив (Plovdiv)",
+            "10135": "Варна (Varna)", "07079": "Бургас (Burgas)",
+            "63427": "Русе (Ruse)", "68850": "Стара Загора (Stara Zagora)",
+            "56722": "Плевен (Pleven)", "72624": "Добрич (Dobrich)"
+        })
+        
+    return mapping
+
+# Load the dynamic mapping
+EKATTE_NAMES = load_ekatte_mapping()
 
 def programmatic_normalization(raw_name):
     name = raw_name.lower()
@@ -39,7 +80,7 @@ def programmatic_normalization(raw_name):
 
 def build_database():
     city_data = {}
-    city_metadata = {} # Tracks dynamic stores per city
+    city_metadata = {} 
     
     search_pattern = os.path.join(DATA_DIR, '**/*.csv')
     csv_files = glob.glob(search_pattern, recursive=True)
@@ -73,9 +114,9 @@ def build_database():
                 
                 if price == 0: continue
                 
-                # 1. TRACK METADATA (Dynamic Stores)
+                # 1. TRACK METADATA
                 if city_key not in city_metadata:
-                    city_name = EKATTE_NAMES.get(city_key, f"Град ({city_key})") # Fallback for unknown cities
+                    city_name = EKATTE_NAMES.get(city_key, f"Град ({city_key})")
                     city_metadata[city_key] = {"name": city_name, "ekatte": city_key, "stores": set()}
                 
                 city_metadata[city_key]["stores"].add(store)
@@ -93,7 +134,6 @@ def build_database():
                     
                 city_data[city_key][norm_name]["Stores"][store] = price
 
-    # Write the individual City JSON files
     for city_ekatte, products in city_data.items():
         for prod_key in products:
             store_dict = products[prod_key]["Stores"]
@@ -109,16 +149,14 @@ def build_database():
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(output_data, f, ensure_ascii=False, separators=(',', ':'))
 
-    # Write the Global Manifest JSON file
     manifest_list = []
     for meta in city_metadata.values():
         manifest_list.append({
             "name": meta["name"],
             "ekatte": meta["ekatte"],
-            "stores": sorted(list(meta["stores"])) # Convert set to sorted list
+            "stores": sorted(list(meta["stores"])) 
         })
     
-    # Sort manifest so ONLINE is usually last, and cities are alphabetical
     manifest_list.sort(key=lambda x: (x["ekatte"] == "ONLINE", x["name"]))
     
     manifest_path = os.path.join(OUTPUT_DIR, "cities_meta.json")
