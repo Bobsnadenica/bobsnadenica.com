@@ -3,6 +3,7 @@ import csv
 import json
 import os
 import urllib.parse
+import re
 from datetime import datetime, timedelta
 
 s3 = boto3.client('s3')
@@ -17,26 +18,37 @@ SQS_URL = os.environ['SQS_URL']
 price_table = dynamodb.Table(PRICE_TABLE)
 dict_table = dynamodb.Table(DICT_TABLE)
 
-# In-memory caches for the lifespan of the lambda execution
 product_cache = {}
 stores_sent_to_sqs = set()
 
+def fallback_normalization(raw_name):
+    """A better fallback that cleans Bulgarian strings if AI fails."""
+    name = raw_name.lower()
+    # Remove special characters, keep only cyrillic, latin, numbers, and spaces
+    name = re.sub(r'[^а-яa-z0-9\s]', '', name)
+    # Replace multiple spaces with a single underscore
+    name = re.sub(r'\s+', '_', name).strip('_')
+    return name
+
 def normalize_with_ai(raw_name):
-    """Uses Bedrock Claude 3 Haiku to standardize product names."""
+    """Uses Bedrock to standardize product names strictly in Bulgarian."""
     if raw_name in product_cache:
         return product_cache[raw_name]
         
-    # Check DynamoDB Dictionary first
     response = dict_table.get_item(Key={'RawName': raw_name})
     if 'Item' in response:
         norm_name = response['Item']['NormalizedName']
         product_cache[raw_name] = norm_name
         return norm_name
         
-    # If not in DB, call Bedrock
-    prompt = f"""Extract brand, product type, flavor/variant, and weight/volume from this Bulgarian product name: '{raw_name}'.
-    Format the output strictly as lowercase snake_case: brand_type_flavor_weight. 
-    Do not output any introductory text, just the formatted string. If a detail is missing, omit it."""
+    # NEW PROMPT: Strictly enforce Bulgarian Cyrillic
+    prompt = f"""Extract the brand, product type, flavor/variant, and weight/volume from this Bulgarian product name: '{raw_name}'.
+    
+    CRITICAL RULES:
+    1. Keep all words in Bulgarian Cyrillic (DO NOT translate to English. "сирене" stays "сирене", not "cheese").
+    2. Format the output strictly as lowercase snake_case (e.g., марка_вид_вкус_грамаж).
+    3. Use only Cyrillic letters, numbers, and underscores.
+    4. Do not output any introductory text, just the formatted string."""
     
     try:
         body = json.dumps({
@@ -53,14 +65,17 @@ def normalize_with_ai(raw_name):
         response_body = json.loads(response.get('body').read())
         norm_name = response_body['content'][0]['text'].strip()
         
-        # Save back to DynamoDB Dictionary
+        # Failsafe: If Claude randomly outputs English letters, use the fallback
+        if not re.search('[а-яА-Я]', norm_name) and re.search('[а-яА-Я]', raw_name):
+             norm_name = fallback_normalization(raw_name)
+        
         dict_table.put_item(Item={'RawName': raw_name, 'NormalizedName': norm_name})
         product_cache[raw_name] = norm_name
         return norm_name
         
     except Exception as e:
         print(f"Bedrock failed for {raw_name}: {e}")
-        return raw_name.lower().replace(" ", "_") # Fallback
+        return fallback_normalization(raw_name)
 
 def handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
@@ -70,7 +85,7 @@ def handler(event, context):
     ttl_date = int((datetime.now() + timedelta(days=14)).timestamp())
     
     response = s3.get_object(Bucket=bucket, Key=key)
-    lines = response['Body'].read().decode('utf-8').splitlines()
+    lines = response['Body'].read().decode('utf-8-sig').splitlines() # -sig handles CSV byte order marks
     reader = csv.DictReader(lines)
     
     with price_table.batch_writer() as batch:
@@ -80,13 +95,15 @@ def handler(event, context):
             prod_name = row.get('Наименование на продукта', '')
             store_code = row.get('Код на продукта', '')
             
+            # Skip empty rows
+            if not prod_name: continue
+            
             norm_name = normalize_with_ai(prod_name)
             is_online = (store == "Онлайн")
             pk_prefix = "ONLINE" if is_online else city
             pk = f"CITY#{pk_prefix}#WEEK#{current_week}"
             sk = f"PROD#{norm_name}#STORE#{store_code}"
             
-            # Queue physical stores for Geocoding (only once per store)
             store_key = f"{city}::{store}"
             if not is_online and store_key not in stores_sent_to_sqs:
                 sqs.send_message(
@@ -95,13 +112,12 @@ def handler(event, context):
                 )
                 stores_sent_to_sqs.add(store_key)
             
-            # Write to DynamoDB (Lat/Lng will be empty for physical stores initially)
             item = {
                 'PK': pk, 'SK': sk,
                 'OriginalName': prod_name, 'NormalizedName': norm_name,
                 'Category': row.get('Категория', ''),
-                'RetailPrice': float(row.get('Цена на дребно', 0)),
-                'PromoPrice': float(row.get('Цена в промоция', 0) or row.get('Цена на дребно', 0)),
+                'RetailPrice': float(row.get('Цена на дребно', 0) or 0),
+                'PromoPrice': float(row.get('Цена в промоция', 0) or row.get('Цена на дребно', 0) or 0),
                 'StoreName': store, 'IsOnline': is_online,
                 'ExpirationDate': ttl_date
             }
