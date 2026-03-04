@@ -6,14 +6,14 @@ const CLOUDFRONT_URL = "https://dszn2zk5jvwtg.cloudfront.net";
 
 interface StorePrice { Name: string; Price: number; }
 interface Product { Title: string; Normalized: string; MinPrice: number; StoreCount: number; Stores: StorePrice[]; }
-
-// New Interface for the Manifest
 interface CityMeta { name: string; ekatte: string; stores: string[]; }
 
 export default function Home() {
   // --- DYNAMIC METADATA STATE ---
   const [availableCities, setAvailableCities] = useState<CityMeta[]>([]);
   const [manifestLoading, setManifestLoading] = useState(true);
+  
+  // Set default to empty string so NO city is auto-loaded
   const [selectedEkatte, setSelectedEkatte] = useState('');
   
   // Database State
@@ -26,19 +26,16 @@ export default function Home() {
   const [cart, setCart] = useState<Product[]>([]);
   const [results, setResults] = useState<any>(null);
 
-  // --- 1. INITIAL LOAD: FETCH THE MANIFEST ---
+  // --- 1. INITIAL LOAD: FETCH ONLY THE MANIFEST ---
   useEffect(() => {
     const fetchManifest = async () => {
       try {
-        // FIXED: Removed /api/ from the URL
         const response = await fetch(`${CLOUDFRONT_URL}/cities_meta.json`);
         if (!response.ok) throw new Error('Неуспешно зареждане на локациите.');
         const data: CityMeta[] = await response.json();
         
         setAvailableCities(data);
-        if (data.length > 0) {
-          setSelectedEkatte(data[0].ekatte); // Default to the first city in the manifest
-        }
+        // REMOVED the auto-select logic. It now waits for the user.
       } catch (err) {
         console.error("Manifest Error:", err);
       } finally {
@@ -52,8 +49,9 @@ export default function Home() {
     return availableCities.find(c => c.ekatte === selectedEkatte) || null;
   }, [selectedEkatte, availableCities]);
 
-  // --- 2. FETCH SPECIFIC CITY DATA ON CHANGE ---
+  // --- 2. FETCH SPECIFIC CITY DATA ONLY ON CHANGE ---
   useEffect(() => {
+    // If no city is selected (default state), do absolutely nothing.
     if (!selectedEkatte) return;
 
     const fetchDatabase = async () => {
@@ -65,7 +63,6 @@ export default function Home() {
       setSearchQuery('');
 
       try {
-        // FIXED: Removed /api/ from the URL
         const response = await fetch(`${CLOUDFRONT_URL}/${selectedEkatte}.json`);
         if (!response.ok) throw new Error('Данните за този град все още не са налични.');
         
@@ -173,11 +170,16 @@ export default function Home() {
                 onChange={(e) => setSelectedEkatte(e.target.value)}
                 className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-700"
               >
+                {/* ADDED: Default disabled option prompting user to select a city */}
+                <option value="" disabled>-- Изберете град --</option>
                 {availableCities.map(c => <option key={c.ekatte} value={c.ekatte}>{c.name}</option>)}
               </select>
 
               {dbLoading && <p className="text-xs text-blue-500 mt-3 animate-pulse">Зареждане на актуални цени...</p>}
               {dbError && <p className="text-xs text-red-500 mt-3">{dbError}</p>}
+              {!selectedEkatte && !dbLoading && (
+                <p className="text-xs text-slate-500 mt-3">Моля, изберете град, за да заредите цените.</p>
+              )}
               
               {/* DYNAMIC STORE LISTING */}
               {currentCity && !dbLoading && cityProducts.length > 0 && (
@@ -205,9 +207,9 @@ export default function Home() {
                   type="text" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Търси продукт (напр. сирене)..." 
+                  placeholder={selectedEkatte ? "Търси продукт (напр. сирене)..." : "Първо изберете град..."}
                   disabled={dbLoading || cityProducts.length === 0}
-                  className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm disabled:opacity-50"
+                  className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 
                 {searchResults.length > 0 && (
