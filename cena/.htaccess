@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # Tell the server it is okay to serve files from the _next directory
+  RewriteCond %{REQUEST_URI} ^/cena/_next/.*$
+  RewriteRule ^(.*)$ - [PT,L]
+</IfModule>
+
+# Ensure CSS and JS files are served with the correct headers
+<IfModule mod_mime.c>
+  AddType text/css .css
+  AddType text/javascript .js
+</IfModule>
