@@ -8,7 +8,7 @@ interface StorePrice { Name: string; Price: number; }
 interface Product { Title: string; Normalized: string; MinPrice: number; StoreCount: number; Stores: StorePrice[]; }
 interface CityMeta { name: string; ekatte: string; stores: string[]; }
 
-// NEW: Shopping Cart specific interface to track quantities
+// Shopping Cart specific interface to track quantities
 interface CartItem { product: Product; quantity: number; }
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
   const [dbError, setDbError] = useState('');
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [cart, setCart] = useState<CartItem[]>([]); // Upgraded to CartItem array
+  const [cart, setCart] = useState<CartItem[]>([]); 
   const [results, setResults] = useState<any>(null);
 
   useEffect(() => {
@@ -79,7 +79,6 @@ export default function Home() {
       .slice(0, 8); 
   }, [searchQuery, cityProducts]);
 
-  // NEW: Advanced Cart Logic
   const addToCart = (product: Product) => {
     const existing = cart.find(item => item.product.Normalized === product.Normalized);
     if (existing) {
@@ -102,7 +101,7 @@ export default function Home() {
       }
       return item;
     }));
-    setResults(null); // Clear results if cart changes
+    setResults(null); 
   };
 
   const removeFromCart = (normalizedId: string) => {
@@ -110,7 +109,6 @@ export default function Home() {
     setResults(null);
   };
 
-  // NEW: Multiplier Pricing Engine
   const calculatePrices = () => {
     if (cart.length === 0) return;
 
@@ -120,11 +118,11 @@ export default function Home() {
     const allUniqueStores = new Set<string>();
 
     cart.forEach(cartItem => {
-      const { product, quantity } = cartItem; // Extract quantity
+      const { product, quantity } = cartItem; 
 
       if (product.Stores.length > 0) {
         const bestOption = product.Stores[0];
-        const itemTotal = bestOption.Price * quantity; // Multiply by qty
+        const itemTotal = bestOption.Price * quantity; 
         
         splitTotal += itemTotal;
         splitBreakdown.push({ 
@@ -141,8 +139,8 @@ export default function Home() {
         if (!storeTotals[storeOpt.Name]) {
           storeTotals[storeOpt.Name] = { total: 0, count: 0 };
         }
-        storeTotals[storeOpt.Name].total += (storeOpt.Price * quantity); // Multiply by qty
-        storeTotals[storeOpt.Name].count += 1; // Count tracks unique products found
+        storeTotals[storeOpt.Name].total += (storeOpt.Price * quantity); 
+        storeTotals[storeOpt.Name].count += 1; 
       });
     });
 
@@ -151,7 +149,6 @@ export default function Home() {
 
     for (const storeName of Array.from(allUniqueStores)) {
       const storeData = storeTotals[storeName];
-      // Store must contain ALL unique products in the cart
       if (storeData.count === cart.length) {
         if (storeData.total < lowestSingleTotal) {
           lowestSingleTotal = storeData.total;
@@ -171,24 +168,28 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <main className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-6 lg:p-8 font-sans">
+      <div className="max-w-5xl mx-auto space-y-6 lg:space-y-8">
         
-        <header className="text-center space-y-3 py-6">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-700">Сравни Цените</h1>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto">Интелигентна платформа за намиране на най-изгодните хранителни стоки.</p>
+        <header className="text-center space-y-2 py-4 lg:py-6">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-blue-700">
+            Сравни Цените
+          </h1>
+          <p className="text-base lg:text-lg text-slate-500 max-w-2xl mx-auto px-2">
+            Интелигентна платформа за намиране на най-изгодните хранителни стоки.
+          </p>
         </header>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-1 space-y-6">
             
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Стъпка 1: Локация</h2>
+            <div className="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-200">
+              <h2 className="text-xs lg:text-sm font-bold uppercase tracking-wider text-slate-400 mb-3 lg:mb-4">Стъпка 1: Локация</h2>
               
               <select 
                 value={selectedEkatte} 
                 onChange={(e) => setSelectedEkatte(e.target.value)}
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-700"
+                className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-700 text-base"
               >
                 <option value="" disabled>-- Изберете град --</option>
                 {availableCities.map(c => <option key={c.ekatte} value={c.ekatte}>{c.name}</option>)}
@@ -201,11 +202,11 @@ export default function Home() {
               )}
               
               {currentCity && !dbLoading && cityProducts.length > 0 && (
-                <div className="mt-5 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                  <p className="text-xs font-semibold text-blue-800 mb-3">Налични магазини ({currentCity.stores.length}):</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mt-4 lg:mt-5 p-3.5 lg:p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                  <p className="text-xs font-semibold text-blue-800 mb-2 lg:mb-3">Налични магазини ({currentCity.stores.length}):</p>
+                  <div className="flex flex-wrap gap-1.5 lg:gap-2">
                     {currentCity.stores.map(store => (
-                      <span key={store} className="px-2 py-1 bg-white text-blue-700 text-[10px] font-bold rounded shadow-sm border border-blue-200">{store}</span>
+                      <span key={store} className="px-2 py-1 bg-white text-blue-700 text-[10px] lg:text-xs font-bold rounded shadow-sm border border-blue-200">{store}</span>
                     ))}
                   </div>
                   <p className="text-xs text-emerald-600 mt-3 font-medium border-t border-blue-100 pt-2">✓ Заредени {cityProducts.length} продукта</p>
@@ -213,8 +214,8 @@ export default function Home() {
               )}
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Стъпка 2: Количка</h2>
+            <div className="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-200">
+              <h2 className="text-xs lg:text-sm font-bold uppercase tracking-wider text-slate-400 mb-3 lg:mb-4">Стъпка 2: Количка</h2>
               
               <div className="relative mb-4">
                 <input 
@@ -223,7 +224,7 @@ export default function Home() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={selectedEkatte ? "Търси продукт (напр. сирене)..." : "Първо изберете град..."}
                   disabled={dbLoading || cityProducts.length === 0}
-                  className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 
                 {searchResults.length > 0 && (
@@ -232,31 +233,31 @@ export default function Home() {
                       <button 
                         key={prod.Normalized}
                         onClick={() => addToCart(prod)}
-                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-0 transition-colors flex flex-col"
+                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-0 transition-colors flex flex-col active:bg-blue-100"
                       >
                         <span className="font-medium text-sm text-slate-800">{prod.Title}</span>
-                        <span className="text-xs text-slate-400">Налично в {prod.StoreCount} магазина (от {prod.MinPrice.toFixed(2)} лв.)</span>
+                        <span className="text-xs text-slate-400 mt-0.5">Налично в {prod.StoreCount} магазина (от {prod.MinPrice.toFixed(2)} €)</span>
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* NEW: Updated UI for Multi-Quantity Cart Items */}
-              <div className="min-h-[100px] max-h-[300px] overflow-y-auto bg-slate-50 rounded-xl border border-slate-200 p-3 mb-6">
+              {/* Mobile Optimized Multi-Quantity Cart Items */}
+              <div className="min-h-[100px] max-h-[40vh] overflow-y-auto bg-slate-50 rounded-xl border border-slate-200 p-2.5 lg:p-3 mb-5 lg:mb-6">
                 {cart.length === 0 ? (
-                  <div className="flex h-full items-center justify-center text-slate-400 text-sm italic py-4">Количката е празна</div>
+                  <div className="flex h-full items-center justify-center text-slate-400 text-sm italic py-6">Количката е празна</div>
                 ) : (
                   <div className="flex flex-col gap-2">
                     {cart.map(item => (
-                      <div key={item.product.Normalized} className="bg-white text-slate-700 px-3 py-2 rounded-lg flex justify-between items-center text-sm border border-slate-200 shadow-sm">
-                        <span className="font-medium truncate pr-2" title={item.product.Title}>{item.product.Title}</span>
-                        <div className="flex items-center gap-2 shrink-0">
-                           <button onClick={() => updateQuantity(item.product.Normalized, -1)} className="w-6 h-6 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded text-slate-600 font-bold">-</button>
-                           <span className="w-4 text-center text-xs font-bold">{item.quantity}</span>
-                           <button onClick={() => updateQuantity(item.product.Normalized, 1)} className="w-6 h-6 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded text-slate-600 font-bold">+</button>
-                           <div className="w-px h-4 bg-slate-200 mx-1"></div>
-                           <button onClick={() => removeFromCart(item.product.Normalized)} className="text-slate-400 hover:text-red-500 font-bold px-1">&times;</button>
+                      <div key={item.product.Normalized} className="bg-white text-slate-700 px-3 py-2.5 rounded-lg flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm border border-slate-200 shadow-sm gap-2 sm:gap-0">
+                        <span className="font-medium truncate pr-2 w-full sm:w-auto text-sm" title={item.product.Title}>{item.product.Title}</span>
+                        <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto bg-slate-50 rounded-lg p-1 border border-slate-100">
+                           <button onClick={() => updateQuantity(item.product.Normalized, -1)} className="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-100 rounded shadow-sm text-slate-600 font-bold active:scale-95 transition-transform">-</button>
+                           <span className="w-6 text-center text-sm font-bold">{item.quantity}</span>
+                           <button onClick={() => updateQuantity(item.product.Normalized, 1)} className="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-100 rounded shadow-sm text-slate-600 font-bold active:scale-95 transition-transform">+</button>
+                           <div className="w-px h-5 bg-slate-200 mx-1"></div>
+                           <button onClick={() => removeFromCart(item.product.Normalized)} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 rounded font-bold transition-colors">&times;</button>
                         </div>
                       </div>
                     ))}
@@ -267,7 +268,7 @@ export default function Home() {
               <button 
                 onClick={calculatePrices}
                 disabled={cart.length === 0}
-                className="w-full bg-blue-600 disabled:bg-slate-300 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-md"
+                className="w-full bg-blue-600 disabled:bg-slate-300 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 active:bg-blue-800 transition-all shadow-md active:scale-[0.98]"
               >
                 Изчисли Най-Ниска Цена
               </button>
@@ -276,31 +277,31 @@ export default function Home() {
 
           <div className="lg:col-span-2">
             {!results && (
-              <div className="h-full bg-white/50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-12 text-center text-slate-400 min-h-[400px]">
+              <div className="h-full bg-white/50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 lg:p-12 text-center text-slate-400 min-h-[300px] lg:min-h-[400px]">
                 <p className="text-lg font-medium">Резултатите ще се появят тук</p>
                 <p className="text-sm mt-2 max-w-sm">Добавете продукти чрез търсачката, изберете количества и стартирайте калкулацията.</p>
               </div>
             )}
 
             {results && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div className="space-y-5 lg:space-y-6 animate-fade-in-up">
                 
                 <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden">
-                  <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
+                  <div className="bg-emerald-50 px-5 lg:px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
                     <div>
-                      <h3 className="font-bold text-emerald-800">Най-изгоден единичен магазин</h3>
-                      <p className="text-xs text-emerald-600 mt-0.5">Всички продукти на едно място</p>
+                      <h3 className="font-bold text-emerald-800 text-sm lg:text-base">Най-изгоден единичен магазин</h3>
+                      <p className="text-[10px] lg:text-xs text-emerald-600 mt-0.5">Всички продукти на едно място</p>
                     </div>
                     {results.cheapestSinglePhysicalStore && (
                       <div className="text-right">
-                        <span className="text-3xl font-black text-emerald-700">{results.cheapestSinglePhysicalStore.total.toFixed(2)}</span>
-                        <span className="text-emerald-600 font-bold ml-1">лв.</span>
+                        <span className="text-2xl lg:text-3xl font-black text-emerald-700">{results.cheapestSinglePhysicalStore.total.toFixed(2)}</span>
+                        <span className="text-emerald-600 font-bold ml-1">€</span>
                       </div>
                     )}
                   </div>
-                  <div className="p-6">
+                  <div className="p-5 lg:p-6">
                     {results.cheapestSinglePhysicalStore ? (
-                      <p className="text-xl font-bold text-slate-800">{results.cheapestSinglePhysicalStore.store}</p>
+                      <p className="text-lg lg:text-xl font-bold text-slate-800">{results.cheapestSinglePhysicalStore.store}</p>
                     ) : (
                       <p className="text-sm text-slate-500 italic">Няма физически магазин, който да предлага абсолютно всички търсени продукти едновременно.</p>
                     )}
@@ -308,23 +309,22 @@ export default function Home() {
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
-                  <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
-                    <h3 className="font-bold text-blue-800">Разделена количка (Абсолютен минимум)</h3>
-                    <p className="text-xs text-blue-600 mt-0.5">Ако пазарувате от различни места</p>
+                  <div className="bg-blue-50 px-5 lg:px-6 py-4 border-b border-blue-100">
+                    <h3 className="font-bold text-blue-800 text-sm lg:text-base">Разделена количка (Абсолютен минимум)</h3>
+                    <p className="text-[10px] lg:text-xs text-blue-600 mt-0.5">Ако пазарувате от различни места</p>
                   </div>
-                  <div className="p-6">
-                    <p className="text-2xl font-black text-slate-900 mb-4">{results.cheapestSplitCart.total.toFixed(2)} лв.</p>
-                    <ul className="space-y-3">
+                  <div className="p-5 lg:p-6">
+                    <p className="text-2xl lg:text-3xl font-black text-slate-900 mb-4 lg:mb-5">{results.cheapestSplitCart.total.toFixed(2)} €</p>
+                    <ul className="space-y-3 lg:space-y-4">
                       {results.cheapestSplitCart.breakdown.map((item: any, i: number) => (
-                        <li key={i} className="flex flex-col md:flex-row md:justify-between md:items-center text-sm border-b border-slate-100 pb-2 last:border-0">
-                          <span className="font-semibold text-slate-800 mb-1 md:mb-0">
-                            {/* Shows the Quantity multiplier in Blue before the name! */}
-                            {item.qty > 1 && <span className="text-blue-600 font-black mr-2">{item.qty}x</span>}
+                        <li key={i} className="flex flex-col md:flex-row md:justify-between md:items-center text-sm border-b border-slate-100 pb-3 lg:pb-2 last:border-0">
+                          <span className="font-semibold text-slate-800 mb-2 md:mb-0 pr-2">
+                            {item.qty > 1 && <span className="text-blue-600 font-black mr-2 bg-blue-50 px-1.5 py-0.5 rounded">{item.qty}x</span>}
                             {item.item}
                           </span>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs px-2 py-1 bg-slate-100 rounded-md text-slate-600 shrink-0">{item.store}</span>
-                            <span className="font-bold text-blue-600 w-16 text-right shrink-0">{item.total.toFixed(2)} лв.</span>
+                          <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-3">
+                            <span className="text-xs px-2 py-1 bg-slate-100 rounded-md text-slate-600 font-medium shrink-0">{item.store}</span>
+                            <span className="font-bold text-blue-600 w-16 text-right shrink-0">{item.total.toFixed(2)} €</span>
                           </div>
                         </li>
                       ))}
