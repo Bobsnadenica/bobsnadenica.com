@@ -30,7 +30,8 @@ export default function Home() {
   useEffect(() => {
     const fetchManifest = async () => {
       try {
-        const response = await fetch(`${CLOUDFRONT_URL}/api/cities_meta.json`);
+        // FIXED: Removed /api/ from the URL
+        const response = await fetch(`${CLOUDFRONT_URL}/cities_meta.json`);
         if (!response.ok) throw new Error('Неуспешно зареждане на локациите.');
         const data: CityMeta[] = await response.json();
         
@@ -64,7 +65,8 @@ export default function Home() {
       setSearchQuery('');
 
       try {
-        const response = await fetch(`${CLOUDFRONT_URL}/api/${selectedEkatte}.json`);
+        // FIXED: Removed /api/ from the URL
+        const response = await fetch(`${CLOUDFRONT_URL}/${selectedEkatte}.json`);
         if (!response.ok) throw new Error('Данните за този град все още не са налични.');
         
         const data: Product[] = await response.json();
