@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
-// 1. Robust Configuration Matrix
-// This maps cities to their EKATTE codes and the store chains currently operating/ingested there.
+// Configuration
 const CITIES = [
   { name: 'София (Sofia)', ekatte: '68134', stores: ['Kaufland', 'Billa', 'Lidl', 'Fantastico', 'T-Market', 'Hit Max'] },
   { name: 'Пловдив (Plovdiv)', ekatte: '56784', stores: ['Kaufland', 'Billa', 'Lidl', 'Lexi', 'T-Market'] },
@@ -16,181 +15,238 @@ const CITIES = [
   { name: 'Онлайн Доставка (National Online)', ekatte: 'ONLINE', stores: ['eBag', 'Supermag', 'Gladen'] },
 ];
 
-const API_ENDPOINT = "https://4vovgd5ry9.execute-api.eu-west-2.amazonaws.com/calculate";
+const CLOUDFRONT_URL = "https://dszn2zk5jvwtg.cloudfront.net";
+
+// Interfaces for our JSON data structure
+interface StorePrice {
+  Name: string;
+  Price: number;
+}
+
+interface Product {
+  Title: string;
+  Normalized: string;
+  MinPrice: number;
+  StoreCount: number;
+  Stores: StorePrice[];
+}
 
 export default function Home() {
   const [selectedEkatte, setSelectedEkatte] = useState(CITIES[0].ekatte);
-  const [cart, setCart] = useState<string[]>([]);
-  const [newItem, setNewItem] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any>(null);
-  const [error, setError] = useState('');
+  
+  // Database State
+  const [dbLoading, setDbLoading] = useState(false);
+  const [cityProducts, setCityProducts] = useState<Product[]>([]);
+  const [dbError, setDbError] = useState('');
 
-  // Dynamically find the currently selected city object to display its stores
-  const currentCity = useMemo(() => {
-    return CITIES.find(c => c.ekatte === selectedEkatte) || CITIES[0];
+  // Cart & Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cart, setCart] = useState<Product[]>([]);
+  const [results, setResults] = useState<any>(null);
+
+  const currentCity = useMemo(() => CITIES.find(c => c.ekatte === selectedEkatte) || CITIES[0], [selectedEkatte]);
+
+  // --- 1. FETCH THE JSON DATABASE ON CITY CHANGE ---
+  useEffect(() => {
+    const fetchDatabase = async () => {
+      setDbLoading(true);
+      setDbError('');
+      setCityProducts([]);
+      setCart([]); // Clear cart on city change
+      setResults(null);
+      setSearchQuery('');
+
+      try {
+        // Fetches the pre-calculated JSON from your CloudFront CDN
+        const response = await fetch(`${CLOUDFRONT_URL}/api/${selectedEkatte}.json`);
+        if (!response.ok) throw new Error('Данните за този град все още не са налични.');
+        
+        const data: Product[] = await response.json();
+        setCityProducts(data);
+      } catch (err: any) {
+        console.error(err);
+        setDbError('Базата данни за този град липсва или се обновява.');
+      } finally {
+        setDbLoading(false);
+      }
+    };
+
+    fetchDatabase();
   }, [selectedEkatte]);
 
-  const addToCart = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newItem.trim()) return;
+  // --- 2. LIVE AUTOCOMPLETE SEARCH ---
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || cityProducts.length === 0) return [];
     
-    // Format input to match the AI snake_case format for exact matching
-    const formattedItem = newItem.trim().toLowerCase().replace(/\s+/g, '_');
-    if (!cart.includes(formattedItem)) {
-      setCart([...cart, formattedItem]);
+    const query = searchQuery.toLowerCase();
+    return cityProducts
+      .filter(p => p.Title.toLowerCase().includes(query))
+      .slice(0, 8); // Show top 8 results
+  }, [searchQuery, cityProducts]);
+
+  const addToCart = (product: Product) => {
+    if (!cart.find(item => item.Normalized === product.Normalized)) {
+      setCart([...cart, product]);
     }
-    setNewItem('');
+    setSearchQuery(''); // Reset search after adding
+    setResults(null); // Clear old results
   };
 
-  const removeFromCart = (itemToRemove: string) => {
-    setCart(cart.filter(item => item !== itemToRemove));
-  };
-
-  const calculatePrices = async () => {
-    if (cart.length === 0) return;
-    
-    setLoading(true);
-    setError('');
+  const removeFromCart = (normalizedId: string) => {
+    setCart(cart.filter(item => item.Normalized !== normalizedId));
     setResults(null);
+  };
 
-    try {
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cartItems: cart, cityEkatte: selectedEkatte }),
+  // --- 3. CLIENT-SIDE PRICING ENGINE ---
+  const calculatePrices = () => {
+    if (cart.length === 0) return;
+
+    let splitTotal = 0;
+    const splitBreakdown: any[] = [];
+    const storeTotals: Record<string, { total: number; count: number; missing: string[] }> = {};
+    const allUniqueStores = new Set<string>();
+
+    // Analyze each product in the cart
+    cart.forEach(product => {
+      // 1. SPLIT CART (Cheapest overall)
+      // Because Python sorted Stores by price, Stores[0] is ALWAYS the cheapest!
+      if (product.Stores.length > 0) {
+        const bestOption = product.Stores[0];
+        splitTotal += bestOption.Price;
+        splitBreakdown.push({ item: product.Title, store: bestOption.Name, price: bestOption.Price });
+      }
+
+      // 2. SINGLE STORE Tracking
+      // Track which stores have this item to find a store that has EVERYTHING
+      product.Stores.forEach(storeOpt => {
+        allUniqueStores.add(storeOpt.Name);
+        if (!storeTotals[storeOpt.Name]) {
+          storeTotals[storeOpt.Name] = { total: 0, count: 0, missing: [] };
+        }
+        storeTotals[storeOpt.Name].total += storeOpt.Price;
+        storeTotals[storeOpt.Name].count += 1;
       });
+    });
 
-      if (!response.ok) throw new Error('Възникна грешка при връзката със сървъра (API Error).');
+    // Find the cheapest single store that has ALL items in the cart
+    let bestSingleStore = null;
+    let lowestSingleTotal = Infinity;
+
+    for (const storeName of Array.from(allUniqueStores)) {
+      const storeData = storeTotals[storeName];
       
-      const data = await response.json();
-      setResults(data);
-    } catch (err: any) {
-      console.error(err);
-      setError('Неуспешна връзка с ценовата база данни. Моля, опитайте по-късно.');
-    } finally {
-      setLoading(false);
+      // If the store has every item in our cart
+      if (storeData.count === cart.length) {
+        if (storeData.total < lowestSingleTotal) {
+          lowestSingleTotal = storeData.total;
+          bestSingleStore = { store: storeName, total: storeData.total, missingItems: [] };
+        }
+      }
     }
+
+    setResults({
+      cheapestSinglePhysicalStore: bestSingleStore,
+      cheapestSplitCart: { total: splitTotal, breakdown: splitBreakdown }
+    });
   };
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
         
-        {/* Header Section */}
         <header className="text-center space-y-3 py-6">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-blue-700">
             Сравни Цените
           </h1>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Интелигентна платформа за намиране на най-изгодните хранителни стоки във вашия град.
+            Интелигентна платформа за намиране на най-изгодните хранителни стоки.
           </p>
         </header>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          
-          {/* Left Column: Controls */}
+          {/* Controls Column */}
           <div className="lg:col-span-1 space-y-6">
             
-            {/* Step 1: City Selection */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Стъпка 1: Локация</h2>
-              
               <select 
                 value={selectedEkatte} 
-                onChange={(e) => {
-                  setSelectedEkatte(e.target.value);
-                  setResults(null); // Reset results if city changes
-                }}
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-medium text-slate-700"
+                onChange={(e) => setSelectedEkatte(e.target.value)}
+                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-700"
               >
-                {CITIES.map(c => (
-                  <option key={c.ekatte} value={c.ekatte}>{c.name}</option>
-                ))}
+                {CITIES.map(c => <option key={c.ekatte} value={c.ekatte}>{c.name}</option>)}
               </select>
 
-              {/* Dynamic Stores Display */}
-              <div className="mt-5 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                <p className="text-xs font-semibold text-blue-800 mb-3">
-                  Налични магазини в {currentCity.name.split(' ')[0]}:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {currentCity.stores.map(store => (
-                    <span key={store} className="px-2.5 py-1 bg-white text-blue-700 text-xs font-bold rounded-md shadow-sm border border-blue-200">
-                      {store}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              {dbLoading && <p className="text-xs text-blue-500 mt-2 animate-pulse">Зареждане на актуални цени...</p>}
+              {dbError && <p className="text-xs text-red-500 mt-2">{dbError}</p>}
+              {cityProducts.length > 0 && <p className="text-xs text-emerald-600 mt-2 font-medium">✓ Заредени {cityProducts.length} продукта</p>}
             </div>
 
-            {/* Step 2: Cart Builder */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Стъпка 2: Продукти</h2>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Стъпка 2: Количка</h2>
               
-              <form onSubmit={addToCart} className="flex gap-2 mb-4">
+              {/* Live Search Input */}
+              <div className="relative mb-4">
                 <input 
                   type="text" 
-                  value={newItem}
-                  onChange={(e) => setNewItem(e.target.value)}
-                  placeholder="Въведете продукт..." 
-                  className="flex-1 p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Търси продукт (напр. сирене)..." 
+                  disabled={dbLoading || cityProducts.length === 0}
+                  className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm disabled:opacity-50"
                 />
-                <button type="submit" className="bg-slate-800 text-white px-5 py-3 rounded-xl font-semibold hover:bg-slate-700 transition-colors shadow-sm text-sm">
-                  Добави
-                </button>
-              </form>
+                
+                {/* Autocomplete Dropdown */}
+                {searchResults.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {searchResults.map(prod => (
+                      <button 
+                        key={prod.Normalized}
+                        onClick={() => addToCart(prod)}
+                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-slate-100 last:border-0 transition-colors flex flex-col"
+                      >
+                        <span className="font-medium text-sm text-slate-800">{prod.Title}</span>
+                        <span className="text-xs text-slate-400">
+                          Налично в {prod.StoreCount} магазина (от {prod.MinPrice.toFixed(2)} лв.)
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-              {/* Active Cart Items */}
+              {/* Active Cart */}
               <div className="min-h-[100px] max-h-[250px] overflow-y-auto bg-slate-50 rounded-xl border border-slate-200 p-3 mb-6">
                 {cart.length === 0 ? (
-                  <div className="flex h-full items-center justify-center text-slate-400 text-sm italic">
-                    Количката е празна
-                  </div>
+                  <div className="flex h-full items-center justify-center text-slate-400 text-sm italic">Количката е празна</div>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-col gap-2">
                     {cart.map(item => (
-                      <div key={item} className="bg-white text-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm border border-slate-200 shadow-sm group">
-                        <span className="font-medium">{item}</span>
-                        <button onClick={() => removeFromCart(item)} className="text-slate-300 hover:text-red-500 transition-colors">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
+                      <div key={item.Normalized} className="bg-white text-slate-700 px-3 py-2 rounded-lg flex justify-between items-center text-sm border border-slate-200 shadow-sm">
+                        <span className="font-medium truncate pr-2">{item.Title}</span>
+                        <button onClick={() => removeFromCart(item.Normalized)} className="text-slate-300 hover:text-red-500 font-bold px-2">&times;</button>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Action Button */}
               <button 
                 onClick={calculatePrices}
-                disabled={cart.length === 0 || loading}
-                className="w-full relative group overflow-hidden bg-blue-600 disabled:bg-slate-300 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-md disabled:shadow-none"
+                disabled={cart.length === 0}
+                className="w-full bg-blue-600 disabled:bg-slate-300 text-white p-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-md"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Изчисляване...
-                  </span>
-                ) : 'Търси Най-Ниска Цена'}
+                Изчисли Най-Ниска Цена
               </button>
             </div>
           </div>
 
-          {/* Right Column: Results */}
+          {/* Results Column */}
           <div className="lg:col-span-2">
-            {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 flex items-start gap-3 mb-6">
-                <svg className="w-6 h-6 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                <p className="font-medium text-sm">{error}</p>
-              </div>
-            )}
-
-            {!results && !error && !loading && (
+            {!results && (
               <div className="h-full bg-white/50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-12 text-center text-slate-400 min-h-[400px]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" /></svg>
                 <p className="text-lg font-medium">Резултатите ще се появят тук</p>
-                <p className="text-sm mt-2 max-w-sm">Добавете продукти в количката и стартирайте търсенето, за да сравните цените.</p>
+                <p className="text-sm mt-2 max-w-sm">Добавете продукти чрез търсачката и стартирайте калкулацията.</p>
               </div>
             )}
 
@@ -201,11 +257,8 @@ export default function Home() {
                 <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden">
                   <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex justify-between items-center">
                     <div>
-                      <h3 className="font-bold text-emerald-800 flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                        Най-изгоден единичен магазин
-                      </h3>
-                      <p className="text-xs text-emerald-600 mt-0.5">Купете всичко с едно ходене</p>
+                      <h3 className="font-bold text-emerald-800">Най-изгоден единичен магазин</h3>
+                      <p className="text-xs text-emerald-600 mt-0.5">Всички продукти на едно място</p>
                     </div>
                     {results.cheapestSinglePhysicalStore && (
                       <div className="text-right">
@@ -214,69 +267,34 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                  
                   <div className="p-6">
                     {results.cheapestSinglePhysicalStore ? (
-                      <div>
-                        <p className="text-lg font-bold text-slate-800 mb-2">{results.cheapestSinglePhysicalStore.store}</p>
-                        {results.cheapestSinglePhysicalStore.missingItems?.length > 0 && (
-                          <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
-                            <p className="text-xs font-bold text-red-700 mb-1">Липсващи продукти:</p>
-                            <p className="text-xs text-red-600">{results.cheapestSinglePhysicalStore.missingItems.join(', ')}</p>
-                          </div>
-                        )}
-                      </div>
+                      <p className="text-xl font-bold text-slate-800">{results.cheapestSinglePhysicalStore.store}</p>
                     ) : (
-                      <p className="text-sm text-slate-500 italic">Нито един физически магазин не предлага всички търсени продукти едновременно.</p>
+                      <p className="text-sm text-slate-500 italic">Няма физически магазин, който да предлага всички продукти едновременно.</p>
                     )}
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Split Cart Result */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
-                     <div className="bg-blue-50 px-5 py-4 border-b border-blue-100">
-                        <h3 className="font-bold text-blue-800">Разделена количка</h3>
-                        <p className="text-xs text-blue-600 mt-0.5">Абсолютният минимум (обикаляне)</p>
-                     </div>
-                     <div className="p-5">
-                       {results.cheapestSplitCart?.total > 0 ? (
-                          <>
-                            <p className="text-2xl font-black text-slate-900 mb-4">{results.cheapestSplitCart.total.toFixed(2)} лв.</p>
-                            <ul className="space-y-3">
-                              {results.cheapestSplitCart.breakdown.map((item: any, i: number) => (
-                                <li key={i} className="flex flex-col text-sm border-b border-slate-100 pb-2 last:border-0">
-                                  <span className="font-semibold text-slate-800">{item.item}</span>
-                                  <div className="flex justify-between items-center mt-1">
-                                    <span className="text-xs px-2 py-0.5 bg-slate-100 rounded text-slate-600">{item.store}</span>
-                                    <span className="font-bold text-blue-600">{item.price.toFixed(2)} лв.</span>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          </>
-                       ) : (
-                         <p className="text-sm text-slate-500 italic">Продуктите не бяха открити.</p>
-                       )}
-                     </div>
+                {/* Split Cart Result */}
+                <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+                  <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
+                    <h3 className="font-bold text-blue-800">Разделена количка (Абсолютен минимум)</h3>
+                    <p className="text-xs text-blue-600 mt-0.5">Ако пазарувате от различни места</p>
                   </div>
-
-                  {/* Online Result */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-purple-100 overflow-hidden">
-                     <div className="bg-purple-50 px-5 py-4 border-b border-purple-100">
-                        <h3 className="font-bold text-purple-800">Онлайн алтернатива</h3>
-                        <p className="text-xs text-purple-600 mt-0.5">Доставка до врата</p>
-                     </div>
-                     <div className="p-5">
-                       {results.cheapestOnlineStore ? (
-                          <>
-                            <p className="text-2xl font-black text-slate-900 mb-2">{results.cheapestOnlineStore.total.toFixed(2)} лв.</p>
-                            <p className="font-bold text-slate-800">{results.cheapestOnlineStore.store}</p>
-                          </>
-                       ) : (
-                         <p className="text-sm text-slate-500 italic">Нито един онлайн магазин не предлага тези продукти.</p>
-                       )}
-                     </div>
+                  <div className="p-6">
+                    <p className="text-2xl font-black text-slate-900 mb-4">{results.cheapestSplitCart.total.toFixed(2)} лв.</p>
+                    <ul className="space-y-3">
+                      {results.cheapestSplitCart.breakdown.map((item: any, i: number) => (
+                        <li key={i} className="flex flex-col md:flex-row md:justify-between md:items-center text-sm border-b border-slate-100 pb-2 last:border-0">
+                          <span className="font-semibold text-slate-800 mb-1 md:mb-0">{item.item}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs px-2 py-1 bg-slate-100 rounded-md text-slate-600">{item.store}</span>
+                            <span className="font-bold text-blue-600 w-16 text-right">{item.price.toFixed(2)} лв.</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
 

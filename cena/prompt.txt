@@ -43,4 +43,5 @@ Next.js Frontend & Algorithm Logic: Provide the folder structure and write the c
 
 
 
-api_gateway_endpoint = "https://4vovgd5ry9.execute-api.eu-west-2.amazonaws.com/calculate"
+cloudfront_api_url = "https://dszn2zk5jvwtg.cloudfront.net"
+s3_bucket_name = "bg-price-json-api-eb7f81eb"
