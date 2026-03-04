@@ -39,3 +39,8 @@ DynamoDB Schema Design: Give me the exact Partition Key, Sort Key, and Attribute
 Lambda Ingestion Code (Python): Write the Lambda script that reads the CSV from S3, normalizes the product names (crucial for matching), calls Nominatim for geocoding, and batch-writes to DynamoDB.
 
 Next.js Frontend & Algorithm Logic: Provide the folder structure and write the core Javascript/Typescript logic for the "Price Comparison Engine" that takes the cart items and calculates the cheapest single-store and multi-store combinations.
+
+
+
+
+api_gateway_endpoint = "https://4vovgd5ry9.execute-api.eu-west-2.amazonaws.com/calculate"
