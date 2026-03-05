@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  /* Locked to a clean slate background so scrolling past boundaries looks natural */
   --background: #f8fafc; /* Tailwind slate-50 */
   --foreground: #0f172a; /* Tailwind slate-900 */
 }
@@ -18,8 +17,13 @@ body {
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal bounce on mobile devices */
+  overscroll-behavior-x: none; 
 }
 
+/* =========================================
+   PROFESSIONAL CUSTOM SCROLLBARS
+   ========================================= */
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -39,10 +43,13 @@ body {
   background-color: #94a3b8; /* Tailwind slate-400 */
 }
 
-/* Ensure horizontal scrollbars on mobile don't show up unless needed */
+/* Hide scrollbar entirely on horizontal swipe rows for iOS-like feel */
 @media (max-width: 768px) {
   .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    display: none;
+  }
+  .custom-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 }
