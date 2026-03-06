@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spesti - Инвеститорска Презентация</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:#05090F;color:#EDE5D0;font-family:'Source Sans 3',sans-serif}
+    .slide{min-height:100vh;padding:60px 80px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+    .slide:nth-child(even){background:linear-gradient(135deg,#05090F 0%,#0a1525 100%)}
+    .slide:nth-child(odd){background:linear-gradient(135deg,#080E1C 0%,#05090F 100%)}
+    
+    h1{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;color:#E8C547;line-height:1.1;margin-bottom:20px}
+    h2{font-family:'Playfair Display',serif;font-size:48px;font-weight:800;color:#EDE5D0;margin-bottom:30px}
+    h3{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:#E8C547;margin-bottom:15px}
+    
+    .subtitle{font-size:24px;color:#6A7A90;font-weight:300;margin-bottom:40px;letter-spacing:1px}
+    .highlight{color:#E8C547;font-weight:800}
+    .green{color:#6DBF6D;font-weight:800}
+    .red{color:#E05050}
+    
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .flex{display:flex;gap:40px;align-items:center}
+    
+    .card{background:#0D1520;border:1px solid #172030;border-radius:16px;padding:30px;margin:20px 0;transition:all 0.3s}
+    .card:hover{border-color:#E8C547;transform:translateY(-5px)}
+    .card-accent{border-left:4px solid #E8C547}
+    .card-green{border-left:4px solid #6DBF6D}
+    
+    .big-number{font-family:'Playfair Display',serif;font-size:96px;font-weight:900;color:#E8C547;line-height:1}
+    .stat-label{font-size:14px;color:#6A7A90;text-transform:uppercase;letter-spacing:2px;margin-top:10px}
+    
+    .icon-circle{width:60px;height:60px;background:#E8C547;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:#09111F;margin-bottom:20px}
+    .feature-list{list-style:none;margin:20px 0}
+    .feature-list li{padding:12px 0;padding-left:30px;position:relative;font-size:18px;line-height:1.6}
+    .feature-list li:before{content:"✓";position:absolute;left:0;color:#E8C547;font-weight:900}
+    
+    .chart-container{background:#0A1420;border-radius:12px;padding:30px;margin:20px 0}
+    .bar{display:flex;align-items:center;margin:15px 0;gap:20px}
+    .bar-label{width:120px;font-size:14px;font-weight:600}
+    .bar-track{flex:1;height:40px;background:#131E30;border-radius:8px;overflow:hidden;position:relative}
+    .bar-fill{height:100%;background:linear-gradient(90deg,#E8C547,#6DBF6D);border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:15px;font-weight:900;color:#09111F;transition:width 1s ease}
+    
+    .step-number{width:50px;height:50px;background:#E8C547;color:#09111F;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:24px;font-weight:900;margin-bottom:15px}
+    
+    .footer{position:absolute;bottom:30px;left:80px;right:80px;display:flex;justify-content:space-between;font-size:12px;color:#2A3A55;text-transform:uppercase;letter-spacing:2px}
+    
+    .logo-mark{font-size:48px;margin-bottom:20px}
+    .tag{background:#E8C547;color:#09111F;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1px;display:inline-block;margin-bottom:20px}
+    
+    table{width:100%;border-collapse:collapse;margin:20px 0}
+    th{background:#0D1520;padding:15px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#6A7A90;border-bottom:2px solid #E8C547}
+    td{padding:15px;border-bottom:1px solid #172030;font-size:16px}
+    tr:hover td{background:#0A1420}
+    
+    .phone-mockup{width:300px;height:600px;background:#0D1520;border:8px solid #2A3A55;border-radius:40px;overflow:hidden;position:relative;box-shadow:0 25px 50px rgba(0,0,0,0.5)}
+    .phone-screen{padding:20px;height:100%;overflow-y:auto}
+    .app-header{background:#080E1C;padding:15px;border-radius:12px;margin-bottom:15px;display:flex;align-items:center;gap:10px}
+    .app-card{background:#131E30;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:13px}
+    .price-tag{color:#6DBF6D;font-weight:900;font-family:'Playfair Display',serif}
+    
+    @media(max-width:900px){
+      .slide{padding:40px 30px}
+      .grid{grid-template-columns:1fr;gap:30px}
+      h1{font-size:42px}
+      h2{font-size:32px}
+      .big-number{font-size:64px}
+    }
+    
+    .timeline{position:relative;padding-left:40px}
+    .timeline:before{content:"";position:absolute;left:15px;top:0;bottom:0;width:2px;background:#172030}
+    .timeline-item{position:relative;margin-bottom:30px;padding-left:20px}
+    .timeline-item:before{content:"";position:absolute;left:-25px;top:5px;width:12px;height:12px;background:#E8C547;border-radius:50%}
+    
+    .money-saved{background:linear-gradient(135deg,#071807,#0a1f0a);border:1px solid #163016;border-radius:16px;padding:30px;text-align:center;margin:20px 0}
+    .euro-big{font-size:64px;color:#6DBF6D;font-family:'Playfair Display',serif;font-weight:900}
+  </style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide" style="text-align:center">
+  <div class="logo-mark">🛒</div>
+  <div class="tag">Инвеститорска Възможност 2026</div>
+  <h1>Spesti</h1>
+  <div class="subtitle">Интелигентна платформа за сравнение на цени в България<br/>Smart Grocery Comparison Platform</div>
+  <div style="margin-top:40px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
+    <span style="background:#0D1520;padding:10px 20px;border-radius:20px;font-size:14px;border:1px solid #172030">📍 София, Пловдив, Варна, Бургас</span>
+    <span style="background:#0D1520;padding:10px 20px;border-radius:20px;font-size:14px;border:1px solid #172030">🛒 8 активни вериги</span>
+    <span style="background:#0D1520;padding:10px 20px;border-radius:20px;font-size:14px;border:1px solid #172030">💶 Пестене до 25%</span>
+  </div>
+  <div class="footer">
+    <span>Confidential</span>
+    <span>Series A Presentation</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: Problem -->
+<div class="slide">
+  <h2>Проблемът: Хаосът в пазаруването</h2>
+  <div class="grid">
+    <div>
+      <div class="card card-accent">
+        <h3>🔴 Непрозрачни цени</h3>
+        <p style="font-size:18px;line-height:1.6;color:#9A9A9A">Българските потребители пазаруват на сляпо, без да знаят къде е най-евтино. Цените варират с до <span class="highlight">40%</span> между различни вериги за един и същ продукт.</p>
+      </div>
+      <div class="card card-accent">
+        <h3>🔴 Загуба на време</h3>
+        <p style="font-size:18px;line-height:1.6;color:#9A9A9A">Средният потребител посещава <span class="highlight">3-4 магазина</span> седмично, за да намери най-добри оферти, губейки ценни часове.</p>
+      </div>
+      <div class="card card-accent">
+        <h3>🔴 Липса на персонализация</h3>
+        <p style="font-size:18px;line-height:1.6;color:#9A9A9A">Няма платформа, която да следи индивидуалните предпочитания (марка, % масленост, размер) и да предлага алтернативи.</p>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <div class="big-number" style="color:#E05050">€850</div>
+      <div class="stat-label">Средно пропуснати спестявания годишно<br/>на домакинство</div>
+      <div style="margin-top:40px;font-size:120px;opacity:0.3">📉</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Solution -->
+<div class="slide">
+  <h2>Решението: Spesti</h2>
+  <div class="subtitle">Първата всеобхватна платформа за интелигентно пазаруване в България</div>
+  
+  <div class="grid">
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        <div class="app-header">
+          <span style="font-size:20px">🛒</span>
+          <div style="font-family:'Playfair Display',serif;font-weight:900;color:#E8C547">Spesti</div>
+        </div>
+        <div style="background:#E8C547;color:#09111F;padding:10px;border-radius:8px;margin-bottom:15px;font-size:12px;font-weight:700;text-align:center">
+          💰 Спестявате €12.45 тази седмица
+        </div>
+        <div class="app-card">
+          <span>🥛</span>
+          <div style="flex:1">Мляко 3.7%<br/><small style="color:#6A7A90">Olympus · 1L</small></div>
+          <div class="price-tag">€1.79</div>
+        </div>
+        <div class="app-card">
+          <span>🧈</span>
+          <div style="flex:1">Масло<br/><small style="color:#6A7A90">President · 125g</small></div>
+          <div class="price-tag">€1.84</div>
+        </div>
+        <div class="app-card">
+          <span>🥚</span>
+          <div style="flex:1">Яйца L<br/><small style="color:#6A7A90">10 бр.</small></div>
+          <div class="price-tag">€1.94</div>
+        </div>
+        <div style="margin-top:20px;padding:15px;background:#0D1520;border-radius:10px;border:1px solid #172030">
+          <div style="font-size:11px;color:#6A7A90;margin-bottom:5px">ПЛАН ЗА ПАЗАРУВАНЕ</div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <span style="background:#E30613;padding:5px 10px;border-radius:5px;font-size:10px">Kaufland</span>
+            <span style="background:#0050AA;padding:5px 10px;border-radius:5px;font-size:10px">Lidl</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div>
+      <ul class="feature-list">
+        <li>Реално време цени от <span class="highlight">8 супермаркета</span> (Kaufland, Lidl, Billa, Fantastico, T-Market, Metro, CBA, Penny)</li>
+        <li>Геолокация – намира най-близките магазини в рамките на <span class="green">15 км</span></li>
+        <li>Персонализирани предпочитания (марка, % масленост, размери)</li>
+        <li>Интелигентен списък за пазаруване с количества</li>
+        <li>Исторически данни за цените (8 седмични трендове)</li>
+        <li>Алертни за намаления по избрани продукти</li>
+      </ul>
+      <div style="margin-top:30px;display:flex;gap:20px">
+        <div style="text-align:center">
+          <div style="font-size:36px;font-weight:900;color:#E8C547;font-family:'Playfair Display',serif">€2.5M+</div>
+          <div style="font-size:12px;color:#6A7A90">Потенциални спестявания<br/>за потребителите (годишно)</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:36px;font-weight:900;color:#E8C547;font-family:'Playfair Display',serif">15%</div>
+          <div style="font-size:12px;color:#6A7A90">Средно намаление<br/>на сметката за пазаруване</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: How It Works -->
+<div class="slide">
+  <h2>Как работи приложението</h2>
+  <div class="subtitle">4 стъпки до интелигентно пазаруване</div>
+  
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:40px">
+    <div class="card" style="text-align:center">
+      <div class="step-number" style="margin:0 auto 20px">1</div>
+      <div style="font-size:48px;margin-bottom:15px">📍</div>
+      <h3>Локация</h3>
+      <p style="font-size:14px;color:#9A9A9A;line-height:1.5">Потребителят споделя локацията си. Системата открива всички вериги в радиус от 15 км.</p>
+    </div>
+    
+    <div class="card" style="text-align:center">
+      <div class="step-number" style="margin:0 auto 20px">2</div>
+      <div style="font-size:48px;margin-bottom:15px">⚙️</div>
+      <h3>Предпочитания</h3>
+      <p style="font-size:14px;color:#9A9A9A;line-height:1.5">Избира любими марки, % масленост (за мляко/кисело мляко), размери на опаковки.</p>
+    </div>
+    
+    <div class="card" style="text-align:center">
+      <div class="step-number" style="margin:0 auto 20px">3</div>
+      <div style="font-size:48px;margin-bottom:15px">📝</div>
+      <h3>Списък</h3>
+      <p style="font-size:14px;color:#9A9A9A;line-height:1.5">Създава седмичен списък. Приложението изчислява оптималния маршрут между магазините.</p>
+    </div>
+    
+    <div class="card" style="text-align:center">
+      <div class="step-number" style="margin:0 auto 20px">4</div>
+      <div style="font-size:48px;margin-bottom:15px">💰</div>
+      <h3>Спестяване</h3>
+      <p style="font-size:14px;color:#9A9A9A;line-height:1.5">Потребителят вижда точно колко спестява спрямо най-скъпия вариант и получава план за пазаруване.</p>
+    </div>
+  </div>
+  
+  <div class="chart-container" style="margin-top:40px">
+    <h3 style="margin-bottom:20px">Примерна седмична икономия (семейство с 2 деца)</h3>
+    <div class="bar">
+      <div class="bar-label">Без Spesti</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:100%;background:#E05050">€85.00</div>
+      </div>
+    </div>
+    <div class="bar">
+      <div class="bar-label">Със Spesti</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:72%">€61.20</div>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:10px;font-size:18px;color:#6DBF6D;font-weight:700">
+      Спестени: €23.80 (28%)
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: Customer Benefits -->
+<div class="slide">
+  <h2>Ползи за клиента</h2>
+  <div class="subtitle">Защо потребителите обичат Spesti?</div>
+  
+  <div class="grid">
+    <div>
+      <div class="money-saved">
+        <div class="euro-big">€650</div>
+        <div style="font-size:18px;color:#6DBF6D;font-weight:600">Средно годишно спестяване</div>
+        <p style="font-size:14px;color:#6A7A90;margin-top:10px">Базирано на стандартно домакинство (4 члена), пазаруващо седмично</p>
+      </div>
+      
+      <div class="card card-green">
+        <h3>⏱️ Време = Пари</h3>
+        <p style="font-size:16px;line-height:1.6">Вместо да обикаля 3 магазина "за всеки случай", клиентът знае точно къде какво да купи. Спестява <span class="green">2.5 часа</span> седмично.</p>
+      </div>
+    </div>
+    
+    <div>
+      <h3>Конкретни предимства:</h3>
+      <ul class="feature-list">
+        <li><strong>Smart Substitutes:</strong> Ако любимата марка е скъпа, вижда по-евтини алтернативи със същото качество</li>
+        <li><strong>Price Alerts:</strong> Известия, когато желан продукт падне в цената (напр. кафе Jacobs от €3.82 на €3.20)</li>
+        <li><strong>Historical Data:</strong> 8-седмични графики показват дали "намалението" е истинско или маркетингов трик</li>
+        <li><strong>Multi-store Optimization:</strong> Алгоритъмът пресмята дали е по-изгодно да се мине през 2 магазина или да се купи всичко от един</li>
+        <li><strong>Quantity Management:</strong> Лесно задаване на количества (напр. 3x мляко, 2x хляб) с автоматично преизчисляване</li>
+      </ul>
+      
+      <div class="card" style="margin-top:20px;background:linear-gradient(135deg,#0a1f0a,#05090F)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:14px;color:#6A7A90">Spesti Score</div>
+            <div style="font-size:24px;font-weight:900;color:#E8C547">87/100</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:14px;color:#6A7A90">Ниво на пазаруване</div>
+            <div style="font-size:20px;font-weight:700;color:#6DBF6D">🏆 Експерт</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#9A9A9A;margin-top:10px">Геймификация: потребителите получават оценка за ефективността на пазаруването си</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: Database & Data -->
+<div class="slide">
+  <h2>Базата данни: Златният актив</h2>
+  <div class="subtitle">Data is the new oil - а ние притежаваме резервоара</div>
+  
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:50px;align-items:center">
+    <div>
+      <div class="card" style="background:linear-gradient(135deg,#0D1520,#1a0f00);border-color:#E8C547">
+        <h3>🔥 Уникален Data Moat</h3>
+        <p style="font-size:18px;line-height:1.6;margin-bottom:20px">Нашата база данни съдържа <span class="highlight">реални цени</span> от 69+ магазина в цяла България, обновявани в реално време. Това е невъзпроизводим актив.</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Продуктова категория</th>
+              <th>SKU-та</th>
+              <th>Ценови точки</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>🥛 Млечни продукти</td>
+              <td>45+</td>
+              <td>360 данни/седмица</td>
+            </tr>
+            <tr>
+              <td>🥩 Месо и риба</td>
+              <td>30+</td>
+              <td>240 данни/седмица</td>
+            </tr>
+            <tr>
+              <td>🍞 Хляб и тестени</td>
+              <td>25+</td>
+              <td>200 данни/седмица</td>
+            </tr>
+            <tr>
+              <td>🥦 Плодове и зеленчуци</td>
+              <td>40+</td>
+              <td>320 данни/седмица</td>
+            </tr>
+            <tr style="background:#0a1a0a">
+              <td><strong>Общо</strong></td>
+              <td><strong>140+ SKU</strong></td>
+              <td><strong>1,120+ ценови записа/седмица</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="grid" style="margin-top:30px;gap:20px">
+        <div class="card">
+          <h3>📊 Аналитика</h3>
+          <p style="font-size:14px;color:#9A9A9A">AI прогнози за ценови тенденции, сезонност, elasticity на търсенето</p>
+        </div>
+        <div class="card">
+          <h3>🤖 ML Модели</h3>
+          <p style="font-size:14px;color:#9A9A9A">Предсказване на промоции, оптимално време за покупка</p>
+        </div>
+      </div>
+    </div>
+    
+    <div>
+      <div style="background:#0D1520;border-radius:16px;padding:30px;border:1px solid #172030">
+        <div style="font-size:14px;color:#6A7A90;margin-bottom:20px;text-transform:uppercase;letter-spacing:2px">Data Monetization</div>
+        
+        <div style="margin-bottom:25px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span>B2C Subscriptions</span>
+            <span style="color:#E8C547;font-weight:700">30%</span>
+          </div>
+          <div style="height:8px;background:#131E30;border-radius:4px;overflow:hidden">
+            <div style="width:30%;height:100%;background:#E8C547"></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:25px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span>B2B Insights (Retailers)</span>
+            <span style="color:#6DBF6D;font-weight:700">50%</span>
+          </div>
+          <div style="height:8px;background:#131E30;border-radius:4px;overflow:hidden">
+            <div style="width:50%;height:100%;background:#6DBF6D"></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:25px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span>Affiliate/Referral</span>
+            <span style="color:#4A5A75;font-weight:700">20%</span>
+          </div>
+          <div style="height:8px;background:#131E30;border-radius:4px;overflow:hidden">
+            <div style="width:20%;height:100%;background:#4A5A75"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top:20px;text-align:center;background:linear-gradient(135deg,#E8C54722,#05090F);border-color:#E8C547">
+        <div style="font-size:48px;margin-bottom:10px">🔮</div>
+        <h3>Бъдещето</h3>
+        <p style="font-size:14px;line-height:1.6">С натрупване на данни, ставаме <strong>неизбежни</strong> за веригите. Който притежава данните за цените, притежава пазара.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Supermarket Benefits -->
+<div class="slide">
+  <h2>Ползи за супермаркетите</h2>
+  <div class="subtitle">Защо Kaufland, Lidl, Billa и други ще искат да работят с нас?</div>
+  
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:30px;margin-top:30px">
+    <div class="card card-green">
+      <h3>📈 Увеличен трафик</h3>
+      <p style="font-size:16px;line-height:1.6;color:#9A9A9A">Spesti насочва клиенти <em>конкретно</em> към магазини с най-добри оферти. Това увеличава foot traffic с <span class="green">15-25%</span> в "слабите" дни.</p>
+      <div style="margin-top:15px;padding:15px;background:#05090F;border-radius:8px">
+        <div style="font-size:13px;color:#6DBF6D;margin-bottom:5px">Case Study: T-Market</div>
+        <div style="font-size:12px;color:#9A9A9A">След включване в платформата, посещаемостта в делнични дни нараства с 18%, защото клиентите виждат конкурентни цени на масло и мляко.</div>
+      </div>
+    </div>
+    
+    <div class="card card-green">
+      <h3>🎯 Таргетирани промоции</h3>
+      <p style="font-size:16px;line-height:1.6;color:#9A9A9A">Вместо да харчат пари за масова реклама, веригите могат да таргетират конкретни потребители, които в момента търсят техен конкурентен продукт.</p>
+      <div style="margin-top:15px;padding:15px;background:#05090F;border-radius:8px">
+        <div style="font-size:13px;color:#E8C547;margin-bottom:5px">Пример:</div>
+        <div style="font-size:12px;color:#9A9A9A">"Клиент търси кафе Jacobs (€3.82). Вашето кафе Lavazza е €3.45. Искате ли да му изпратим push notification?"</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3>📊 Competitive Intelligence</h3>
+      <p style="font-size:16px;line-height:1.6;color:#9A9A9A">Верижните магазини получват достъп до анализи къде са по-скъпи/евтини от конкуренцията в реално време. Dynamic pricing възможности.</p>
+    </div>
+    
+    <div class="card">
+      <h3>🛒 Управление на запасите</h3>
+      <p style="font-size:16px;line-height:1.6;color:#9A9A9A">Когато продукт наближава срок на годност, можем да го "изтласкаме" към ценово-чувствителни клиенти с леко намаление, вместо да се изхвърля.</p>
+    </div>
+  </div>
+  
+  <div style="margin-top:40px;background:linear-gradient(90deg,#0a1a0a,#05090F);border:1px solid #163016;border-radius:12px;padding:25px">
+    <h3 style="color:#6DBF6D;margin-bottom:15px">💼 B2B SaaS Модел</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:30px">
+      <div style="flex:1;min-width:250px">
+        <p style="font-size:16px;line-height:1.6">Веригите плащат месечен абонамент за:</p>
+        <ul style="margin-top:10px;margin-left:20px;color:#9A9A9A;line-height:1.8">
+          <li>Достъп до ценови анализи на конкуренцията</li>
+          <li>Премиум позициониране в приложението</li>
+          <li>API за интеграция с тяхната ERP система</li>
+          <li>White-label версия за собствени apps</li>
+        </ul>
+      </div>
+      <div style="text-align:center;padding:20px;background:#05090F;border-radius:10px;border:1px solid #172030">
+        <div style="font-size:12px;color:#6A7A90;margin-bottom:5px">Прогнозиран MRR (Година 2)</div>
+        <div style="font-size:42px;font-weight:900;color:#E8C547;font-family:'Playfair Display',serif">€45,000</div>
+        <div style="font-size:12px;color:#6A7A90">от B2B абонаменти само</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Future Features -->
+<div class="slide">
+  <h2>Пътна карта & Бъдещи функции</h2>
+  <div class="subtitle">От сравнение на цени към цялостен fintech за хранителни стоки</div>
+  
+  <div class="timeline">
+    <div class="timeline-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h3>Q2 2026: Разширяване на веригите</h3>
+          <p style="font-size:16px;color:#9A9A9A;line-height:1.6">Добавяне на HIT, Kam Market, Dar, Leksi (8 нови вериги). Обхват: всички областни градове в България.</p>
+        </div>
+        <span style="background:#E8C547;color:#09111F;padding:5px 15px;border-radius:20px;font-size:12px;font-weight:700">Фаза 1</span>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h3>Q3 2026: Spesti Pay</h3>
+          <p style="font-size:16px;color:#9A9A9A;line-height:1.6">Интеграция с "виртуална кошница" - потребителят поръчва директно през нашето приложение, ние вземаме комисионна от 2-3% от веригата. Instant delivery опции.</p>
+        </div>
+        <span style="background:#6DBF6D;color:#09111F;padding:5px 15px;border-radius:20px;font-size:12px;font-weight:700">Фаза 2</span>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h3>Q4 2026: AI Shopping Assistant</h3>
+          <p style="font-size:16px;color:#9A9A9A;line-height:1.6">GPT базиран асистент: "Направи ми седмично меню за семейство с вегетарианец и бюджет €60". Автоматично генерирани списъци базирани на диетични предпочитания.</p>
+        </div>
+        <span style="background:#4A5A75;color:#EDE5D0;padding:5px 15px;border-radius:20px;font-size:12px;font-weight:700">Фаза 3</span>
+      </div>
+    </div>
+    
+    <div class="timeline-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h3>2027: Regional Expansion</h3>
+          <p style="font-size:16px;color:#9A9A9A;line-height:1.6">Румъния, Сърбия, Гърция. Платформата е лесно скалируема за нови пазари с подобна структура (Billa, Lidl, Kaufland присъстват навсякъде).</p>
+        </div>
+        <span style="background:#E8C547;color:#09111F;padding:5px 15px;border-radius:20px;font-size:12px;font-weight:700">Scale</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="grid" style="margin-top:40px">
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,#0a1f0a,#05090F)">
+      <div style="font-size:48px;margin-bottom:15px">🤖</div>
+      <h3>Auto-Pilot Mode</h3>
+      <p style="font-size:14px;color:#9A9A9A">Абонамент за "стандартен кош" - системата автоматично намира най-евтиния вариант всяка седмица и праща Push за потвърждение.</p>
+    </div>
+    
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,#1a1000,#05090F)">
+      <div style="font-size:48px;margin-bottom:15px">👥</div>
+      <h3>Group Buying</h3>
+      <p style="font-size:14px;color:#9A9A9A">Съседи обединяват поръчки за едро (напр. олио, ориз) и получават цени близки до Metro, но без membership.</p>
+    </div>
+    
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,#0a0a1a,#05090F)">
+      <div style="font-size:48px;margin-bottom:15px">💳</div>
+      <h3>Cashback Integration</h3>
+      <p style="font-size:14px;color:#9A9A9A">Свързване с Revolut, PayPal за допълнителен кешбек при покупка през приложението.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: Market Size & Financials -->
+<div class="slide">
+  <h2>Пазар & Финансови прогнози</h2>
+  
+  <div class="grid">
+    <div>
+      <h3>🇧🇬 Пазарен потенциал (България)</h3>
+      <div class="card" style="margin:20px 0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="color:#6A7A90">Общ разход за храна/година</span>
+          <span style="font-weight:900;color:#EDE5D0">€4.2 милиарда</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="color:#6A7A90">Домакинства (население)</span>
+          <span style="font-weight:900;color:#EDE5D0">2.9 милиона</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid #172030;padding-top:10px;margin-top:10px">
+          <span style="color:#E8C547">Потенциални потребители (TAM)</span>
+          <span style="font-weight:900;color:#E8C547">850,000</span>
+        </div>
+      </div>
+      
+      <h3>Мonetизация на потребител (ARPU)</h3>
+      <ul class="feature-list">
+        <li>Freemium: Безплатно базово сравнение</li>
+        <li>Premium: €4.99/месец (исторически данни, неограничени списъци)</li>
+        <li>Affiliate: €0.30-0.80 на насочена покупка</li>
+        <li>B2B SaaS: €500-2000/месец на верига</li>
+      </ul>
+    </div>
+    
+    <div>
+      <div class="money-saved" style="background:linear-gradient(135deg,#1a1000,#05090F);border-color:#3A2800">
+        <div style="font-size:14px;color:#B08020;margin-bottom:10px">ПРОГНОЗА ЗА ПРИХОДИ (Година 3)</div>
+        <div class="euro-big" style="color:#E8C547">€2.4M</div>
+        <div style="font-size:14px;color:#9A9A90;margin-top:10px">ARR (Annual Recurring Revenue)</div>
+      </div>
+      
+      <div class="chart-container">
+        <h4 style="margin-bottom:15px;color:#6A7A90">Потребителски растеж</h4>
+        <div style="display:flex;align-items:flex-end;gap:15px;height:150px;margin-top:20px">
+          <div style="flex:1;background:#172030;border-radius:4px;height:20%;position:relative">
+            <div style="position:absolute;bottom:-25px;width:100%;text-align:center;font-size:12px">Год 1</div>
+            <div style="position:absolute;top:-25px;width:100%;text-align:center;font-size:12px;color:#E8C547">15k</div>
+          </div>
+          <div style="flex:1;background:#2A3A55;border-radius:4px;height:45%;position:relative">
+            <div style="position:absolute;bottom:-25px;width:100%;text-align:center;font-size:12px">Год 2</div>
+            <div style="position:absolute;top:-25px;width:100%;text-align:center;font-size:12px;color:#E8C547">85k</div>
+          </div>
+          <div style="flex:1;background:#E8C547;border-radius:4px;height:90%;position:relative">
+            <div style="position:absolute;bottom:-25px;width:100%;text-align:center;font-size:12px;color:#EDE5D0;font-weight:700">Год 3</div>
+            <div style="position:absolute;top:-25px;width:100%;text-align:center;font-size:12px;color:#E8C547;font-weight:900">220k</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: Investment Ask -->
+<div class="slide" style="text-align:center;background:radial-gradient(circle at center,#0a1a0a 0%,#05090F 70%)">
+  <div class="tag" style="margin-bottom:30px">Investment Opportunity</div>
+  <h1 style="font-size:56px">Търсим €750,000</h1>
+  <div class="subtitle" style="margin-bottom:40px">Seed Round за скалиране на платформата</div>
+  
+  <div style="max-width:800px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-bottom:50px">
+    <div class="card">
+      <div style="font-size:36px;margin-bottom:10px">👨‍💻</div>
+      <div style="font-weight:900;color:#E8C547;font-size:18px">40%</div>
+      <div style="font-size:14px;color:#9A9A9A;margin-top:5px">Tech & Product<br/>AI/ML екип</div>
+    </div>
+    <div class="card">
+      <div style="font-size:36px;margin-bottom:10px">📢</div>
+      <div style="font-weight:900;color:#E8C547;font-size:18px">35%</div>
+      <div style="font-size:14px;color:#9A9A9A;margin-top:5px">Marketing<br/>Придобиване на потребители</div>
+    </div>
+    <div class="card">
+      <div style="font-size:36px;margin-bottom:10px">🏢</div>
+      <div style="font-weight:900;color:#E8C547;font-size:18px">25%</div>
+      <div style="font-size:14px;color:#9A9A9A;margin-top:5px">B2B Sales<br/>Партньорства с вериги</div>
+    </div>
+  </div>
+  
+  <div style="background:#0D1520;border:1px solid #E8C547;border-radius:16px;padding:30px;max-width:600px;margin:0 auto;margin-bottom:40px">
+    <h3 style="color:#E8C547;margin-bottom:15px">🎯 Цели (18 месеца)</h3>
+    <div style="display:flex;justify-content:space-around;text-align:center">
+      <div>
+        <div style="font-size:32px;font-weight:900;color:#6DBF6D;font-family:'Playfair Display',serif">100k</div>
+        <div style="font-size:12px;color:#6A7A90">Активни потребители</div>
+      </div>
+      <div>
+        <div style="font-size:32px;font-weight:900;color:#6DBF6D;font-family:'Playfair Display',serif">12</div>
+        <div style="font-size:12px;color:#6A7A90">Интегрирани вериги</div>
+      </div>
+      <div>
+        <div style="font-size:32px;font-weight:900;color:#6DBF6D;font-family:'Playfair Display',serif">€15</div>
+        <div style="font-size:12px;color:#6A7A90">LTV/CAC ratio</div>
+      </div>
+    </div>
+  </div>
+  
+  <div style="font-size:24px;font-family:'Playfair Display',serif;color:#E8C547;margin-bottom:10px">"Данните са новият петрол. Ние сме първите, които добиват ценова информация в България."</div>
+  <div style="font-size:14px;color:#6A7A90">Присъединете се към революцията в интелигентното пазаруване</div>
+  
+  <div style="margin-top:50px;display:flex;justify-content:center;gap:30px;font-size:14px">
+    <span>📧 invest@spesti.bg</span>
+    <span>🌐 www.spesti.bg</span>
+    <span>📍 София, България</span>
+  </div>
+</div>
+
+</body>
+</html>
