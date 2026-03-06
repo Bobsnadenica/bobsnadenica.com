@@ -1,0 +1,47 @@
+Act as a Senior Cloud Architect and Full-Stack Next.js Developer.
+
+I need to build a responsive, website-first (but mobile-friendly) web application for Price Comparison in Bulgaria.
+
+1. Architecture & Tech Stack:
+
+Backend/Ingestion: AWS S3, AWS Lambda (Python), AWS DynamoDB.
+
+API: API Gateway + Lambda.
+
+Frontend: Next.js (React) with TailwindCSS.
+
+2. The Data Flow & CSV Structure:
+
+Every week, new CSV files from different supermarket chains are uploaded to an S3 bucket (overwriting/ignoring past weeks' data; we only care about the current data).
+
+An S3 event triggers a Python Lambda function.
+
+The CSV contains: Населено място (City EKATTE code, e.g., "72624"), Търговски обект (Store Address/Name, or "Онлайн" for online stores), Наименование на продукта (Product Name), Код на продукта (Store-specific code), Категория (Category ID), Цена на дребно (Retail Price), Цена в промоция (Promo Price).
+
+3. Core Features & Business Logic:
+
+Geocoding: Inside the Lambda function, use a free service like OpenStreetMap (Nominatim) to convert the Търговски обект address into Lat/Lng coordinates. Save these in DynamoDB. "Онлайн" stores skip this step.
+
+City-Level Filtering: Users select a city on the website. The app will fetch and compare prices across all physical stores within that specific city (using the EKATTE code), plus all "Онлайн" stores.
+
+The Product Matching Problem: Because Код на продукта is not universal (each store has its own codes), the Lambda function MUST create a "Normalized Product Name" field upon ingestion (e.g., stripping punctuation, making lowercase, standardizing weights) to help the frontend group identical products from different stores.
+
+Shopping Cart & Price Engine: The user searches for items and adds them to a cart. The frontend/backend must calculate the cheapest way to buy those items. It should display:
+a) The single cheapest physical store in their city to buy the whole cart.
+b) A split-cart option (e.g., buy item 1 in Store A, item 2 in Store B).
+c) Online store alternatives.
+
+4. What I need from you in your response:
+Please provide a comprehensive technical blueprint and code:
+
+DynamoDB Schema Design: Give me the exact Partition Key, Sort Key, and Attributes. Explain how we query by City and handle the fact that we only want the latest weekly data (e.g., using TTL or specific SK patterns).
+
+Lambda Ingestion Code (Python): Write the Lambda script that reads the CSV from S3, normalizes the product names (crucial for matching), calls Nominatim for geocoding, and batch-writes to DynamoDB.
+
+Next.js Frontend & Algorithm Logic: Provide the folder structure and write the core Javascript/Typescript logic for the "Price Comparison Engine" that takes the cart items and calculates the cheapest single-store and multi-store combinations.
+
+
+
+
+cloudfront_api_url = "https://dszn2zk5jvwtg.cloudfront.net"
+s3_bucket_name = "bg-price-json-api-eb7f81eb"
