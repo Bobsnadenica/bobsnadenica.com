@@ -634,7 +634,7 @@ function spestiScore(savings, worstTotal, listCount){
   return Math.round(efficiency+coverage);
 }
 
-function PriceBar({prod,activeStores}){
+function PriceBar({prod,activeStores,lang}){
   const storeArr=ALL_CHAINS.filter(c=>activeStores.has(c.id)&&prod.prices[c.id]!=null);
   if(!storeArr.length) return null;
   const bestId=getBestStore(prod,[...activeStores]);
@@ -722,9 +722,113 @@ function OnboardStep({cat,prefs,setPrefs,stepNum,isLast,onNext,onSkip,lang="BG"}
       </div>
       <div style={{display:"flex",gap:10}}>
         <button onClick={onNext} style={{flex:1,background:"#E8C547",border:"none",borderRadius:8,padding:"14px 20px",fontFamily:"'Source Sans 3',sans-serif",fontWeight:900,fontSize:14,color:"#09111F",cursor:"pointer"}}>
-          {isLast?(lang==="BG"?"✓ Готово":"✓ Finish Setup"):(lang==="BG"?"Напред: "+ONBOARD_CATS[stepNum+1]+" →":"Next: "+ONBOARD_CATS[stepNum+1]+" →")}
+          {isLast ? (lang==="BG" ? "✓ Готово" : "✓ Finish Setup") : (lang==="BG" ? `Напред: ${ONBOARD_CATS[stepNum+1]} →` : `Next: ${ONBOARD_CATS[stepNum+1]} →`)}
         </button>
         <button onClick={onSkip} style={{background:"none",border:"1px solid #1F2D45",borderRadius:8,padding:"14px 16px",fontFamily:"'Source Sans 3',sans-serif",fontWeight:600,fontSize:13,color:"#3A4A65",cursor:"pointer"}}>{lang==="BG"?"Пропусни":"Skip"}</button>
+      </div>
+    </div>
+  );
+}
+
+
+// ─── SELECTED STORE PANEL ────────────────────────────────────────────────────
+function SelectedStorePanel({storeId, listItems, activeArr, getQty, setQtys, lang}){
+  const store = ALL_CHAINS.find(c=>c.id===storeId);
+  if(!store) return null;
+  const storeItems = listItems.filter(p=>getBestStore(p,activeArr)===store.id&&p.prices[store.id]!=null);
+  const storeTotal = storeItems.reduce((s,p)=>s+(p.prices[store.id]||0)*getQty(p.id),0);
+  const altTotal   = storeItems.reduce((s,p)=>s+(getWorstPrice(p,activeArr)||0)*getQty(p.id),0);
+  if(!storeItems.length) return (
+    <div style={{textAlign:"center",padding:"26px 20px",color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",background:"#0D1520",borderRadius:12}}>
+      {lang==="BG"?`Нито един твой продукт не е най-евтин в ${store.name} тази седмица.`:`None of your items are cheapest at ${store.name} this week.`}
+    </div>
+  );
+  return (
+    <div className="slidein" style={{background:"#0A0F1A",border:`1px solid ${store.color}33`,borderRadius:12,overflow:"hidden"}}>
+      <div style={{background:`${store.color}1A`,padding:"12px 15px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <ChainLogo chainId={store.id} size={30}/>
+          <div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:15,color:store.color}}>{lang==="BG"?`Купи тези в ${store.name}`:`Buy these at ${store.name}`}</div>
+            <div style={{fontSize:10,color:"#3A4A65",fontFamily:"'Source Sans 3',sans-serif",marginTop:2}}>{lang==="BG"?`${storeItems.length} продукта · спести ${fmt(altTotal-storeTotal)} vs. най-скъпо`:`${storeItems.length} items · save ${fmt(altTotal-storeTotal)} vs. priciest`}</div>
+          </div>
+        </div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontWeight:900,fontSize:20}}>{fmt(storeTotal)}</div>
+      </div>
+      <div style={{padding:"9px 15px"}}>
+        {storeItems.map(prod=>{
+          const qty=getQty(prod.id);
+          return (
+            <div key={prod.id} style={{display:"flex",alignItems:"center",gap:9,padding:"7px 0",borderBottom:"1px solid #0D1520"}}>
+              <img src={prod.img} alt={prod.nameEN} onError={e=>e.target.style.display="none"} style={{width:36,height:36,objectFit:"contain",borderRadius:5,background:"#131E30",flexShrink:0}}/>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Source Sans 3',sans-serif",fontWeight:700,fontSize:12,color:"#EDE5D0"}}>{lang==="BG"?prod.nameBG:prod.nameEN}</div>
+                <div style={{display:"flex",gap:9,marginTop:2,alignItems:"center"}}>
+                  <span style={{fontSize:10,color:"#2A3A55",textDecoration:"line-through",fontFamily:"'Source Sans 3',sans-serif"}}>{fmt(getWorstPrice(prod,activeArr))}</span>
+                  <span style={{fontSize:13,color:"#6DBF6D",fontFamily:"'Playfair Display',serif",fontWeight:800}}>{fmt(prod.prices[store.id])}</span>
+                  {prod.sale&&prod.sale[store.id]&&<span className="sale-tag">SALE</span>}
+                </div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:4}}>
+                <button className="qty-btn" onClick={()=>setQtys(p=>({...p,[prod.id]:Math.max(1,qty-1)}))}>−</button>
+                <span style={{fontSize:12,fontWeight:800,minWidth:18,textAlign:"center",fontFamily:"'Source Sans 3',sans-serif"}}>{qty}</span>
+                <button className="qty-btn" onClick={()=>setQtys(p=>({...p,[prod.id]:qty+1}))}>+</button>
+              </div>
+              <div style={{fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:14,color:"#E8C547",minWidth:50,textAlign:"right"}}>{fmt((prod.prices[store.id]||0)*qty)}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── TREND PANEL ─────────────────────────────────────────────────────────────
+function TrendPanel({hist, lang}){
+  const chg = hist[hist.length-1] - hist[0];
+  const color = chg>0.005 ? "#E05050" : chg<-0.005 ? "#6DBF6D" : "#4A5A75";
+  const trendTxt = lang==="BG"
+    ? (chg>0.005 ? "↑ нагоре" : chg<-0.005 ? "↓ надолу" : "стабилно") + " пр. 8 седм."
+    : (chg>0.005 ? "↑ up" : chg<-0.005 ? "↓ down" : "stable") + " vs 8w ago";
+  const lowPrice = Math.min(...hist);
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12,padding:"8px 10px",background:"#0A1020",borderRadius:8}}>
+      <div style={{flex:1}}>
+        <div style={{fontSize:9,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>{lang==="BG"?"8-СЕДМИЧНА ТЕНДЕНЦИЯ":"8-WEEK TREND"}</div>
+        <Sparkline data={hist} width={120} height={28}/>
+      </div>
+      <div style={{textAlign:"right"}}>
+        <div style={{fontSize:11,fontWeight:700,color:color,fontFamily:"'Source Sans 3',sans-serif"}}>{trendTxt}</div>
+        <div style={{fontSize:9,color:"#1A2A40",fontFamily:"'Source Sans 3',sans-serif",marginTop:2}}>{lang==="BG"?"мин:":"low:"} {fmt(lowPrice)}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SPESTI SCORE CARD ────────────────────────────────────────────────────────
+function SpestiScoreCard({savings, worstTotal, listCount, lang}){
+  const sc = spestiScore(savings, worstTotal, listCount);
+  if(sc===null) return null;
+  const color = sc>=80 ? "#E8C547" : sc>=60 ? "#6DBF6D" : "#4A5A75";
+  const label = lang==="BG"
+    ? (sc>=80?"🏆 Отличен спестявач!":sc>=60?"👍 Добра ефективност":"💪 Има резерви")
+    : (sc>=80?"🏆 Excellent saver!":sc>=60?"👍 Good efficiency":"💪 Room to improve");
+  const hint = lang==="BG"
+    ? (sc<80?"Избери повече продукти от най-евтиния магазин":"Използваш Spesti като про")
+    : (sc<80?"Select more items at cheapest store to improve":"You're using Spesti like a pro");
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:14,background:"linear-gradient(90deg,#0A0E1A,#080C16)",border:"1px solid #1A2540",borderRadius:12,padding:"14px 16px",marginBottom:16}}>
+      <div style={{textAlign:"center",flexShrink:0,minWidth:54}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:40,fontWeight:900,color:color,lineHeight:1}}>{sc}</div>
+        <div style={{fontSize:7,color:"#1F2D45",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"2px",textTransform:"uppercase",marginTop:2}}>{lang==="BG"?"SPESTI РЕЗУЛТАТ":"SPESTI SCORE"}</div>
+      </div>
+      <div style={{width:1,height:44,background:"#131E30",flexShrink:0}}/>
+      <div style={{flex:1}}>
+        <div style={{fontFamily:"'Source Sans 3',sans-serif",fontSize:13,color:"#EDE5D0",fontWeight:700,marginBottom:5}}>{label}</div>
+        <div style={{background:"#131E30",borderRadius:4,height:5,marginBottom:4,overflow:"hidden"}}>
+          <div style={{width:sc+"%",height:"100%",background:color,borderRadius:4}}/>
+        </div>
+        <div style={{fontSize:10,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif"}}>{hint}</div>
       </div>
     </div>
   );
@@ -1104,17 +1208,8 @@ function Spesti(){
                     </div>
                   </div>
                   {isExp&&<div style={{borderTop:"1px solid #131E30",background:"#070D1A",padding:"13px 12px"}}>
-                    {HIST[prod.id]&&<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12,padding:"8px 10px",background:"#0A1020",borderRadius:8}}>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:9,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>{lang==="BG"?"8-СЕДМИЧНА ТЕНДЕНЦИЯ":"8-WEEK TREND"}</div>
-                        <Sparkline data={HIST[prod.id]} width={120} height={28}/>
-                      </div>
-                      <div style={{textAlign:"right"}}>
-                        {(()=>{const h=HIST[prod.id];const chg=h[h.length-1]-h[0];return <div style={{fontSize:11,fontWeight:700,color:chg>0.005?"#E05050":chg<-0.005?"#6DBF6D":"#4A5A75",fontFamily:"'Source Sans 3',sans-serif"}}>{lang==="BG"?(chg>0.005?"↑ нагоре":chg<-0.005?"↓ надолу":"стабилно")+" пр. 8 седм.":(chg>0.005?"↑ up":chg<-0.005?"↓ down":"stable")+" vs 8w ago"}</div>;})()}
-                        <div style={{fontSize:9,color:"#1A2A40",fontFamily:"'Source Sans 3',sans-serif",marginTop:2}}>{lang==="BG"?`мин: ${fmt(Math.min(...HIST[prod.id]))}`:`low: ${fmt(Math.min(...HIST[prod.id]))}`}</div>
-                      </div>
-                    </div>}
-                    <PriceBar prod={prod} activeStores={activeStores}/>
+                    {HIST[prod.id]&&<TrendPanel hist={HIST[prod.id]} lang={lang}/>}
+                    <PriceBar prod={prod} activeStores={activeStores} lang={lang}/>
                     {SUBS[prod.id]&&<div style={{marginTop:10,padding:"8px 10px",background:"#0A1018",border:"1px solid #151E2A",borderRadius:8}}>
                       <div style={{fontSize:9,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>{lang==="BG"?"💡 УМНИ ЗАМЕНИ":"💡 SMART SUBSTITUTES"}</div>
                       <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -1128,7 +1223,7 @@ function Spesti(){
                             <div key={subId} style={{background:"#101828",border:"1px solid #1A2A3A",borderRadius:8,padding:"6px 10px",cursor:"pointer"}} onClick={()=>setExpId(subId)}>
                               <div style={{fontFamily:"'Source Sans 3',sans-serif",fontSize:11,color:"#EDE5D0"}}>{sub.nameEN.split(" ").slice(0,3).join(" ")}</div>
                               <div style={{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:800,color:diff&&diff>0?"#6DBF6D":"#E8C547",marginTop:2}}>
-                                {fmt(subBest)}{diff&&diff>0?(lang==="BG"?" · спести "+fmt(diff):" · save "+fmt(diff)):""}
+                                {fmt(subBest)}{diff&&diff>0&&<span>{lang==="BG"?` · спести ${fmt(diff)}`:` · save ${fmt(diff)}`}</span>}
                               </div>
                             </div>
                           );
@@ -1168,58 +1263,13 @@ function Spesti(){
                     <div style={{fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:14,color:isSel?store.color:"#EDE5D0"}}>{store.name}</div>
                   </div>
                   <div style={{fontFamily:"'Playfair Display',serif",fontWeight:900,fontSize:22,color:isSel?store.color:"#6DBF6D"}}>{fmt(storeTotal)}</div>
-                  <div style={{fontSize:10,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",marginTop:2}}>{storeItems.length} items cheapest here</div>
+                  <div style={{fontSize:10,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",marginTop:2}}>{lang==="BG"?`${storeItems.length} продукта най-евтини тук`:`${storeItems.length} items cheapest here`}</div>
                 </button>
               );
             })}
           </div>
 
-          {selStore&&(()=>{
-            const store=ALL_CHAINS.find(c=>c.id===selStore);
-            if(!store) return null;
-            const storeItems=listItems.filter(p=>getBestStore(p,activeArr)===store.id&&p.prices[store.id]!=null);
-            const storeTotal=storeItems.reduce((s,p)=>s+(p.prices[store.id]||0)*getQty(p.id),0);
-            const altTotal=storeItems.reduce((s,p)=>s+(getWorstPrice(p,activeArr)||0)*getQty(p.id),0);
-            if(!storeItems.length) return <div style={{textAlign:"center",padding:"26px 20px",color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif",background:"#0D1520",borderRadius:12}}>{lang==="BG"?`Нито един твой продукт не е най-евтин в ${store.name} тази седмица.`:`None of your items are cheapest at ${store.name} this week.`}</div>;
-            return (
-              <div className="slidein" style={{background:"#0A0F1A",border:`1px solid ${store.color}33`,borderRadius:12,overflow:"hidden"}}>
-                <div style={{background:`${store.color}1A`,padding:"12px 15px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <ChainLogo chainId={store.id} size={30}/>
-                    <div>
-                      <div style={{fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:15,color:store.color}}>{lang==="BG"?`Купи тези в ${store.name}`:`Buy these at ${store.name}`}</div>
-                      <div style={{fontSize:10,color:"#3A4A65",fontFamily:"'Source Sans 3',sans-serif",marginTop:2}}>{lang==="BG"?`${storeItems.length} продукта · спести ${fmt(altTotal-storeTotal)} vs. най-скъпо`:`${storeItems.length} items · save ${fmt(altTotal-storeTotal)} vs. priciest`}</div>
-                    </div>
-                  </div>
-                  <div style={{fontFamily:"'Playfair Display',serif",fontWeight:900,fontSize:20}}>{fmt(storeTotal)}</div>
-                </div>
-                <div style={{padding:"9px 15px"}}>
-                  {storeItems.map(prod=>{
-                    const qty=getQty(prod.id);
-                    return (
-                      <div key={prod.id} style={{display:"flex",alignItems:"center",gap:9,padding:"7px 0",borderBottom:"1px solid #0D1520"}}>
-                        <img src={prod.img} alt={pname(prod)} onError={e=>e.target.style.display="none"} style={{width:36,height:36,objectFit:"contain",borderRadius:5,background:"#131E30",flexShrink:0}}/>
-                        <div style={{flex:1}}>
-                          <div style={{fontFamily:"'Source Sans 3',sans-serif",fontWeight:700,fontSize:12,color:"#EDE5D0"}}>{pname(prod)}</div>
-                          <div style={{display:"flex",gap:9,marginTop:2,alignItems:"center"}}>
-                            <span style={{fontSize:10,color:"#2A3A55",textDecoration:"line-through",fontFamily:"'Source Sans 3',sans-serif"}}>{fmt(getWorstPrice(prod,activeArr))}</span>
-                            <span style={{fontSize:13,color:"#6DBF6D",fontFamily:"'Playfair Display',serif",fontWeight:800}}>{fmt(prod.prices[store.id])}</span>
-                            {prod.sale&&prod.sale[store.id]&&<span className="sale-tag">SALE</span>}
-                          </div>
-                        </div>
-                        <div style={{display:"flex",alignItems:"center",gap:4}}>
-                          <button className="qty-btn" onClick={()=>setQtys(p=>({...p,[prod.id]:Math.max(1,qty-1)}))}>−</button>
-                          <span style={{fontSize:12,fontWeight:800,minWidth:18,textAlign:"center",fontFamily:"'Source Sans 3',sans-serif"}}>{qty}</span>
-                          <button className="qty-btn" onClick={()=>setQtys(p=>({...p,[prod.id]:qty+1}))}>+</button>
-                        </div>
-                        <div style={{fontFamily:"'Playfair Display',serif",fontWeight:800,fontSize:14,color:"#E8C547",minWidth:50,textAlign:"right"}}>{fmt((prod.prices[store.id]||0)*qty)}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
+          {selStore&&<SelectedStorePanel storeId={selStore} listItems={listItems} activeArr={activeArr} getQty={getQty} setQtys={setQtys} lang={lang}/>}
 
           {!selStore&&listItems.length>0&&<div>
             <div style={{fontSize:10,color:"#1F2D45",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>{lang==="BG"?"ПЪЛЕН ПРЕГЛЕД":"FULL BREAKDOWN"}</div>
@@ -1277,18 +1327,7 @@ function Spesti(){
             </div>
 
 
-            {(()=>{const sc=spestiScore(savings,worstTotal,listItems.length);return sc!==null&&<div style={{display:"flex",alignItems:"center",gap:14,background:"linear-gradient(90deg,#0A0E1A,#080C16)",border:"1px solid #1A2540",borderRadius:12,padding:"14px 16px",marginBottom:16}}>
-              <div style={{textAlign:"center",flexShrink:0,minWidth:54}}>
-                <div style={{fontFamily:"'Playfair Display',serif",fontSize:40,fontWeight:900,color:sc>=80?"#E8C547":sc>=60?"#6DBF6D":"#4A5A75",lineHeight:1}}>{sc}</div>
-                <div style={{fontSize:7,color:"#1F2D45",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"2px",textTransform:"uppercase",marginTop:2}}>{lang==="BG"?"SPESTI РЕЗУЛТАТ":"SPESTI SCORE"}</div>
-              </div>
-              <div style={{width:1,height:44,background:"#131E30",flexShrink:0}}/>
-              <div style={{flex:1}}>
-                <div style={{fontFamily:"'Source Sans 3',sans-serif",fontSize:13,color:"#EDE5D0",fontWeight:700,marginBottom:5}}>{lang==="BG"?(sc>=80?"🏆 Отличен спестявач!":sc>=60?"👍 Добра ефективност":"💪 Има резерви"):(sc>=80?"🏆 Excellent saver!":sc>=60?"👍 Good efficiency":"💪 Room to improve")}</div>
-                <div style={{background:"#131E30",borderRadius:4,height:5,marginBottom:4,overflow:"hidden"}}><div style={{width:sc+"%",height:"100%",background:sc>=80?"#E8C547":sc>=60?"#6DBF6D":"#4A5A75",borderRadius:4}}/></div>
-                <div style={{fontSize:10,color:"#2A3A55",fontFamily:"'Source Sans 3',sans-serif"}}>{lang==="BG"?(sc<80?"Избери повече продукти от най-евтиния магазин":"Използваш Spesti като про"):(sc<80?"Select more items at cheapest store to improve":"You're using Spesti like a pro")}</div>
-              </div>
-            </div>;})()}
+            <SpestiScoreCard savings={savings} worstTotal={worstTotal} listCount={listItems.length} lang={lang}/>
             <div style={{fontSize:10,color:"#1F2D45",fontFamily:"'Source Sans 3',sans-serif",letterSpacing:"2px",textTransform:"uppercase",marginBottom:10}}>{lang==="BG"?"ПЛАН ЗА ПАЗАРУВАНЕ ТАЗИ СЕДМИЦА":"THIS WEEK'S SHOPPING PLAN"}</div>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:20}}>
               {storeBreakdown.map(store=>(
