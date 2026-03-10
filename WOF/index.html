@@ -4,30 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Of Fog</title>
-  <meta name="description" content="Step into the mysterious world of fog." />
+  <meta
+    name="description"
+    content="Reveal the real world by walking. Explore solo or with friends, uncover fog-covered map tiles, upload landmarks, track steps, and discover hidden treasures."
+  />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="fog fog-1"></div>
-  <div class="fog fog-2"></div>
-  <div class="fog fog-3"></div>
-  <div class="noise"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="fog-layer fog-1"></div>
+  <div class="fog-layer fog-2"></div>
 
   <header class="site-header">
     <div class="container nav">
       <a href="#" class="brand">
-        <img src="icon.png" alt="World Of Fog Logo" class="logo" />
-        <span>World Of Fog</span>
+        <img src="icon.png" alt="World Of Fog logo" class="logo" />
+        <div class="brand-text">
+          <span class="brand-title">World Of Fog</span>
+          <span class="brand-subtitle">Reveal the world by walking</span>
+        </div>
       </a>
 
-      <nav class="nav-links">
-        <a href="#about">About</a>
-        <a href="#realms">Realms</a>
+      <nav class="nav-links" id="navLinks">
+        <a href="#how-it-works">How it works</a>
         <a href="#features">Features</a>
-        <a href="#join">Join</a>
+        <a href="#social">Shared Map</a>
+        <a href="#treasures">Treasures</a>
+        <a href="#download">Download</a>
       </nav>
 
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
         <span></span>
         <span></span>
         <span></span>
@@ -35,160 +43,273 @@
     </div>
 
     <div class="mobile-menu" id="mobileMenu">
-      <a href="#about">About</a>
-      <a href="#realms">Realms</a>
+      <a href="#how-it-works">How it works</a>
       <a href="#features">Features</a>
-      <a href="#join">Join</a>
+      <a href="#social">Shared Map</a>
+      <a href="#treasures">Treasures</a>
+      <a href="#download">Download</a>
     </div>
   </header>
 
   <main>
     <section class="hero">
       <div class="container hero-grid">
-        <div class="hero-text reveal">
-          <p class="eyebrow">ENTER THE UNKNOWN</p>
-          <h1>Where legends vanish into the mist.</h1>
-          <p class="hero-copy">
-            World Of Fog is a mysterious realm wrapped in ancient whispers, hidden paths,
-            and shadowy beauty. Explore the unknown, uncover secrets, and lose yourself
-            in a world where the fog is alive.
+        <div class="hero-copy reveal">
+          <p class="eyebrow">REAL WORLD EXPLORATION GAME</p>
+          <h1>Walk the world. Lift the fog.</h1>
+          <p class="hero-text">
+            World Of Fog turns the real map into a game. The world starts hidden under fog,
+            and every step you take reveals more of it. Explore alone, team up with friends,
+            uncover landmarks, and push your map toward 100% discovery.
           </p>
 
           <div class="hero-actions">
-            <a href="#join" class="btn btn-primary">Begin the Journey</a>
-            <a href="#about" class="btn btn-secondary">Discover More</a>
+            <a href="#download" class="btn btn-primary">Start Exploring</a>
+            <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-card">
+              <strong>Personal Map</strong>
+              <span>Reveal your own path</span>
+            </div>
+            <div class="stat-card">
+              <strong>Shared Map</strong>
+              <span>Discover together</span>
+            </div>
+            <div class="stat-card">
+              <strong>100% Goal</strong>
+              <span>Clear every tile</span>
+            </div>
           </div>
         </div>
 
-        <div class="hero-card reveal delay-1">
-          <div class="glass-card">
-            <div class="card-glow"></div>
-            <img src="icon.png" alt="World Of Fog emblem" class="hero-emblem" />
-            <h3>The Fog Watches</h3>
-            <p>
-              Every step reveals a story. Every shadow hides a truth.
-              The world is waiting.
-            </p>
+        <div class="hero-visual reveal delay-1">
+          <div class="phone-frame">
+            <div class="screen">
+              <div class="map-ui">
+                <div class="map-topbar">
+                  <span class="pill active">Personal</span>
+                  <span class="pill">Shared</span>
+                </div>
+
+                <div class="map-preview">
+                  <div class="map-grid"></div>
+                  <div class="revealed-path path-a"></div>
+                  <div class="revealed-path path-b"></div>
+                  <div class="fog-mask fog-mask-1"></div>
+                  <div class="fog-mask fog-mask-2"></div>
+                  <div class="marker marker-1"></div>
+                  <div class="marker marker-2"></div>
+                  <div class="marker marker-3 treasure"></div>
+                </div>
+
+                <div class="map-bottom">
+                  <div class="mini-stat">
+                    <span>Steps</span>
+                    <strong>12,482</strong>
+                  </div>
+                  <div class="mini-stat">
+                    <span>Revealed</span>
+                    <strong>64%</strong>
+                  </div>
+                  <div class="mini-stat">
+                    <span>Photos</span>
+                    <strong>128</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="floating-card floating-card-a">
+            <span class="small-label">Today</span>
+            <strong>3.8 km revealed</strong>
+          </div>
+
+          <div class="floating-card floating-card-b">
+            <span class="small-label">New discovery</span>
+            <strong>Hidden treasure nearby</strong>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="about" class="section">
+    <section id="how-it-works" class="section">
       <div class="container">
         <div class="section-heading reveal">
-          <p class="eyebrow">ABOUT</p>
-          <h2>A world built from mystery</h2>
+          <p class="eyebrow">HOW IT WORKS</p>
+          <h2>The map clears as you move</h2>
           <p>
-            Drift through silent ruins, forgotten forests, and twilight valleys.
-            World Of Fog blends haunting atmosphere with wonder, discovery, and myth.
+            Your location and movement reveal the fog tile by tile. The more you walk,
+            the more of the real world becomes visible on your map.
           </p>
         </div>
 
-        <div class="about-grid">
-          <article class="info-card reveal">
-            <h3>Ancient Atmosphere</h3>
+        <div class="steps-grid">
+          <article class="feature-card reveal">
+            <div class="icon-wrap">01</div>
+            <h3>Open the map</h3>
             <p>
-              Dark, elegant visuals inspired by mist-covered landscapes and hidden kingdoms.
+              Start with a fog-covered world map and choose whether to explore on your own
+              or as part of a shared discovery journey.
             </p>
           </article>
 
-          <article class="info-card reveal delay-1">
-            <h3>Secret Paths</h3>
+          <article class="feature-card reveal delay-1">
+            <div class="icon-wrap">02</div>
+            <h3>Walk in real life</h3>
             <p>
-              Not everything is visible at first glance. The deeper you go, the more you find.
+              Your movement reveals the surrounding map. Streets, parks, neighborhoods,
+              and entire regions become visible as you physically explore them.
             </p>
           </article>
 
-          <article class="info-card reveal delay-2">
-            <h3>Living Mystery</h3>
+          <article class="feature-card reveal delay-2">
+            <div class="icon-wrap">03</div>
+            <h3>Track progress</h3>
             <p>
-              The fog shifts, the light bends, and the world constantly feels just out of reach.
+              Count steps, monitor revealed territory, and keep pushing toward complete
+              discovery of your city, country, or even the whole world.
             </p>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="realms" class="section section-dark">
-      <div class="container">
-        <div class="section-heading reveal">
-          <p class="eyebrow">REALMS</p>
-          <h2>Places hidden beneath the veil</h2>
-        </div>
-
-        <div class="realms-grid">
-          <div class="realm-card reveal">
-            <span class="realm-tag">01</span>
-            <h3>The Hollow Mire</h3>
-            <p>
-              A drowned land of pale water, broken stone, and endless drifting fog.
-            </p>
-          </div>
-
-          <div class="realm-card reveal delay-1">
-            <span class="realm-tag">02</span>
-            <h3>The Ashen Pines</h3>
-            <p>
-              A forest where the trees stand like sentinels and whispers ride the wind.
-            </p>
-          </div>
-
-          <div class="realm-card reveal delay-2">
-            <span class="realm-tag">03</span>
-            <h3>The Veiled Citadel</h3>
-            <p>
-              A lost stronghold hidden above the clouds, seen only by those chosen to find it.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="features" class="section">
+    <section id="features" class="section section-dark">
       <div class="container">
         <div class="section-heading reveal">
           <p class="eyebrow">FEATURES</p>
-          <h2>Designed to feel immersive</h2>
+          <h2>Built for exploration, collection, and progress</h2>
         </div>
 
         <div class="features-grid">
-          <div class="feature-item reveal">
-            <div class="feature-icon">✦</div>
-            <h3>Cinematic Design</h3>
-            <p>Strong hero section, glowing details, layered depth, and premium visuals.</p>
-          </div>
+          <article class="glass-card reveal">
+            <h3>Fog-of-war map</h3>
+            <p>
+              The real world is hidden under fog until you actually walk there and reveal it.
+            </p>
+          </article>
 
-          <div class="feature-item reveal delay-1">
-            <div class="feature-icon">✧</div>
-            <h3>Animated Fog</h3>
-            <p>Soft drifting layers create a living, atmospheric background.</p>
-          </div>
+          <article class="glass-card reveal delay-1">
+            <h3>Personal map mode</h3>
+            <p>
+              Keep your own map and measure exactly how much of the world you have uncovered.
+            </p>
+          </article>
 
-          <div class="feature-item reveal delay-2">
-            <div class="feature-icon">✦</div>
-            <h3>Smooth Interactions</h3>
-            <p>Reveal-on-scroll, hover animations, mobile nav, and polished transitions.</p>
-          </div>
+          <article class="glass-card reveal delay-2">
+            <h3>Shared map mode</h3>
+            <p>
+              Team up with friends and reveal territory together for a collective 100% goal.
+            </p>
+          </article>
 
-          <div class="feature-item reveal">
-            <div class="feature-icon">✧</div>
-            <h3>Easy to Expand</h3>
-            <p>Add gallery, lore, trailer, download links, or game sections later.</p>
+          <article class="glass-card reveal">
+            <h3>Landmark photo uploads</h3>
+            <p>
+              Capture memorable places, attach photos to discovered areas, and build your own
+              visual travel history.
+            </p>
+          </article>
+
+          <article class="glass-card reveal delay-1">
+            <h3>Step tracking</h3>
+            <p>
+              Turn walking into progress with steps, distance, and map reveal tied together.
+            </p>
+          </article>
+
+          <article class="glass-card reveal delay-2">
+            <h3>Secrets and rewards</h3>
+            <p>
+              Hidden treasures and special discoveries can appear in the fog, rewarding curiosity.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="social" class="section">
+      <div class="container social-grid">
+        <div class="section-heading reveal">
+          <p class="eyebrow">PLAY TOGETHER</p>
+          <h2>Your world. Or your world together.</h2>
+          <p>
+            Some players want a pure solo journey. Others want to reveal the world as a team.
+            World Of Fog supports both.
+          </p>
+        </div>
+
+        <div class="social-cards">
+          <article class="mode-card reveal">
+            <span class="mode-badge solo">Solo</span>
+            <h3>Personal Map</h3>
+            <p>
+              Your own progress, your own fog, your own completion journey. Perfect for daily
+              walks, personal goals, and tracking how much of the world you’ve explored yourself.
+            </p>
+          </article>
+
+          <article class="mode-card reveal delay-1">
+            <span class="mode-badge team">Team</span>
+            <h3>Shared Map</h3>
+            <p>
+              Invite friends and combine exploration. Every walk contributes to the same shared
+              world, making it possible to uncover entire cities and regions together.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="treasures" class="section section-dark">
+      <div class="container treasure-layout">
+        <div class="treasure-copy reveal">
+          <p class="eyebrow">MORE THAN WALKING</p>
+          <h2>The fog can hide more than streets</h2>
+          <p>
+            Exploration feels better when there’s surprise. Secret treasures, rare landmarks,
+            hidden zones, and collectible discoveries can make every route feel like a mission.
+          </p>
+
+          <ul class="treasure-list">
+            <li>Hidden treasure drops in unexplored zones</li>
+            <li>Special landmarks worth finding and photographing</li>
+            <li>Exploration streaks and region completion goals</li>
+            <li>Rare discoveries that reward curiosity</li>
+          </ul>
+        </div>
+
+        <div class="treasure-panel reveal delay-1">
+          <div class="treasure-card">
+            <div class="treasure-icon">✦</div>
+            <h3>Discovery Event</h3>
+            <p>Fog cleared near a landmark. Treasure signal detected in this area.</p>
+            <div class="treasure-meta">
+              <span>Reward: Explorer Badge</span>
+              <span>Range: 150m</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="join" class="section cta-section">
+    <section id="download" class="section download-section">
       <div class="container">
-        <div class="cta-box reveal">
-          <p class="eyebrow">JOIN THE WORLD</p>
-          <h2>Let the fog guide you.</h2>
+        <div class="download-box reveal">
+          <p class="eyebrow">START THE JOURNEY</p>
+          <h2>Every walk reveals something.</h2>
           <p>
-            Build your story, unveil the hidden, and step beyond the edge of the known world.
+            Explore your neighborhood, discover cities, document landmarks, and slowly clear
+            the fog from the world map one step at a time.
           </p>
-          <a href="#" class="btn btn-primary">Enter World Of Fog</a>
+
+          <div class="download-actions">
+            <a href="#" class="btn btn-primary">Get the App</a>
+            <a href="#" class="btn btn-secondary">View Features</a>
+          </div>
         </div>
       </div>
     </section>
@@ -197,10 +318,18 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <img src="icon.png" alt="World Of Fog Logo" class="footer-logo" />
-        <span>World Of Fog</span>
+        <img src="icon.png" alt="World Of Fog logo" class="footer-logo" />
+        <div>
+          <strong>World Of Fog</strong>
+          <p>Reveal the world together.</p>
+        </div>
       </div>
-      <p>© 2026 World Of Fog. All rights reserved.</p>
+
+      <div class="footer-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+      </div>
     </div>
   </footer>
 
