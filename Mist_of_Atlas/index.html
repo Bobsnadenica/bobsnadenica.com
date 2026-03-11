@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mist of Atlas: World of Fog</title>
+  <meta
+    name="description"
+    content="Mist of Atlas: World of Fog turns real-world movement into a premium fantasy-style exploration map with personal progress, shared expeditions, landmark memories, and hidden discoveries."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="site-backdrop"></div>
+  <div class="mist mist-one"></div>
+  <div class="mist mist-two"></div>
+  <div class="mist mist-three"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#" class="brand" aria-label="Mist of Atlas home">
+        <img src="icon.png" alt="Mist of Atlas logo" class="logo" />
+        <div class="brand-text">
+          <span class="brand-title">Mist of Atlas</span>
+          <span class="brand-subtitle">World of Fog</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#experience">Experience</a>
+        <a href="#modes">Modes</a>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+      </nav>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#experience">Experience</a>
+      <a href="#modes">Modes</a>
+      <a href="#features">Features</a>
+      <a href="#download">Download</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-layout">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">PREMIUM REAL-WORLD FOG-OF-WAR</p>
+          <h1>The world begins in mist. Your footsteps write the atlas.</h1>
+          <p class="hero-text">
+            Mist of Atlas: World of Fog turns everyday movement into a grand exploration record.
+            Clear real territory as you walk, preserve where you have been, and give the experience
+            the sense of scale and prestige a fantasy world map deserves.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#download" class="btn btn-primary">Get the App</a>
+            <a href="#experience" class="btn btn-secondary">See the Experience</a>
+          </div>
+
+          <div class="hero-badges">
+            <span>Solo expeditions</span>
+            <span>Shared world maps</span>
+            <span>Landmark keepsakes</span>
+          </div>
+
+          <div class="hero-metrics">
+            <article class="metric-card">
+              <strong>Fog-of-war map</strong>
+              <span>Reveal the world one route at a time.</span>
+            </article>
+            <article class="metric-card">
+              <strong>Guild-style play</strong>
+              <span>Keep a personal atlas or uncover territory together.</span>
+            </article>
+            <article class="metric-card">
+              <strong>Discovery loops</strong>
+              <span>Track steps, landmarks, and hidden rewards in one place.</span>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal delay-1">
+          <div class="atlas-stage">
+            <div class="atlas-panel">
+              <div class="panel-bar">
+                <span class="panel-label">Atlas Campaign</span>
+                <span class="panel-status">Realm Progress 68%</span>
+              </div>
+
+              <div class="atlas-map" data-spotlight>
+                <div class="atlas-grid"></div>
+                <div class="landmass landmass-a"></div>
+                <div class="landmass landmass-b"></div>
+                <div class="landmass landmass-c"></div>
+                <div class="route route-a"></div>
+                <div class="route route-b"></div>
+                <div class="route route-c"></div>
+                <div class="signal-node node-a"></div>
+                <div class="signal-node node-b"></div>
+                <div class="signal-node node-c"></div>
+                <div class="fog-bank fog-bank-a"></div>
+                <div class="fog-bank fog-bank-b"></div>
+                <div class="compass-rose"><span>N</span></div>
+              </div>
+
+              <div class="panel-stats">
+                <div class="panel-stat">
+                  <span>Routes traced</span>
+                  <strong>148</strong>
+                </div>
+                <div class="panel-stat">
+                  <span>Landmarks saved</span>
+                  <strong>27</strong>
+                </div>
+                <div class="panel-stat">
+                  <span>World revealed</span>
+                  <strong>68%</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="floating-plaque plaque-top">
+              <span class="small-label">Tonight's expedition</span>
+              <strong>Eastern ridge cleared</strong>
+            </div>
+
+            <div class="floating-plaque plaque-bottom">
+              <span class="small-label">Shared atlas</span>
+              <strong>4 explorers contributed today</strong>
+            </div>
+
+            <aside class="expedition-slab">
+              <div class="slab-header">
+                <span>Expedition Summary</span>
+                <strong>Today</strong>
+              </div>
+              <div class="slab-row">
+                <span>Distance</span>
+                <strong>9.6 km</strong>
+              </div>
+              <div class="slab-row">
+                <span>Steps</span>
+                <strong>13,204</strong>
+              </div>
+              <div class="slab-row">
+                <span>New tiles</span>
+                <strong>23</strong>
+              </div>
+              <div class="slab-progress">
+                <span>Campaign streak</span>
+                <div class="progress-track">
+                  <div class="progress-fill"></div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="signal-bar">
+      <div class="container signal-grid">
+        <div class="signal-item reveal">City walks that leave a visible legacy.</div>
+        <div class="signal-item reveal delay-1">Weekend trips that look like campaigns, not commutes.</div>
+        <div class="signal-item reveal delay-2">A cleaner, more premium feel than a generic tracker.</div>
+      </div>
+    </section>
+
+    <section id="experience" class="section story-section">
+      <div class="container story-layout">
+        <div class="story-copy reveal">
+          <p class="eyebrow">MEMORIES IN MOTION</p>
+          <h2>Every route becomes a chapter you can actually see again.</h2>
+          <p>
+            The best part of fog-of-world exploration is not just progress. It is permanence.
+            Mist of Atlas keeps your movement visible on the map so a walk, hike, trip, or detour
+            becomes part of a world you can return to with context and pride.
+          </p>
+          <ul class="story-list">
+            <li>Watch roads, neighborhoods, and whole regions emerge from the mist.</li>
+            <li>Keep your travel history readable instead of burying it in raw step counts.</li>
+            <li>Turn daily movement into a collectible visual record.</li>
+          </ul>
+        </div>
+
+        <div class="story-visual reveal delay-1">
+          <div class="chronicle-card">
+            <div class="visual-header">
+              <span>Expedition Chronicle</span>
+              <strong>Live Route</strong>
+            </div>
+            <div class="chronicle-map" data-spotlight>
+              <div class="atlas-grid soft"></div>
+              <div class="landmass landmass-d"></div>
+              <div class="landmass landmass-e"></div>
+              <div class="route route-d"></div>
+              <div class="route route-e"></div>
+              <div class="fog-bank fog-bank-c"></div>
+              <div class="signal-node node-d"></div>
+              <div class="signal-node node-e"></div>
+            </div>
+            <div class="chronicle-note">
+              <strong>Tonight's route opened the north coast trail.</strong>
+              <span>8.4 km, 4 landmarks pinned, 23 new fog tiles cleared.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modes" class="section story-section section-accent">
+      <div class="container story-layout reverse">
+        <div class="story-visual reveal">
+          <div class="guild-board">
+            <div class="visual-header">
+              <span>Shared Atlas</span>
+              <strong>Expedition Modes</strong>
+            </div>
+            <div class="guild-rows">
+              <article class="guild-row">
+                <div>
+                  <span class="row-label">Personal Atlas</span>
+                  <strong>Your world, your completion path.</strong>
+                </div>
+                <span class="row-badge">Solo</span>
+              </article>
+              <article class="guild-row">
+                <div>
+                  <span class="row-label">Shared Realm</span>
+                  <strong>Combine routes and reveal territory together.</strong>
+                </div>
+                <span class="row-badge row-badge-alt">Party</span>
+              </article>
+              <article class="guild-row">
+                <div>
+                  <span class="row-label">Landmark Archive</span>
+                  <strong>Attach places and memories to the map you have earned.</strong>
+                </div>
+                <span class="row-badge">Memory</span>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-copy reveal delay-1">
+          <p class="eyebrow">FLEXIBLE PLAY</p>
+          <h2>Keep a personal atlas, or reveal the realm with your party.</h2>
+          <p>
+            Mist of Atlas is strongest when it respects different kinds of explorers. Some want a
+            clean solo record. Others want to build progress with friends. The experience works for
+            both without losing the sense of elegance or momentum.
+          </p>
+          <div class="mode-stack">
+            <article class="mode-card">
+              <h3>Personal map mode</h3>
+              <p>Track exactly where you have gone and how much of the world you have uncovered on your own.</p>
+            </article>
+            <article class="mode-card">
+              <h3>Shared map mode</h3>
+              <p>Build a collective world with friends and watch the fog lift faster across entire cities or regions.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section features-section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">WHY MIST OF ATLAS</p>
+          <h2>Built like a premium adventure product, not a generic step counter.</h2>
+          <p>
+            The core mechanics remain practical, but the presentation feels collectible, atmospheric,
+            and intentionally crafted.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card reveal">
+            <span class="feature-index">01</span>
+            <h3>Fog-of-war reveal</h3>
+            <p>The map starts obscured and clears only where you truly move in the real world.</p>
+          </article>
+
+          <article class="feature-card reveal delay-1">
+            <span class="feature-index">02</span>
+            <h3>Personal progress</h3>
+            <p>Measure your own exploration history with a map that grows richer over time.</p>
+          </article>
+
+          <article class="feature-card reveal delay-2">
+            <span class="feature-index">03</span>
+            <h3>Shared expeditions</h3>
+            <p>Reveal territory as a group and make the world feel like a coordinated campaign.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <span class="feature-index">04</span>
+            <h3>Landmark memories</h3>
+            <p>Document important places and give the map more meaning than simple movement data.</p>
+          </article>
+
+          <article class="feature-card reveal delay-1">
+            <span class="feature-index">05</span>
+            <h3>Steps with purpose</h3>
+            <p>Distance, routes, and discovery are tied together so progress feels visible and earned.</p>
+          </article>
+
+          <article class="feature-card reveal delay-2">
+            <span class="feature-index">06</span>
+            <h3>Hidden rewards</h3>
+            <p>Treasure-style discoveries add surprise and curiosity to the routes you have not cleared yet.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section polish-section">
+      <div class="container polish-layout">
+        <div class="polish-copy reveal">
+          <p class="eyebrow">VISUAL DIRECTION</p>
+          <h2>Classic fantasy MMO energy, translated into a more professional product style.</h2>
+          <p>
+            The site leans into fantasy cartography, ornate gold accents, carved-panel framing,
+            and atmospheric mist without tipping into parody. The result feels closer to a polished
+            premium product than a novelty landing page.
+          </p>
+        </div>
+
+        <div class="polish-points reveal delay-1">
+          <article class="polish-point">
+            <strong>Editorial layout</strong>
+            <span>More story-driven sections, clearer hierarchy, and stronger pacing.</span>
+          </article>
+          <article class="polish-point">
+            <strong>Fantasy atlas palette</strong>
+            <span>Deep navy, aged gold, parchment haze, and restrained cyan highlights.</span>
+          </article>
+          <article class="polish-point">
+            <strong>Responsive presentation</strong>
+            <span>Panels stack cleanly on mobile while preserving the premium visual character.</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="section cta-section">
+      <div class="container">
+        <div class="cta-panel reveal">
+          <p class="eyebrow">BEGIN THE CAMPAIGN</p>
+          <h2>Clear the mist from your world, one walk at a time.</h2>
+          <p>
+            Build a personal atlas, explore with friends, save the places that mattered, and make
+            each journey feel more legendary than routine.
+          </p>
+
+          <div class="hero-actions cta-actions">
+            <a href="#" class="btn btn-primary">Download for iPhone</a>
+            <a href="#" class="btn btn-secondary">Get it on Android</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="icon.png" alt="Mist of Atlas logo" class="footer-logo" />
+        <div>
+          <strong>Mist of Atlas</strong>
+          <p>World of Fog for explorers, travelers, and completionists.</p>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <a href="#experience">Experience</a>
+        <a href="#modes">Modes</a>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
