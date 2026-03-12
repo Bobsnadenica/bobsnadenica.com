@@ -14,7 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260312b" />
 </head>
 <body>
   <div class="site-backdrop"></div>
@@ -95,10 +95,10 @@
 
         <div class="hero-visual reveal delay-1">
           <div class="atlas-stage">
-            <div class="atlas-panel">
+            <div class="atlas-panel" data-demo-state="solo">
               <div class="panel-bar">
                 <span class="panel-label">Atlas Campaign</span>
-                <span class="panel-status">Realm Progress 68%</span>
+                <span class="panel-status" id="demoStatus">Personal Atlas 68%</span>
               </div>
 
               <div class="atlas-map" data-spotlight>
@@ -112,6 +112,7 @@
                 <div class="signal-node node-a"></div>
                 <div class="signal-node node-b"></div>
                 <div class="signal-node node-c"></div>
+                <div class="discovery-beacon"></div>
                 <div class="fog-bank fog-bank-a"></div>
                 <div class="fog-bank fog-bank-b"></div>
                 <div class="compass-rose"><span>N</span></div>
@@ -120,15 +121,27 @@
               <div class="panel-stats">
                 <div class="panel-stat">
                   <span>Routes traced</span>
-                  <strong>148</strong>
+                  <strong id="routesValue">148</strong>
                 </div>
                 <div class="panel-stat">
                   <span>Landmarks saved</span>
-                  <strong>27</strong>
+                  <strong id="landmarksValue">27</strong>
                 </div>
                 <div class="panel-stat">
                   <span>World revealed</span>
-                  <strong>68%</strong>
+                  <strong id="revealedValue">68%</strong>
+                </div>
+              </div>
+
+              <div class="demo-console">
+                <div class="demo-buttons" aria-label="Interactive demo modes">
+                  <button class="demo-toggle is-active" type="button" data-demo-mode="solo" aria-pressed="true">Solo</button>
+                  <button class="demo-toggle" type="button" data-demo-mode="party" aria-pressed="false">Party</button>
+                  <button class="demo-toggle" type="button" data-demo-mode="treasure" aria-pressed="false">Treasure</button>
+                </div>
+                <div class="demo-copy">
+                  <strong id="demoTitle">Personal Atlas Active</strong>
+                  <p id="demoText">Reveal the world on your own and watch your routes stay etched into the map.</p>
                 </div>
               </div>
             </div>
@@ -396,6 +409,6 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=20260312b"></script>
 </body>
 </html>

@@ -513,6 +513,7 @@ h3,
 .landmass,
 .route,
 .signal-node,
+.discovery-beacon,
 .fog-bank,
 .compass-rose {
   position: absolute;
@@ -575,6 +576,7 @@ h3,
   border-radius: 999px;
   background: linear-gradient(90deg, rgba(208, 170, 97, 0), rgba(208, 170, 97, 0.9), rgba(133, 191, 216, 0.96), rgba(208, 170, 97, 0));
   box-shadow: 0 0 18px rgba(133, 191, 216, 0.28);
+  transition: opacity 0.35s ease, filter 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
 }
 
 .route-a {
@@ -618,6 +620,7 @@ h3,
   border-radius: 50%;
   background: var(--gold-soft);
   box-shadow: 0 0 0 8px rgba(208, 170, 97, 0.12);
+  transition: opacity 0.35s ease, background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
 }
 
 .node-a {
@@ -645,10 +648,35 @@ h3,
   right: 24%;
 }
 
+.discovery-beacon {
+  top: 20%;
+  right: 26%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff5d1, #d0aa61 62%, #6f4a0d 100%);
+  box-shadow:
+    0 0 0 10px rgba(208, 170, 97, 0.08),
+    0 0 24px rgba(208, 170, 97, 0.35);
+  opacity: 0.3;
+  transform: scale(0.88);
+  transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.discovery-beacon::before {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  border: 1px solid rgba(237, 210, 154, 0.34);
+  opacity: 0;
+}
+
 .fog-bank {
   border-radius: 999px;
   filter: blur(14px);
   background: rgba(232, 235, 239, 0.16);
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .fog-bank-a {
@@ -736,6 +764,123 @@ h3,
 
 .panel-stat strong {
   font-size: 1rem;
+}
+
+.demo-console {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(208, 170, 97, 0.1);
+}
+
+.demo-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.demo-toggle {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(208, 170, 97, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.demo-toggle:hover,
+.demo-toggle:focus-visible {
+  color: var(--text);
+  border-color: rgba(208, 170, 97, 0.28);
+  transform: translateY(-1px);
+}
+
+.demo-toggle:focus-visible {
+  outline: 2px solid rgba(237, 210, 154, 0.45);
+  outline-offset: 2px;
+}
+
+.demo-toggle.is-active {
+  color: #1d1203;
+  background: linear-gradient(135deg, var(--gold), #f1d79f);
+  border-color: transparent;
+}
+
+.demo-copy {
+  margin-top: 14px;
+}
+
+.demo-copy strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.demo-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.atlas-panel[data-demo-state="solo"] .route-b,
+.atlas-panel[data-demo-state="solo"] .route-c,
+.atlas-panel[data-demo-state="solo"] .node-b,
+.atlas-panel[data-demo-state="solo"] .node-c {
+  opacity: 0.28;
+}
+
+.atlas-panel[data-demo-state="solo"] .route-a,
+.atlas-panel[data-demo-state="solo"] .node-a {
+  filter: saturate(1.08);
+  box-shadow: 0 0 24px rgba(133, 191, 216, 0.34);
+}
+
+.atlas-panel[data-demo-state="party"] .route-a,
+.atlas-panel[data-demo-state="party"] .route-b,
+.atlas-panel[data-demo-state="party"] .route-c {
+  opacity: 1;
+  box-shadow: 0 0 22px rgba(133, 191, 216, 0.4);
+}
+
+.atlas-panel[data-demo-state="party"] .signal-node {
+  background: var(--cyan-soft);
+  box-shadow: 0 0 0 8px rgba(133, 191, 216, 0.16);
+  transform: scale(1.06);
+}
+
+.atlas-panel[data-demo-state="party"] .fog-bank {
+  opacity: 0.12;
+}
+
+.atlas-panel[data-demo-state="treasure"] .route-a,
+.atlas-panel[data-demo-state="treasure"] .route-b {
+  opacity: 0.32;
+}
+
+.atlas-panel[data-demo-state="treasure"] .route-c,
+.atlas-panel[data-demo-state="treasure"] .node-c {
+  opacity: 1;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 10px rgba(208, 170, 97, 0.16), 0 0 26px rgba(208, 170, 97, 0.3);
+}
+
+.atlas-panel[data-demo-state="treasure"] .discovery-beacon {
+  opacity: 1;
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 14px rgba(208, 170, 97, 0.1),
+    0 0 32px rgba(208, 170, 97, 0.4);
+}
+
+.atlas-panel[data-demo-state="treasure"] .discovery-beacon::before {
+  opacity: 1;
+  animation: beacon-ping 2.1s ease-out infinite;
+}
+
+.atlas-panel[data-demo-state="treasure"] .fog-bank-b {
+  transform: translate3d(16px, -4px, 0) scale(1.06);
 }
 
 .floating-plaque,
@@ -1078,13 +1223,19 @@ h3,
   font-size: 0.92rem;
 }
 
-.reveal {
+.reveal,
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.js-ready .reveal {
   opacity: 0;
   transform: translateY(28px);
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
-.reveal.visible {
+.js-ready .reveal.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1139,6 +1290,17 @@ h3,
   }
 }
 
+@keyframes beacon-ping {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.84);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
 @media (max-width: 1160px) {
   .hero-layout,
   .story-layout,
@@ -1179,6 +1341,14 @@ h3,
   .signal-grid,
   .features-grid {
     grid-template-columns: 1fr;
+  }
+
+  .demo-buttons {
+    flex-direction: column;
+  }
+
+  .demo-toggle {
+    width: 100%;
   }
 
   .guild-row {
