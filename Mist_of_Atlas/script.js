@@ -76,6 +76,230 @@ spotlightSurfaces.forEach((surface) => {
   surface.addEventListener("touchcancel", resetSpotlight);
 });
 
+const chronicleMaps = document.querySelectorAll(".chronicle-map");
+
+chronicleMaps.forEach((map) => {
+  const fogCanvas = map.querySelector(".reveal-fog");
+  const hint = map.querySelector(".chronicle-hint");
+
+  if (!fogCanvas) {
+    return;
+  }
+
+  const ctx = fogCanvas.getContext("2d");
+
+  if (!ctx) {
+    return;
+  }
+
+  let resetTimer = null;
+  let lastPoint = null;
+  let hasRevealed = false;
+
+  const clearResetTimer = () => {
+    window.clearTimeout(resetTimer);
+    resetTimer = null;
+  };
+
+  const hideScout = () => {
+    map.style.removeProperty("--scout-x");
+    map.style.removeProperty("--scout-y");
+    map.classList.remove("is-active");
+  };
+
+  const drawFog = () => {
+    const rect = map.getBoundingClientRect();
+    const width = rect.width || fogCanvas.width;
+    const height = rect.height || fogCanvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const baseGradient = ctx.createLinearGradient(0, 0, 0, height);
+    baseGradient.addColorStop(0, "rgba(224, 231, 236, 0.9)");
+    baseGradient.addColorStop(0.5, "rgba(193, 207, 219, 0.82)");
+    baseGradient.addColorStop(1, "rgba(155, 174, 191, 0.78)");
+
+    ctx.fillStyle = baseGradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const cloudLayers = [
+      [0.16, 0.22, 0.32, 0.22, "rgba(244, 247, 249, 0.34)"],
+      [0.72, 0.18, 0.34, 0.2, "rgba(233, 239, 244, 0.28)"],
+      [0.34, 0.62, 0.4, 0.24, "rgba(223, 231, 238, 0.24)"],
+      [0.82, 0.72, 0.26, 0.18, "rgba(237, 241, 245, 0.18)"],
+    ];
+
+    cloudLayers.forEach(([x, y, radiusX, radiusY, color]) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(width * x, height * y, width * radiusX, height * radiusY, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
+    ctx.lineWidth = Math.max(1, Math.round(width * 0.002));
+
+    for (let offset = 0; offset < width + height; offset += 44) {
+      ctx.beginPath();
+      ctx.moveTo(offset, 0);
+      ctx.lineTo(offset - height, height);
+      ctx.stroke();
+    }
+  };
+
+  const resizeFog = () => {
+    const rect = map.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fogCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+    fogCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    drawFog();
+  };
+
+  const stampReveal = (x, y, radius = 46) => {
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, "rgba(0, 0, 0, 1)");
+    gradient.addColorStop(0.58, "rgba(0, 0, 0, 0.86)");
+    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  const revealTrail = (fromPoint, toPoint) => {
+    if (!fromPoint) {
+      stampReveal(toPoint.x, toPoint.y);
+      return;
+    }
+
+    const dx = toPoint.x - fromPoint.x;
+    const dy = toPoint.y - fromPoint.y;
+    const distance = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.ceil(distance / 12));
+
+    for (let step = 0; step <= steps; step += 1) {
+      const progress = step / steps;
+      stampReveal(fromPoint.x + dx * progress, fromPoint.y + dy * progress);
+    }
+  };
+
+  const updateScout = (x, y) => {
+    map.style.setProperty("--scout-x", `${x}px`);
+    map.style.setProperty("--scout-y", `${y}px`);
+  };
+
+  const getRelativePoint = (clientX, clientY) => {
+    const rect = map.getBoundingClientRect();
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  };
+
+  const revealAtClientPoint = (clientX, clientY) => {
+    clearResetTimer();
+    const point = getRelativePoint(clientX, clientY);
+    map.classList.add("is-active", "is-revealed");
+    updateScout(point.x, point.y);
+    revealTrail(lastPoint, point);
+    lastPoint = point;
+    hasRevealed = true;
+
+    if (hint) {
+      hint.textContent = "Route unfolding through the mist";
+    }
+  };
+
+  const resetReveal = () => {
+    drawFog();
+    lastPoint = null;
+    hasRevealed = false;
+    hideScout();
+    map.classList.remove("is-revealed");
+
+    if (hint) {
+      hint.textContent = "Move over the map to lift the mist";
+    }
+  };
+
+  const scheduleReset = () => {
+    clearResetTimer();
+    resetTimer = window.setTimeout(() => {
+      resetReveal();
+    }, 1800);
+  };
+
+  resizeFog();
+  stampReveal(map.getBoundingClientRect().width / 2, map.getBoundingClientRect().height / 2, 28);
+
+  map.addEventListener("pointerenter", (event) => {
+    revealAtClientPoint(event.clientX, event.clientY);
+  });
+
+  map.addEventListener("pointermove", (event) => {
+    revealAtClientPoint(event.clientX, event.clientY);
+  });
+
+  map.addEventListener("pointerleave", () => {
+    lastPoint = null;
+    hideScout();
+
+    if (hasRevealed) {
+      scheduleReset();
+    }
+  });
+
+  map.addEventListener("pointerdown", (event) => {
+    revealAtClientPoint(event.clientX, event.clientY);
+  });
+
+  map.addEventListener("touchstart", (event) => {
+    const touch = event.touches[0];
+
+    if (touch) {
+      revealAtClientPoint(touch.clientX, touch.clientY);
+    }
+  });
+
+  map.addEventListener(
+    "touchmove",
+    (event) => {
+      const touch = event.touches[0];
+
+      if (touch) {
+        revealAtClientPoint(touch.clientX, touch.clientY);
+      }
+    },
+    { passive: true }
+  );
+
+  map.addEventListener("touchend", () => {
+    lastPoint = null;
+    hideScout();
+
+    if (hasRevealed) {
+      scheduleReset();
+    }
+  });
+
+  if ("ResizeObserver" in window) {
+    const resizeObserver = new ResizeObserver(() => {
+      resizeFog();
+    });
+
+    resizeObserver.observe(map);
+  } else {
+    window.addEventListener("resize", resizeFog);
+  }
+});
+
 const atlasPanel = document.querySelector(".atlas-panel");
 const demoButtons = document.querySelectorAll(".demo-toggle");
 const demoStatus = document.getElementById("demoStatus");

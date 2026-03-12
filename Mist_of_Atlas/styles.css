@@ -494,6 +494,8 @@ h3,
 
 .chronicle-map {
   height: 360px;
+  cursor: crosshair;
+  touch-action: none;
 }
 
 .atlas-grid {
@@ -1039,6 +1041,76 @@ h3,
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.7;
+}
+
+.reveal-fog {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.route-scout,
+.chronicle-hint {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.route-scout {
+  width: 18px;
+  height: 18px;
+  left: var(--scout-x, 28%);
+  top: var(--scout-y, 38%);
+  border-radius: 50%;
+  border: 1px solid rgba(237, 210, 154, 0.7);
+  background: radial-gradient(circle at 35% 35%, #fff7dd, rgba(208, 170, 97, 0.92) 58%, rgba(111, 74, 13, 0.9));
+  box-shadow:
+    0 0 0 8px rgba(208, 170, 97, 0.08),
+    0 0 24px rgba(208, 170, 97, 0.28);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.75);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.route-scout::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(237, 210, 154, 0.22);
+}
+
+.chronicle-hint {
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(6, 14, 21, 0.72);
+  border: 1px solid rgba(208, 170, 97, 0.14);
+  color: var(--cyan-soft);
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-align: center;
+  opacity: 0.92;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.chronicle-map.is-active .route-scout,
+.chronicle-map.is-revealed .route-scout {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.chronicle-map.is-active .chronicle-hint,
+.chronicle-map.is-revealed .chronicle-hint {
+  opacity: 0;
+  transform: translateY(8px);
 }
 
 .section-accent {
