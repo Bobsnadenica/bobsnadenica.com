@@ -35,7 +35,7 @@ npm install
 npm run dev
 ```
 
-The Vite source now lives in `app/`, while `npm run build` writes the deployable static files into this `career/` folder so GitHub Pages can serve `/career/` directly from the main site repo.
+The frontend source lives in `src/`, and `npm run build` always regenerates the deployable `/career/index.html` plus the `/career/assets/` bundle for GitHub Pages.
 
 `.env.production` is checked in with the current Terraform outputs you shared, so the production build already points at your live AWS resources.
 
