@@ -187,6 +187,12 @@ img {
   font-weight: 700;
 }
 
+.ghost-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
 .ghost-button:hover,
 .site-nav a:hover {
   transform: translateY(-1px);
@@ -257,6 +263,11 @@ img {
   color: #991b1b;
   border-color: #fecaca;
   background: #fef2f2;
+}
+
+.panel--subtle {
+  background: var(--surface-alt);
+  box-shadow: none;
 }
 
 .user-chip {
@@ -572,6 +583,12 @@ textarea {
   max-width: 760px;
 }
 
+.section-caption {
+  margin: -6px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
 .section-heading h2,
 .panel h2,
 .journey-card h3,
@@ -711,6 +728,18 @@ textarea {
   margin-bottom: 24px;
 }
 
+.filter-actions,
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-actions {
+  margin: -6px 0 24px;
+}
+
 .profile-hero__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) 320px;
@@ -747,6 +776,44 @@ textarea {
 .pricing-stack {
   display: grid;
   gap: 18px;
+}
+
+.dashboard-overview,
+.summary-grid,
+.helper-grid,
+.empty-state {
+  display: grid;
+  gap: 18px;
+}
+
+.summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summary-card,
+.helper-card {
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.summary-card strong,
+.helper-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  letter-spacing: -0.05em;
+}
+
+.summary-card p,
+.helper-card p {
+  margin: 10px 0 0;
+}
+
+.helper-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .booking-panel .slot-grid {
@@ -1000,6 +1067,11 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .helper-grid,
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
   .site-nav {
     display: none;
   }
@@ -1025,7 +1097,9 @@ textarea {
   .filter-bar,
   .two-column,
   .hero__points,
-  .dashboard-metrics {
+  .dashboard-metrics,
+  .summary-grid,
+  .helper-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1047,7 +1121,9 @@ textarea {
   .auth-inline-actions,
   .auth-state-header,
   .hero-actions,
-  .section-heading {
+  .section-heading,
+  .filter-actions,
+  .dashboard-actions {
     flex-direction: column;
     align-items: start;
   }

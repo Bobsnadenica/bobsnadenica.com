@@ -96,11 +96,11 @@ const consultantPlans: MarketingPlan[] = [
     badge: "Премиум присъствие",
     featured: true,
     note: "За консултанти, които искат по-силно позициониране и по-представителен профил.",
-    points: [
-      "По-видимо позициониране в каталога",
-      "Разширен профил с повече секции и материали",
-      "Приоритетна поддръжка и premium lead flow"
-    ],
+        points: [
+          "По-видимо позициониране в каталога",
+          "Разширен профил с повече секции и материали",
+          "Приоритетна поддръжка и premium поток от нови запитвания"
+        ],
     ctaLabel: "Заяви Pro профил",
     ctaTo: "/auth?tab=register"
   }
@@ -130,6 +130,24 @@ const homeJourney = [
   }
 ] as const;
 
+const userJourney = [
+  {
+    step: "01",
+    title: "Определи фокус",
+    text: "Търси по тема, град и тип подкрепа, за да стигнеш по-бързо до правилния профил."
+  },
+  {
+    step: "02",
+    title: "Сравни профили",
+    text: "Виж специализации, опит, езици и следващи свободни слотове в един ясен изглед."
+  },
+  {
+    step: "03",
+    title: "Подготви профила си",
+    text: "Качи CV, довърши заглавието си и използвай таблото като работно място за следващите стъпки."
+  }
+] as const;
+
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("bg-BG", {
     dateStyle: "medium",
@@ -149,6 +167,67 @@ function formatBookingStatusLabel(status: Booking["status"]) {
   if (status === "confirmed") return "Потвърдена";
   if (status === "cancelled") return "Отказана";
   return "Заявена";
+}
+
+function getNextBooking(bookings: Booking[]) {
+  const now = Date.now();
+  const sortedBookings = [...bookings].sort(
+    (left, right) =>
+      new Date(left.scheduledAt).getTime() - new Date(right.scheduledAt).getTime()
+  );
+
+  return (
+    sortedBookings.find((booking) => new Date(booking.scheduledAt).getTime() >= now) ||
+    sortedBookings[0] ||
+    null
+  );
+}
+
+function getProfileCompletion(
+  profile: UserProfile,
+  consultantProfile: ConsultantProfile | null
+) {
+  const baseChecks = [
+    Boolean(profile.name.trim()),
+    Boolean((profile.city || "").trim()),
+    Boolean((profile.headline || "").trim()),
+    Boolean((profile.bio || "").trim()),
+    Boolean(profile.cvDocument)
+  ];
+
+  const consultantChecks =
+    profile.role === "consultant"
+      ? [
+          Boolean(consultantProfile?.headline.trim()),
+          Boolean(consultantProfile?.bio.trim()),
+          Boolean(consultantProfile?.specializations.length),
+          Boolean(consultantProfile?.languages.length),
+          Boolean(consultantProfile?.availability.length)
+        ]
+      : [];
+
+  const checks = [...baseChecks, ...consultantChecks];
+  const completed = checks.filter(Boolean).length;
+
+  return Math.round((completed / checks.length) * 100);
+}
+
+function getDocumentCapacityNote(plan: PlanTier) {
+  return plan === "pro"
+    ? "Разширено място за CV, дипломи и допълнителни материали."
+    : "Основно място за един активен CV документ.";
+}
+
+function getRolePlanSummary(role: UserRole, plan: PlanTier) {
+  if (role === "consultant") {
+    return plan === "pro"
+      ? "Pro консултантски профил с по-силно позициониране и premium присъствие."
+      : "Free консултантски профил за старт с публично присъствие и заявки.";
+  }
+
+  return plan === "pro"
+    ? "Pro потребителски акаунт с пълен каталог и по-широк документен профил."
+    : "Free потребителски акаунт с базов профил и подбран достъп до каталога.";
 }
 
 function brandMark() {
@@ -374,7 +453,7 @@ function HomePage() {
               <img src={resolvePublicUrl(spotlight.heroUrl)} alt={spotlight.name} />
             </div>
             <div className="hero__card-top">
-              <span className="status-badge status-badge--success">Featured consultant</span>
+              <span className="status-badge status-badge--success">Подбран консултант</span>
               <strong>{spotlight.name}</strong>
               <p>{spotlight.headline}</p>
             </div>
@@ -432,7 +511,7 @@ function HomePage() {
               </p>
             </div>
             <div className="ad-banner__actions">
-              <span>Sponsored banner placement</span>
+              <span>Спонсорирана рекламна позиция</span>
               <Link className="ghost-button" to="/auth?tab=register">
                 Заяви рекламно място
               </Link>
@@ -506,6 +585,7 @@ function UsersPage() {
     [consultants, plan]
   );
   const hiddenCount = Math.max(consultants.length - visibleConsultants.length, 0);
+  const hasActiveFilters = Boolean(query || city);
 
   return (
     <>
@@ -526,11 +606,11 @@ function UsersPage() {
                 <span>{plan === "pro" ? "видим за твоя акаунт" : "видими във Free режима"}</span>
               </div>
               <div>
-                <strong>{plan === "pro" ? "Разширен vault" : "Базов профил"}</strong>
+                <strong>{plan === "pro" ? "Разширен архив" : "Базов профил"}</strong>
                 <span>{plan === "pro" ? "CV, дипломи и портфолио" : "основен CV документ"}</span>
               </div>
               <div>
-                <strong>{profile ? formatPlanLabel(plan) : "Гост preview"}</strong>
+                <strong>{profile ? formatPlanLabel(plan) : "Гост достъп"}</strong>
                 <span>{profile ? `Роля: ${formatRoleLabel(profile.role)}` : "влез за персонален достъп"}</span>
               </div>
             </div>
@@ -545,7 +625,7 @@ function UsersPage() {
               <p>
                 {plan === "pro"
                   ? "Профилът ти отключва всички консултанти, разширени документи и по-бързо планиране."
-                  : "Pro добавя още профили за разглеждане, повече пространство за документи и по-пълен workflow."}
+                  : "Pro добавя още профили за разглеждане, повече пространство за документи и по-пълен процес на работа."}
               </p>
             </div>
             <div className="hero__points">
@@ -573,11 +653,27 @@ function UsersPage() {
       />
 
       <section className="section section--alt">
+        <div className="container journey-grid">
+          {userJourney.map((item) => (
+            <article className="journey-card" key={item.step}>
+              <span className="journey-card__step">{item.step}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section">
         <div className="container">
           <div className="section-heading">
             <div>
               <p className="eyebrow">Каталог за потребители</p>
               <h2>Филтрирай, сравнявай и разгледай профилите в професионален вид.</h2>
+              <p className="section-heading__copy">
+                Подбраният каталог е лесен за сканиране. Във Free виждаш част от профилите,
+                а в Pro отключваш пълния списък и по-богато лично работно пространство.
+              </p>
             </div>
           </div>
 
@@ -593,7 +689,7 @@ function UsersPage() {
                       : {}
                   )
                 }
-                placeholder="Executive CV, интервю, leadership, career switch..."
+                placeholder="Executive CV, интервю, leadership, кариерна промяна..."
               />
             </label>
             <label>
@@ -610,6 +706,20 @@ function UsersPage() {
                 placeholder="София, Берлин, Лондон, Виена"
               />
             </label>
+          </div>
+
+          <div className="filter-actions">
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => setSearchParams({})}
+              disabled={!hasActiveFilters}
+            >
+              Изчисти филтрите
+            </button>
+            <Link className="ghost-button" to={profile ? "/dashboard" : "/auth"}>
+              {profile ? "Отвори моето табло" : "Влез за персонален достъп"}
+            </Link>
           </div>
 
           {viewerLoading ? <div className="panel">Проверяваме достъпа на акаунта...</div> : null}
@@ -688,7 +798,7 @@ function ConsultantsPage() {
 
           <aside className="hero__card">
             <div className="hero__card-top">
-              <span className="status-badge status-badge--success">Consultant profile</span>
+              <span className="status-badge status-badge--success">Консултантски профил</span>
               <strong>Какво получаваш още от старт</strong>
               <p>
                 Отделна страница за консултанти, публичен профил, свободни слотове и ясна
@@ -707,8 +817,8 @@ function ConsultantsPage() {
             </div>
             <div className="chip-row">
               <span className="chip">Лидерски роли</span>
-              <span className="chip">Interview prep</span>
-              <span className="chip">Career transitions</span>
+              <span className="chip">Интервю подготовка</span>
+              <span className="chip">Кариерни преходи</span>
             </div>
           </aside>
         </div>
@@ -733,11 +843,11 @@ function ConsultantsPage() {
             <h3>Получаваш видимост</h3>
             <p>Потребителите разглеждат профила ти в отделния каталог за търсещи консултант.</p>
           </article>
-          <article className="journey-card">
-            <span className="journey-card__step">03</span>
-            <h3>Надграждаш към Pro</h3>
-            <p>При нужда от premium presence преминаваш към Pro профил с по-силно позициониране.</p>
-          </article>
+            <article className="journey-card">
+              <span className="journey-card__step">03</span>
+              <h3>Надграждаш към Pro</h3>
+              <p>При нужда от premium присъствие преминаваш към Pro профил с по-силно позициониране.</p>
+            </article>
         </div>
       </section>
 
@@ -976,6 +1086,27 @@ function AuthPage() {
   }
 
   const activeTab = screen === "register" || screen === "confirm" ? "register" : "login";
+  const authStageTitle =
+    screen === "register"
+      ? "Създаваш нов акаунт"
+      : screen === "confirm"
+        ? "Потвърждаваш регистрацията"
+        : screen === "forgot-request"
+          ? "Изпращаш заявка за нова парола"
+          : screen === "forgot-confirm"
+            ? "Задаваш нова парола"
+            : "Влизаш в профила си";
+  const authStageDescription =
+    screen === "register"
+      ? "Избираш тип акаунт и членство, а платформата подготвя началния ти профил."
+      : screen === "confirm"
+        ? "След кода за потвърждение влизаш директно и довършваш профила от таблото."
+        : screen === "forgot-request"
+          ? "Изпращаме код само към посочения имейл за сигурно възстановяване."
+          : screen === "forgot-confirm"
+            ? "С новата парола ще можеш да влезеш веднага в таблото си."
+            : "Входът е кратък и ясен, а при нужда имаш отделен forgot password поток.";
+  const registrationSummary = getRolePlanSummary(form.role, form.plan);
 
   function clearFeedback() {
     setMessage("");
@@ -1098,12 +1229,19 @@ function AuthPage() {
           </p>
 
           <div className="panel auth-side-panel">
-            <h2>Какво подготвяш тук</h2>
+            <h2>{authStageTitle}</h2>
+            <p className="section-heading__copy">{authStageDescription}</p>
             <ul>
               <li>Потребителски акаунт с Free или Pro достъп</li>
               <li>Консултантски профил с отделна страница и видимост</li>
               <li>Подредено начало за CV, документи и заявки</li>
             </ul>
+            {(screen === "register" || screen === "confirm") && (
+              <div className="panel panel--subtle">
+                <strong>{form.role === "consultant" ? "Избран тип: Консултант" : "Избран тип: Потребител"}</strong>
+                <p>{registrationSummary}</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1139,9 +1277,12 @@ function AuthPage() {
               <label>
                 Имейл
                 <input
+                  type="email"
                   value={form.email}
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
                   autoComplete="email"
+                  placeholder="name@example.com"
+                  required
                 />
               </label>
               <label>
@@ -1151,6 +1292,8 @@ function AuthPage() {
                   value={form.password}
                   onChange={(event) => setForm({ ...form, password: event.target.value })}
                   autoComplete="current-password"
+                  placeholder="Въведи паролата си"
+                  required
                 />
               </label>
               <div className="auth-inline-actions">
@@ -1189,14 +1332,19 @@ function AuthPage() {
                   value={form.name}
                   onChange={(event) => setForm({ ...form, name: event.target.value })}
                   autoComplete="name"
+                  placeholder="Например: Елица Маринова"
+                  required
                 />
               </label>
               <label>
                 Имейл
                 <input
+                  type="email"
                   value={form.email}
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
                   autoComplete="email"
+                  placeholder="name@example.com"
+                  required
                 />
               </label>
               <label>
@@ -1206,6 +1354,9 @@ function AuthPage() {
                   value={form.password}
                   onChange={(event) => setForm({ ...form, password: event.target.value })}
                   autoComplete="new-password"
+                  placeholder="Минимум 8 символа"
+                  minLength={8}
+                  required
                 />
               </label>
               <div className="two-column">
@@ -1239,6 +1390,10 @@ function AuthPage() {
                 профили и пространство за документи. Консултантите също имат Free и Pro
                 опция.
               </p>
+              <div className="panel panel--subtle">
+                <strong>Избрано членство</strong>
+                <p>{registrationSummary}</p>
+              </div>
               <button className="primary-button" type="submit">
                 Създай профил
               </button>
@@ -1263,8 +1418,10 @@ function AuthPage() {
               <label>
                 Имейл
                 <input
+                  type="email"
                   value={form.email}
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  required
                 />
               </label>
               <label>
@@ -1272,6 +1429,8 @@ function AuthPage() {
                 <input
                   value={form.code}
                   onChange={(event) => setForm({ ...form, code: event.target.value })}
+                  placeholder="Въведи получения код"
+                  required
                 />
               </label>
               <button className="primary-button" type="submit">
@@ -1298,9 +1457,12 @@ function AuthPage() {
               <label>
                 Имейл
                 <input
+                  type="email"
                   value={form.email}
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
                   autoComplete="email"
+                  placeholder="name@example.com"
+                  required
                 />
               </label>
               <button className="primary-button" type="submit">
@@ -1327,9 +1489,11 @@ function AuthPage() {
               <label>
                 Имейл
                 <input
+                  type="email"
                   value={form.email}
                   onChange={(event) => setForm({ ...form, email: event.target.value })}
                   autoComplete="email"
+                  required
                 />
               </label>
               <label>
@@ -1337,6 +1501,7 @@ function AuthPage() {
                 <input
                   value={form.code}
                   onChange={(event) => setForm({ ...form, code: event.target.value })}
+                  required
                 />
               </label>
               <label>
@@ -1346,6 +1511,9 @@ function AuthPage() {
                   value={form.newPassword}
                   onChange={(event) => setForm({ ...form, newPassword: event.target.value })}
                   autoComplete="new-password"
+                  placeholder="Минимум 8 символа"
+                  minLength={8}
+                  required
                 />
               </label>
               <button className="primary-button" type="submit">
@@ -1545,11 +1713,25 @@ function DashboardPage() {
   const membershipNote =
     profile.role === "consultant"
       ? profile.plan === "pro"
-        ? "Pro профилът ти е позициониран за по-богата презентация и premium visibility."
+        ? "Pro профилът ти е позициониран за по-богата презентация и premium видимост."
         : "Free профилът ти е активен и може да бъде надграден към Pro по всяко време."
       : profile.plan === "pro"
         ? "Pro акаунтът ти отключва пълния каталог и разширено пространство за документи."
         : "Free акаунтът ти включва базов профил, основен документ и достъп до подбрана част от каталога.";
+  const profileCompletion = getProfileCompletion(profile, consultantProfile);
+  const nextBooking = getNextBooking(bookings);
+  const setupChecklist =
+    profile.role === "consultant"
+      ? [
+          "Подреди headline и биографията си така, че да звучат уверено и конкретно.",
+          "Добави езици, специализации и свободни слотове за по-лесно резервиране.",
+          "Прегледай публичния си профил така, както ще го виждат потребителите."
+        ]
+      : [
+          "Добави град, headline и кратко описание, за да имаш по-пълен профил.",
+          "Качи основното си CV, за да държиш материалите си на едно място.",
+          "Разгледай каталога и запази следващата консултация директно от профила на консултанта."
+        ];
 
   return (
     <section className="section">
@@ -1586,16 +1768,104 @@ function DashboardPage() {
           {message ? <div className="panel panel--success">{message}</div> : null}
           {error ? <div className="panel panel--error">{error}</div> : null}
 
+          <section className="panel dashboard-overview">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Работно табло</p>
+                <h2>Добре дошъл в профила си, {profile.name.split(" ")[0]}.</h2>
+                <p className="section-heading__copy">
+                  Това е централното място за профила ти, документите и следващите действия.
+                  Подредихме го така, че да е ясно какво да направиш първо.
+                </p>
+              </div>
+            </div>
+
+            <div className="summary-grid">
+              <article className="summary-card">
+                <span className="plan-pill">Завършеност</span>
+                <strong>{profileCompletion}%</strong>
+                <p>
+                  {profileCompletion >= 80
+                    ? "Профилът ти вече изглежда добре структуриран."
+                    : "Остава още малко, за да изглежда профилът ти по-пълен и професионален."}
+                </p>
+              </article>
+              <article className="summary-card">
+                <span className="plan-pill">Документи</span>
+                <strong>{profile.cvDocument ? "1 активен файл" : "Няма качен файл"}</strong>
+                <p>{getDocumentCapacityNote(profile.plan)}</p>
+              </article>
+              <article className="summary-card">
+                <span className="plan-pill">Следваща сесия</span>
+                <strong>{nextBooking ? formatDate(nextBooking.scheduledAt) : "Все още няма"}</strong>
+                <p>
+                  {nextBooking
+                    ? `С ${nextBooking.consultantName}`
+                    : "След като резервираш консултация, тя ще се покаже тук."}
+                </p>
+              </article>
+              <article className="summary-card">
+                <span className="plan-pill">Акаунт</span>
+                <strong>{formatRoleLabel(profile.role)} · {formatPlanLabel(profile.plan)}</strong>
+                <p>{getRolePlanSummary(profile.role, profile.plan)}</p>
+              </article>
+            </div>
+
+            <div className="helper-grid">
+              {setupChecklist.map((item) => (
+                <article className="helper-card" key={item}>
+                  <strong>Следваща стъпка</strong>
+                  <p>{item}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className="dashboard-actions">
+              <Link
+                className="primary-button"
+                to={
+                  profile.role === "consultant" && consultantProfile
+                    ? `/consultants/${consultantProfile.slug}`
+                    : "/users"
+                }
+              >
+                {profile.role === "consultant" && consultantProfile
+                  ? "Виж публичния профил"
+                  : "Разгледай консултантите"}
+              </Link>
+              <Link
+                className="ghost-button"
+                to={profile.role === "consultant" ? "/consultants" : "/users"}
+              >
+                {profile.role === "consultant"
+                  ? "Отвори страницата за консултанти"
+                  : "Отвори страницата за потребители"}
+              </Link>
+            </div>
+          </section>
+
           <form className="panel form-stack" onSubmit={saveProfile}>
             <h2>Основен профил</h2>
+            <p className="section-caption">
+              Попълни основните данни така, че профилът ти да е ясен още от първия прочит.
+            </p>
             <div className="two-column">
               <label>
                 Име
-                <input name="name" defaultValue={profile.name} />
+                <input
+                  name="name"
+                  defaultValue={profile.name}
+                  placeholder="Име и фамилия"
+                  required
+                />
               </label>
               <label>
                 Град
-                <input name="city" defaultValue={profile.city || ""} />
+                <input
+                  name="city"
+                  defaultValue={profile.city || ""}
+                  placeholder="Например: София"
+                />
               </label>
             </div>
             <label>
@@ -1604,6 +1874,7 @@ function DashboardPage() {
                 name="headline"
                 defaultValue={profile.headline || ""}
                 placeholder="Например: Product manager в преход към leadership роля"
+                required
               />
             </label>
             <label>
@@ -1613,6 +1884,7 @@ function DashboardPage() {
                 rows={5}
                 defaultValue={profile.bio || ""}
                 placeholder="Разкажи накратко за посоката си, опита си и какво търсиш."
+                required
               />
             </label>
             <label>
@@ -1629,9 +1901,12 @@ function DashboardPage() {
 
           <form className="panel form-stack" onSubmit={uploadCv}>
             <h2>Основен документ</h2>
+            <p className="section-caption">
+              Дръж основния си документ на едно място. Това улеснява подготовката преди
+              консултации и следващи кандидатствания.
+            </p>
             <p className="form-note">
-              Free включва основен CV документ. Pro е подготвен за разширено пространство
-              за допълнителни материали.
+              {getDocumentCapacityNote(profile.plan)}
             </p>
             <label>
               Качи CV
@@ -1650,14 +1925,27 @@ function DashboardPage() {
           {profile.role === "consultant" ? (
             <form className="panel form-stack" onSubmit={saveConsultantProfile}>
               <h2>Консултантски профил</h2>
+              <p className="section-caption">
+                Това е публичната витрина на услугата ти. Колкото по-точен и пълен е
+                профилът, толкова по-лесно ще бъде разбран от нови потребители.
+              </p>
               <div className="two-column">
                 <label>
                   Slug
-                  <input name="slug" defaultValue={consultantProfile?.slug || ""} />
+                  <input
+                    name="slug"
+                    defaultValue={consultantProfile?.slug || ""}
+                    placeholder="ivan-petrov"
+                    required
+                  />
                 </label>
                 <label>
                   Име за профила
-                  <input name="displayName" defaultValue={consultantProfile?.name || profile.name} />
+                  <input
+                    name="displayName"
+                    defaultValue={consultantProfile?.name || profile.name}
+                    required
+                  />
                 </label>
               </div>
               <label>
@@ -1665,7 +1953,8 @@ function DashboardPage() {
                 <input
                   name="consultantHeadline"
                   defaultValue={consultantProfile?.headline || ""}
-                  placeholder="Например: Executive career strategist for leadership moves"
+                  placeholder="Например: Стратег за leadership преходи и executive позициониране"
+                  required
                 />
               </label>
               <label>
@@ -1674,12 +1963,19 @@ function DashboardPage() {
                   name="consultantBio"
                   rows={5}
                   defaultValue={consultantProfile?.bio || ""}
+                  placeholder="Опиши с кого работиш, по какви теми и какъв резултат постигате."
+                  required
                 />
               </label>
               <div className="two-column">
                 <label>
                   Град
-                  <input name="consultantCity" defaultValue={consultantProfile?.city || ""} />
+                  <input
+                    name="consultantCity"
+                    defaultValue={consultantProfile?.city || ""}
+                    placeholder="Например: София"
+                    required
+                  />
                 </label>
                 <label>
                   Години опит
@@ -1697,6 +1993,7 @@ function DashboardPage() {
                   name="languages"
                   defaultValue={consultantProfile?.languages.join(", ") || ""}
                   placeholder="Български, English"
+                  required
                 />
               </label>
               <label>
@@ -1704,7 +2001,8 @@ function DashboardPage() {
                 <input
                   name="specializations"
                   defaultValue={consultantProfile?.specializations.join(", ") || ""}
-                  placeholder="Executive CV, Interview coaching, Leadership"
+                  placeholder="Executive CV, интервю подготовка, leadership"
+                  required
                 />
               </label>
               <label>
@@ -1730,6 +2028,7 @@ function DashboardPage() {
                   rows={5}
                   defaultValue={consultantProfile?.availability.join("\n") || ""}
                   placeholder="2026-03-25T09:00:00.000Z"
+                  required
                 />
               </label>
               <button className="primary-button" type="submit">
@@ -1740,8 +2039,18 @@ function DashboardPage() {
 
           <section className="panel">
             <h2>Предстоящи сесии</h2>
+            <p className="section-caption">
+              Тук държиш всички заявки и потвърдени срещи на едно място.
+            </p>
             {bookings.length === 0 ? (
-              <p>Все още няма заявки или потвърдени консултации.</p>
+              <div className="empty-state">
+                <p>Все още няма заявки или потвърдени консултации.</p>
+                <Link className="ghost-button" to={profile.role === "consultant" ? "/consultants" : "/users"}>
+                  {profile.role === "consultant"
+                    ? "Виж как изглежда каталогът"
+                    : "Разгледай консултантите"}
+                </Link>
+              </div>
             ) : (
               <div className="booking-list">
                 {bookings.map((booking) => (
