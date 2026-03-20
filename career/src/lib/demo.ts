@@ -474,3 +474,64 @@ export const demoProfile: UserProfile = {
   createdAt: "2026-03-18T11:00:00.000Z",
   updatedAt: "2026-03-18T11:00:00.000Z"
 };
+
+export const demoProfessionalProfiles: UserProfile[] = [
+  demoProfile,
+  {
+    userId: "demo-client-2",
+    email: "nina@careerlane.bg",
+    name: "Нина Тодорова",
+    role: "client",
+    plan: "free",
+    city: "София",
+    occupation: "Marketing manager",
+    age: 29,
+    headline: "Маркетинг професионалист в търсене на по-видима regional роля",
+    bio: "Търся по-силно позициониране, по-ясен личен разказ и подготовка за интервюта към regional marketing екипи.",
+    interests: ["Brand roles", "Regional teams", "Portfolio positioning"],
+    keywords: ["Marketing", "Brand", "Career growth"],
+    goals: "Искам да подредя CV, LinkedIn и представянето си за по-видими роли.",
+    preferredSessionModes: ["Онлайн"],
+    cvDocument: null,
+    createdAt: "2026-03-18T11:00:00.000Z",
+    updatedAt: "2026-03-18T11:00:00.000Z"
+  },
+  {
+    userId: "demo-client-3",
+    email: "georgi@careerlane.bg",
+    name: "Георги Велев",
+    role: "client",
+    plan: "pro",
+    city: "Пловдив",
+    occupation: "Engineering manager",
+    age: 37,
+    headline: "Engineering manager в преход към international leadership позиция",
+    bio: "Подготвям се за leadership интервюта и искам по-силен разказ за техническите и организационните си резултати.",
+    interests: ["Engineering leadership", "Hiring panels", "International roles"],
+    keywords: ["Engineering", "Leadership", "Interviews"],
+    goals: "Търся консултант за leadership позициониране и интервю подготовка.",
+    preferredSessionModes: ["Онлайн"],
+    cvDocument: null,
+    createdAt: "2026-03-18T11:00:00.000Z",
+    updatedAt: "2026-03-18T11:00:00.000Z"
+  },
+  {
+    userId: "demo-client-4",
+    email: "mila@careerlane.bg",
+    name: "Мила Иванова",
+    role: "client",
+    plan: "free",
+    city: "Варна",
+    occupation: "HR business partner",
+    age: 34,
+    headline: "HR професионалист, който търси по-видима people leadership роля",
+    bio: "Искам да структурирам по-добре бизнес влиянието си и да се позиционирам за по-старши роли в people функцията.",
+    interests: ["People leadership", "Promotion readiness", "Executive presence"],
+    keywords: ["HR", "People", "Promotion"],
+    goals: "Търся консултант за CV, интервюта и по-силен people leadership профил.",
+    preferredSessionModes: ["Онлайн", "В офис"],
+    cvDocument: null,
+    createdAt: "2026-03-18T11:00:00.000Z",
+    updatedAt: "2026-03-18T11:00:00.000Z"
+  }
+];

@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import {
   HashRouter,
   Link,
@@ -14,7 +14,7 @@ import {
 import { api } from "../lib/api";
 import { AuthProvider, useAuth } from "../lib/auth";
 import { config } from "../lib/config";
-import { demoConsultants } from "../lib/demo";
+import { demoConsultants, demoProfessionalProfiles } from "../lib/demo";
 import {
   buildPreviewConsultantProfile,
   buildPreviewUserProfile,
@@ -74,11 +74,14 @@ type MarketingPlan = {
   ctaTo: string;
 };
 
-type ConsultantMatch = {
+type MatchInsight = {
   score: number;
   label: string;
   note: string;
 };
+
+type SuggestedFillMode = "replace" | "append-list" | "append-lines" | "append-text";
+type QuestionSuggestionOption = string | { label: string; value: string };
 
 const userPlans: MarketingPlan[] = [
   {
@@ -489,6 +492,73 @@ function parseListValue(value: FormDataEntryValue | null) {
     .filter(Boolean);
 }
 
+function mergeUniqueValues(current: string, next: string, separator: ", " | "\n") {
+  const items = [current, next]
+    .flatMap((value) =>
+      value
+        .split(/\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+    .filter((item, index, values) => values.indexOf(item) === index);
+
+  return items.join(separator);
+}
+
+function applySuggestedFieldValue(
+  form: HTMLFormElement | null,
+  fieldName: string,
+  value: string,
+  mode: SuggestedFillMode = "replace"
+) {
+  if (!form) {
+    return;
+  }
+
+  const control = form.elements.namedItem(fieldName);
+
+  if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) {
+    return;
+  }
+
+  const currentValue = control.value.trim();
+  const nextValue =
+    mode === "append-list"
+      ? mergeUniqueValues(currentValue, value, ", ")
+      : mode === "append-lines"
+        ? mergeUniqueValues(currentValue, value, "\n")
+        : mode === "append-text"
+          ? currentValue.includes(value)
+            ? currentValue
+            : [currentValue, value].filter(Boolean).join(" ")
+          : value;
+
+  control.value = nextValue;
+  control.dispatchEvent(new Event("input", { bubbles: true }));
+  control.dispatchEvent(new Event("change", { bubbles: true }));
+  control.focus();
+}
+
+function buildAvailabilityPreset(daysAhead: number, hour: number): {
+  label: string;
+  value: string;
+} {
+  const slot = new Date();
+  slot.setDate(slot.getDate() + daysAhead);
+  slot.setHours(hour, 0, 0, 0);
+
+  return {
+    label: `${daysAhead === 1 ? "Утре" : `След ${daysAhead} дни`} · ${slot.toLocaleTimeString(
+      "bg-BG",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    )}`,
+    value: slot.toISOString()
+  };
+}
+
 function tokenizeText(value: string) {
   return value
     .toLowerCase()
@@ -600,7 +670,56 @@ function getConsultantMatch(profile: UserProfile | null, consultant: ConsultantP
     score,
     label,
     note
-  } satisfies ConsultantMatch;
+  } satisfies MatchInsight;
+}
+
+function getProfessionalMatch(
+  consultant: ConsultantProfile | null,
+  profile: UserProfile | null
+) {
+  if (!consultant || !profile || profile.role !== "client") {
+    return null;
+  }
+
+  const consultantTokens = getConsultantSignalTokens(consultant);
+  const profileTokens = getProfileSignalTokens(profile);
+
+  if (!profileTokens.length) {
+    return null;
+  }
+
+  const overlaps = profileTokens.filter((token) => consultantTokens.has(token));
+  const modeMatch = (profile.preferredSessionModes || []).some((mode) =>
+    consultant.sessionModes.includes(mode)
+  );
+  const cityMatch =
+    Boolean(profile.city) &&
+    consultant.city.toLowerCase() === String(profile.city).toLowerCase() &&
+    consultant.sessionModes.includes("В офис");
+
+  if (!overlaps.length && !modeMatch && !cityMatch) {
+    return null;
+  }
+
+  const rawScore = overlaps.length * 18 + (modeMatch ? 10 : 0) + (cityMatch ? 6 : 0);
+  const score = Math.min(98, Math.max(32, rawScore));
+  const reasons = overlaps.slice(0, 2).map(formatSignalLabel);
+
+  if (modeMatch) {
+    reasons.push("предпочитан формат");
+  }
+
+  if (cityMatch) {
+    reasons.push("среща на място");
+  }
+
+  return {
+    score,
+    label: score >= 72 ? "Силен профилен интерес" : "Подходящ профил",
+    note: reasons.length
+      ? `Профилът търси подкрепа по ${reasons.join(", ")}.`
+      : "Профилът е близък до темите и начина ти на работа."
+  } satisfies MatchInsight;
 }
 
 function brandMark() {
@@ -885,6 +1004,95 @@ function AppShell() {
   );
 }
 
+function QuestionBlock({
+  step,
+  title,
+  hint,
+  wide = false,
+  children
+}: {
+  step: string;
+  title: string;
+  hint: string;
+  wide?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <article className={`question-card ${wide ? "question-card--wide" : ""}`}>
+      <div className="question-card__header">
+        <span className="question-card__step">{step}</span>
+        <div>
+          <h3>{title}</h3>
+          <p>{hint}</p>
+        </div>
+      </div>
+      <div className="question-card__body">{children}</div>
+    </article>
+  );
+}
+
+function QuestionFlowIntro({
+  eyebrow,
+  title,
+  description,
+  completion
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  completion: number;
+}) {
+  return (
+    <div className="question-flow__intro">
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
+        <p className="section-caption">{description}</p>
+      </div>
+      <div className="question-flow__meter">
+        <span>Завършеност</span>
+        <strong>{completion}%</strong>
+      </div>
+    </div>
+  );
+}
+
+function SuggestionPills({
+  label,
+  fieldName,
+  options,
+  mode = "append-list"
+}: {
+  label: string;
+  fieldName: string;
+  options: QuestionSuggestionOption[];
+  mode?: SuggestedFillMode;
+}) {
+  return (
+    <div className="answer-suggestions">
+      <span className="answer-suggestions__label">{label}</span>
+      <div className="answer-suggestions__grid">
+        {options.map((option) => {
+          const item = typeof option === "string" ? { label: option, value: option } : option;
+
+          return (
+            <button
+              className="suggestion-pill"
+              key={`${fieldName}-${item.label}`}
+              type="button"
+              onClick={(event) =>
+                applySuggestedFieldValue(event.currentTarget.form, fieldName, item.value, mode)
+              }
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function HomePage() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -903,8 +1111,8 @@ function HomePage() {
             <h1>По-представителна кариера, по-ясен избор на консултант и по-силен следващ ход.</h1>
             <p className="hero__lede">
               CareerLane свързва професионалисти с проверени консултанти в среда,
-              създадена за доверие, добра презентация и ясно разграничение между Free и
-              разширен достъп.
+              създадена за доверие, добра презентация и ясно разграничение между роли,
+              профили и работен достъп.
             </p>
 
             <form
@@ -942,8 +1150,8 @@ function HomePage() {
                 <span>подредени по специализация, опит и град</span>
               </div>
               <div>
-                <strong>Free и Разширен</strong>
-                <span>ясно различени членства за двете роли</span>
+                <strong>Два типа членство</strong>
+                <span>ясно различени според ролята и работния обхват</span>
               </div>
               <div>
                 <strong>Рекламна зона</strong>
@@ -1118,6 +1326,7 @@ function UsersPage() {
   const topMatch = rankedConsultants.find((item) => item.match)?.consultant || null;
   const topMatchDetails = topMatch ? getConsultantMatch(profile, topMatch) : null;
   const profileCtaTo = user ? "/dashboard" : profile ? "/account" : "/auth?tab=register";
+  const isConsultantViewer = profile?.role === "consultant";
   const profileSignals = [
     profile?.occupation,
     ...(profile?.interests || []).slice(0, 2),
@@ -1132,27 +1341,37 @@ function UsersPage() {
             <p className="eyebrow">За потребители</p>
             <h1>Намираш правилния кариерен консултант с повече контекст и по-ясно съвпадение.</h1>
             <p className="hero__lede">
-              Тази страница е фокусирана върху хората, които търсят консултант. Free
-              достъпът е силен старт, а разширеният достъп отваря всички профили,
-              по-богато пространство за документи и по-точно насочване според профила ти.
+              {isConsultantViewer
+                ? "Това е потребителският изглед на CareerLane. Тук хората търсят консултант, а твоите съвпадения с професионалисти се подреждат в профила и таблото ти."
+                : "Тази страница е за хората, които търсят консултант. Попълненият профил помага на CareerLane да подреди по-подходящите експерти според опита, целите и предпочитанията ти."}
             </p>
 
             <div className="hero-stats">
               <div>
                 <strong>
-                  {plan === "pro"
+                  {isConsultantViewer
+                    ? "Потребителски изглед"
+                    : plan === "pro"
                     ? "Пълен достъп"
                     : `${FREE_DIRECTORY_LIMIT} профила`}
                 </strong>
                 <span>
-                  {plan === "pro"
+                  {isConsultantViewer
+                    ? "така виждат списъка хората, които търсят консултант"
+                    : plan === "pro"
                     ? "до всички кариерни консултанти"
                     : "видими във Free режима"}
                 </span>
               </div>
               <div>
-                <strong>{plan === "pro" ? "Разширен архив" : "Базов профил"}</strong>
-                <span>{plan === "pro" ? "CV, дипломи и портфолио" : "основен CV документ"}</span>
+                <strong>{isConsultantViewer ? "Твоите съвпадения" : plan === "pro" ? "Разширен архив" : "Базов профил"}</strong>
+                <span>
+                  {isConsultantViewer
+                    ? "се подреждат в профила и таблото ти"
+                    : plan === "pro"
+                      ? "CV, дипломи и портфолио"
+                      : "основен CV документ"}
+                </span>
               </div>
               <div>
                 <strong>{profile ? formatPlanLabel(plan) : "Гост достъп"}</strong>
@@ -1164,21 +1383,31 @@ function UsersPage() {
           <aside className="hero__card">
             <div className="hero__card-top">
               <span className={topMatchDetails ? "status-badge status-badge--success" : "plan-pill"}>
-                {topMatchDetails ? topMatchDetails.label : plan === "pro" ? "Разширен достъп" : "Free достъп"}
+                {topMatchDetails
+                  ? topMatchDetails.label
+                  : isConsultantViewer
+                    ? "Потребителски изглед"
+                    : plan === "pro"
+                      ? "Пълен достъп"
+                      : "Подбрани профили"}
               </span>
               <strong>
-                {topMatch
+                {topMatch && !isConsultantViewer
                   ? `${topMatch.name} е сред най-подходящите избори за профила ти`
-                  : plan === "pro"
+                  : isConsultantViewer
+                    ? "Тук виждаш как CareerLane представя консултантите пред търсещите потребители"
+                    : plan === "pro"
                     ? "Виждаш всички кариерни консултанти"
                     : "Виждаш подбрана част от консултантите"}
               </strong>
               <p>
-                {topMatch && topMatchDetails
+                {topMatch && topMatchDetails && !isConsultantViewer
                   ? `${topMatchDetails.note} Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред.`
-                  : plan === "pro"
-                    ? "Профилът ти отваря всички консултанти, разширени документи и по-пълен работен процес."
-                    : "Добави повече информация за себе си и при нужда премини към разширен достъп за по-широк избор."}
+                  : isConsultantViewer
+                    ? "Като консултант няма да бъдеш съпоставян с други консултанти. Подходящите професионалисти се показват в твоето табло и профил."
+                    : plan === "pro"
+                      ? "Профилът ти вижда целия списък и CareerLane може да подрежда експертите по по-пълен контекст."
+                      : "Допълни профила си, за да получиш по-точно подреждане и по-ясен избор."}
               </p>
             </div>
             <div className="hero__points">
@@ -1187,11 +1416,19 @@ function UsersPage() {
                 <strong>{visibleConsultants.length}</strong>
               </div>
               <div>
-                <span>{topMatchDetails ? "Съвпадение" : "Още при разширен достъп"}</span>
+                <span>
+                  {topMatchDetails
+                    ? "Съвпадение"
+                    : isConsultantViewer
+                      ? "Твоите съвпадения"
+                      : "Допълнителни профили"}
+                </span>
                 <strong>
                   {topMatchDetails
                     ? `${topMatchDetails.score}%`
-                    : hiddenCount > 0
+                    : isConsultantViewer
+                      ? "В таблото"
+                      : hiddenCount > 0
                       ? `+${hiddenCount}`
                       : "Пълен достъп"}
                 </strong>
@@ -1207,7 +1444,13 @@ function UsersPage() {
               </div>
             ) : null}
             <Link className="primary-button" to={profileCtaTo}>
-              {profile ? "Допълни профила си" : "Създай профил"}
+              {isConsultantViewer
+                ? user
+                  ? "Отвори таблото си"
+                  : "Отвори профила си"
+                : profile
+                  ? "Допълни профила си"
+                  : "Създай профил"}
             </Link>
           </aside>
         </div>
@@ -1286,9 +1529,28 @@ function UsersPage() {
               Изчисти филтрите
             </button>
             <Link className="ghost-button" to={profileCtaTo}>
-              {profile ? "Отвори профила си" : "Влез за персонален достъп"}
+              {isConsultantViewer
+                ? user
+                  ? "Към таблото"
+                  : "Отвори профила си"
+                : profile
+                  ? "Отвори профила си"
+                  : "Влез за персонален достъп"}
             </Link>
           </div>
+
+          {isConsultantViewer ? (
+            <div className="panel panel--subtle role-guard-panel">
+              <strong>Това е страница за потребители.</strong>
+              <p>
+                CareerLane съпоставя потребителите с консултанти, а консултантите с
+                професионалисти. Твоите подходящи профили са в профила и таблото ти.
+              </p>
+              <Link className="ghost-button" to={profileCtaTo}>
+                {user ? "Отвори таблото си" : "Към профила"}
+              </Link>
+            </div>
+          ) : null}
 
           {viewerLoading ? <div className="panel">Проверяваме достъпа на акаунта...</div> : null}
           {loading ? <div className="panel">Зареждаме консултантите...</div> : null}
@@ -1308,19 +1570,6 @@ function UsersPage() {
             ))}
           </div>
 
-          {hiddenCount > 0 ? (
-            <div className="panel unlock-panel">
-              <p className="eyebrow">Разширен достъп</p>
-              <h2>Още {hiddenCount} профила се отварят при разширения достъп.</h2>
-              <p>
-                Ако искаш по-широк избор, повече материали и по-пълен работен профил,
-                можеш да преминеш към разширения достъп.
-              </p>
-              <Link className="primary-button" to="/auth?tab=register">
-                Виж разширения достъп
-              </Link>
-            </div>
-          ) : null}
         </div>
       </section>
     </>
@@ -1340,8 +1589,8 @@ function ConsultantsPage() {
             <h1>Профил, който изглежда сериозно и превръща интереса в реални заявки.</h1>
             <p className="hero__lede">
               Страницата за консултанти е отделена ясно от потребителската част. Тук
-              акцентът е върху представянето, публичния профил, свободните часове и
-              разликата между Free и разширения профил.
+              акцентът е върху публичния профил, свободните часове, професионалния тон и
+              начина, по който хората вземат решение да резервират среща.
             </p>
 
             <div className="hero-actions">
@@ -1355,12 +1604,12 @@ function ConsultantsPage() {
 
             <div className="hero-stats">
               <div>
-                <strong>Free старт</strong>
-                <span>без бариера за първоначално присъствие</span>
+                <strong>Публичен профил</strong>
+                <span>ясен фокус, град, езици и специализации</span>
               </div>
               <div>
-                <strong>Разширен профил</strong>
-                <span>за по-богато представяне и повече работен контекст</span>
+                <strong>Свободни часове</strong>
+                <span>подредени така, че резервацията да е лесна и ясна</span>
               </div>
               <div>
                 <strong>Професионална визия</strong>
@@ -1388,8 +1637,8 @@ function ConsultantsPage() {
                 <span>Достъп до профили, който изглежда професионално и на телефон, и на десктоп.</span>
               </article>
               <article>
-                <strong>Членство</strong>
-                <span>Free за старт и разширен профил за по-богато присъствие.</span>
+                <strong>Резервации</strong>
+                <span>Свободните часове и темите ти са събрани на едно ясно място.</span>
               </article>
             </div>
             <div className="hero__points">
@@ -1398,8 +1647,8 @@ function ConsultantsPage() {
                 <strong>Да</strong>
               </div>
               <div>
-                <span>Разширен профил</span>
-                <strong>Наличен</strong>
+                <span>Свободни слотове</span>
+                <strong>Налични</strong>
               </div>
             </div>
             <div className="chip-row">
@@ -1440,7 +1689,7 @@ function ConsultantsPage() {
             <ul className="page-list">
               <li>Разпознаваем headline още в първия екран</li>
               <li>Специализации и град без пренатрупване</li>
-              <li>Ясно разграничение между Free и разширено присъствие</li>
+              <li>Ясни теми, формати и налични часове</li>
             </ul>
           </aside>
         </div>
@@ -1465,11 +1714,11 @@ function ConsultantsPage() {
             <h3>Получаваш видимост</h3>
             <p>Потребителите разглеждат профила ти в отделния списък за търсещи кариерен консултант.</p>
           </article>
-            <article className="journey-card">
-              <span className="journey-card__step">03</span>
-              <h3>Надграждаш профила</h3>
-              <p>При нужда от по-богато присъствие преминаваш към разширен профил с повече секции и контекст.</p>
-            </article>
+          <article className="journey-card">
+            <span className="journey-card__step">03</span>
+            <h3>Подреждаш практиката си</h3>
+            <p>Добавяш теми, работен подход и наличност така, че хората да разбират лесно как протича работата с теб.</p>
+          </article>
         </div>
       </section>
 
@@ -1791,6 +2040,7 @@ function AccountPage() {
 
   const previewProfile = buildPreviewUserProfile(account);
   const previewConsultant = buildPreviewConsultantProfile(account);
+  const previewCompletion = getProfileCompletion(previewProfile, previewConsultant);
   const featureList = getMockPlanFeatures(account.role, account.plan);
   const price =
     account.plan === "pro" ? getMockProPrice(account.role, account.billingCycle) : 0;
@@ -1815,6 +2065,17 @@ function AccountPage() {
             consultant,
             match: getConsultantMatch(previewProfile, consultant)
           }))
+          .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
+          .slice(0, 3)
+      : [];
+  const matchedProfessionals =
+    account.role === "consultant" && previewConsultant
+      ? demoProfessionalProfiles
+          .map((profile) => ({
+            profile,
+            match: getProfessionalMatch(previewConsultant, profile)
+          }))
+          .filter((item) => item.match)
           .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
           .slice(0, 3)
       : [];
@@ -2056,97 +2317,199 @@ function AccountPage() {
             </article>
 
             <form className="panel form-stack" onSubmit={savePreviewProfile}>
-              <h2>Профил за съвпадение</h2>
-              <p className="section-caption">
-                Този профил помага на CareerLane да подреди по-подходящите кариерни
-                консултанти в търсенето и да изгради по-ясна картина за посоката ти.
-              </p>
-              <div className="two-column">
-                <label>
-                  Име
-                  <input name="name" defaultValue={account.name} required />
-                </label>
-                <label>
-                  Град
-                  <input name="city" defaultValue={account.city} placeholder="Например: София" />
-                </label>
+              <QuestionFlowIntro
+                eyebrow="Профил за съвпадение"
+                title="Отговори на няколко ясни въпроса и CareerLane ще подреди по-подходящите консултанти."
+                description="Вместо сух формуляр, профилът е организиран като кратък въпросник. Можеш да пишеш свободно или да използваш готовите подсказки под въпросите."
+                completion={previewCompletion}
+              />
+              <div className="question-grid">
+                <QuestionBlock
+                  step="01"
+                  title="Кой си в момента?"
+                  hint="Това дава базов контекст за ролята, града и етапа, в който се намираш."
+                >
+                  <div className="two-column">
+                    <label>
+                      Име
+                      <input name="name" defaultValue={account.name} required />
+                    </label>
+                    <label>
+                      Град
+                      <input name="city" defaultValue={account.city} placeholder="Например: София" />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Професия / роля
+                      <input
+                        name="occupation"
+                        defaultValue={account.occupation || ""}
+                        placeholder="Например: Product manager"
+                      />
+                    </label>
+                    <label>
+                      Възраст
+                      <input
+                        name="age"
+                        type="number"
+                        min="16"
+                        defaultValue={account.age || ""}
+                        placeholder="Например: 32"
+                      />
+                    </label>
+                  </div>
+                  <SuggestionPills
+                    label="Бърз старт"
+                    fieldName="occupation"
+                    mode="replace"
+                    options={[
+                      "Product manager",
+                      "Маркетинг специалист",
+                      "Software engineer",
+                      "HR business partner"
+                    ]}
+                  />
+                </QuestionBlock>
+
+                <QuestionBlock
+                  step="02"
+                  title="Към каква следваща стъпка вървиш?"
+                  hint="Профилното заглавие и текущата ти цел помагат CareerLane да подреди правилните експерти."
+                >
+                  <label>
+                    Профилно заглавие
+                    <input
+                      name="headline"
+                      defaultValue={account.headline}
+                      placeholder="Например: Product manager в преход към leadership роля"
+                      required
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Примерни посоки"
+                    fieldName="headline"
+                    mode="replace"
+                    options={[
+                      "Product manager в преход към leadership роля",
+                      "Маркетинг специалист, подготвящ международен преход",
+                      "Софтуерен инженер, ориентиран към senior позиции"
+                    ]}
+                  />
+                  <label>
+                    Какво търсиш в момента
+                    <textarea
+                      name="goals"
+                      rows={4}
+                      defaultValue={account.goals || ""}
+                      placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Често търсени теми"
+                    fieldName="goals"
+                    mode="replace"
+                    options={[
+                      "Търся помощ с CV, LinkedIn и интервю подготовка за следващата си роля.",
+                      "Искам да подредя стратегия за кариерен преход и по-силно позициониране.",
+                      "Търся по-ясна посока за leadership роля и подготовка за разговори с работодатели."
+                    ]}
+                  />
+                </QuestionBlock>
+
+                <QuestionBlock
+                  step="03"
+                  title="Какъв е професионалният ти контекст?"
+                  hint="Краткият разказ за опита ти помага на консултантите да разберат откъде започваш."
+                  wide
+                >
+                  <label>
+                    Професионално описание
+                    <textarea
+                      name="bio"
+                      rows={5}
+                      defaultValue={account.bio || ""}
+                      placeholder="Разкажи накратко за опита си, етапа, в който се намираш, и какво искаш да подобриш."
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Подсказки за тона"
+                    fieldName="bio"
+                    mode="replace"
+                    options={[
+                      "Имам няколко години опит в динамична среда и търся по-ясно позициониране за следващата роля.",
+                      "Работя в международен контекст и искам по-силен профил за нова кариерна стъпка.",
+                      "Искам да представя по-ясно опита си и да подготвя уверен разказ за интервюта и кандидатстване."
+                    ]}
+                  />
+                </QuestionBlock>
+
+                <QuestionBlock
+                  step="04"
+                  title="Кои теми описват най-добре търсенето ти?"
+                  hint="Използвай интереси и ключови думи, за да направиш съвпадението по-точно."
+                >
+                  <div className="two-column">
+                    <label>
+                      Интереси
+                      <input
+                        name="interests"
+                        defaultValue={(account.interests || []).join(", ")}
+                        placeholder="Leadership roles, international teams, salary negotiation"
+                      />
+                    </label>
+                    <label>
+                      Ключови думи
+                      <input
+                        name="keywords"
+                        defaultValue={(account.keywords || []).join(", ")}
+                        placeholder="Product, leadership, career transition"
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Предпочитан формат
+                    <input
+                      name="preferredSessionModes"
+                      defaultValue={(account.preferredSessionModes || []).join(", ")}
+                      placeholder="Онлайн, В офис"
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Добави теми"
+                    fieldName="interests"
+                    options={[
+                      "Leadership roles",
+                      "Career transition",
+                      "Interview preparation",
+                      "Salary negotiation"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Добави ключови думи"
+                    fieldName="keywords"
+                    options={[
+                      "Product",
+                      "Leadership",
+                      "International teams",
+                      "Promotion"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Предпочитан формат"
+                    fieldName="preferredSessionModes"
+                    options={["Онлайн", "В офис", "Хибридно"]}
+                  />
+                </QuestionBlock>
               </div>
-              <div className="two-column">
-                <label>
-                  Професия / роля
-                  <input
-                    name="occupation"
-                    defaultValue={account.occupation || ""}
-                    placeholder="Например: Product manager"
-                  />
-                </label>
-                <label>
-                  Възраст
-                  <input
-                    name="age"
-                    type="number"
-                    min="16"
-                    defaultValue={account.age || ""}
-                    placeholder="Например: 32"
-                  />
-                </label>
+              <div className="question-form__footer">
+                <p className="form-note">
+                  Колкото по-конкретни са отговорите, толкова по-добре ще изглеждат съвпаденията в търсенето.
+                </p>
+                <button className="primary-button" type="submit">
+                  Запази профила
+                </button>
               </div>
-              <label>
-                Профилно заглавие
-                <input
-                  name="headline"
-                  defaultValue={account.headline}
-                  placeholder="Например: Product manager в преход към leadership роля"
-                  required
-                />
-              </label>
-              <label>
-                Професионално описание
-                <textarea
-                  name="bio"
-                  rows={5}
-                  defaultValue={account.bio || ""}
-                  placeholder="Разкажи накратко за опита си, етапа, в който се намираш, и какво искаш да подобриш."
-                />
-              </label>
-              <label>
-                Какво търсиш в момента
-                <textarea
-                  name="goals"
-                  rows={4}
-                  defaultValue={account.goals || ""}
-                  placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
-                />
-              </label>
-              <div className="two-column">
-                <label>
-                  Интереси
-                  <input
-                    name="interests"
-                    defaultValue={(account.interests || []).join(", ")}
-                    placeholder="Leadership roles, international teams, salary negotiation"
-                  />
-                </label>
-                <label>
-                  Ключови думи
-                  <input
-                    name="keywords"
-                    defaultValue={(account.keywords || []).join(", ")}
-                    placeholder="Product, leadership, career transition"
-                  />
-                </label>
-              </div>
-              <label>
-                Предпочитан формат
-                <input
-                  name="preferredSessionModes"
-                  defaultValue={(account.preferredSessionModes || []).join(", ")}
-                  placeholder="Онлайн, В офис"
-                />
-              </label>
-              <button className="primary-button" type="submit">
-                Запази профила
-              </button>
             </form>
 
             {account.role === "client" ? (
@@ -2171,6 +2534,25 @@ function AccountPage() {
               </article>
             ) : null}
 
+            {account.role === "consultant" && previewConsultant ? (
+              <article className="panel">
+                <p className="eyebrow">Подходящи професионалисти</p>
+                <h2>Тези профили са най-близо до темите и начина ти на работа</h2>
+                <div className="info-grid">
+                  {matchedProfessionals.map(({ profile, match }) => (
+                    <article className="info-card" key={profile.userId}>
+                      <span className="status-badge status-badge--success">
+                        {match ? `${match.score}% съвпадение` : "Профил"}
+                      </span>
+                      <h3>{profile.name}</h3>
+                      <p>{profile.headline}</p>
+                      <p>{match?.note || "Подходящ професионален профил за темите ти."}</p>
+                    </article>
+                  ))}
+                </div>
+              </article>
+            ) : null}
+
             <article className="panel">
               <p className="eyebrow">Документи</p>
               <h2>Документен профил</h2>
@@ -2187,153 +2569,250 @@ function AccountPage() {
             {account.role === "consultant" ? (
               <>
                 <form className="panel form-stack" onSubmit={savePreviewConsultantProfile}>
-                  <h2>Публичен консултантски профил</h2>
-                  <p className="section-caption">
-                    Това е профилът, който хората ще виждат, когато търсят кариерен
-                    консултант. Подреди го като професионална практика, а не просто като визитка.
-                  </p>
-                  <div className="two-column">
+                  <QuestionFlowIntro
+                    eyebrow="Публичен консултантски профил"
+                    title="Изгради профил като професионална практика, а не просто като визитка."
+                    description="Профилът е структуриран като поредица от ясни въпроси. Използвай подсказките, за да подредиш по-бързо темите, подхода и свободните си часове."
+                    completion={previewCompletion}
+                  />
+                  <div className="question-grid">
+                    <QuestionBlock
+                      step="01"
+                      title="Как те виждат хората?"
+                      hint="Публичното име, slug и заглавието са първото впечатление в CareerLane."
+                    >
+                      <div className="two-column">
+                        <label>
+                          Публично име
+                          <input
+                            name="consultantDisplayName"
+                            defaultValue={account.consultantDisplayName || account.name}
+                            required
+                          />
+                        </label>
+                        <label>
+                          Slug
+                          <input
+                            name="consultantSlug"
+                            defaultValue={
+                              account.consultantSlug ||
+                              slugifyValue(account.consultantDisplayName || account.name)
+                            }
+                            required
+                          />
+                        </label>
+                      </div>
+                      <div className="two-column">
+                        <label>
+                          Град
+                          <input
+                            name="consultantCity"
+                            defaultValue={account.city}
+                            placeholder="Например: София"
+                            required
+                          />
+                        </label>
+                        <label>
+                          Години опит
+                          <input
+                            name="consultantExperienceYears"
+                            type="number"
+                            min="1"
+                            defaultValue={account.consultantExperienceYears || 1}
+                          />
+                        </label>
+                      </div>
                     <label>
-                      Публично име
+                      Заглавие
                       <input
-                        name="consultantDisplayName"
-                        defaultValue={account.consultantDisplayName || account.name}
-                        required
+                        name="consultantHeadline"
+                          defaultValue={account.headline}
+                          placeholder="Например: Консултант за leadership преходи и executive позициониране"
+                          required
+                        />
+                      </label>
+                      <SuggestionPills
+                        label="Стартови идеи"
+                        fieldName="consultantHeadline"
+                        mode="replace"
+                        options={[
+                          "Консултант за leadership преходи и executive позициониране",
+                          "Кариерен консултант за интервю подготовка и професионално представяне",
+                          "Консултант по кариерни преходи и международно позициониране"
+                        ]}
                       />
-                    </label>
-                    <label>
-                      Slug
-                      <input
-                        name="consultantSlug"
-                        defaultValue={
-                          account.consultantSlug ||
-                          slugifyValue(account.consultantDisplayName || account.name)
-                        }
-                        required
+                    </QuestionBlock>
+
+                    <QuestionBlock
+                      step="02"
+                      title="С кого работиш и по какви теми?"
+                      hint="Тези отговори определят как ще бъдеш намиран и какъв тип професионалисти ще стигат до теб."
+                    >
+                      <label>
+                        Специализации
+                        <input
+                          name="consultantSpecializations"
+                          defaultValue={(account.consultantSpecializations || []).join(", ")}
+                          placeholder="CV review, interview preparation, leadership roles"
+                        />
+                      </label>
+                      <label>
+                        Основни теми на консултацията
+                        <input
+                          name="consultantConsultationTopics"
+                          defaultValue={(account.consultantConsultationTopics || []).join(", ")}
+                          placeholder="Кариерна стратегия, LinkedIn, интервю подготовка"
+                        />
+                      </label>
+                      <label>
+                        Подходящо за
+                        <input
+                          name="consultantIdealFor"
+                          defaultValue={(account.consultantIdealFor || []).join(", ")}
+                          placeholder="Mid-senior professionals, career transition, leadership moves"
+                        />
+                      </label>
+                      <SuggestionPills
+                        label="Добави специализации"
+                        fieldName="consultantSpecializations"
+                        options={[
+                          "CV review",
+                          "Interview preparation",
+                          "Leadership roles",
+                          "Career transition"
+                        ]}
                       />
-                    </label>
+                      <SuggestionPills
+                        label="Добави теми"
+                        fieldName="consultantConsultationTopics"
+                        options={[
+                          "Кариерна стратегия",
+                          "LinkedIn позициониране",
+                          "Интервю подготовка",
+                          "Executive CV"
+                        ]}
+                      />
+                      <SuggestionPills
+                        label="Подходящо за"
+                        fieldName="consultantIdealFor"
+                        options={[
+                          "Mid-senior professionals",
+                          "Leadership moves",
+                          "Career transition",
+                          "International roles"
+                        ]}
+                      />
+                    </QuestionBlock>
+
+                    <QuestionBlock
+                      step="03"
+                      title="Как протича работата с теб?"
+                      hint="Това е частта, която прави профила ти по-убедителен и професионален."
+                      wide
+                    >
+                      <label>
+                        Биография
+                        <textarea
+                          name="consultantBio"
+                          rows={5}
+                          defaultValue={account.consultantBio || account.bio || ""}
+                          placeholder="Опиши с кого работиш, по какви теми и какъв е начинът ти на работа."
+                        />
+                      </label>
+                      <label>
+                        Как протича работата
+                        <textarea
+                          name="consultantWorkApproach"
+                          rows={4}
+                          defaultValue={account.consultantWorkApproach || ""}
+                          placeholder="Опиши кратко процеса, как подготвяш клиента и какво да очаква от консултацията."
+                        />
+                      </label>
+                      <SuggestionPills
+                        label="Примерен подход"
+                        fieldName="consultantWorkApproach"
+                        mode="replace"
+                        options={[
+                          "Първо подреждаме целта и текущия профил, след това работим върху позиционирането и подготовката за следващата стъпка.",
+                          "Работя на етапи: анализ на профила, конкретни насоки и практическа подготовка за разговори и кандидатстване.",
+                          "Всяка консултация започва с ясен контекст и завършва с конкретен план за действие."
+                        ]}
+                      />
+                    </QuestionBlock>
+
+                    <QuestionBlock
+                      step="04"
+                      title="Как и кога могат да те резервират?"
+                      hint="Езиците, формата на работа и свободните часове правят профила ти завършен."
+                    >
+                      <div className="two-column">
+                        <label>
+                          Езици
+                          <input
+                            name="consultantLanguages"
+                            defaultValue={(account.consultantLanguages || ["Български"]).join(", ")}
+                            placeholder="Български, English"
+                          />
+                        </label>
+                        <label>
+                          Формати на работа
+                          <input
+                            name="consultantSessionModes"
+                            defaultValue={(account.consultantSessionModes || ["Онлайн"]).join(", ")}
+                            placeholder="Онлайн, В офис"
+                          />
+                        </label>
+                      </div>
+                      <div className="two-column">
+                        <label>
+                          Тагове
+                          <input
+                            name="consultantTags"
+                            defaultValue={(account.consultantTags || []).join(", ")}
+                            placeholder="Leadership, Product, Career change"
+                          />
+                        </label>
+                        <label>
+                          Продължителност на сесия
+                          <input
+                            name="consultantSessionLengthMinutes"
+                            type="number"
+                            min="30"
+                            step="15"
+                            defaultValue={account.consultantSessionLengthMinutes || 60}
+                          />
+                        </label>
+                      </div>
+                      <label>
+                        Свободни часове
+                        <textarea
+                          name="consultantAvailability"
+                          rows={5}
+                          defaultValue={(account.consultantAvailability || []).join("\n")}
+                          placeholder="2026-03-25T09:00:00.000Z"
+                        />
+                      </label>
+                      <SuggestionPills
+                        label="Добави примерни слотове"
+                        fieldName="consultantAvailability"
+                        mode="append-lines"
+                        options={[
+                          buildAvailabilityPreset(1, 9),
+                          buildAvailabilityPreset(1, 14),
+                          buildAvailabilityPreset(2, 11),
+                          buildAvailabilityPreset(3, 16)
+                        ]}
+                      />
+                    </QuestionBlock>
                   </div>
-                  <div className="two-column">
-                    <label>
-                      Град
-                      <input
-                        name="consultantCity"
-                        defaultValue={account.city}
-                        placeholder="Например: София"
-                        required
-                      />
-                    </label>
-                    <label>
-                      Години опит
-                      <input
-                        name="consultantExperienceYears"
-                        type="number"
-                        min="1"
-                        defaultValue={account.consultantExperienceYears || 1}
-                      />
-                    </label>
+                  <div className="question-form__footer">
+                    <p className="form-note">
+                      Подреденият профил и ясните свободни часове правят резервирането по-лесно.
+                    </p>
+                    <button className="primary-button" type="submit">
+                      Запази публичния профил
+                    </button>
                   </div>
-                  <label>
-                    Заглавие
-                    <input
-                      name="consultantHeadline"
-                      defaultValue={account.headline}
-                      placeholder="Например: Консултант за leadership преходи и executive позициониране"
-                      required
-                    />
-                  </label>
-                  <label>
-                    Биография
-                    <textarea
-                      name="consultantBio"
-                      rows={5}
-                      defaultValue={account.consultantBio || account.bio || ""}
-                      placeholder="Опиши с кого работиш, по какви теми и какъв е начинът ти на работа."
-                    />
-                  </label>
-                  <div className="two-column">
-                    <label>
-                      Езици
-                      <input
-                        name="consultantLanguages"
-                        defaultValue={(account.consultantLanguages || ["Български"]).join(", ")}
-                        placeholder="Български, English"
-                      />
-                    </label>
-                    <label>
-                      Формати на работа
-                      <input
-                        name="consultantSessionModes"
-                        defaultValue={(account.consultantSessionModes || ["Онлайн"]).join(", ")}
-                        placeholder="Онлайн, В офис"
-                      />
-                    </label>
-                  </div>
-                  <label>
-                    Специализации
-                    <input
-                      name="consultantSpecializations"
-                      defaultValue={(account.consultantSpecializations || []).join(", ")}
-                      placeholder="CV review, interview preparation, leadership roles"
-                    />
-                  </label>
-                  <label>
-                    Основни теми на консултацията
-                    <input
-                      name="consultantConsultationTopics"
-                      defaultValue={(account.consultantConsultationTopics || []).join(", ")}
-                      placeholder="Кариерна стратегия, LinkedIn, интервю подготовка"
-                    />
-                  </label>
-                  <label>
-                    Подходящо за
-                    <input
-                      name="consultantIdealFor"
-                      defaultValue={(account.consultantIdealFor || []).join(", ")}
-                      placeholder="Mid-senior professionals, career transition, leadership moves"
-                    />
-                  </label>
-                  <label>
-                    Как протича работата
-                    <textarea
-                      name="consultantWorkApproach"
-                      rows={4}
-                      defaultValue={account.consultantWorkApproach || ""}
-                      placeholder="Опиши кратко процеса, как подготвяш клиента и какво да очаква от консултацията."
-                    />
-                  </label>
-                  <div className="two-column">
-                    <label>
-                      Тагове
-                      <input
-                        name="consultantTags"
-                        defaultValue={(account.consultantTags || []).join(", ")}
-                        placeholder="Leadership, Product, Career change"
-                      />
-                    </label>
-                    <label>
-                      Продължителност на сесия
-                      <input
-                        name="consultantSessionLengthMinutes"
-                        type="number"
-                        min="30"
-                        step="15"
-                        defaultValue={account.consultantSessionLengthMinutes || 60}
-                      />
-                    </label>
-                  </div>
-                  <label>
-                    Свободни часове
-                    <textarea
-                      name="consultantAvailability"
-                      rows={5}
-                      defaultValue={(account.consultantAvailability || []).join("\n")}
-                      placeholder="2026-03-25T09:00:00.000Z"
-                    />
-                  </label>
-                  <button className="primary-button" type="submit">
-                    Запази публичния профил
-                  </button>
                 </form>
 
                 {previewConsultant ? (
@@ -2433,24 +2912,18 @@ function AccountPage() {
                   : "Към търсенето на консултанти"}
               </Link>
             </div>
-            <div className="dashboard-actions">
-              {account.plan === "free" ? (
-                <button className="ghost-button" type="button" onClick={upgradeToPro}>
-                  Премини към разширен достъп
+            {account.plan === "pro" ? (
+              <div className="dashboard-actions">
+                <button className="ghost-button" type="button" onClick={toggleSubscriptionStatus}>
+                  {account.subscriptionStatus === "active"
+                    ? "Спри подновяването"
+                    : "Активирай отново"}
                 </button>
-              ) : (
-                <>
-                  <button className="ghost-button" type="button" onClick={toggleSubscriptionStatus}>
-                    {account.subscriptionStatus === "active"
-                      ? "Спри подновяването"
-                      : "Активирай отново"}
-                  </button>
-                  <button className="ghost-button" type="button" onClick={downgradeToFree}>
-                    Върни към Free
-                  </button>
-                </>
-              )}
-            </div>
+                <button className="ghost-button" type="button" onClick={downgradeToFree}>
+                  Върни към Free
+                </button>
+              </div>
+            ) : null}
           </aside>
         </div>
       </section>
@@ -2603,6 +3076,7 @@ function ConsultantPage() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const previewAccount = useMockPreviewSnapshot();
+  const { profile: viewerProfile, loading: viewerProfileLoading } = useViewerProfile();
   const [consultant, setConsultant] = useState<ConsultantProfile | null>(null);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [note, setNote] = useState("");
@@ -2641,10 +3115,20 @@ function ConsultantPage() {
     );
   }
 
+  const isConsultantViewer = viewerProfile?.role === "consultant";
+  const bookingCtaTo = user ? "/dashboard" : previewAccount ? "/account" : "/auth?tab=register";
+
   const submitBooking = async (event: FormEvent) => {
     event.preventDefault();
     setMessage("");
     setError("");
+
+    if (isConsultantViewer) {
+      setError(
+        "Консултантските акаунти не резервират други консултанти. В профила и таблото си ще виждаш подходящите професионалисти за твоята практика."
+      );
+      return;
+    }
 
     const bookingToken =
       user && token
@@ -2777,35 +3261,52 @@ function ConsultantPage() {
             <p className="section-caption">
               Избери свободен час и изпрати кратък контекст, за да започне разговорът по-лесно.
             </p>
-            <div className="slot-grid">
-              {consultant.availability.map((slot) => (
-                <button
-                  type="button"
-                  key={slot}
-                  className={`slot-button ${selectedSlot === slot ? "slot-button--active" : ""}`}
-                  onClick={() => setSelectedSlot(slot)}
-                >
-                  {formatDate(slot)}
-                </button>
-              ))}
-            </div>
+            {isConsultantViewer ? (
+              <div className="panel panel--subtle role-guard-panel">
+                <strong>Тази стъпка е активна за потребители.</strong>
+                <p>
+                  CareerLane съпоставя консултантите с потребители, а не с други
+                  консултанти. Подходящите професионалисти за теб се показват в профила и таблото ти.
+                </p>
+                <Link className="ghost-button" to={bookingCtaTo}>
+                  {user ? "Отвори таблото си" : "Отвори профила си"}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="slot-grid">
+                  {consultant.availability.map((slot) => (
+                    <button
+                      type="button"
+                      key={slot}
+                      className={`slot-button ${selectedSlot === slot ? "slot-button--active" : ""}`}
+                      onClick={() => setSelectedSlot(slot)}
+                    >
+                      {formatDate(slot)}
+                    </button>
+                  ))}
+                </div>
 
-            <label>
-              Кратка бележка
-              <textarea
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                rows={5}
-                placeholder="Например: искам преглед на LinkedIn, интервю подготовка и позициониране за leadership роли."
-              />
-            </label>
+                <label>
+                  Кратка бележка
+                  <textarea
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    rows={5}
+                    placeholder="Например: искам преглед на LinkedIn, интервю подготовка и позициониране за leadership роли."
+                  />
+                </label>
+              </>
+            )}
 
             {message ? <div className="panel panel--success">{message}</div> : null}
             {error ? <div className="panel panel--error">{error}</div> : null}
 
-            <button className="primary-button" type="submit">
-              {user ? "Изпрати заявка" : "Влез и изпрати заявка"}
-            </button>
+            {!isConsultantViewer ? (
+              <button className="primary-button" type="submit" disabled={viewerProfileLoading}>
+                {user ? "Изпрати заявка" : "Влез и изпрати заявка"}
+              </button>
+            ) : null}
           </form>
         </div>
       </section>
@@ -3037,16 +3538,16 @@ function AuthPage() {
           <p className="eyebrow">Вход и регистрация</p>
           <h1>Влизаш в CareerLane и продължаваш там, откъдето започва следващата ти стъпка.</h1>
           <p>
-            Оттук създаваш профил, избираш Free или разширен достъп и управляваш сигурно
-            входа си. Потвърждението се появява само след регистрация, а забравената
-            парола има отделен ясен поток за възстановяване.
+            Оттук създаваш профил и управляваш сигурно входа си. Потвърждението се
+            появява само след регистрация, а забравената парола има отделен ясен поток
+            за възстановяване.
           </p>
 
           <div className="panel auth-side-panel">
             <h2>{authStageTitle}</h2>
             <p className="section-heading__copy">{authStageDescription}</p>
             <ul>
-              <li>Потребителски акаунт с ясен избор между Free и разширен достъп</li>
+              <li>Потребителски акаунт с ясен старт и подреден следващ ход</li>
               <li>Консултантски профил с професионално присъствие в CareerLane</li>
               <li>Едно начало за профил, документи и следващи действия</li>
             </ul>
@@ -3334,8 +3835,8 @@ function AuthPage() {
               ) : null}
 
               <p className="form-note">
-                Регистрацията е подготвена така, че да покаже пълния продуктов поток за
-                Free и разширен достъп още в тази презентационна версия.
+                Регистрацията е подготвена така, че да покаже целия продуктов поток още
+                в тази презентационна версия.
               </p>
               <div className="panel panel--subtle">
                 <strong>Избрано членство</strong>
@@ -3572,7 +4073,7 @@ function DashboardPage() {
         keywords: parseListValue(formData.get("keywords")),
         goals: String(formData.get("goals") || ""),
         preferredSessionModes: parseListValue(formData.get("preferredSessionModes")),
-        plan: formData.get("plan") as PlanTier
+        plan: profile.plan
       });
       setProfile(updated);
       setMessage("Профилът е записан.");
@@ -3674,12 +4175,8 @@ function DashboardPage() {
 
   const membershipNote =
     profile.role === "consultant"
-      ? profile.plan === "pro"
-        ? "Разширеният профил ти дава по-богато представяне и по-силно публично присъствие."
-        : "Free профилът ти е активен и може да бъде надграден с по-богато представяне по всяко време."
-      : profile.plan === "pro"
-        ? "Разширеният достъп ти отваря всички консултанти и по-широко пространство за документи."
-        : "Free акаунтът ти включва базов профил, основен документ и подбран достъп до кариерни консултанти.";
+      ? "Публичният ти профил, свободните слотове и съвпаденията с професионалисти се управляват оттук."
+      : "Профилът, документите и достъпът до кариерни консултанти се управляват оттук.";
   const profileCompletion = getProfileCompletion(profile, consultantProfile);
   const nextBooking = getNextBooking(bookings);
   const setupChecklist =
@@ -3694,6 +4191,27 @@ function DashboardPage() {
           "Качи основното си CV, за да държиш материалите си на едно място.",
           "Разгледай кариерните консултанти и запази следващата консултация директно от профила на консултанта."
         ];
+  const dashboardMatchedConsultants =
+    profile.role === "client"
+      ? demoConsultants
+          .map((consultant) => ({
+            consultant,
+            match: getConsultantMatch(profile, consultant)
+          }))
+          .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
+          .slice(0, 3)
+      : [];
+  const dashboardMatchedProfessionals =
+    profile.role === "consultant" && consultantProfile
+      ? demoProfessionalProfiles
+          .map((candidate) => ({
+            profile: candidate,
+            match: getProfessionalMatch(consultantProfile, candidate)
+          }))
+          .filter((item) => item.match)
+          .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
+          .slice(0, 3)
+      : [];
 
   return (
     <section className="section">
@@ -3806,115 +4324,251 @@ function DashboardPage() {
             </div>
           </section>
 
+          {profile.role === "client" ? (
+            <section className="panel">
+              <p className="eyebrow">Подходящи консултанти</p>
+              <h2>CareerLane подрежда тези профили най-близо до твоите цели</h2>
+              <div className="info-grid">
+                {dashboardMatchedConsultants.map(({ consultant, match }) => (
+                  <article className="info-card" key={consultant.consultantId}>
+                    <span className={match ? "status-badge status-badge--success" : "plan-pill"}>
+                      {match ? `${match.score}% съвпадение` : "Профил"}
+                    </span>
+                    <h3>{consultant.name}</h3>
+                    <p>{consultant.headline}</p>
+                    <p>{match?.note || "Подходящ консултант според профила ти."}</p>
+                    <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
+                      Виж профила
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {profile.role === "consultant" && consultantProfile ? (
+            <section className="panel">
+              <p className="eyebrow">Подходящи професионалисти</p>
+              <h2>Тези профили са най-близо до темите и начина ти на работа</h2>
+              <div className="info-grid">
+                {dashboardMatchedProfessionals.map(({ profile: candidate, match }) => (
+                  <article className="info-card" key={candidate.userId}>
+                    <span className="status-badge status-badge--success">
+                      {match ? `${match.score}% съвпадение` : "Профил"}
+                    </span>
+                    <h3>{candidate.name}</h3>
+                    <p>{candidate.headline}</p>
+                    <p>{match?.note || "Подходящ професионален профил за темите ти."}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <form className="panel form-stack" onSubmit={saveProfile}>
-            <h2>Профил за съвпадение</h2>
-            <p className="section-caption">
-              Попълни основните данни така, че CareerLane да изгради по-ясна картина за
-              посоката ти и да подреди по-подходящите консултанти по-напред.
-            </p>
-            <div className="two-column">
-              <label>
-                Име
-                <input
-                  name="name"
-                  defaultValue={profile.name}
-                  placeholder="Име и фамилия"
-                  required
+            <QuestionFlowIntro
+              eyebrow="Профил за съвпадение"
+              title="Подреди профила си през няколко ясни въпроса."
+              description="Това е по-чист начин да попълниш информацията си. Можеш да пишеш свободно или да използваш готовите подсказки, за да изградиш профила по-бързо."
+              completion={profileCompletion}
+            />
+            <div className="question-grid">
+              <QuestionBlock
+                step="01"
+                title="Кой си в момента?"
+                hint="Името, градът и ролята ти дават базов контекст за съвпадението."
+              >
+                <div className="two-column">
+                  <label>
+                    Име
+                    <input
+                      name="name"
+                      defaultValue={profile.name}
+                      placeholder="Име и фамилия"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Град
+                    <input
+                      name="city"
+                      defaultValue={profile.city || ""}
+                      placeholder="Например: София"
+                    />
+                  </label>
+                </div>
+                <div className="two-column">
+                  <label>
+                    Професия / роля
+                    <input
+                      name="occupation"
+                      defaultValue={profile.occupation || ""}
+                      placeholder="Например: Product manager"
+                    />
+                  </label>
+                  <label>
+                    Възраст
+                    <input
+                      name="age"
+                      type="number"
+                      min="16"
+                      defaultValue={profile.age || ""}
+                      placeholder="Например: 32"
+                    />
+                  </label>
+                </div>
+                <SuggestionPills
+                  label="Бърз старт"
+                  fieldName="occupation"
+                  mode="replace"
+                  options={[
+                    "Product manager",
+                    "Маркетинг специалист",
+                    "Software engineer",
+                    "HR business partner"
+                  ]}
                 />
-              </label>
-              <label>
-                Град
-                <input
-                  name="city"
-                  defaultValue={profile.city || ""}
-                  placeholder="Например: София"
+              </QuestionBlock>
+
+              <QuestionBlock
+                step="02"
+                title="Към каква следваща стъпка се движиш?"
+                hint="Заглавието и текущата цел помагат на CareerLane да изведе по-подходящите профили."
+              >
+                <label>
+                  Профилно заглавие
+                  <input
+                    name="headline"
+                    defaultValue={profile.headline || ""}
+                    placeholder="Например: Product manager в преход към leadership роля"
+                    required
+                  />
+                </label>
+                <SuggestionPills
+                  label="Примерни посоки"
+                  fieldName="headline"
+                  mode="replace"
+                  options={[
+                    "Product manager в преход към leadership роля",
+                    "Маркетинг специалист, подготвящ международен преход",
+                    "Софтуерен инженер, ориентиран към senior позиции"
+                  ]}
                 />
-              </label>
+                <label>
+                  Какво търсиш в момента
+                  <textarea
+                    name="goals"
+                    rows={4}
+                    defaultValue={profile.goals || ""}
+                    placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
+                  />
+                </label>
+                <SuggestionPills
+                  label="Често търсени теми"
+                  fieldName="goals"
+                  mode="replace"
+                  options={[
+                    "Търся помощ с CV, LinkedIn и интервю подготовка за следващата си роля.",
+                    "Искам да подредя стратегия за кариерен преход и по-силно позициониране.",
+                    "Търся по-ясна посока за leadership роля и подготовка за разговори с работодатели."
+                  ]}
+                />
+              </QuestionBlock>
+
+              <QuestionBlock
+                step="03"
+                title="Какъв е професионалният ти контекст?"
+                hint="Краткият разказ за опита ти дава повече яснота на консултантите."
+                wide
+              >
+                <label>
+                  Професионално описание
+                  <textarea
+                    name="bio"
+                    rows={5}
+                    defaultValue={profile.bio || ""}
+                    placeholder="Разкажи накратко за посоката си, опита си и какво търсиш."
+                    required
+                  />
+                </label>
+                <SuggestionPills
+                  label="Подсказки за тона"
+                  fieldName="bio"
+                  mode="replace"
+                  options={[
+                    "Имам няколко години опит в динамична среда и търся по-ясно позициониране за следващата роля.",
+                    "Работя в международен контекст и искам по-силен профил за нова кариерна стъпка.",
+                    "Искам да представя по-ясно опита си и да подготвя уверен разказ за интервюта и кандидатстване."
+                  ]}
+                />
+              </QuestionBlock>
+
+              <QuestionBlock
+                step="04"
+                title="Кои теми описват най-добре търсенето ти?"
+                hint="Използвай интереси, ключови думи и предпочитан формат, за да направиш съвпадението по-точно."
+              >
+                <div className="two-column">
+                  <label>
+                    Интереси
+                    <input
+                      name="interests"
+                      defaultValue={(profile.interests || []).join(", ")}
+                      placeholder="Leadership roles, international teams, salary negotiation"
+                    />
+                  </label>
+                  <label>
+                    Ключови думи
+                    <input
+                      name="keywords"
+                      defaultValue={(profile.keywords || []).join(", ")}
+                      placeholder="Product, leadership, career transition"
+                    />
+                  </label>
+                </div>
+                <label>
+                  Предпочитан формат
+                  <input
+                    name="preferredSessionModes"
+                    defaultValue={(profile.preferredSessionModes || []).join(", ")}
+                    placeholder="Онлайн, В офис"
+                  />
+                </label>
+                <SuggestionPills
+                  label="Добави теми"
+                  fieldName="interests"
+                  options={[
+                    "Leadership roles",
+                    "Career transition",
+                    "Interview preparation",
+                    "Salary negotiation"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Добави ключови думи"
+                  fieldName="keywords"
+                  options={[
+                    "Product",
+                    "Leadership",
+                    "International teams",
+                    "Promotion"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Предпочитан формат"
+                  fieldName="preferredSessionModes"
+                  options={["Онлайн", "В офис", "Хибридно"]}
+                />
+              </QuestionBlock>
             </div>
-            <div className="two-column">
-              <label>
-                Професия / роля
-                <input
-                  name="occupation"
-                  defaultValue={profile.occupation || ""}
-                  placeholder="Например: Product manager"
-                />
-              </label>
-              <label>
-                Възраст
-                <input
-                  name="age"
-                  type="number"
-                  min="16"
-                  defaultValue={profile.age || ""}
-                  placeholder="Например: 32"
-                />
-              </label>
+            <div className="question-form__footer">
+              <p className="form-note">
+                Подреденият профил прави търсенето по-ясно и съвпаденията по-полезни.
+              </p>
+              <button className="primary-button" type="submit">
+                Запази профила
+              </button>
             </div>
-            <label>
-              Профилно заглавие
-              <input
-                name="headline"
-                defaultValue={profile.headline || ""}
-                placeholder="Например: Product manager в преход към leadership роля"
-                required
-              />
-            </label>
-            <label>
-              Професионално описание
-              <textarea
-                name="bio"
-                rows={5}
-                defaultValue={profile.bio || ""}
-                placeholder="Разкажи накратко за посоката си, опита си и какво търсиш."
-                required
-              />
-            </label>
-            <label>
-              Какво търсиш в момента
-              <textarea
-                name="goals"
-                rows={4}
-                defaultValue={profile.goals || ""}
-                placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
-              />
-            </label>
-            <div className="two-column">
-              <label>
-                Интереси
-                <input
-                  name="interests"
-                  defaultValue={(profile.interests || []).join(", ")}
-                  placeholder="Leadership roles, international teams, salary negotiation"
-                />
-              </label>
-              <label>
-                Ключови думи
-                <input
-                  name="keywords"
-                  defaultValue={(profile.keywords || []).join(", ")}
-                  placeholder="Product, leadership, career transition"
-                />
-              </label>
-            </div>
-            <label>
-              Предпочитан формат
-              <input
-                name="preferredSessionModes"
-                defaultValue={(profile.preferredSessionModes || []).join(", ")}
-                placeholder="Онлайн, В офис"
-              />
-            </label>
-            <label>
-              Членство
-              <select name="plan" defaultValue={profile.plan}>
-                <option value="free">Free</option>
-                <option value="pro">Разширен</option>
-              </select>
-            </label>
-            <button className="primary-button" type="submit">
-              Запази профила
-            </button>
           </form>
 
           <form className="panel form-stack" onSubmit={uploadCv}>
@@ -3942,156 +4596,256 @@ function DashboardPage() {
 
           {profile.role === "consultant" ? (
             <form className="panel form-stack" onSubmit={saveConsultantProfile}>
-              <h2>Консултантски профил</h2>
-              <p className="section-caption">
-                Това е публичната витрина на услугата ти. Колкото по-точен и пълен е
-                профилът, толкова по-лесно ще бъде разбран от нови потребители.
-              </p>
-              <div className="two-column">
-                <label>
-                  Slug
-                  <input
-                    name="slug"
-                    defaultValue={consultantProfile?.slug || ""}
-                    placeholder="ivan-petrov"
-                    required
+              <QuestionFlowIntro
+                eyebrow="Консултантски профил"
+                title="Подреди публичния си профил през няколко ясни въпроса."
+                description="Така профилът изглежда по-сериозно, по-подредено и по-лесно води до резервация. Подсказките под въпросите ти помагат да попълниш по-бързо основните секции."
+                completion={profileCompletion}
+              />
+              <div className="question-grid">
+                <QuestionBlock
+                  step="01"
+                  title="Как изглеждаш публично?"
+                  hint="Името, slug-ът, заглавието и градът изграждат първото впечатление."
+                >
+                  <div className="two-column">
+                    <label>
+                      Slug
+                      <input
+                        name="slug"
+                        defaultValue={consultantProfile?.slug || ""}
+                        placeholder="ivan-petrov"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Име за профила
+                      <input
+                        name="displayName"
+                        defaultValue={consultantProfile?.name || profile.name}
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Град
+                      <input
+                        name="consultantCity"
+                        defaultValue={consultantProfile?.city || ""}
+                        placeholder="Например: София"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Години опит
+                      <input
+                        name="experienceYears"
+                        type="number"
+                        min="0"
+                        defaultValue={consultantProfile?.experienceYears || 1}
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Заглавие
+                    <input
+                      name="consultantHeadline"
+                      defaultValue={consultantProfile?.headline || ""}
+                      placeholder="Например: Стратег за leadership преходи и executive позициониране"
+                      required
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Стартови идеи"
+                    fieldName="consultantHeadline"
+                    mode="replace"
+                    options={[
+                      "Консултант за leadership преходи и executive позициониране",
+                      "Кариерен консултант за интервю подготовка и професионално представяне",
+                      "Консултант по кариерни преходи и международно позициониране"
+                    ]}
                   />
-                </label>
-                <label>
-                  Име за профила
-                  <input
-                    name="displayName"
-                    defaultValue={consultantProfile?.name || profile.name}
-                    required
+                </QuestionBlock>
+
+                <QuestionBlock
+                  step="02"
+                  title="С кого работиш и по какви теми?"
+                  hint="Тези отговори определят как ще бъдеш намиран в CareerLane."
+                >
+                  <label>
+                    Специализации
+                    <input
+                      name="specializations"
+                      defaultValue={consultantProfile?.specializations.join(", ") || ""}
+                      placeholder="Executive CV, интервю подготовка, leadership"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Основни теми на консултацията
+                    <input
+                      name="consultationTopics"
+                      defaultValue={
+                        consultantProfile ? getConsultationTopics(consultantProfile).join(", ") : ""
+                      }
+                      placeholder="Кариерна стратегия, CV review, interview preparation"
+                    />
+                  </label>
+                  <label>
+                    Подходящо за
+                    <input
+                      name="idealFor"
+                      defaultValue={
+                        consultantProfile ? getConsultantIdealFor(consultantProfile).join(", ") : ""
+                      }
+                      placeholder="Mid-senior professionals, leadership roles, career transition"
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Добави специализации"
+                    fieldName="specializations"
+                    options={[
+                      "Executive CV",
+                      "Interview preparation",
+                      "Leadership",
+                      "Career transition"
+                    ]}
                   />
-                </label>
+                  <SuggestionPills
+                    label="Добави теми"
+                    fieldName="consultationTopics"
+                    options={[
+                      "Кариерна стратегия",
+                      "LinkedIn позициониране",
+                      "Интервю подготовка",
+                      "Executive CV"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Подходящо за"
+                    fieldName="idealFor"
+                    options={[
+                      "Mid-senior professionals",
+                      "Leadership moves",
+                      "Career transition",
+                      "International roles"
+                    ]}
+                  />
+                </QuestionBlock>
+
+                <QuestionBlock
+                  step="03"
+                  title="Как протича работата с теб?"
+                  hint="Добрият консултантски профил обяснява ясно процеса, а не само изброява услуги."
+                  wide
+                >
+                  <label>
+                    Биография
+                    <textarea
+                      name="consultantBio"
+                      rows={5}
+                      defaultValue={consultantProfile?.bio || ""}
+                      placeholder="Опиши с кого работиш, по какви теми и какъв резултат постигате."
+                      required
+                    />
+                  </label>
+                  <label>
+                    Работен подход
+                    <textarea
+                      name="workApproach"
+                      rows={4}
+                      defaultValue={consultantProfile?.workApproach || ""}
+                      placeholder="Например: Първо подреждаме целите, после профила и подготовката."
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Примерен подход"
+                    fieldName="workApproach"
+                    mode="replace"
+                    options={[
+                      "Първо подреждаме целта и текущия профил, след това работим върху позиционирането и подготовката за следващата стъпка.",
+                      "Работя на етапи: анализ на профила, конкретни насоки и практическа подготовка за разговори и кандидатстване.",
+                      "Всяка консултация започва с ясен контекст и завършва с конкретен план за действие."
+                    ]}
+                  />
+                </QuestionBlock>
+
+                <QuestionBlock
+                  step="04"
+                  title="Как и кога могат да те резервират?"
+                  hint="Езиците, форматът на работа, продължителността и свободните слотове завършват профила."
+                >
+                  <div className="two-column">
+                    <label>
+                      Езици
+                      <input
+                        name="languages"
+                        defaultValue={consultantProfile?.languages.join(", ") || ""}
+                        placeholder="Български, English"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Формати на работа
+                      <input
+                        name="sessionModes"
+                        defaultValue={consultantProfile?.sessionModes.join(", ") || ""}
+                        placeholder="Онлайн, В офис"
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Тагове
+                      <input
+                        name="tags"
+                        defaultValue={consultantProfile?.tags.join(", ") || ""}
+                        placeholder="Leadership, Product, Promotions"
+                      />
+                    </label>
+                    <label>
+                      Продължителност на сесия
+                      <input
+                        name="sessionLengthMinutes"
+                        type="number"
+                        min="30"
+                        step="15"
+                        defaultValue={consultantProfile?.sessionLengthMinutes || 60}
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Свободни слотове
+                    <textarea
+                      name="availability"
+                      rows={5}
+                      defaultValue={consultantProfile?.availability.join("\n") || ""}
+                      placeholder="2026-03-25T09:00:00.000Z"
+                      required
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Добави примерни слотове"
+                    fieldName="availability"
+                    mode="append-lines"
+                    options={[
+                      buildAvailabilityPreset(1, 9),
+                      buildAvailabilityPreset(1, 14),
+                      buildAvailabilityPreset(2, 11),
+                      buildAvailabilityPreset(3, 16)
+                    ]}
+                  />
+                </QuestionBlock>
               </div>
-              <label>
-                Заглавие
-                <input
-                  name="consultantHeadline"
-                  defaultValue={consultantProfile?.headline || ""}
-                  placeholder="Например: Стратег за leadership преходи и executive позициониране"
-                  required
-                />
-              </label>
-              <label>
-                Биография
-                <textarea
-                  name="consultantBio"
-                  rows={5}
-                  defaultValue={consultantProfile?.bio || ""}
-                  placeholder="Опиши с кого работиш, по какви теми и какъв резултат постигате."
-                  required
-                />
-              </label>
-              <div className="two-column">
-                <label>
-                  Град
-                  <input
-                    name="consultantCity"
-                    defaultValue={consultantProfile?.city || ""}
-                    placeholder="Например: София"
-                    required
-                  />
-                </label>
-                <label>
-                  Години опит
-                  <input
-                    name="experienceYears"
-                    type="number"
-                    min="0"
-                    defaultValue={consultantProfile?.experienceYears || 1}
-                  />
-                </label>
+              <div className="question-form__footer">
+                <p className="form-note">
+                  Подреденият профил, ясен подход и налични часове правят резервирането по-лесно.
+                </p>
+                <button className="primary-button" type="submit">
+                  Запази консултантския профил
+                </button>
               </div>
-              <label>
-                Езици
-                <input
-                  name="languages"
-                  defaultValue={consultantProfile?.languages.join(", ") || ""}
-                  placeholder="Български, English"
-                  required
-                />
-              </label>
-              <label>
-                Специализации
-                <input
-                  name="specializations"
-                  defaultValue={consultantProfile?.specializations.join(", ") || ""}
-                  placeholder="Executive CV, интервю подготовка, leadership"
-                  required
-                />
-              </label>
-              <label>
-                Основни теми на консултацията
-                <input
-                  name="consultationTopics"
-                  defaultValue={
-                    consultantProfile ? getConsultationTopics(consultantProfile).join(", ") : ""
-                  }
-                  placeholder="Кариерна стратегия, CV review, interview preparation"
-                />
-              </label>
-              <label>
-                Подходящо за
-                <input
-                  name="idealFor"
-                  defaultValue={
-                    consultantProfile ? getConsultantIdealFor(consultantProfile).join(", ") : ""
-                  }
-                  placeholder="Mid-senior professionals, leadership roles, career transition"
-                />
-              </label>
-              <label>
-                Формати на работа
-                <input
-                  name="sessionModes"
-                  defaultValue={consultantProfile?.sessionModes.join(", ") || ""}
-                  placeholder="Онлайн, В офис"
-                />
-              </label>
-              <label>
-                Тагове
-                <input
-                  name="tags"
-                  defaultValue={consultantProfile?.tags.join(", ") || ""}
-                  placeholder="Leadership, Product, Promotions"
-                />
-              </label>
-              <div className="two-column">
-                <label>
-                  Продължителност на сесия
-                  <input
-                    name="sessionLengthMinutes"
-                    type="number"
-                    min="30"
-                    step="15"
-                    defaultValue={consultantProfile?.sessionLengthMinutes || 60}
-                  />
-                </label>
-                <label>
-                  Работен подход
-                  <input
-                    name="workApproach"
-                    defaultValue={consultantProfile?.workApproach || ""}
-                    placeholder="Например: Първо подреждаме целите, после профила и подготовката."
-                  />
-                </label>
-              </div>
-              <label>
-                Свободни слотове
-                <textarea
-                  name="availability"
-                  rows={5}
-                  defaultValue={consultantProfile?.availability.join("\n") || ""}
-                  placeholder="2026-03-25T09:00:00.000Z"
-                  required
-                />
-              </label>
-              <button className="primary-button" type="submit">
-                Запази консултантския профил
-              </button>
             </form>
           ) : null}
 
@@ -4186,7 +4940,7 @@ function ConsultantCard({
   match
 }: {
   consultant: ConsultantProfile;
-  match?: ConsultantMatch | null;
+  match?: MatchInsight | null;
 }) {
   return (
     <article className="consultant-card">
