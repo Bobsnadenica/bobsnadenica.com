@@ -15,6 +15,14 @@ import { api } from "../lib/api";
 import { AuthProvider, useAuth } from "../lib/auth";
 import { config } from "../lib/config";
 import { demoConsultants } from "../lib/demo";
+import {
+  clearMockPreviewAccount,
+  readMockPreviewAccount,
+  writeMockPreviewAccount,
+  type MockBillingCycle,
+  type MockPreviewAccount,
+  type MockSubscriptionStatus
+} from "../lib/mock-preview";
 import { resolvePublicUrl } from "../lib/url";
 import type {
   Booking,
@@ -35,6 +43,8 @@ type AuthScreen =
   | "forgot-request"
   | "forgot-confirm";
 
+type MockSignupStep = "account" | "membership" | "checkout";
+
 type MarketingPlan = {
   name: string;
   price: string;
@@ -53,12 +63,12 @@ const userPlans: MarketingPlan[] = [
     badge: "Старт веднага",
     note: "Подходящ за първо кариерно подреждане и ориентиране в пазара.",
     points: [
-      "Достъп до до 6 профила в каталога",
-      "1 основен CV файл в профила",
-      "Записване на консултации и история на сесиите"
-    ],
-    ctaLabel: "Създай безплатен профил",
-    ctaTo: "/auth?tab=register"
+        "Достъп до до 6 профила в каталога",
+        "1 основен CV файл в профила",
+        "Записване на консултации и история на сесиите"
+      ],
+    ctaLabel: "Тествай Free signup",
+    ctaTo: "/preview-account"
   },
   {
     name: "Pro",
@@ -67,12 +77,12 @@ const userPlans: MarketingPlan[] = [
     featured: true,
     note: "За хора, които искат по-широк избор, по-добра подготовка и повече пространство.",
     points: [
-      "Пълен достъп до целия каталог с консултанти",
-      "Разширено място за CV, дипломи и портфолио",
-      "Приоритетни слотове и по-бърз follow-up"
-    ],
-    ctaLabel: "Активирай Pro",
-    ctaTo: "/auth?tab=register"
+        "Пълен достъп до целия каталог с консултанти",
+        "Разширено място за CV, дипломи и портфолио",
+        "Приоритетни слотове и по-бърз follow-up"
+      ],
+    ctaLabel: "Тествай Pro checkout",
+    ctaTo: "/preview-account"
   }
 ];
 
@@ -83,26 +93,26 @@ const consultantPlans: MarketingPlan[] = [
     badge: "За старт",
     note: "Създай присъствие, публикувай експертизата си и започни да приемаш заявки.",
     points: [
-      "Публичен профил с ключова специализация",
-      "Свободни часове, езици и формати на работа",
-      "Достъп до заявки от нови професионалисти"
-    ],
-    ctaLabel: "Започни като консултант",
-    ctaTo: "/auth?tab=register"
+        "Публичен профил с ключова специализация",
+        "Свободни часове, езици и формати на работа",
+        "Достъп до заявки от нови професионалисти"
+      ],
+    ctaLabel: "Тествай Free signup",
+    ctaTo: "/preview-account"
   },
   {
     name: "Pro",
-    price: "По заявка",
+    price: "39 € / месец",
     badge: "Премиум присъствие",
     featured: true,
     note: "За консултанти, които искат по-силно позициониране и по-представителен профил.",
         points: [
-          "По-видимо позициониране в каталога",
-          "Разширен профил с повече секции и материали",
-          "Приоритетна поддръжка и premium поток от нови запитвания"
-        ],
-    ctaLabel: "Заяви Pro профил",
-    ctaTo: "/auth?tab=register"
+        "По-видимо позициониране в каталога",
+        "Разширен профил с повече секции и материали",
+        "Приоритетна поддръжка и premium поток от нови запитвания"
+      ],
+    ctaLabel: "Тествай Pro subscription",
+    ctaTo: "/preview-account"
   }
 ];
 
@@ -289,6 +299,14 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
+function formatEuro(value: number) {
+  return new Intl.NumberFormat("bg-BG", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
 function formatRoleLabel(role: UserRole) {
   return role === "consultant" ? "Консултант" : "Професионалист";
 }
@@ -301,6 +319,69 @@ function formatBookingStatusLabel(status: Booking["status"]) {
   if (status === "confirmed") return "Потвърдена";
   if (status === "cancelled") return "Отказана";
   return "Заявена";
+}
+
+function getMockProPrice(role: UserRole, billingCycle: MockBillingCycle) {
+  const prices = {
+    client: {
+      monthly: 19,
+      yearly: 190
+    },
+    consultant: {
+      monthly: 39,
+      yearly: 390
+    }
+  } as const;
+
+  return prices[role][billingCycle];
+}
+
+function getMockPlanFeatures(role: UserRole, plan: PlanTier) {
+  if (role === "consultant") {
+    return plan === "pro"
+      ? [
+          "Премиум позициониране в каталога",
+          "Разширен профил с повече секции",
+          "Приоритетни нови запитвания",
+          "По-представителна subscription визия"
+        ]
+      : [
+          "Публичен профил за старт",
+          "Основни специализации и езици",
+          "Получаване на заявки",
+          "Свободни слотове и работни формати"
+        ];
+  }
+
+  return plan === "pro"
+    ? [
+        "Пълен каталог с консултанти",
+        "Повече място за CV, дипломи и портфолио",
+        "Mock subscription панел в таблото",
+        "Разширен личен workspace preview"
+      ]
+    : [
+        "Базов профил и основен CV документ",
+        "Достъп до подбран каталог",
+        "История на заявки и сесии",
+        "Лесен старт без плащане"
+      ];
+}
+
+function getMockStorageLabel(plan: PlanTier) {
+  return plan === "pro" ? "6 файла и разширен архив" : "1 основен CV файл";
+}
+
+function buildMockNextBillingDate(billingCycle: MockBillingCycle) {
+  const nextDate = new Date();
+
+  if (billingCycle === "yearly") {
+    nextDate.setFullYear(nextDate.getFullYear() + 1);
+  } else {
+    nextDate.setMonth(nextDate.getMonth() + 1);
+  }
+
+  return nextDate.toISOString();
 }
 
 function getNextBooking(bookings: Booking[]) {
@@ -389,6 +470,10 @@ function RouteExperience() {
               ? "Профил на консултант"
               : pathname === "/auth"
                 ? "Вход и регистрация"
+                : pathname === "/preview-account"
+                  ? "Mock signup"
+                  : pathname === "/preview-dashboard"
+                    ? "Mock табло"
                 : pathname === "/dashboard"
                   ? "Моето табло"
                   : pathname === "/about"
@@ -459,9 +544,21 @@ function useViewerProfile() {
   };
 }
 
+function useMockPreviewSnapshot() {
+  const location = useLocation();
+  const [previewAccount, setPreviewAccount] = useState<MockPreviewAccount | null>(null);
+
+  useEffect(() => {
+    setPreviewAccount(readMockPreviewAccount());
+  }, [location.pathname]);
+
+  return previewAccount;
+}
+
 function AppShell() {
   const { user, logout } = useAuth();
   const currentYear = new Date().getFullYear();
+  const previewAccount = useMockPreviewSnapshot();
 
   return (
     <div className="site-shell">
@@ -496,9 +593,14 @@ function AppShell() {
                 </button>
               </>
             ) : (
-              <Link className="ghost-button" to="/auth">
-                Вход / Регистрация
-              </Link>
+              <>
+                <Link className="ghost-button" to={previewAccount ? "/preview-dashboard" : "/preview-account"}>
+                  {previewAccount ? "Mock табло" : "Mock signup"}
+                </Link>
+                <Link className="ghost-button" to="/auth">
+                  Вход / Регистрация
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -515,6 +617,8 @@ function AppShell() {
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/legal" element={<LegalPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/preview-account" element={<MockSignupPage />} />
+          <Route path="/preview-dashboard" element={<MockDashboardPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/pricing" element={<Navigate to="/users" replace />} />
           <Route path="*" element={<NotFoundPage />} />
@@ -1336,6 +1440,771 @@ function ContactPage() {
   );
 }
 
+function MockSignupPage() {
+  const navigate = useNavigate();
+  const existingPreview = useMemo(() => readMockPreviewAccount(), []);
+  const [step, setStep] = useState<MockSignupStep>("account");
+  const [message, setMessage] = useState("");
+  const [form, setForm] = useState({
+    name: existingPreview?.name || "",
+    email: existingPreview?.email || "",
+    city: existingPreview?.city || "София",
+    headline:
+      existingPreview?.headline ||
+      "Product manager в преход към по-видима международна роля",
+    role: existingPreview?.role || ("client" as UserRole),
+    plan: existingPreview?.plan || ("free" as PlanTier),
+    billingCycle: existingPreview?.billingCycle || ("monthly" as MockBillingCycle),
+    cardName: existingPreview?.name || "",
+    cardNumber: existingPreview?.paymentLast4
+      ? `4242 4242 4242 ${existingPreview.paymentLast4}`
+      : "4242 4242 4242 4242",
+    expiry: "12/29",
+    cvc: "123",
+    acceptMock: true
+  });
+
+  const featureList = useMemo(
+    () => getMockPlanFeatures(form.role, form.plan),
+    [form.plan, form.role]
+  );
+  const isPro = form.plan === "pro";
+  const price = isPro ? getMockProPrice(form.role, form.billingCycle) : 0;
+  const nextBillingAt = isPro ? buildMockNextBillingDate(form.billingCycle) : null;
+  const roleLabel = form.role === "consultant" ? "Консултант" : "Потребител";
+  const canSubmit = Boolean(
+    form.name.trim() &&
+      form.email.trim() &&
+      form.city.trim() &&
+      form.headline.trim() &&
+      (!isPro ||
+        (form.cardName.trim() &&
+          form.cardNumber.trim() &&
+          form.expiry.trim() &&
+          form.cvc.trim() &&
+          form.acceptMock))
+  );
+
+  function createPreviewAccount(status: MockSubscriptionStatus) {
+    const paymentLast4 =
+      isPro && form.cardNumber.trim()
+        ? form.cardNumber.replace(/\D/g, "").slice(-4) || "4242"
+        : null;
+
+    const previewAccount: MockPreviewAccount = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      role: form.role,
+      plan: form.plan,
+      city: form.city.trim(),
+      headline: form.headline.trim(),
+      billingCycle: form.billingCycle,
+      subscriptionStatus: status,
+      paymentLast4,
+      startedAt: new Date().toISOString(),
+      nextBillingAt: status === "active" ? nextBillingAt : null
+    };
+
+    writeMockPreviewAccount(previewAccount);
+    return previewAccount;
+  }
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setMessage("");
+
+    if (!canSubmit) {
+      return;
+    }
+
+    createPreviewAccount(isPro ? "active" : "inactive");
+    navigate("/preview-dashboard");
+  }
+
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">Mock signup</p>
+            <h1>Тествай account creation, Free / Pro избор и mock subscription без backend.</h1>
+            <p className="hero__lede">
+              Това е изцяло фронтенд preview поток. Нищо не се изпраща към backend и
+              няма реално плащане. Целта е да видиш как ще изглеждат регистрацията,
+              Pro checkout и subscription управлението в production визия.
+            </p>
+
+            <div className="mock-stepper">
+              <button
+                type="button"
+                className={`step-pill ${step === "account" ? "step-pill--active" : ""}`}
+                onClick={() => setStep("account")}
+              >
+                1. Account
+              </button>
+              <button
+                type="button"
+                className={`step-pill ${step === "membership" ? "step-pill--active" : ""}`}
+                onClick={() => setStep("membership")}
+              >
+                2. Plan
+              </button>
+              <button
+                type="button"
+                className={`step-pill ${step === "checkout" ? "step-pill--active" : ""}`}
+                onClick={() => setStep("checkout")}
+              >
+                3. {isPro ? "Checkout" : "Preview"}
+              </button>
+            </div>
+          </div>
+
+          <aside className="panel page-side-card mock-summary">
+            <p className="eyebrow">Live summary</p>
+            <h2>{form.plan === "pro" ? "Pro mock subscription" : "Free mock account"}</h2>
+            <p>{getRolePlanSummary(form.role, form.plan)}</p>
+            <div className="summary-grid">
+              <article className="summary-card">
+                <span className="plan-pill">Тип акаунт</span>
+                <strong>{roleLabel}</strong>
+                <p>{form.city}</p>
+              </article>
+              <article className="summary-card">
+                <span className="plan-pill">Членство</span>
+                <strong>{formatPlanLabel(form.plan)}</strong>
+                <p>
+                  {isPro
+                    ? `${formatEuro(price)} / ${form.billingCycle === "monthly" ? "месец" : "година"}`
+                    : "Без плащане"}
+                </p>
+              </article>
+            </div>
+            <ul className="feature-list">
+              {featureList.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <div className="panel panel--subtle">
+              <strong>Mock note</strong>
+              <p>
+                След завършване ще се отвори mock dashboard със subscription статус,
+                документи и управляема Pro / Free визия.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container mock-layout">
+          <form className="panel-stack" onSubmit={handleSubmit}>
+            <article className={`panel mock-panel ${step === "account" ? "mock-panel--active" : ""}`}>
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">Стъпка 1</p>
+                  <h2>Основни данни за mock акаунта</h2>
+                  <p className="section-heading__copy">
+                    Използвай реалистични данни, за да видиш как изглежда onboarding flow.
+                  </p>
+                </div>
+              </div>
+              <div className="two-column">
+                <label>
+                  Име
+                  <input
+                    value={form.name}
+                    onChange={(event) => setForm({ ...form, name: event.target.value })}
+                    placeholder="Например: Елица Маринова"
+                    required
+                  />
+                </label>
+                <label>
+                  Имейл
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(event) => setForm({ ...form, email: event.target.value })}
+                    placeholder="name@example.com"
+                    required
+                  />
+                </label>
+              </div>
+              <div className="two-column">
+                <label>
+                  Град
+                  <input
+                    value={form.city}
+                    onChange={(event) => setForm({ ...form, city: event.target.value })}
+                    placeholder="София"
+                    required
+                  />
+                </label>
+                <label>
+                  Тип акаунт
+                  <select
+                    value={form.role}
+                    onChange={(event) => setForm({ ...form, role: event.target.value as UserRole })}
+                  >
+                    <option value="client">Потребител</option>
+                    <option value="consultant">Консултант</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                Кратко headline
+                <input
+                  value={form.headline}
+                  onChange={(event) => setForm({ ...form, headline: event.target.value })}
+                  placeholder="Например: Product manager в преход към leadership роля"
+                  required
+                />
+              </label>
+              <div className="dashboard-actions">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() => setStep("membership")}
+                >
+                  Продължи към плановете
+                </button>
+                {existingPreview ? (
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    onClick={() => {
+                      clearMockPreviewAccount();
+                      setMessage("Mock preview е изчистен.");
+                    }}
+                  >
+                    Изчисти стария preview
+                  </button>
+                ) : null}
+              </div>
+            </article>
+
+            <article className={`panel mock-panel ${step === "membership" ? "mock-panel--active" : ""}`}>
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">Стъпка 2</p>
+                  <h2>Избор между Free и Pro</h2>
+                  <p className="section-heading__copy">
+                    Премини през реалистична визуализация на plan selection и feature
+                    comparison.
+                  </p>
+                </div>
+              </div>
+
+              <div className="choice-grid">
+                {(["free", "pro"] as PlanTier[]).map((plan) => {
+                  const active = form.plan === plan;
+                  const features = getMockPlanFeatures(form.role, plan);
+
+                  return (
+                    <button
+                      type="button"
+                      className={`choice-card ${active ? "choice-card--active" : ""}`}
+                      key={plan}
+                      onClick={() => {
+                        setForm({ ...form, plan });
+                        setStep("checkout");
+                      }}
+                    >
+                      <span className={plan === "pro" ? "status-badge" : "plan-pill"}>
+                        {plan === "pro" ? "Pro" : "Free"}
+                      </span>
+                      <strong>
+                        {plan === "pro"
+                          ? formatEuro(getMockProPrice(form.role, form.billingCycle))
+                          : "0 €"}
+                      </strong>
+                      <p>
+                        {plan === "pro"
+                          ? "Mock subscription с checkout и billing управление."
+                          : "Безплатен старт с основни възможности и без плащане."}
+                      </p>
+                      <ul className="feature-list">
+                        {features.slice(0, 3).map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="dashboard-actions">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() => setStep("account")}
+                >
+                  Назад
+                </button>
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() => setStep("checkout")}
+                >
+                  Продължи към {isPro ? "checkout" : "preview"}
+                </button>
+              </div>
+            </article>
+
+            <article className={`panel mock-panel ${step === "checkout" ? "mock-panel--active" : ""}`}>
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">Стъпка 3</p>
+                  <h2>{isPro ? "Mock checkout и subscription" : "Mock account preview"}</h2>
+                  <p className="section-heading__copy">
+                    {isPro
+                      ? "Визуализация на плащане, billing cycle и subscription summary без реална транзакция."
+                      : "Free акаунтът се създава веднага и прескача checkout секцията."}
+                  </p>
+                </div>
+              </div>
+
+              {isPro ? (
+                <>
+                  <div className="choice-grid">
+                    {(["monthly", "yearly"] as MockBillingCycle[]).map((cycle) => (
+                      <button
+                        type="button"
+                        key={cycle}
+                        className={`choice-card ${form.billingCycle === cycle ? "choice-card--active" : ""}`}
+                        onClick={() => setForm({ ...form, billingCycle: cycle })}
+                      >
+                        <span className={form.billingCycle === cycle ? "status-badge" : "plan-pill"}>
+                          {cycle === "monthly" ? "Месечно" : "Годишно"}
+                        </span>
+                        <strong>{formatEuro(getMockProPrice(form.role, cycle))}</strong>
+                        <p>
+                          {cycle === "monthly"
+                            ? "По-гъвкава mock subscription визия."
+                            : "По-завършен annual billing preview."}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="two-column">
+                    <label>
+                      Име върху карта
+                      <input
+                        value={form.cardName}
+                        onChange={(event) => setForm({ ...form, cardName: event.target.value })}
+                        placeholder="ELITSA MARINOVA"
+                        required={isPro}
+                      />
+                    </label>
+                    <label>
+                      Номер на карта
+                      <input
+                        value={form.cardNumber}
+                        onChange={(event) => setForm({ ...form, cardNumber: event.target.value })}
+                        placeholder="4242 4242 4242 4242"
+                        required={isPro}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="three-column">
+                    <label>
+                      Валидност
+                      <input
+                        value={form.expiry}
+                        onChange={(event) => setForm({ ...form, expiry: event.target.value })}
+                        placeholder="12/29"
+                        required={isPro}
+                      />
+                    </label>
+                    <label>
+                      CVC
+                      <input
+                        value={form.cvc}
+                        onChange={(event) => setForm({ ...form, cvc: event.target.value })}
+                        placeholder="123"
+                        required={isPro}
+                      />
+                    </label>
+                    <label className="checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={form.acceptMock}
+                        onChange={(event) =>
+                          setForm({ ...form, acceptMock: event.target.checked })
+                        }
+                      />
+                      <span>Разбирам, че това е mock checkout</span>
+                    </label>
+                  </div>
+
+                  <div className="mock-billing-grid">
+                    <article className="summary-card">
+                      <span className="plan-pill">План</span>
+                      <strong>{roleLabel} Pro</strong>
+                      <p>{formatEuro(price)} / {form.billingCycle === "monthly" ? "месец" : "година"}</p>
+                    </article>
+                    <article className="summary-card">
+                      <span className="plan-pill">Следващо подновяване</span>
+                      <strong>{nextBillingAt ? formatDate(nextBillingAt) : "n/a"}</strong>
+                      <p>Няма реално таксуване. Само UI preview.</p>
+                    </article>
+                  </div>
+                </>
+              ) : (
+                <div className="panel panel--subtle">
+                  <strong>Free account preview</strong>
+                  <p>
+                    След създаването ще видиш mock dashboard с базов профил, 1 активен CV
+                    документ и подбран каталог с консултанти.
+                  </p>
+                </div>
+              )}
+
+              {message ? <div className="panel panel--success">{message}</div> : null}
+
+              <div className="dashboard-actions">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() => setStep("membership")}
+                >
+                  Назад
+                </button>
+                <button className="primary-button" type="submit" disabled={!canSubmit}>
+                  {isPro ? "Активирай mock Pro" : "Създай mock Free акаунт"}
+                </button>
+              </div>
+            </article>
+          </form>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Какво ще тестваш</p>
+            <h2>Пълен front-end preview поток</h2>
+            <ul className="page-list">
+              <li>Регистрация с избор на роля и plan tier</li>
+              <li>Mock payment / subscription визия за Pro</li>
+              <li>Mock dashboard с активни features според плана</li>
+              <li>Subscription management без backend интеграция</li>
+            </ul>
+            <Link className="ghost-button" to="/preview-dashboard">
+              Виж текущия mock dashboard
+            </Link>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function MockDashboardPage() {
+  const navigate = useNavigate();
+  const [account, setAccount] = useState<MockPreviewAccount | null>(() => readMockPreviewAccount());
+  const [message, setMessage] = useState("");
+  const [billingForm, setBillingForm] = useState({
+    billingCycle: (readMockPreviewAccount()?.billingCycle || "monthly") as MockBillingCycle,
+    cardNumber: readMockPreviewAccount()?.paymentLast4
+      ? `4242 4242 4242 ${readMockPreviewAccount()?.paymentLast4}`
+      : "4242 4242 4242 4242"
+  });
+
+  if (!account) {
+    return (
+      <section className="section">
+        <div className="container">
+          <div className="panel empty-state empty-state--centered">
+            <p className="eyebrow">Mock dashboard</p>
+            <h2>Все още няма mock account.</h2>
+            <p>
+              Създай preview акаунт, за да тестваш как изглеждат Free / Pro features и
+              subscription управлението.
+            </p>
+            <Link className="primary-button" to="/preview-account">
+              Създай mock account
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function persist(nextAccount: MockPreviewAccount, nextMessage: string) {
+    writeMockPreviewAccount(nextAccount);
+    setAccount(nextAccount);
+    setBillingForm((current) => ({
+      ...current,
+      billingCycle: nextAccount.billingCycle,
+      cardNumber: nextAccount.paymentLast4
+        ? `4242 4242 4242 ${nextAccount.paymentLast4}`
+        : current.cardNumber
+    }));
+    setMessage(nextMessage);
+  }
+
+  const featureList = getMockPlanFeatures(account.role, account.plan);
+  const price =
+    account.plan === "pro" ? getMockProPrice(account.role, account.billingCycle) : 0;
+  const visibleProfiles =
+    account.plan === "pro" ? demoConsultants.length : FREE_DIRECTORY_LIMIT;
+  const documentLabel = getMockStorageLabel(account.plan);
+  const mockDocuments =
+    account.plan === "pro"
+      ? ["CV-2026.pdf", "Leadership-diploma.pdf", "Portfolio.pdf", "Case-study.pdf"]
+      : ["CV-2026.pdf"];
+
+  function upgradeToPro() {
+    navigate("/preview-account");
+  }
+
+  function downgradeToFree() {
+    persist(
+      {
+        ...account,
+        plan: "free",
+        subscriptionStatus: "inactive",
+        paymentLast4: null,
+        nextBillingAt: null
+      },
+      "Mock акаунтът беше върнат към Free."
+    );
+  }
+
+  function toggleSubscriptionStatus() {
+    const nextStatus: MockSubscriptionStatus =
+      account.subscriptionStatus === "active" ? "cancelled" : "active";
+
+    persist(
+      {
+        ...account,
+        subscriptionStatus: nextStatus,
+        nextBillingAt: nextStatus === "active" ? buildMockNextBillingDate(account.billingCycle) : null
+      },
+      nextStatus === "active"
+        ? "Mock subscription е реактивиран."
+        : "Mock subscription е маркиран като cancelled."
+    );
+  }
+
+  function saveBillingPreview(event: FormEvent) {
+    event.preventDefault();
+
+    const nextLast4 = billingForm.cardNumber.replace(/\D/g, "").slice(-4) || "4242";
+
+    persist(
+      {
+        ...account,
+        plan: "pro",
+        billingCycle: billingForm.billingCycle,
+        subscriptionStatus: "active",
+        paymentLast4: nextLast4,
+        nextBillingAt: buildMockNextBillingDate(billingForm.billingCycle)
+      },
+      "Mock billing информацията е обновена."
+    );
+  }
+
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">Mock dashboard</p>
+            <h1>Преглед на Free / Pro акаунт, subscription status и отключени features.</h1>
+            <p className="hero__lede">
+              Това е фронтенд preview табло. Използвай го, за да видиш как ще изглежда
+              акаунт след signup и как ще се визуализира subscription management за Pro.
+            </p>
+            <div className="hero-stats">
+              <div>
+                <strong>{formatRoleLabel(account.role)}</strong>
+                <span>тип mock акаунт</span>
+              </div>
+              <div>
+                <strong>{formatPlanLabel(account.plan)}</strong>
+                <span>активно членство</span>
+              </div>
+              <div>
+                <strong>{visibleProfiles}</strong>
+                <span>видими профили в каталога</span>
+              </div>
+            </div>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Account summary</p>
+            <h2>{account.name}</h2>
+            <p>{account.headline}</p>
+            <div className="chip-row">
+              <span className="chip chip--soft">{account.city}</span>
+              <span className="chip chip--soft">{account.email}</span>
+            </div>
+            <div className="dashboard-actions">
+              <Link className="ghost-button" to="/preview-account">
+                Редактирай mock signup
+              </Link>
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={() => {
+                  clearMockPreviewAccount();
+                  setAccount(null);
+                }}
+              >
+                Изчисти preview
+              </button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          {message ? <div className="panel panel--success">{message}</div> : null}
+
+          <div className="summary-grid">
+            <article className="summary-card">
+              <span className="plan-pill">Каталог</span>
+              <strong>{visibleProfiles === demoConsultants.length ? "Пълен достъп" : `${visibleProfiles} профила`}</strong>
+              <p>{account.plan === "pro" ? "Отключен е целият каталог." : "Вижда се подбран каталог във Free режима."}</p>
+            </article>
+            <article className="summary-card">
+              <span className="plan-pill">Документи</span>
+              <strong>{documentLabel}</strong>
+              <p>{account.plan === "pro" ? "Разширен документен профил." : "Базово пространство за един активен файл."}</p>
+            </article>
+            <article className="summary-card">
+              <span className="plan-pill">Subscription</span>
+              <strong>{account.plan === "pro" ? formatEuro(price) : "0 €"}</strong>
+              <p>
+                {account.plan === "pro"
+                  ? `${account.billingCycle === "monthly" ? "Месечно" : "Годишно"} mock таксуване`
+                  : "Без subscription"}
+              </p>
+            </article>
+            <article className="summary-card">
+              <span className="plan-pill">Статус</span>
+              <strong>
+                {account.plan === "pro"
+                  ? account.subscriptionStatus === "active"
+                    ? "Active"
+                    : "Cancelled"
+                  : "Free"}
+              </strong>
+              <p>{account.nextBillingAt ? `Следващо подновяване: ${formatDate(account.nextBillingAt)}` : "Няма планирано подновяване."}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section--alt">
+        <div className="container public-layout">
+          <div className="panel-stack">
+            <article className="panel">
+              <p className="eyebrow">Unlocked features</p>
+              <h2>Какво вижда този mock акаунт</h2>
+              <ul className="feature-list">
+                {featureList.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="panel">
+              <p className="eyebrow">Mock documents</p>
+              <h2>Документен профил</h2>
+              <div className="info-grid info-grid--single">
+                {mockDocuments.map((file) => (
+                  <article className="info-card" key={file}>
+                    <h3>{file}</h3>
+                    <p>{account.plan === "pro" ? "Видим в разширения архив." : "Основен активен документ."}</p>
+                  </article>
+                ))}
+              </div>
+            </article>
+
+            <article className="panel">
+              <p className="eyebrow">Actions</p>
+              <h2>Промени mock състоянието</h2>
+              <div className="dashboard-actions">
+                {account.plan === "free" ? (
+                  <button className="primary-button" type="button" onClick={upgradeToPro}>
+                    Отиди към mock Pro checkout
+                  </button>
+                ) : (
+                  <>
+                    <button className="ghost-button" type="button" onClick={toggleSubscriptionStatus}>
+                      {account.subscriptionStatus === "active"
+                        ? "Маркирай като cancelled"
+                        : "Реактивирай subscription"}
+                    </button>
+                    <button className="ghost-button" type="button" onClick={downgradeToFree}>
+                      Върни към Free
+                    </button>
+                  </>
+                )}
+                <Link className="ghost-button" to="/users">
+                  Виж каталога
+                </Link>
+              </div>
+            </article>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Mock billing</p>
+            <h2>{account.plan === "pro" ? "Управление на subscription" : "Free акаунт"}</h2>
+            {account.plan === "pro" ? (
+              <form className="form-stack" onSubmit={saveBillingPreview}>
+                <label>
+                  Billing cycle
+                  <select
+                    value={billingForm.billingCycle}
+                    onChange={(event) =>
+                      setBillingForm({
+                        ...billingForm,
+                        billingCycle: event.target.value as MockBillingCycle
+                      })
+                    }
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </label>
+                <label>
+                  Card number
+                  <input
+                    value={billingForm.cardNumber}
+                    onChange={(event) =>
+                      setBillingForm({ ...billingForm, cardNumber: event.target.value })
+                    }
+                    placeholder="4242 4242 4242 4242"
+                  />
+                </label>
+                <div className="panel panel--subtle">
+                  <strong>Mock payment method</strong>
+                  <p>Visa ending in {account.paymentLast4 || "4242"}</p>
+                </div>
+                <button className="primary-button" type="submit">
+                  Запази mock subscription
+                </button>
+              </form>
+            ) : (
+              <div className="panel panel--subtle">
+                <strong>Free status</strong>
+                <p>
+                  За да видиш mock checkout и billing детайли, премини през Pro signup preview.
+                </p>
+                <button className="primary-button" type="button" onClick={upgradeToPro}>
+                  Тествай Pro subscription
+                </button>
+              </div>
+            )}
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
 function FaqPage() {
   return (
     <>
@@ -1841,6 +2710,9 @@ function AuthPage() {
               <li>Консултантски профил с отделна страница и видимост</li>
               <li>Подредено начало за CV, документи и заявки</li>
             </ul>
+            <Link className="ghost-button" to="/preview-account">
+              Тествай mock signup
+            </Link>
             {(screen === "register" || screen === "confirm") && (
               <div className="panel panel--subtle">
                 <strong>{form.role === "consultant" ? "Избран тип: Консултант" : "Избран тип: Потребител"}</strong>
