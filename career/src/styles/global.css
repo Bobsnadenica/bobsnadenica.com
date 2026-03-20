@@ -66,6 +66,7 @@ img {
   z-index: 30;
   border-bottom: 1px solid rgba(213, 222, 233, 0.8);
   background: rgba(255, 255, 255, 0.84);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
 }
 
@@ -137,6 +138,13 @@ img {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.chip-row,
+.hero-stats,
+.meta-row,
+.consultant-card__meta {
+  flex-wrap: wrap;
 }
 
 .site-nav {
@@ -352,6 +360,18 @@ img {
   animation: riseIn 600ms ease both;
 }
 
+.hero__copy,
+.page-intro,
+.hero__card,
+.consultant-card,
+.consultant-card__body,
+.consultant-card__top,
+.profile-card,
+.booking-card,
+.panel {
+  min-width: 0;
+}
+
 .hero__copy h1,
 .auth-copy h1,
 .profile-card h1 {
@@ -404,6 +424,7 @@ img {
   grid-template-columns: minmax(0, 1fr) 190px;
   gap: 14px;
   background: rgba(255, 255, 255, 0.84);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -506,6 +527,7 @@ textarea {
 .hero__card {
   display: grid;
   gap: 18px;
+  align-content: start;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 248, 252, 0.96)),
     var(--surface);
@@ -565,6 +587,95 @@ textarea {
   color: var(--muted);
   line-height: 1.5;
   font-size: 0.92rem;
+}
+
+.consultants-hero__grid {
+  align-items: stretch;
+}
+
+.consultants-hero {
+  position: relative;
+}
+
+.consultants-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 420px;
+  background:
+    radial-gradient(circle at left top, rgba(10, 102, 194, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), transparent 92%);
+  pointer-events: none;
+}
+
+.consultants-hero .hero__copy,
+.consultants-hero .hero__card,
+.consultant-proof-card,
+.consultant-proof-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.consultants-hero .hero__lede,
+.consultants-hero .hero-actions,
+.consultants-hero .hero-stats {
+  max-width: 760px;
+}
+
+.consultants-hero .hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.consultants-hero .hero-stats > div {
+  min-width: 0;
+  height: 100%;
+}
+
+.consultant-intro-card {
+  position: relative;
+  overflow: hidden;
+  gap: 20px;
+}
+
+.consultant-intro-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -44px -52px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(10, 102, 194, 0.12), transparent 68%);
+  pointer-events: none;
+}
+
+.consultant-intro-card__list {
+  display: grid;
+  gap: 12px;
+}
+
+.consultant-intro-card__list article {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(213, 222, 233, 0.8);
+  background: var(--surface-alt);
+}
+
+.consultant-intro-card__list strong {
+  display: block;
+  margin-bottom: 6px;
+  letter-spacing: -0.03em;
+}
+
+.consultant-intro-card__list span {
+  display: block;
+  color: var(--muted);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 .hero__points {
@@ -651,6 +762,7 @@ textarea {
 .journey-card h3,
 .pricing-card h3,
 .consultant-card h3,
+.consultant-proof-card h3,
 .info-card h3,
 .pricing-track__intro h3 {
   margin: 0;
@@ -670,28 +782,73 @@ textarea {
 .consultant-card {
   overflow: hidden;
   padding: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.consultant-card:hover,
+.consultant-proof-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 26px 42px rgba(15, 23, 42, 0.1);
+  border-color: var(--border-strong);
 }
 
 .consultant-card img {
   aspect-ratio: 1 / 0.86;
+  min-height: 220px;
+  background: #e8eef6;
 }
 
 .consultant-card__body {
   display: grid;
   gap: 16px;
   padding: 22px;
+  align-content: start;
+  height: 100%;
+}
+
+.consultant-card__body .ghost-button {
+  width: fit-content;
+  margin-top: auto;
 }
 
 .consultant-card__top {
   display: flex;
   justify-content: space-between;
   gap: 16px;
+  align-items: start;
 }
 
 .consultant-card__top p {
   margin: 6px 0 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.consultant-card__top > div {
+  min-width: 0;
+}
+
+.consultant-card__top h3,
+.consultant-proof-card__body h3,
+.profile-card h1 {
+  overflow-wrap: anywhere;
+}
+
+.consultant-card__top p,
+.consultant-proof-card__body p,
+.profile-card__headline {
+  overflow-wrap: anywhere;
+}
+
+.consultant-card h3 {
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
 }
 
 .rating-pill {
@@ -705,6 +862,7 @@ textarea {
   color: white;
   font-weight: 800;
   box-shadow: 0 14px 26px rgba(10, 102, 194, 0.22);
+  flex-shrink: 0;
 }
 
 .chip {
@@ -726,6 +884,7 @@ textarea {
   flex-wrap: wrap;
   color: var(--muted);
   font-size: 0.92rem;
+  row-gap: 8px;
 }
 
 .consultant-card__meta span::after,
@@ -742,6 +901,93 @@ textarea {
 
 .section--alt {
   padding-bottom: 18px;
+}
+
+.consultant-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 320px;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.consultant-proof-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  min-width: 0;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.consultant-proof-card img {
+  width: 100%;
+  aspect-ratio: 1 / 0.84;
+  min-height: 220px;
+  object-fit: cover;
+  background: #e8eef6;
+}
+
+.consultant-proof-card__body {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  align-content: start;
+  height: 100%;
+  min-width: 0;
+}
+
+.consultant-proof-card__body .consultant-card__meta:last-child {
+  margin-top: auto;
+}
+
+.consultant-proof-card__body p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.consultant-proof-panel {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.consultant-proof-panel::before {
+  content: "";
+  position: absolute;
+  inset: auto -84px -72px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.1), transparent 68%);
+  pointer-events: none;
+}
+
+.consultant-proof-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.consultant-proof-panel p {
+  margin: 0;
+}
+
+.consultant-proof-panel .page-list {
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.consultant-journey-grid .journey-card {
+  height: 100%;
 }
 
 .journey-grid {
@@ -815,6 +1061,8 @@ textarea {
   display: flex;
   gap: 24px;
   overflow: hidden;
+  align-items: start;
+  min-width: 0;
 }
 
 .profile-card__avatar {
@@ -824,10 +1072,28 @@ textarea {
   flex-shrink: 0;
 }
 
+.profile-card > div {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+}
+
 .booking-card img {
   aspect-ratio: 1 / 0.86;
   border-radius: 20px;
   margin-top: 16px;
+}
+
+.booking-card,
+.booking-panel {
+  position: sticky;
+  top: 106px;
+  align-self: start;
+}
+
+.booking-card > span:not(.status-badge) {
+  color: var(--text-soft);
+  line-height: 1.6;
 }
 
 .consultant-detail-grid {
@@ -1025,11 +1291,13 @@ textarea {
 }
 
 .slot-button {
+  min-height: 52px;
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid var(--border);
   background: white;
   text-align: left;
+  white-space: normal;
   color: var(--text-soft);
   transition:
     border-color 180ms ease,
@@ -1063,6 +1331,14 @@ textarea {
 .pricing-card {
   display: grid;
   gap: 12px;
+  min-width: 0;
+  align-content: start;
+}
+
+.pricing-card .ghost-button,
+.pricing-card .primary-button {
+  width: fit-content;
+  margin-top: auto;
 }
 
 .pricing-card--featured {
@@ -1075,6 +1351,7 @@ textarea {
 .pricing-card strong {
   margin: 4px 0 10px;
   font-size: 2rem;
+  white-space: nowrap;
 }
 
 .pricing-card ul,
@@ -1303,6 +1580,7 @@ textarea {
   .page-hero__grid,
   .profile-hero__grid,
   .consultant-detail-grid,
+  .consultant-proof-grid,
   .public-layout,
   .contact-grid,
   .mock-layout,
@@ -1331,6 +1609,15 @@ textarea {
     align-items: start;
   }
 
+  .consultants-hero .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .booking-card,
+  .booking-panel {
+    position: static;
+  }
+
   .ad-banner__actions {
     justify-items: start;
   }
@@ -1348,6 +1635,7 @@ textarea {
   .consultant-grid,
   .journey-grid,
   .pricing-grid,
+  .consultant-proof-grid,
   .contact-grid,
   .info-grid,
   .filter-bar,
@@ -1392,9 +1680,56 @@ textarea {
     flex-direction: column;
   }
 
+  .consultant-card__top {
+    flex-direction: column;
+  }
+
+  .consultants-hero .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .consultant-card__body .ghost-button,
+  .pricing-card .ghost-button,
+  .pricing-card .primary-button,
+  .consultant-proof-panel .ghost-button,
+  .consultant-proof-panel .primary-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .consultant-card__body,
+  .consultant-proof-card__body,
+  .consultant-proof-panel,
+  .booking-card,
+  .booking-panel {
+    padding: 20px;
+  }
+
+  .rating-pill {
+    min-width: 0;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 14px;
+  }
+
   .profile-card__avatar {
     width: 100%;
     height: auto;
+    aspect-ratio: 1 / 0.92;
+  }
+}
+
+@media (max-width: 640px) {
+  .consultants-hero .hero-actions .primary-button,
+  .consultants-hero .hero-actions .ghost-button,
+  .consultant-card__body .ghost-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .consultant-card img,
+  .consultant-proof-card img,
+  .booking-card img {
     aspect-ratio: 1 / 0.92;
   }
 }

@@ -43,11 +43,9 @@ type AuthScreen =
   | "forgot-request"
   | "forgot-confirm";
 
-type MockSignupStep = "account" | "membership" | "checkout";
-
 type MarketingPlan = {
   name: string;
-  price: string;
+  price?: string;
   badge: string;
   featured?: boolean;
   note: string;
@@ -63,10 +61,10 @@ const userPlans: MarketingPlan[] = [
     badge: "Старт веднага",
     note: "Подходящ за първо кариерно подреждане и ориентиране в пазара.",
     points: [
-        "Достъп до до 6 профила в каталога",
-        "1 основен CV файл в профила",
-        "Записване на консултации и история на сесиите"
-      ],
+      "Достъп до до 6 профила в каталога",
+      "1 основен CV файл в профила",
+      "Записване на консултации и история на сесиите"
+    ],
     ctaLabel: "Създай Free профил",
     ctaTo: "/auth?tab=register&plan=free&role=client"
   },
@@ -77,10 +75,10 @@ const userPlans: MarketingPlan[] = [
     featured: true,
     note: "За хора, които искат по-широк избор, по-добра подготовка и повече пространство.",
     points: [
-        "Пълен достъп до целия каталог с консултанти",
-        "Разширено място за CV, дипломи и портфолио",
-        "Приоритетни слотове и по-бърз follow-up"
-      ],
+      "Пълен достъп до целия каталог с консултанти",
+      "Разширено място за CV, дипломи и портфолио",
+      "Приоритетни слотове и по-бърз follow-up"
+    ],
     ctaLabel: "Активирай Pro",
     ctaTo: "/auth?tab=register&plan=pro&role=client"
   }
@@ -89,28 +87,26 @@ const userPlans: MarketingPlan[] = [
 const consultantPlans: MarketingPlan[] = [
   {
     name: "Free",
-    price: "0 €",
     badge: "За старт",
     note: "Създай присъствие, публикувай експертизата си и започни да приемаш заявки.",
     points: [
-        "Публичен профил с ключова специализация",
-        "Свободни часове, езици и формати на работа",
-        "Достъп до заявки от нови професионалисти"
-      ],
+      "Публичен профил с ключова специализация",
+      "Свободни часове, езици и формати на работа",
+      "Достъп до заявки от нови професионалисти"
+    ],
     ctaLabel: "Създай Free профил",
     ctaTo: "/auth?tab=register&plan=free&role=consultant"
   },
   {
     name: "Pro",
-    price: "39 € / месец",
     badge: "Премиум присъствие",
     featured: true,
     note: "За консултанти, които искат по-силно позициониране и по-представителен профил.",
-        points: [
-        "По-видимо позициониране в каталога",
-        "Разширен профил с повече секции и материали",
-        "Приоритетна поддръжка и premium поток от нови запитвания"
-      ],
+    points: [
+      "По-видимо позициониране в каталога",
+      "Разширен профил с повече секции и материали",
+      "Приоритетна поддръжка и premium поток от нови запитвания"
+    ],
     ctaLabel: "Активирай Pro",
     ctaTo: "/auth?tab=register&plan=pro&role=consultant"
   }
@@ -1073,11 +1069,12 @@ function UsersPage() {
 
 function ConsultantsPage() {
   const showcase = demoConsultants.slice(0, 6);
+  const spotlightProfiles = demoConsultants.slice(0, 2);
 
   return (
     <>
-      <section className="hero">
-        <div className="container hero__grid">
+      <section className="hero consultants-hero">
+        <div className="container hero__grid consultants-hero__grid">
           <div className="hero__copy">
             <p className="eyebrow">За консултанти</p>
             <h1>Профил, който изглежда сериозно и превръща интереса в реални заявки.</h1>
@@ -1112,7 +1109,7 @@ function ConsultantsPage() {
             </div>
           </div>
 
-          <aside className="hero__card">
+          <aside className="hero__card consultant-intro-card">
             <div className="hero__card-top">
               <span className="status-badge status-badge--success">Консултантски профил</span>
               <strong>Какво получаваш още от старт</strong>
@@ -1120,6 +1117,20 @@ function ConsultantsPage() {
                 Отделна страница за консултанти, публичен профил, свободни слотове и ясна
                 презентация на специализацията ти.
               </p>
+            </div>
+            <div className="consultant-intro-card__list">
+              <article>
+                <strong>Профил</strong>
+                <span>Кратък фокус, град, езици, формати и експертиза в ясен ред.</span>
+              </article>
+              <article>
+                <strong>Видимост</strong>
+                <span>Каталог, който изглежда професионално и на телефон, и на десктоп.</span>
+              </article>
+              <article>
+                <strong>Членство</strong>
+                <span>Free за старт и Pro за по-богато присъствие и по-висока позиция.</span>
+              </article>
             </div>
             <div className="hero__points">
               <div>
@@ -1140,6 +1151,41 @@ function ConsultantsPage() {
         </div>
       </section>
 
+      <section className="section section--tight">
+        <div className="container consultant-proof-grid">
+          {spotlightProfiles.map((consultant) => (
+            <article className="consultant-proof-card" key={consultant.consultantId}>
+              <img src={resolvePublicUrl(consultant.heroUrl)} alt={consultant.name} />
+              <div className="consultant-proof-card__body">
+                <span className={consultant.featured ? "status-badge" : "plan-pill"}>
+                  {consultant.featured ? "Подбран профил" : "Активен профил"}
+                </span>
+                <h3>{consultant.name}</h3>
+                <p>{consultant.headline}</p>
+                <div className="consultant-card__meta">
+                  <span>{consultant.city}</span>
+                  <span>{consultant.experienceYears} години опит</span>
+                  <span>{consultant.sessionModes.join(" · ")}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+          <aside className="panel consultant-proof-panel">
+            <p className="eyebrow">Как изглежда добрият каталог</p>
+            <h2>Подредени профили, видими детайли и уверен тон.</h2>
+            <p>
+              Консултантската секция трябва да е лесна за преглеждане във всеки браузър:
+              подредена решетка, ясни акценти и без визуален шум.
+            </p>
+            <ul className="page-list">
+              <li>Разпознаваем headline още в първия екран</li>
+              <li>Специализации и град без пренатрупване</li>
+              <li>Ясно разграничение между Free и Pro присъствие</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
       <PlanSection
         eyebrow="Планове за консултанти"
         title="Free присъствие за старт и Pro профил за по-силна видимост."
@@ -1148,7 +1194,7 @@ function ConsultantsPage() {
       />
 
       <section className="section section--alt">
-        <div className="container journey-grid">
+        <div className="container journey-grid consultant-journey-grid">
           <article className="journey-card">
             <span className="journey-card__step">01</span>
             <h3>Създаваш профил</h3>
@@ -3271,7 +3317,7 @@ function PlanSection({
                 {plan.badge}
               </span>
               <h3>{plan.name}</h3>
-              <strong>{plan.price}</strong>
+              {plan.price ? <strong>{plan.price}</strong> : null}
               <p className="plan-card__note">{plan.note}</p>
               <ul>
                 {plan.points.map((point) => (
