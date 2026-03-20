@@ -183,6 +183,29 @@ const userJourney = [
   }
 ] as const;
 
+const popularSearchTopics = [
+  {
+    label: "CV и LinkedIn",
+    value: "LinkedIn профил"
+  },
+  {
+    label: "Интервю подготовка",
+    value: "интервю подготовка"
+  },
+  {
+    label: "Кариерна промяна",
+    value: "кариерна промяна"
+  },
+  {
+    label: "Leadership",
+    value: "leadership"
+  },
+  {
+    label: "Executive CV",
+    value: "executive CV"
+  }
+] as const;
+
 const aboutHighlights = [
   {
     value: `${demoConsultants.length}+`,
@@ -1135,6 +1158,25 @@ function HomePage() {
               </button>
             </form>
 
+            <div className="search-shortcuts">
+              <span className="search-shortcuts__label">Популярни теми</span>
+              <div className="search-shortcuts__list">
+                {popularSearchTopics.map((topic) => (
+                  <button
+                    className="shortcut-chip"
+                    key={topic.label}
+                    type="button"
+                    onClick={() => {
+                      setQuery(topic.value);
+                      navigate(`/users?q=${encodeURIComponent(topic.value)}`);
+                    }}
+                  >
+                    {topic.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="hero-actions">
               <Link className="primary-button" to="/users">
                 За потребители
@@ -1333,6 +1375,14 @@ function UsersPage() {
     ...(profile?.keywords || []).slice(0, 2)
   ].filter(Boolean) as string[];
 
+  function applyPresetQuery(nextQuery: string) {
+    setSearchParams(
+      nextQuery || city
+        ? { q: nextQuery, city }
+        : {}
+    );
+  }
+
   return (
     <>
       <section className="hero">
@@ -1494,11 +1544,7 @@ function UsersPage() {
               <input
                 value={query}
                 onChange={(event) =>
-                  setSearchParams(
-                    event.target.value || city
-                      ? { q: event.target.value, city }
-                      : {}
-                  )
+                  applyPresetQuery(event.target.value)
                 }
                 placeholder="Executive CV, интервю, leadership, кариерна промяна..."
               />
@@ -1517,6 +1563,22 @@ function UsersPage() {
                 placeholder="София, Берлин, Лондон, Виена"
               />
             </label>
+          </div>
+
+          <div className="directory-presets">
+            <span className="search-shortcuts__label">Бързи филтри</span>
+            <div className="search-shortcuts__list">
+              {popularSearchTopics.map((topic) => (
+                <button
+                  className={`shortcut-chip ${query === topic.value ? "shortcut-chip--active" : ""}`}
+                  key={topic.label}
+                  type="button"
+                  onClick={() => applyPresetQuery(topic.value)}
+                >
+                  {topic.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="filter-actions">
