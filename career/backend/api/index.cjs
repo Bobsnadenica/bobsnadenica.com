@@ -1,0 +1,484 @@
+const { randomUUID } = require("node:crypto");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+  ScanCommand,
+  UpdateCommand
+} = require("@aws-sdk/lib-dynamodb");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
+const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const s3 = new S3Client({});
+
+const env = {
+  usersTable: process.env.USERS_TABLE,
+  consultantsTable: process.env.CONSULTANTS_TABLE,
+  bookingsTable: process.env.BOOKINGS_TABLE,
+  cvBucket: process.env.CV_BUCKET,
+  allowedOrigin: process.env.ALLOWED_ORIGIN || "*"
+};
+
+function response(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": env.allowedOrigin,
+      "Access-Control-Allow-Headers": "Content-Type,Authorization",
+      "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS"
+    },
+    body: JSON.stringify(body)
+  };
+}
+
+function badRequest(message) {
+  return response(400, { message });
+}
+
+function notFound(message) {
+  return response(404, { message });
+}
+
+function parseBody(event) {
+  if (!event.body) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(event.body);
+  } catch {
+    throw new Error("Request body must be valid JSON.");
+  }
+}
+
+function getClaims(event) {
+  return event.requestContext?.authorizer?.jwt?.claims || null;
+}
+
+function requireAuth(event) {
+  const claims = getClaims(event);
+
+  if (!claims || !claims.sub) {
+    throw Object.assign(new Error("Unauthorized"), { statusCode: 401 });
+  }
+
+  return claims;
+}
+
+async function getUserBySub(userId) {
+  const result = await dynamo.send(
+    new GetCommand({
+      TableName: env.usersTable,
+      Key: { userId }
+    })
+  );
+
+  return result.Item || null;
+}
+
+async function getConsultantBySlug(slug) {
+  const result = await dynamo.send(
+    new QueryCommand({
+      TableName: env.consultantsTable,
+      IndexName: "slug-index",
+      KeyConditionExpression: "slug = :slug",
+      ExpressionAttributeValues: {
+        ":slug": slug
+      },
+      Limit: 1
+    })
+  );
+
+  return result.Items?.[0] || null;
+}
+
+async function getConsultantByOwner(ownerUserId) {
+  const result = await dynamo.send(
+    new QueryCommand({
+      TableName: env.consultantsTable,
+      IndexName: "owner-index",
+      KeyConditionExpression: "ownerUserId = :ownerUserId",
+      ExpressionAttributeValues: {
+        ":ownerUserId": ownerUserId
+      },
+      Limit: 1
+    })
+  );
+
+  return result.Items?.[0] || null;
+}
+
+async function listConsultants(event) {
+  const query = String(event.queryStringParameters?.query || "")
+    .trim()
+    .toLowerCase();
+  const city = String(event.queryStringParameters?.city || "")
+    .trim()
+    .toLowerCase();
+
+  const result = await dynamo.send(
+    new ScanCommand({
+      TableName: env.consultantsTable
+    })
+  );
+
+  const items = (result.Items || []).filter((item) => {
+    const matchesQuery =
+      !query ||
+      item.name?.toLowerCase().includes(query) ||
+      item.headline?.toLowerCase().includes(query) ||
+      (item.specializations || []).join(" ").toLowerCase().includes(query);
+    const matchesCity = !city || item.city?.toLowerCase().includes(city);
+    return matchesQuery && matchesCity;
+  });
+
+  return response(200, items);
+}
+
+async function getConsultant(event) {
+  const slug = event.pathParameters?.slug;
+
+  if (!slug) {
+    return badRequest("Consultant slug is required.");
+  }
+
+  const consultant = await getConsultantBySlug(slug);
+
+  if (!consultant) {
+    return notFound("Consultant profile not found.");
+  }
+
+  return response(200, consultant);
+}
+
+async function bootstrapUser(event) {
+  const claims = requireAuth(event);
+  const body = parseBody(event);
+  const now = new Date().toISOString();
+
+  const existing = await getUserBySub(claims.sub);
+  const nextUser = {
+    userId: claims.sub,
+    email: claims.email || body.email || "",
+    name: body.name || claims.name || existing?.name || "",
+    role: body.role || existing?.role || "client",
+    plan: body.plan || existing?.plan || "free",
+    city: existing?.city || "",
+    headline: existing?.headline || "",
+    bio: existing?.bio || "",
+    cvDocument: existing?.cvDocument || null,
+    createdAt: existing?.createdAt || now,
+    updatedAt: now
+  };
+
+  await dynamo.send(
+    new PutCommand({
+      TableName: env.usersTable,
+      Item: nextUser
+    })
+  );
+
+  if (nextUser.role === "consultant") {
+    const existingConsultant = await getConsultantByOwner(claims.sub);
+
+    if (!existingConsultant) {
+      const slug = String(
+        (nextUser.name || claims.email || "consultant")
+          .toLowerCase()
+          .replace(/[^a-z0-9а-я]+/gi, "-")
+          .replace(/^-|-$/g, "")
+      );
+
+      await dynamo.send(
+        new PutCommand({
+          TableName: env.consultantsTable,
+          Item: {
+            consultantId: `consultant-${randomUUID()}`,
+            ownerUserId: claims.sub,
+            slug,
+            name: nextUser.name || "Нов консултант",
+            headline: "Нова публична страница на консултант",
+            bio: "Попълнете профила си от таблото.",
+            city: "София",
+            languages: ["Български"],
+            specializations: ["Кариерна консултация"],
+            experienceYears: 1,
+            priceBgn: 80,
+            sessionModes: ["Онлайн"],
+            featured: false,
+            rating: 5,
+            reviewCount: 0,
+            nextAvailable: new Date(Date.now() + 86_400_000).toISOString(),
+            avatarUrl: "/assets/consultant-1.jpg",
+            heroUrl: "/assets/consultant-1.jpg",
+            mapImageUrl: "/assets/map-static.jpg",
+            tags: ["New"],
+            availability: [new Date(Date.now() + 86_400_000).toISOString()]
+          }
+        })
+      );
+    }
+  }
+
+  return response(200, nextUser);
+}
+
+async function getMeProfile(event) {
+  const claims = requireAuth(event);
+  const user = await getUserBySub(claims.sub);
+
+  if (!user) {
+    return notFound("Profile not found. Call /auth/bootstrap first.");
+  }
+
+  return response(200, user);
+}
+
+async function updateMeProfile(event) {
+  const claims = requireAuth(event);
+  const body = parseBody(event);
+  const current = await getUserBySub(claims.sub);
+
+  if (!current) {
+    return notFound("Profile not found.");
+  }
+
+  const nextUser = {
+    ...current,
+    name: body.name ?? current.name,
+    city: body.city ?? current.city,
+    headline: body.headline ?? current.headline,
+    bio: body.bio ?? current.bio,
+    plan: body.plan ?? current.plan,
+    cvDocument: body.cvDocument ?? current.cvDocument,
+    updatedAt: new Date().toISOString()
+  };
+
+  await dynamo.send(
+    new PutCommand({
+      TableName: env.usersTable,
+      Item: nextUser
+    })
+  );
+
+  return response(200, nextUser);
+}
+
+async function getMyConsultant(event) {
+  const claims = requireAuth(event);
+  const consultant = await getConsultantByOwner(claims.sub);
+
+  if (!consultant) {
+    return notFound("Consultant profile not found.");
+  }
+
+  return response(200, consultant);
+}
+
+async function updateMyConsultant(event) {
+  const claims = requireAuth(event);
+  const body = parseBody(event);
+  const current = await getConsultantByOwner(claims.sub);
+
+  if (!current) {
+    return notFound("Consultant profile not found.");
+  }
+
+  if (body.slug && body.slug !== current.slug) {
+    const existingSlug = await getConsultantBySlug(body.slug);
+    if (existingSlug && existingSlug.consultantId !== current.consultantId) {
+      return badRequest("This slug is already in use.");
+    }
+  }
+
+  const nextConsultant = {
+    ...current,
+    slug: body.slug ?? current.slug,
+    name: body.name ?? current.name,
+    headline: body.headline ?? current.headline,
+    bio: body.bio ?? current.bio,
+    city: body.city ?? current.city,
+    experienceYears: body.experienceYears ?? current.experienceYears,
+    priceBgn: body.priceBgn ?? current.priceBgn,
+    featured: body.featured ?? current.featured,
+    rating: body.rating ?? current.rating,
+    reviewCount: body.reviewCount ?? current.reviewCount,
+    avatarUrl: body.avatarUrl ?? current.avatarUrl,
+    heroUrl: body.heroUrl ?? current.heroUrl,
+    mapImageUrl: body.mapImageUrl ?? current.mapImageUrl,
+    languages: body.languages ?? current.languages,
+    specializations: body.specializations ?? current.specializations,
+    sessionModes: body.sessionModes ?? current.sessionModes,
+    tags: body.tags ?? current.tags,
+    availability: body.availability ?? current.availability,
+    nextAvailable:
+      (body.availability && body.availability[0]) ||
+      current.nextAvailable ||
+      new Date(Date.now() + 86_400_000).toISOString()
+  };
+
+  await dynamo.send(
+    new PutCommand({
+      TableName: env.consultantsTable,
+      Item: nextConsultant
+    })
+  );
+
+  return response(200, nextConsultant);
+}
+
+async function createUploadUrl(event) {
+  const claims = requireAuth(event);
+  const body = parseBody(event);
+
+  if (!body.fileName) {
+    return badRequest("fileName is required.");
+  }
+
+  const storageKey = `profiles/${claims.sub}/${Date.now()}-${body.fileName}`;
+  const command = new PutObjectCommand({
+    Bucket: env.cvBucket,
+    Key: storageKey,
+    ContentType: body.contentType || "application/octet-stream"
+  });
+
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+
+  return response(200, {
+    uploadUrl,
+    storageKey,
+    document: {
+      fileName: body.fileName,
+      storageKey,
+      uploadedAt: new Date().toISOString()
+    }
+  });
+}
+
+async function createBooking(event) {
+  const claims = requireAuth(event);
+  const body = parseBody(event);
+
+  if (!body.consultantId || !body.scheduledAt) {
+    return badRequest("consultantId and scheduledAt are required.");
+  }
+
+  const user = await getUserBySub(claims.sub);
+
+  if (!user) {
+    return notFound("User profile not found.");
+  }
+
+  const consultantResult = await dynamo.send(
+    new GetCommand({
+      TableName: env.consultantsTable,
+      Key: { consultantId: body.consultantId }
+    })
+  );
+  const consultant = consultantResult.Item;
+
+  if (!consultant) {
+    return notFound("Consultant not found.");
+  }
+
+  const booking = {
+    bookingId: `booking-${randomUUID()}`,
+    consultantId: consultant.consultantId,
+    consultantName: consultant.name,
+    clientId: user.userId,
+    scheduledAt: body.scheduledAt,
+    status: "requested",
+    note: body.note || "",
+    createdAt: new Date().toISOString()
+  };
+
+  await dynamo.send(
+    new PutCommand({
+      TableName: env.bookingsTable,
+      Item: booking
+    })
+  );
+
+  return response(201, booking);
+}
+
+async function listBookings(event) {
+  const claims = requireAuth(event);
+  const user = await getUserBySub(claims.sub);
+
+  if (!user) {
+    return notFound("Profile not found.");
+  }
+
+  if (user.role === "consultant") {
+    const consultant = await getConsultantByOwner(claims.sub);
+
+    if (!consultant) {
+      return response(200, []);
+    }
+
+    const result = await dynamo.send(
+      new QueryCommand({
+        TableName: env.bookingsTable,
+        IndexName: "consultant-index",
+        KeyConditionExpression: "consultantId = :consultantId",
+        ExpressionAttributeValues: {
+          ":consultantId": consultant.consultantId
+        }
+      })
+    );
+
+    return response(200, result.Items || []);
+  }
+
+  const result = await dynamo.send(
+    new QueryCommand({
+      TableName: env.bookingsTable,
+      IndexName: "client-index",
+      KeyConditionExpression: "clientId = :clientId",
+      ExpressionAttributeValues: {
+        ":clientId": user.userId
+      }
+    })
+  );
+
+  return response(200, result.Items || []);
+}
+
+function health() {
+  return response(200, { ok: true, service: "careerdoc-api" });
+}
+
+exports.handler = async (event) => {
+  try {
+    if (event.requestContext?.http?.method === "OPTIONS") {
+      return response(204, {});
+    }
+
+    const method = event.requestContext?.http?.method;
+    const path = event.rawPath;
+
+    if (method === "GET" && path === "/health") return health();
+    if (method === "GET" && path === "/consultants") return listConsultants(event);
+    if (method === "GET" && path === "/consultants/me") return getMyConsultant(event);
+    if (method === "PUT" && path === "/consultants/me") return updateMyConsultant(event);
+    if (method === "GET" && /^\/consultants\/[^/]+$/.test(path)) return getConsultant(event);
+    if (method === "POST" && path === "/auth/bootstrap") return bootstrapUser(event);
+    if (method === "GET" && path === "/me/profile") return getMeProfile(event);
+    if (method === "PUT" && path === "/me/profile") return updateMeProfile(event);
+    if (method === "POST" && path === "/me/cv/upload-url") return createUploadUrl(event);
+    if (method === "GET" && path === "/bookings") return listBookings(event);
+    if (method === "POST" && path === "/bookings") return createBooking(event);
+
+    return notFound("Route not found.");
+  } catch (error) {
+    const statusCode = error.statusCode || 500;
+    return response(statusCode, {
+      message: error.message || "Unexpected server error."
+    });
+  }
+};

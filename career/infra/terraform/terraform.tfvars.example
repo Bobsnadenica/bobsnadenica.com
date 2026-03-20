@@ -1,0 +1,14 @@
+project_name     = "careerdoc"
+environment      = "prod"
+aws_region       = "eu-west-1"
+
+# For GitHub Pages project sites the browser origin is still https://<username>.github.io
+# even if the app lives under /<repo-name>/.
+frontend_origins = [
+  "https://www.bobsnadenica.com"
+]
+
+tags = {
+  Project = "CareerDoc"
+  Owner   = "YOUR_NAME"
+}
