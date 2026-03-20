@@ -30,6 +30,10 @@ export interface ConsultantProfile {
   mapImageUrl: string;
   tags: string[];
   availability: string[];
+  idealFor?: string[];
+  consultationTopics?: string[];
+  workApproach?: string;
+  sessionLengthMinutes?: number;
 }
 
 export interface UserProfile {
@@ -39,8 +43,14 @@ export interface UserProfile {
   role: UserRole;
   plan: PlanTier;
   city?: string;
+  occupation?: string;
+  age?: number | null;
   headline?: string;
   bio?: string;
+  interests?: string[];
+  keywords?: string[];
+  goals?: string;
+  preferredSessionModes?: string[];
   cvDocument?: UploadedDocument | null;
   createdAt: string;
   updatedAt: string;

@@ -1,5 +1,10 @@
 import { config, isApiConfigured } from "./config";
 import { demoBookings, demoConsultants, demoProfile } from "./demo";
+import {
+  buildPreviewConsultantProfile,
+  buildPreviewUserProfile,
+  readMockPreviewAccount
+} from "./mock-preview";
 import type {
   Booking,
   ConsultantProfile,
@@ -16,7 +21,7 @@ const STORAGE_KEYS = {
   seedVersion: "careerdoc.mock.seed-version"
 };
 
-const MOCK_SEED_VERSION = "2026-03-20-production-ui-v2";
+const MOCK_SEED_VERSION = "2026-03-20-brand-refresh-v3";
 const DEFAULT_CONSULTANT_PORTRAIT =
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80";
 const DEFAULT_WORKSPACE_SCENE =
@@ -30,7 +35,21 @@ type BootstrapInput = {
 };
 
 type UpdateProfileInput = Partial<
-  Pick<UserProfile, "name" | "city" | "headline" | "bio" | "plan" | "cvDocument">
+  Pick<
+    UserProfile,
+    | "name"
+    | "city"
+    | "occupation"
+    | "age"
+    | "headline"
+    | "bio"
+    | "interests"
+    | "keywords"
+    | "goals"
+    | "preferredSessionModes"
+    | "plan"
+    | "cvDocument"
+  >
 >;
 
 type UpdateConsultantInput = Partial<
@@ -50,6 +69,10 @@ type UpdateConsultantInput = Partial<
     | "avatarUrl"
     | "heroUrl"
     | "mapImageUrl"
+    | "idealFor"
+    | "consultationTopics"
+    | "workApproach"
+    | "sessionLengthMinutes"
   >
 > & {
   languages?: string[];
@@ -114,7 +137,24 @@ function seedMockStore() {
 
 function getStoredConsultants() {
   seedMockStore();
-  return readStorage<ConsultantProfile[]>(STORAGE_KEYS.consultants, demoConsultants);
+  const storedConsultants = readStorage<ConsultantProfile[]>(
+    STORAGE_KEYS.consultants,
+    demoConsultants
+  );
+  const previewConsultant = buildPreviewConsultantProfile(readMockPreviewAccount());
+
+  if (!previewConsultant) {
+    return storedConsultants;
+  }
+
+  return [
+    previewConsultant,
+    ...storedConsultants.filter(
+      (consultant) =>
+        consultant.consultantId !== previewConsultant.consultantId &&
+        consultant.slug !== previewConsultant.slug
+    )
+  ];
 }
 
 function filterConsultants(
@@ -130,7 +170,9 @@ function filterConsultants(
       consultant.name.toLowerCase().includes(query) ||
       consultant.headline.toLowerCase().includes(query) ||
       consultant.specializations.join(" ").toLowerCase().includes(query) ||
-      consultant.tags.join(" ").toLowerCase().includes(query);
+      consultant.tags.join(" ").toLowerCase().includes(query) ||
+      (consultant.consultationTopics || []).join(" ").toLowerCase().includes(query) ||
+      (consultant.idealFor || []).join(" ").toLowerCase().includes(query);
     const matchesCity = !city || consultant.city.toLowerCase().includes(city);
 
     return matchesQuery && matchesCity;
@@ -249,8 +291,14 @@ export const api = {
         role: input.role,
         plan: input.plan,
         city: "",
+        occupation: "",
+        age: null,
         headline: "",
         bio: "",
+        interests: [],
+        keywords: [],
+        goals: "",
+        preferredSessionModes: [],
         cvDocument: null,
         createdAt: now,
         updatedAt: now
@@ -288,7 +336,12 @@ export const api = {
           heroUrl: DEFAULT_CONSULTANT_PORTRAIT,
           mapImageUrl: DEFAULT_WORKSPACE_SCENE,
           tags: ["New"],
-          availability: [new Date(Date.now() + 86_400_000).toISOString()]
+          availability: [new Date(Date.now() + 86_400_000).toISOString()],
+          idealFor: ["Професионалисти в кариерен преход"],
+          consultationTopics: ["Кариерна стратегия", "CV и профил"],
+          workApproach:
+            "Работим с ясен фокус върху следващата стъпка, профила и подготовката за разговори.",
+          sessionLengthMinutes: 60
         };
         writeStorage(STORAGE_KEYS.consultants, [...consultants, consultantProfile]);
       }
@@ -344,10 +397,7 @@ export const api = {
     if (!isApiConfigured) {
       seedMockStore();
       const profile = getMockProfileByEmail(token);
-      const consultants = readStorage<ConsultantProfile[]>(
-        STORAGE_KEYS.consultants,
-        demoConsultants
-      );
+      const consultants = getStoredConsultants();
       const consultant = consultants.find((item) => item.ownerUserId === profile?.userId);
 
       if (!consultant) {
@@ -426,7 +476,17 @@ export const api = {
   ) {
     if (!isApiConfigured) {
       seedMockStore();
-      const profile = getMockProfileByEmail(token);
+      const profile =
+        getMockProfileByEmail(token) ||
+        (() => {
+          const previewAccount = readMockPreviewAccount();
+
+          if (previewAccount && previewAccount.email === token) {
+            return buildPreviewUserProfile(previewAccount);
+          }
+
+          return null;
+        })();
       const consultants = readStorage<ConsultantProfile[]>(
         STORAGE_KEYS.consultants,
         demoConsultants

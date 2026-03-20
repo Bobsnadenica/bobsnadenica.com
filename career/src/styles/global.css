@@ -835,6 +835,10 @@ textarea {
   min-width: 0;
 }
 
+.consultant-card__status-row {
+  margin-bottom: 10px;
+}
+
 .consultant-card__top h3,
 .consultant-proof-card__body h3,
 .profile-card h1 {
@@ -845,6 +849,11 @@ textarea {
 .consultant-proof-card__body p,
 .profile-card__headline {
   overflow-wrap: anywhere;
+}
+
+.consultant-card__match {
+  margin-top: 8px !important;
+  color: var(--primary-dark) !important;
 }
 
 .consultant-card h3 {
@@ -1134,6 +1143,9 @@ textarea {
 .summary-card,
 .helper-card,
 .info-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
   padding: 20px;
   border-radius: 24px;
   border: 1px solid var(--border);
@@ -1153,6 +1165,12 @@ textarea {
 .helper-card p,
 .info-card p {
   margin: 10px 0 0;
+}
+
+.info-card .ghost-button,
+.info-card .primary-button {
+  width: fit-content;
+  margin-top: auto;
 }
 
 .helper-grid {

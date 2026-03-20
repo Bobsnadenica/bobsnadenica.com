@@ -16,6 +16,8 @@ import { AuthProvider, useAuth } from "../lib/auth";
 import { config } from "../lib/config";
 import { demoConsultants } from "../lib/demo";
 import {
+  buildPreviewConsultantProfile,
+  buildPreviewUserProfile,
   clearMockPreviewAccount,
   readMockPreviewAccount,
   subscribeMockPreviewAccount,
@@ -36,6 +38,23 @@ import type {
 
 const FREE_DIRECTORY_LIMIT = 6;
 const PENDING_BOOTSTRAP_KEY = "careerdoc.pending-bootstrap";
+const MATCH_STOP_WORDS = new Set([
+  "and",
+  "for",
+  "the",
+  "with",
+  "или",
+  "как",
+  "при",
+  "за",
+  "на",
+  "по",
+  "в",
+  "с",
+  "от",
+  "до",
+  "към"
+]);
 
 type AuthScreen =
   | "login"
@@ -55,32 +74,38 @@ type MarketingPlan = {
   ctaTo: string;
 };
 
+type ConsultantMatch = {
+  score: number;
+  label: string;
+  note: string;
+};
+
 const userPlans: MarketingPlan[] = [
   {
     name: "Free",
     price: "0 €",
     badge: "Старт веднага",
-    note: "Подходящ за първо кариерно подреждане и ориентиране в пазара.",
+    note: "Подходящ за първо подреждане на профила, целите и избора на консултант.",
     points: [
-      "Достъп до до 6 профила в каталога",
+      "Достъп до 6 профила на кариерни консултанти",
       "1 основен CV файл в профила",
-      "Записване на консултации и история на сесиите"
+      "Заявки за консултации и история на сесиите"
     ],
     ctaLabel: "Създай Free профил",
     ctaTo: "/auth?tab=register&plan=free&role=client"
   },
   {
-    name: "Pro",
+    name: "Разширен",
     price: "19 € / месец",
-    badge: "Най-пълният достъп",
+    badge: "По-широк достъп",
     featured: true,
-    note: "За хора, които искат по-широк избор, по-добра подготовка и повече пространство.",
+    note: "За хора, които искат повече избор, повече място за материали и по-пълен работен процес.",
     points: [
-      "Пълен достъп до целия каталог с консултанти",
+      "Пълен достъп до всички кариерни консултанти",
       "Разширено място за CV, дипломи и портфолио",
-      "Приоритетни слотове и по-бърз follow-up"
+      "По-пълен профил и по-гъвкаво планиране"
     ],
-    ctaLabel: "Активирай Pro",
+    ctaLabel: "Избери разширен достъп",
     ctaTo: "/auth?tab=register&plan=pro&role=client"
   }
 ];
@@ -89,7 +114,7 @@ const consultantPlans: MarketingPlan[] = [
   {
     name: "Free",
     badge: "За старт",
-    note: "Създай присъствие, публикувай експертизата си и започни да приемаш заявки.",
+    note: "Създай присъствие, подреди професионалния си профил и започни да приемаш заявки.",
     points: [
       "Публичен профил с ключова специализация",
       "Свободни часове, езици и формати на работа",
@@ -99,16 +124,16 @@ const consultantPlans: MarketingPlan[] = [
     ctaTo: "/auth?tab=register&plan=free&role=consultant"
   },
   {
-    name: "Pro",
-    badge: "Премиум присъствие",
+    name: "Разширен",
+    badge: "По-силно присъствие",
     featured: true,
-    note: "За консултанти, които искат по-силно позициониране и по-представителен профил.",
+    note: "За консултанти, които искат по-богат профил, повече секции и по-силно публично представяне.",
     points: [
-      "По-видимо позициониране в каталога",
-      "Разширен профил с повече секции и материали",
-      "Приоритетна поддръжка и premium поток от нови запитвания"
+      "По-богат профил с допълнителни секции",
+      "Повече място за теми, подход и работен формат",
+      "По-видимо присъствие при търсене"
     ],
-    ctaLabel: "Активирай Pro",
+    ctaLabel: "Избери разширен профил",
     ctaTo: "/auth?tab=register&plan=pro&role=consultant"
   }
 ];
@@ -117,14 +142,14 @@ const homeJourney = [
   {
     step: "01",
     title: "За професионалисти",
-    text: "Откриваш консултант по фокус, град, ниво на опит и стил на работа.",
+    text: "Откриваш консултант според целите си, професионалния си профил и темата, по която търсиш подкрепа.",
     ctaLabel: "Разгледай потребителската страница",
     ctaTo: "/users"
   },
   {
     step: "02",
     title: "За консултанти",
-    text: "Изграждаш професионално присъствие и публикуваш свободни часове без излишен шум.",
+    text: "Изграждаш професионално присъствие, подреждаш профила си и публикуваш свободни часове по ясен начин.",
     ctaLabel: "Разгледай страницата за консултанти",
     ctaTo: "/consultants"
   },
@@ -158,11 +183,11 @@ const userJourney = [
 const aboutHighlights = [
   {
     value: `${demoConsultants.length}+`,
-    label: "примерни консултантски профили в production каталога"
+    label: "примерни консултантски профили в CareerLane"
   },
   {
-    value: "Free / Pro",
-    label: "ясно разграничени планове за потребители и консултанти"
+    value: "Free / Разширен",
+    label: "ясно разграничени членства за потребители и консултанти"
   },
   {
     value: "1 workspace",
@@ -181,25 +206,25 @@ const aboutPrinciples = [
   },
   {
     title: "Лек процес на работа",
-    text: "Регистрацията, входът, профилът и каталогът са подредени с минимално триене и без излишни технически детайли."
+    text: "Регистрацията, входът, профилът и достъпът до кариерни консултанти са подредени с минимално триене и без излишни технически детайли."
   }
 ] as const;
 
 const faqItems = [
   {
-    question: "Каква е разликата между Free и Pro за потребителите?",
+    question: "Каква е разликата между Free и Разширен достъп за потребителите?",
     answer:
-      "Free е подходящ за старт: базов профил, основен CV документ и достъп до подбрана част от каталога. Pro отключва целия каталог, повече пространство за документи и по-богат работен поток."
+      "Free е подходящ за старт: базов профил, основен CV документ и достъп до подбрана част от кариерните консултанти. Разширеният достъп отваря всички профили, повече пространство за документи и по-пълен работен процес."
   },
   {
     question: "Могат ли консултантите да използват платформата безплатно?",
     answer:
-      "Да. Консултантите могат да започнат с Free профил и да публикуват присъствие, специализации и свободни слотове. Pro е за по-силно позициониране и по-богат публичен профил."
+      "Да. Консултантите могат да започнат с Free профил и да публикуват присъствие, специализации и свободни слотове. Разширеният профил е за по-богато публично представяне."
   },
   {
     question: "Показват ли се публично консултантските тарифи?",
     answer:
-      "Не. В текущата публична версия акцентът е върху профила, експертизата и свободните слотове, а не върху видими тарифи в каталога."
+      "Не. В текущата публична версия акцентът е върху профила, експертизата и свободните слотове, а не върху видими тарифи."
   },
   {
     question: "Как работи регистрацията и потвърждението?",
@@ -214,7 +239,7 @@ const faqItems = [
   {
     question: "Какви документи могат да се пазят в профила?",
     answer:
-      "Free включва основен CV документ. Pro е подготвен за по-широк документен профил, включително дипломи, портфолио и допълнителни материали."
+      "Free включва основен CV документ. Разширеният достъп е подготвен за по-широк документен профил, включително дипломи, портфолио и допълнителни материали."
   },
   {
     question: "Как се заявява рекламна позиция?",
@@ -248,7 +273,7 @@ const legalSections = [
   {
     title: "Членства и платени услуги",
     points: [
-      "Free и Pro членствата имат различен обхват и видимост, описани в публичните страници на платформата.",
+      "Free и Разширеното членство имат различен обхват и видимост, описани в публичните страници на платформата.",
       "При бъдещи платени активации условията, периодът и цената следва да бъдат показани ясно преди потвърждение на покупката.",
       "Публичната версия на сайта не представлява обещание за конкретна цена извън видимото описание на членството."
     ]
@@ -309,7 +334,7 @@ function formatRoleLabel(role: UserRole) {
 }
 
 function formatPlanLabel(plan: PlanTier) {
-  return plan === "pro" ? "Pro" : "Free";
+  return plan === "pro" ? "Разширен" : "Free";
 }
 
 function formatBookingStatusLabel(status: Booking["status"]) {
@@ -337,10 +362,10 @@ function getMockPlanFeatures(role: UserRole, plan: PlanTier) {
   if (role === "consultant") {
     return plan === "pro"
       ? [
-          "Премиум позициониране в каталога",
-          "Разширен профил с повече секции",
-          "Приоритетни нови запитвания",
-          "По-представителна subscription визия"
+          "По-богат публичен профил с допълнителни секции",
+          "Повече теми, акценти и работен контекст",
+          "По-ясно присъствие при търсене",
+          "Разширено представяне на свободните часове"
         ]
       : [
           "Публичен профил за старт",
@@ -352,14 +377,14 @@ function getMockPlanFeatures(role: UserRole, plan: PlanTier) {
 
   return plan === "pro"
     ? [
-        "Пълен каталог с консултанти",
+        "Пълен достъп до всички кариерни консултанти",
         "Повече място за CV, дипломи и портфолио",
-        "Subscription панел в таблото",
+        "По-богат профил за търсене и съвпадение",
         "Разширено лично работно пространство"
       ]
     : [
         "Базов профил и основен CV документ",
-        "Достъп до подбран каталог",
+        "Достъп до подбрана част от кариерните консултанти",
         "История на заявки и сесии",
         "Лесен старт без плащане"
       ];
@@ -402,8 +427,13 @@ function getProfileCompletion(
   const baseChecks = [
     Boolean(profile.name.trim()),
     Boolean((profile.city || "").trim()),
+    Boolean((profile.occupation || "").trim()),
+    Boolean(profile.age),
     Boolean((profile.headline || "").trim()),
     Boolean((profile.bio || "").trim()),
+    Boolean((profile.interests || []).length),
+    Boolean((profile.keywords || []).length),
+    Boolean((profile.goals || "").trim()),
     Boolean(profile.cvDocument)
   ];
 
@@ -414,6 +444,9 @@ function getProfileCompletion(
           Boolean(consultantProfile?.bio.trim()),
           Boolean(consultantProfile?.specializations.length),
           Boolean(consultantProfile?.languages.length),
+          Boolean((consultantProfile?.idealFor || []).length),
+          Boolean((consultantProfile?.consultationTopics || []).length),
+          Boolean((consultantProfile?.workApproach || "").trim()),
           Boolean(consultantProfile?.availability.length)
         ]
       : [];
@@ -433,13 +466,141 @@ function getDocumentCapacityNote(plan: PlanTier) {
 function getRolePlanSummary(role: UserRole, plan: PlanTier) {
   if (role === "consultant") {
     return plan === "pro"
-      ? "Pro консултантски профил с по-силно позициониране и premium присъствие."
+      ? "Разширен консултантски профил с по-богато представяне и по-силно публично присъствие."
       : "Free консултантски профил за старт с публично присъствие и заявки.";
   }
 
   return plan === "pro"
-    ? "Pro потребителски акаунт с пълен каталог и по-широк документен профил."
-    : "Free потребителски акаунт с базов профил и подбран достъп до каталога.";
+    ? "Разширен потребителски акаунт с пълен достъп до кариерни консултанти и по-широк документен профил."
+    : "Free потребителски акаунт с базов профил и подбран достъп до кариерни консултанти.";
+}
+
+function slugifyValue(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9а-я]+/gi, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function parseListValue(value: FormDataEntryValue | null) {
+  return String(value || "")
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function tokenizeText(value: string) {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9а-я]+/gi)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2 && !MATCH_STOP_WORDS.has(token));
+}
+
+function formatSignalLabel(value: string) {
+  if (/^[a-z0-9 -]+$/i.test(value)) {
+    return value;
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getConsultantIdealFor(consultant: ConsultantProfile) {
+  return consultant.idealFor?.length ? consultant.idealFor : consultant.tags;
+}
+
+function getConsultationTopics(consultant: ConsultantProfile) {
+  return consultant.consultationTopics?.length
+    ? consultant.consultationTopics
+    : consultant.specializations;
+}
+
+function getConsultantWorkApproach(consultant: ConsultantProfile) {
+  return (
+    consultant.workApproach ||
+    "Работата е подредена около профила, целта на консултацията и конкретните следващи стъпки."
+  );
+}
+
+function getSessionLengthLabel(consultant: ConsultantProfile) {
+  return `${consultant.sessionLengthMinutes || 60} минути`;
+}
+
+function getProfileSignalTokens(profile: UserProfile) {
+  return Array.from(
+    new Set(
+      tokenizeText(
+        [
+          profile.occupation,
+          profile.headline,
+          profile.bio,
+          profile.goals,
+          ...(profile.interests || []),
+          ...(profile.keywords || [])
+        ]
+          .filter(Boolean)
+          .join(" ")
+      )
+    )
+  );
+}
+
+function getConsultantSignalTokens(consultant: ConsultantProfile) {
+  return new Set(
+    tokenizeText(
+      [
+        consultant.headline,
+        consultant.bio,
+        ...consultant.specializations,
+        ...consultant.tags,
+        ...getConsultantIdealFor(consultant),
+        ...getConsultationTopics(consultant)
+      ].join(" ")
+    )
+  );
+}
+
+function getConsultantMatch(profile: UserProfile | null, consultant: ConsultantProfile) {
+  if (!profile || profile.role !== "client") {
+    return null;
+  }
+
+  const profileTokens = getProfileSignalTokens(profile);
+
+  if (!profileTokens.length) {
+    return null;
+  }
+
+  const consultantTokens = getConsultantSignalTokens(consultant);
+  const overlaps = profileTokens.filter((token) => consultantTokens.has(token));
+  const preferredModes = profile.preferredSessionModes || [];
+  const modeMatch = preferredModes.some((mode) => consultant.sessionModes.includes(mode));
+  const cityMatch =
+    Boolean(profile.city) && consultant.city.toLowerCase() === String(profile.city).toLowerCase();
+
+  const rawScore = overlaps.length * 18 + (modeMatch ? 10 : 0) + (cityMatch ? 6 : 0);
+  const score = Math.min(98, Math.max(32, rawScore));
+
+  if (!overlaps.length && !modeMatch && !cityMatch) {
+    return null;
+  }
+
+  const reasons = overlaps.slice(0, 2).map(formatSignalLabel);
+
+  if (modeMatch) {
+    reasons.push("предпочитан формат");
+  }
+
+  const label = score >= 72 ? "Силно съвпадение" : "Добро съвпадение";
+  const note = reasons.length
+    ? `Подходящ по ${reasons.join(", ")}.`
+    : "Подходящ спрямо профила и предпочитанията ти.";
+
+  return {
+    score,
+    label,
+    note
+  } satisfies ConsultantMatch;
 }
 
 function brandMark() {
@@ -500,7 +661,8 @@ function useViewerProfile() {
     }
 
     if (!user || !token) {
-      setProfile(null);
+      const previewAccount = readMockPreviewAccount();
+      setProfile(previewAccount ? buildPreviewUserProfile(previewAccount) : null);
       setLoading(false);
       return;
     }
@@ -530,6 +692,16 @@ function useViewerProfile() {
       mounted = false;
     };
   }, [authLoading, token, user]);
+
+  useEffect(() => {
+    return subscribeMockPreviewAccount(() => {
+      if (!user || !token) {
+        const previewAccount = readMockPreviewAccount();
+        setProfile(previewAccount ? buildPreviewUserProfile(previewAccount) : null);
+        setLoading(false);
+      }
+    });
+  }, [token, user]);
 
   return {
     loading,
@@ -732,7 +904,7 @@ function HomePage() {
             <p className="hero__lede">
               CareerLane свързва професионалисти с проверени консултанти в среда,
               създадена за доверие, добра презентация и ясно разграничение между Free и
-              Pro достъп.
+              разширен достъп.
             </p>
 
             <form
@@ -751,7 +923,7 @@ function HomePage() {
                 />
               </label>
               <button className="primary-button" type="submit">
-                Търси в каталога
+                Намери консултант
               </button>
             </form>
 
@@ -770,7 +942,7 @@ function HomePage() {
                 <span>подредени по специализация, опит и град</span>
               </div>
               <div>
-                <strong>Free и Pro</strong>
+                <strong>Free и Разширен</strong>
                 <span>ясно различени членства за двете роли</span>
               </div>
               <div>
@@ -836,7 +1008,7 @@ function HomePage() {
           <aside className="ad-banner">
             <div>
               <span className="ad-banner__label">Реклама</span>
-              <h2>Позиция за работодатели, академии и премиум кариерни програми.</h2>
+              <h2>Позиция за работодатели, академии и силни кариерни програми.</h2>
               <p>
                 Рекламната зона е разположена в контекст с високо намерение за действие:
                 хора, които активно търсят кариерно решение или консултант.
@@ -856,11 +1028,11 @@ function HomePage() {
         <div className="container">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Подбран каталог</p>
+              <p className="eyebrow">Подбрани консултанти</p>
               <h2>Профили, които изглеждат уверено още на първо отваряне.</h2>
             </div>
             <Link className="ghost-button" to="/users">
-              Виж каталога за потребители
+              Виж консултантите
             </Link>
           </div>
 
@@ -879,6 +1051,7 @@ function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
   const city = searchParams.get("city") || "";
+  const { user } = useAuth();
   const { profile, plan, loading: viewerLoading } = useViewerProfile();
   const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -912,12 +1085,44 @@ function UsersPage() {
     };
   }, [city, query]);
 
+  const rankedConsultants = useMemo(() => {
+    return consultants
+      .map((consultant) => ({
+        consultant,
+        match: getConsultantMatch(profile, consultant)
+      }))
+      .sort((left, right) => {
+        const leftScore = left.match?.score || 0;
+        const rightScore = right.match?.score || 0;
+
+        if (rightScore !== leftScore) {
+          return rightScore - leftScore;
+        }
+
+        if (left.consultant.featured !== right.consultant.featured) {
+          return left.consultant.featured ? -1 : 1;
+        }
+
+        return right.consultant.rating - left.consultant.rating;
+      });
+  }, [consultants, profile]);
   const visibleConsultants = useMemo(
-    () => (plan === "pro" ? consultants : consultants.slice(0, FREE_DIRECTORY_LIMIT)),
-    [consultants, plan]
+    () =>
+      plan === "pro"
+        ? rankedConsultants
+        : rankedConsultants.slice(0, FREE_DIRECTORY_LIMIT),
+    [plan, rankedConsultants]
   );
-  const hiddenCount = Math.max(consultants.length - visibleConsultants.length, 0);
+  const hiddenCount = Math.max(rankedConsultants.length - visibleConsultants.length, 0);
   const hasActiveFilters = Boolean(query || city);
+  const topMatch = rankedConsultants.find((item) => item.match)?.consultant || null;
+  const topMatchDetails = topMatch ? getConsultantMatch(profile, topMatch) : null;
+  const profileCtaTo = user ? "/dashboard" : profile ? "/account" : "/auth?tab=register";
+  const profileSignals = [
+    profile?.occupation,
+    ...(profile?.interests || []).slice(0, 2),
+    ...(profile?.keywords || []).slice(0, 2)
+  ].filter(Boolean) as string[];
 
   return (
     <>
@@ -925,17 +1130,25 @@ function UsersPage() {
         <div className="container hero__grid">
           <div className="hero__copy">
             <p className="eyebrow">За потребители</p>
-            <h1>Избор на консултант с по-добра видимост, повече контекст и ясни членства.</h1>
+            <h1>Намираш правилния кариерен консултант с повече контекст и по-ясно съвпадение.</h1>
             <p className="hero__lede">
               Тази страница е фокусирана върху хората, които търсят консултант. Free
-              членството е силен старт, а Pro отключва целия каталог и по-богато
-              пространство за документи.
+              достъпът е силен старт, а разширеният достъп отваря всички профили,
+              по-богато пространство за документи и по-точно насочване според профила ти.
             </p>
 
             <div className="hero-stats">
               <div>
-                <strong>{plan === "pro" ? "Пълен каталог" : `${FREE_DIRECTORY_LIMIT} профила`}</strong>
-                <span>{plan === "pro" ? "видим за твоя акаунт" : "видими във Free режима"}</span>
+                <strong>
+                  {plan === "pro"
+                    ? "Пълен достъп"
+                    : `${FREE_DIRECTORY_LIMIT} профила`}
+                </strong>
+                <span>
+                  {plan === "pro"
+                    ? "до всички кариерни консултанти"
+                    : "видими във Free режима"}
+                </span>
               </div>
               <div>
                 <strong>{plan === "pro" ? "Разширен архив" : "Базов профил"}</strong>
@@ -950,14 +1163,22 @@ function UsersPage() {
 
           <aside className="hero__card">
             <div className="hero__card-top">
-              <span className={plan === "pro" ? "status-badge" : "plan-pill"}>
-                {plan === "pro" ? "Активен Pro достъп" : "Free достъп"}
+              <span className={topMatchDetails ? "status-badge status-badge--success" : "plan-pill"}>
+                {topMatchDetails ? topMatchDetails.label : plan === "pro" ? "Разширен достъп" : "Free достъп"}
               </span>
-              <strong>{plan === "pro" ? "Виждаш целия каталог" : "Виждаш подбрана част от каталога"}</strong>
+              <strong>
+                {topMatch
+                  ? `${topMatch.name} е сред най-подходящите избори за профила ти`
+                  : plan === "pro"
+                    ? "Виждаш всички кариерни консултанти"
+                    : "Виждаш подбрана част от консултантите"}
+              </strong>
               <p>
-                {plan === "pro"
-                  ? "Профилът ти отключва всички консултанти, разширени документи и по-бързо планиране."
-                  : "Pro добавя още профили за разглеждане, повече пространство за документи и по-пълен процес на работа."}
+                {topMatch && topMatchDetails
+                  ? `${topMatchDetails.note} Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред.`
+                  : plan === "pro"
+                    ? "Профилът ти отваря всички консултанти, разширени документи и по-пълен работен процес."
+                    : "Добави повече информация за себе си и при нужда премини към разширен достъп за по-широк избор."}
               </p>
             </div>
             <div className="hero__points">
@@ -966,12 +1187,27 @@ function UsersPage() {
                 <strong>{visibleConsultants.length}</strong>
               </div>
               <div>
-                <span>Още в Pro</span>
-                <strong>{hiddenCount > 0 ? `+${hiddenCount}` : "Пълен достъп"}</strong>
+                <span>{topMatchDetails ? "Съвпадение" : "Още при разширен достъп"}</span>
+                <strong>
+                  {topMatchDetails
+                    ? `${topMatchDetails.score}%`
+                    : hiddenCount > 0
+                      ? `+${hiddenCount}`
+                      : "Пълен достъп"}
+                </strong>
               </div>
             </div>
-            <Link className="primary-button" to="/auth?tab=register">
-              {plan === "pro" ? "Отвори таблото" : "Отключи Pro"}
+            {profileSignals.length ? (
+              <div className="chip-row">
+                {profileSignals.map((item) => (
+                  <span className="chip chip--soft" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <Link className="primary-button" to={profileCtaTo}>
+              {profile ? "Допълни профила си" : "Създай профил"}
             </Link>
           </aside>
         </div>
@@ -979,8 +1215,8 @@ function UsersPage() {
 
       <PlanSection
         eyebrow="Планове за потребители"
-        title="Ясно разграничение между Free и Pro за хората, които търсят консултант."
-        description="Разликата не е само в етикета. Pro дава по-голяма видимост в каталога и повече пространство за кариерните ти материали."
+        title="Ясно разграничение между Free и Разширен достъп за хората, които търсят консултант."
+        description="Разликата не е само в етикета. Разширеният достъп дава видимост към всички консултанти и повече пространство за кариерните ти материали."
         plans={userPlans}
       />
 
@@ -1000,11 +1236,11 @@ function UsersPage() {
         <div className="container">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Каталог за потребители</p>
-              <h2>Филтрирай, сравнявай и разгледай профилите в професионален вид.</h2>
+              <p className="eyebrow">Достъп до кариерни консултанти</p>
+              <h2>Филтрирай, сравнявай и намирай най-подходящите профили в професионален вид.</h2>
               <p className="section-heading__copy">
-                Подбраният каталог е лесен за сканиране. Във Free виждаш част от профилите,
-                а в Pro отключваш пълния списък и по-богато лично работно пространство.
+                Списъкът е подреден така, че да се ориентираш бързо. Ако имаш попълнен
+                профил, CareerLane подрежда по-напред консултантите с най-близко съвпадение.
               </p>
             </div>
           </div>
@@ -1049,8 +1285,8 @@ function UsersPage() {
             >
               Изчисти филтрите
             </button>
-            <Link className="ghost-button" to={profile ? "/dashboard" : "/auth"}>
-              {profile ? "Отвори моето табло" : "Влез за персонален достъп"}
+            <Link className="ghost-button" to={profileCtaTo}>
+              {profile ? "Отвори профила си" : "Влез за персонален достъп"}
             </Link>
           </div>
 
@@ -1063,21 +1299,25 @@ function UsersPage() {
           ) : null}
 
           <div className="consultant-grid">
-            {visibleConsultants.map((consultant) => (
-              <ConsultantCard key={consultant.consultantId} consultant={consultant} />
+            {visibleConsultants.map(({ consultant, match }) => (
+              <ConsultantCard
+                key={consultant.consultantId}
+                consultant={consultant}
+                match={match}
+              />
             ))}
           </div>
 
           {hiddenCount > 0 ? (
             <div className="panel unlock-panel">
-              <p className="eyebrow">Pro видимост</p>
-              <h2>Още {hiddenCount} профила чакат зад Pro достъпа.</h2>
+              <p className="eyebrow">Разширен достъп</p>
+              <h2>Още {hiddenCount} профила се отварят при разширения достъп.</h2>
               <p>
-                Надгради, за да разгледаш целия каталог, да запазиш повече материали и да
-                работиш с по-пълен личен профил.
+                Ако искаш по-широк избор, повече материали и по-пълен работен профил,
+                можеш да преминеш към разширения достъп.
               </p>
               <Link className="primary-button" to="/auth?tab=register">
-                Активирай Pro
+                Виж разширения достъп
               </Link>
             </div>
           ) : null}
@@ -1100,8 +1340,8 @@ function ConsultantsPage() {
             <h1>Профил, който изглежда сериозно и превръща интереса в реални заявки.</h1>
             <p className="hero__lede">
               Страницата за консултанти е отделена ясно от потребителската част. Тук
-              акцентът е върху представянето, видимостта в каталога и разликата между Free
-              и Pro профил.
+              акцентът е върху представянето, публичния профил, свободните часове и
+              разликата между Free и разширения профил.
             </p>
 
             <div className="hero-actions">
@@ -1119,8 +1359,8 @@ function ConsultantsPage() {
                 <span>без бариера за първоначално присъствие</span>
               </div>
               <div>
-                <strong>Pro позициониране</strong>
-                <span>за по-богат профил и по-висока видимост</span>
+                <strong>Разширен профил</strong>
+                <span>за по-богато представяне и повече работен контекст</span>
               </div>
               <div>
                 <strong>Професионална визия</strong>
@@ -1145,11 +1385,11 @@ function ConsultantsPage() {
               </article>
               <article>
                 <strong>Видимост</strong>
-                <span>Каталог, който изглежда професионално и на телефон, и на десктоп.</span>
+                <span>Достъп до профили, който изглежда професионално и на телефон, и на десктоп.</span>
               </article>
               <article>
                 <strong>Членство</strong>
-                <span>Free за старт и Pro за по-богато присъствие и по-висока позиция.</span>
+                <span>Free за старт и разширен профил за по-богато присъствие.</span>
               </article>
             </div>
             <div className="hero__points">
@@ -1158,8 +1398,8 @@ function ConsultantsPage() {
                 <strong>Да</strong>
               </div>
               <div>
-                <span>Pro надграждане</span>
-                <strong>Налично</strong>
+                <span>Разширен профил</span>
+                <strong>Наличен</strong>
               </div>
             </div>
             <div className="chip-row">
@@ -1191,7 +1431,7 @@ function ConsultantsPage() {
             </article>
           ))}
           <aside className="panel consultant-proof-panel">
-            <p className="eyebrow">Как изглежда добрият каталог</p>
+            <p className="eyebrow">Как изглежда добрият списък</p>
             <h2>Подредени профили, видими детайли и уверен тон.</h2>
             <p>
               Консултантската секция трябва да е лесна за преглеждане във всеки браузър:
@@ -1200,7 +1440,7 @@ function ConsultantsPage() {
             <ul className="page-list">
               <li>Разпознаваем headline още в първия екран</li>
               <li>Специализации и град без пренатрупване</li>
-              <li>Ясно разграничение между Free и Pro присъствие</li>
+              <li>Ясно разграничение между Free и разширено присъствие</li>
             </ul>
           </aside>
         </div>
@@ -1208,8 +1448,8 @@ function ConsultantsPage() {
 
       <PlanSection
         eyebrow="Планове за консултанти"
-        title="Free присъствие за старт и Pro профил за по-силна видимост."
-        description="Тук не показваме консултантски тарифи за сесии. Акцентът е върху качеството на профила и членството в платформата."
+        title="Free присъствие за старт и разширен профил за по-силно представяне."
+        description="Тук не показваме консултантски тарифи за сесии. Акцентът е върху качеството на профила, свободните часове и професионалното представяне."
         plans={consultantPlans}
       />
 
@@ -1223,12 +1463,12 @@ function ConsultantsPage() {
           <article className="journey-card">
             <span className="journey-card__step">02</span>
             <h3>Получаваш видимост</h3>
-            <p>Потребителите разглеждат профила ти в отделния каталог за търсещи консултант.</p>
+            <p>Потребителите разглеждат профила ти в отделния списък за търсещи кариерен консултант.</p>
           </article>
             <article className="journey-card">
               <span className="journey-card__step">03</span>
-              <h3>Надграждаш към Pro</h3>
-              <p>При нужда от premium присъствие преминаваш към Pro профил с по-силно позициониране.</p>
+              <h3>Надграждаш профила</h3>
+              <p>При нужда от по-богато присъствие преминаваш към разширен профил с повече секции и контекст.</p>
             </article>
         </div>
       </section>
@@ -1238,7 +1478,7 @@ function ConsultantsPage() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">Мокъп на мрежата</p>
-              <h2>Повече активни консултанти за реалистичен production каталог.</h2>
+              <h2>Повече активни консултанти за реалистична CareerLane среда.</h2>
             </div>
           </div>
 
@@ -1279,14 +1519,14 @@ function AboutPage() {
 
           <aside className="panel page-side-card">
             <p className="eyebrow">Какво стои зад продукта</p>
-            <h2>Професионална структура, а не шумен каталог.</h2>
+            <h2>Професионална структура, а не шумен списък.</h2>
             <p>
               В основата на CareerLane са ясно разграничени роли, добра навигация и
               подредено представяне на профили, документи и следващи действия.
             </p>
             <div className="chip-row">
               <span className="chip">Trust-first UX</span>
-              <span className="chip">Free / Pro модел</span>
+              <span className="chip">Free / Разширен модел</span>
               <span className="chip">Професионално присъствие</span>
             </div>
           </aside>
@@ -1524,8 +1764,8 @@ function AccountPage() {
             <p className="eyebrow">Профил и членство</p>
             <h2>Все още няма създаден профил.</h2>
             <p>
-              Създай профил от регистрацията, за да видиш как изглеждат Free / Pro
-              възможностите и subscription управлението.
+              Създай профил от регистрацията, за да видиш как изглеждат профилът,
+              членството и достъпът до кариерни консултанти в CareerLane.
             </p>
             <Link className="primary-button" to="/auth?tab=register">
               Създай профил
@@ -1549,16 +1789,35 @@ function AccountPage() {
     setMessage(nextMessage);
   }
 
+  const previewProfile = buildPreviewUserProfile(account);
+  const previewConsultant = buildPreviewConsultantProfile(account);
   const featureList = getMockPlanFeatures(account.role, account.plan);
   const price =
     account.plan === "pro" ? getMockProPrice(account.role, account.billingCycle) : 0;
   const visibleProfiles =
-    account.plan === "pro" ? demoConsultants.length : FREE_DIRECTORY_LIMIT;
+    account.plan === "pro"
+      ? demoConsultants.length + (previewConsultant ? 1 : 0)
+      : FREE_DIRECTORY_LIMIT;
   const documentLabel = getMockStorageLabel(account.plan);
   const mockDocuments =
     account.plan === "pro"
       ? ["CV-2026.pdf", "Leadership-diploma.pdf", "Portfolio.pdf", "Case-study.pdf"]
       : ["CV-2026.pdf"];
+  const profileSignals = [
+    account.occupation,
+    ...(account.interests || []).slice(0, 2),
+    ...(account.keywords || []).slice(0, 2)
+  ].filter(Boolean) as string[];
+  const matchedConsultants =
+    account.role === "client"
+      ? demoConsultants
+          .map((consultant) => ({
+            consultant,
+            match: getConsultantMatch(previewProfile, consultant)
+          }))
+          .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
+          .slice(0, 3)
+      : [];
 
   function upgradeToPro() {
     navigate(`/auth?tab=register&plan=pro&role=${account.role}`);
@@ -1588,8 +1847,8 @@ function AccountPage() {
         nextBillingAt: nextStatus === "active" ? buildMockNextBillingDate(account.billingCycle) : null
       },
       nextStatus === "active"
-        ? "Subscription е реактивиран."
-        : "Subscription е маркиран като cancelled."
+        ? "Членството беше активирано отново."
+        : "Членството беше спряно."
     );
   }
 
@@ -1607,7 +1866,73 @@ function AccountPage() {
         paymentLast4: nextLast4,
         nextBillingAt: buildMockNextBillingDate(billingForm.billingCycle)
       },
-      "Billing информацията е обновена."
+      "Информацията за членството беше обновена."
+    );
+  }
+
+  function savePreviewProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const nextAge = Number(formData.get("age") || 0);
+
+    persist(
+      {
+        ...account,
+        name: String(formData.get("name") || account.name).trim(),
+        city: String(formData.get("city") || account.city).trim(),
+        occupation: String(formData.get("occupation") || "").trim(),
+        age: Number.isFinite(nextAge) && nextAge > 0 ? nextAge : null,
+        headline: String(formData.get("headline") || account.headline).trim(),
+        bio: String(formData.get("bio") || account.bio || "").trim(),
+        goals: String(formData.get("goals") || account.goals || "").trim(),
+        interests: parseListValue(formData.get("interests")),
+        keywords: parseListValue(formData.get("keywords")),
+        preferredSessionModes: parseListValue(formData.get("preferredSessionModes"))
+      },
+      "Профилът за съвпадение беше обновен."
+    );
+  }
+
+  function savePreviewConsultantProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const sessionLength = Number(formData.get("consultantSessionLengthMinutes") || 60);
+    const experienceYears = Number(formData.get("consultantExperienceYears") || 1);
+    const displayName = String(
+      formData.get("consultantDisplayName") || account.consultantDisplayName || account.name
+    ).trim();
+
+    persist(
+      {
+        ...account,
+        city: String(formData.get("consultantCity") || account.city).trim(),
+        headline: String(formData.get("consultantHeadline") || account.headline).trim(),
+        consultantSlug:
+          String(formData.get("consultantSlug") || "").trim() || slugifyValue(displayName),
+        consultantDisplayName: displayName,
+        consultantBio: String(
+          formData.get("consultantBio") || account.consultantBio || account.bio || ""
+        ).trim(),
+        consultantExperienceYears:
+          Number.isFinite(experienceYears) && experienceYears > 0 ? experienceYears : 1,
+        consultantLanguages: parseListValue(formData.get("consultantLanguages")),
+        consultantSpecializations: parseListValue(formData.get("consultantSpecializations")),
+        consultantSessionModes: parseListValue(formData.get("consultantSessionModes")),
+        consultantTags: parseListValue(formData.get("consultantTags")),
+        consultantIdealFor: parseListValue(formData.get("consultantIdealFor")),
+        consultantConsultationTopics: parseListValue(
+          formData.get("consultantConsultationTopics")
+        ),
+        consultantWorkApproach: String(
+          formData.get("consultantWorkApproach") || account.consultantWorkApproach || ""
+        ).trim(),
+        consultantAvailability: parseListValue(formData.get("consultantAvailability")),
+        consultantSessionLengthMinutes:
+          Number.isFinite(sessionLength) && sessionLength > 0 ? sessionLength : 60
+      },
+      "Публичният консултантски профил беше обновен."
     );
   }
 
@@ -1617,10 +1942,10 @@ function AccountPage() {
         <div className="container page-hero__grid">
           <div className="page-intro">
             <p className="eyebrow">Профил и членство</p>
-            <h1>Преглед на Free / Pro акаунт, subscription статус и отключени възможности.</h1>
+            <h1>Профилът ти в CareerLane е мястото, от което започват съвпадението, подготовката и следващите разговори.</h1>
             <p className="hero__lede">
-              Това табло показва как ще изглеждат профилът, членството, документите и
-              subscription управлението след регистрация.
+              Тук подреждаш как изглеждаш като професионалист или консултант, какво
+              търсиш и как CareerLane да насочва по-подходящите срещи и профили.
             </p>
             <div className="hero-stats">
               <div>
@@ -1633,19 +1958,28 @@ function AccountPage() {
               </div>
               <div>
                 <strong>{visibleProfiles}</strong>
-                <span>видими профили в каталога</span>
+                <span>видими профили на кариерни консултанти</span>
               </div>
             </div>
           </div>
 
           <aside className="panel page-side-card">
-            <p className="eyebrow">Account summary</p>
+            <p className="eyebrow">Обобщение</p>
             <h2>{account.name}</h2>
             <p>{account.headline}</p>
             <div className="chip-row">
               <span className="chip chip--soft">{account.city}</span>
               <span className="chip chip--soft">{account.email}</span>
             </div>
+            {profileSignals.length ? (
+              <div className="chip-row">
+                {profileSignals.map((item) => (
+                  <span className="chip" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <div className="dashboard-actions">
               <Link className="ghost-button" to={`/auth?tab=register&plan=${account.plan}&role=${account.role}`}>
                 Редактирай регистрацията
@@ -1671,9 +2005,13 @@ function AccountPage() {
 
           <div className="summary-grid">
             <article className="summary-card">
-              <span className="plan-pill">Каталог</span>
-              <strong>{visibleProfiles === demoConsultants.length ? "Пълен достъп" : `${visibleProfiles} профила`}</strong>
-              <p>{account.plan === "pro" ? "Отключен е целият каталог." : "Вижда се подбран каталог във Free режима."}</p>
+              <span className="plan-pill">Достъп</span>
+              <strong>{visibleProfiles === demoConsultants.length + (previewConsultant ? 1 : 0) ? "Пълен достъп" : `${visibleProfiles} профила`}</strong>
+              <p>
+                {account.plan === "pro"
+                  ? "Виждаш всички налични кариерни консултанти."
+                  : "Виждаш подбрана част от консултантите във Free режима."}
+              </p>
             </article>
             <article className="summary-card">
               <span className="plan-pill">Документи</span>
@@ -1681,12 +2019,12 @@ function AccountPage() {
               <p>{account.plan === "pro" ? "Разширен документен профил." : "Базово пространство за един активен файл."}</p>
             </article>
             <article className="summary-card">
-              <span className="plan-pill">Subscription</span>
+              <span className="plan-pill">Членство</span>
               <strong>{account.plan === "pro" ? formatEuro(price) : "0 €"}</strong>
               <p>
                 {account.plan === "pro"
-                  ? `${account.billingCycle === "monthly" ? "Месечно" : "Годишно"} таксуване`
-                  : "Без subscription"}
+                  ? `${account.billingCycle === "monthly" ? "Месечно" : "Годишно"} подновяване`
+                  : "Без платено членство"}
               </p>
             </article>
             <article className="summary-card">
@@ -1694,8 +2032,8 @@ function AccountPage() {
               <strong>
                 {account.plan === "pro"
                   ? account.subscriptionStatus === "active"
-                    ? "Active"
-                    : "Cancelled"
+                    ? "Активно"
+                    : "Спряно"
                   : "Free"}
               </strong>
               <p>{account.nextBillingAt ? `Следващо подновяване: ${formatDate(account.nextBillingAt)}` : "Няма планирано подновяване."}</p>
@@ -1708,14 +2046,130 @@ function AccountPage() {
         <div className="container public-layout">
           <div className="panel-stack">
             <article className="panel">
-              <p className="eyebrow">Unlocked features</p>
-              <h2>Какво вижда този акаунт</h2>
+              <p className="eyebrow">Какво включва профилът</p>
+              <h2>Какво получава този акаунт</h2>
               <ul className="feature-list">
                 {featureList.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
             </article>
+
+            <form className="panel form-stack" onSubmit={savePreviewProfile}>
+              <h2>Профил за съвпадение</h2>
+              <p className="section-caption">
+                Този профил помага на CareerLane да подреди по-подходящите кариерни
+                консултанти в търсенето и да изгради по-ясна картина за посоката ти.
+              </p>
+              <div className="two-column">
+                <label>
+                  Име
+                  <input name="name" defaultValue={account.name} required />
+                </label>
+                <label>
+                  Град
+                  <input name="city" defaultValue={account.city} placeholder="Например: София" />
+                </label>
+              </div>
+              <div className="two-column">
+                <label>
+                  Професия / роля
+                  <input
+                    name="occupation"
+                    defaultValue={account.occupation || ""}
+                    placeholder="Например: Product manager"
+                  />
+                </label>
+                <label>
+                  Възраст
+                  <input
+                    name="age"
+                    type="number"
+                    min="16"
+                    defaultValue={account.age || ""}
+                    placeholder="Например: 32"
+                  />
+                </label>
+              </div>
+              <label>
+                Профилно заглавие
+                <input
+                  name="headline"
+                  defaultValue={account.headline}
+                  placeholder="Например: Product manager в преход към leadership роля"
+                  required
+                />
+              </label>
+              <label>
+                Професионално описание
+                <textarea
+                  name="bio"
+                  rows={5}
+                  defaultValue={account.bio || ""}
+                  placeholder="Разкажи накратко за опита си, етапа, в който се намираш, и какво искаш да подобриш."
+                />
+              </label>
+              <label>
+                Какво търсиш в момента
+                <textarea
+                  name="goals"
+                  rows={4}
+                  defaultValue={account.goals || ""}
+                  placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
+                />
+              </label>
+              <div className="two-column">
+                <label>
+                  Интереси
+                  <input
+                    name="interests"
+                    defaultValue={(account.interests || []).join(", ")}
+                    placeholder="Leadership roles, international teams, salary negotiation"
+                  />
+                </label>
+                <label>
+                  Ключови думи
+                  <input
+                    name="keywords"
+                    defaultValue={(account.keywords || []).join(", ")}
+                    placeholder="Product, leadership, career transition"
+                  />
+                </label>
+              </div>
+              <label>
+                Предпочитан формат
+                <input
+                  name="preferredSessionModes"
+                  defaultValue={(account.preferredSessionModes || []).join(", ")}
+                  placeholder="Онлайн, В офис"
+                />
+              </label>
+              <button className="primary-button" type="submit">
+                Запази профила
+              </button>
+            </form>
+
+            {account.role === "client" ? (
+              <article className="panel">
+                <p className="eyebrow">Подходящи консултанти</p>
+                <h2>CareerLane ще подреди по-напред тези профили за теб</h2>
+                <div className="info-grid">
+                  {matchedConsultants.map(({ consultant, match }) => (
+                    <article className="info-card" key={consultant.consultantId}>
+                      <span className={match ? "status-badge status-badge--success" : "plan-pill"}>
+                        {match ? `${match.score}% съвпадение` : "Профил"}
+                      </span>
+                      <h3>{consultant.name}</h3>
+                      <p>{consultant.headline}</p>
+                      <p>{match?.note || "Подреди профила си още малко, за да получиш по-точно насочване."}</p>
+                      <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
+                        Виж профила
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              </article>
+            ) : null}
 
             <article className="panel">
               <p className="eyebrow">Документи</p>
@@ -1730,40 +2184,199 @@ function AccountPage() {
               </div>
             </article>
 
-            <article className="panel">
-              <p className="eyebrow">Actions</p>
-              <h2>Промени състоянието на акаунта</h2>
-              <div className="dashboard-actions">
-                {account.plan === "free" ? (
-                  <button className="primary-button" type="button" onClick={upgradeToPro}>
-                    Премини към Pro
+            {account.role === "consultant" ? (
+              <>
+                <form className="panel form-stack" onSubmit={savePreviewConsultantProfile}>
+                  <h2>Публичен консултантски профил</h2>
+                  <p className="section-caption">
+                    Това е профилът, който хората ще виждат, когато търсят кариерен
+                    консултант. Подреди го като професионална практика, а не просто като визитка.
+                  </p>
+                  <div className="two-column">
+                    <label>
+                      Публично име
+                      <input
+                        name="consultantDisplayName"
+                        defaultValue={account.consultantDisplayName || account.name}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Slug
+                      <input
+                        name="consultantSlug"
+                        defaultValue={
+                          account.consultantSlug ||
+                          slugifyValue(account.consultantDisplayName || account.name)
+                        }
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Град
+                      <input
+                        name="consultantCity"
+                        defaultValue={account.city}
+                        placeholder="Например: София"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Години опит
+                      <input
+                        name="consultantExperienceYears"
+                        type="number"
+                        min="1"
+                        defaultValue={account.consultantExperienceYears || 1}
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Заглавие
+                    <input
+                      name="consultantHeadline"
+                      defaultValue={account.headline}
+                      placeholder="Например: Консултант за leadership преходи и executive позициониране"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Биография
+                    <textarea
+                      name="consultantBio"
+                      rows={5}
+                      defaultValue={account.consultantBio || account.bio || ""}
+                      placeholder="Опиши с кого работиш, по какви теми и какъв е начинът ти на работа."
+                    />
+                  </label>
+                  <div className="two-column">
+                    <label>
+                      Езици
+                      <input
+                        name="consultantLanguages"
+                        defaultValue={(account.consultantLanguages || ["Български"]).join(", ")}
+                        placeholder="Български, English"
+                      />
+                    </label>
+                    <label>
+                      Формати на работа
+                      <input
+                        name="consultantSessionModes"
+                        defaultValue={(account.consultantSessionModes || ["Онлайн"]).join(", ")}
+                        placeholder="Онлайн, В офис"
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Специализации
+                    <input
+                      name="consultantSpecializations"
+                      defaultValue={(account.consultantSpecializations || []).join(", ")}
+                      placeholder="CV review, interview preparation, leadership roles"
+                    />
+                  </label>
+                  <label>
+                    Основни теми на консултацията
+                    <input
+                      name="consultantConsultationTopics"
+                      defaultValue={(account.consultantConsultationTopics || []).join(", ")}
+                      placeholder="Кариерна стратегия, LinkedIn, интервю подготовка"
+                    />
+                  </label>
+                  <label>
+                    Подходящо за
+                    <input
+                      name="consultantIdealFor"
+                      defaultValue={(account.consultantIdealFor || []).join(", ")}
+                      placeholder="Mid-senior professionals, career transition, leadership moves"
+                    />
+                  </label>
+                  <label>
+                    Как протича работата
+                    <textarea
+                      name="consultantWorkApproach"
+                      rows={4}
+                      defaultValue={account.consultantWorkApproach || ""}
+                      placeholder="Опиши кратко процеса, как подготвяш клиента и какво да очаква от консултацията."
+                    />
+                  </label>
+                  <div className="two-column">
+                    <label>
+                      Тагове
+                      <input
+                        name="consultantTags"
+                        defaultValue={(account.consultantTags || []).join(", ")}
+                        placeholder="Leadership, Product, Career change"
+                      />
+                    </label>
+                    <label>
+                      Продължителност на сесия
+                      <input
+                        name="consultantSessionLengthMinutes"
+                        type="number"
+                        min="30"
+                        step="15"
+                        defaultValue={account.consultantSessionLengthMinutes || 60}
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Свободни часове
+                    <textarea
+                      name="consultantAvailability"
+                      rows={5}
+                      defaultValue={(account.consultantAvailability || []).join("\n")}
+                      placeholder="2026-03-25T09:00:00.000Z"
+                    />
+                  </label>
+                  <button className="primary-button" type="submit">
+                    Запази публичния профил
                   </button>
-                ) : (
-                  <>
-                    <button className="ghost-button" type="button" onClick={toggleSubscriptionStatus}>
-                      {account.subscriptionStatus === "active"
-                        ? "Маркирай като cancelled"
-                        : "Реактивирай subscription"}
-                    </button>
-                    <button className="ghost-button" type="button" onClick={downgradeToFree}>
-                      Върни към Free
-                    </button>
-                  </>
-                )}
-                <Link className="ghost-button" to="/users">
-                  Виж каталога
-                </Link>
-              </div>
-            </article>
+                </form>
+
+                {previewConsultant ? (
+                  <article className="panel">
+                    <p className="eyebrow">Публичен преглед</p>
+                    <h2>{previewConsultant.name}</h2>
+                    <p className="section-caption">{previewConsultant.headline}</p>
+                    <div className="chip-row">
+                      {previewConsultant.specializations.map((item) => (
+                        <span className="chip" key={item}>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="summary-grid">
+                      <article className="summary-card">
+                        <span className="plan-pill">Подходящо за</span>
+                        <strong>{getConsultantIdealFor(previewConsultant).slice(0, 2).join(" · ") || "Общ профил"}</strong>
+                        <p>CareerLane ще използва тази секция при подреждането в търсенето.</p>
+                      </article>
+                      <article className="summary-card">
+                        <span className="plan-pill">Сесия</span>
+                        <strong>{getSessionLengthLabel(previewConsultant)}</strong>
+                        <p>{previewConsultant.sessionModes.join(" · ")}</p>
+                      </article>
+                    </div>
+                    <p>{getConsultantWorkApproach(previewConsultant)}</p>
+                    <Link className="primary-button" to={`/consultants/${previewConsultant.slug}`}>
+                      Виж публичния профил
+                    </Link>
+                  </article>
+                ) : null}
+              </>
+            ) : null}
           </div>
 
           <aside className="panel page-side-card">
-            <p className="eyebrow">Billing</p>
-            <h2>{account.plan === "pro" ? "Управление на subscription" : "Free акаунт"}</h2>
+            <p className="eyebrow">Членство</p>
+            <h2>{account.plan === "pro" ? "Управление на членството" : "Free акаунт"}</h2>
             {account.plan === "pro" ? (
               <form className="form-stack" onSubmit={saveBillingPreview}>
                 <label>
-                  Billing cycle
+                  Период
                   <select
                     value={billingForm.billingCycle}
                     onChange={(event) =>
@@ -1778,7 +2391,7 @@ function AccountPage() {
                   </select>
                 </label>
                 <label>
-                  Card number
+                  Номер на карта
                   <input
                     value={billingForm.cardNumber}
                     onChange={(event) =>
@@ -1788,24 +2401,56 @@ function AccountPage() {
                   />
                 </label>
                 <div className="panel panel--subtle">
-                  <strong>Payment method</strong>
+                  <strong>Метод на плащане</strong>
                   <p>Visa ending in {account.paymentLast4 || "4242"}</p>
                 </div>
                 <button className="primary-button" type="submit">
-                  Запази subscription
+                  Запази членството
                 </button>
               </form>
             ) : (
               <div className="panel panel--subtle">
-                <strong>Free status</strong>
+                <strong>Free статус</strong>
                 <p>
-                  За да видиш checkout и billing детайли, премини към Pro регистрация.
+                  Ако искаш повече видими консултанти, по-богат профил и повече
+                  пространство за материали, премини към разширен достъп.
                 </p>
                 <button className="primary-button" type="button" onClick={upgradeToPro}>
-                  Активирай Pro
+                  Виж разширения достъп
                 </button>
               </div>
             )}
+            <div className="panel panel--subtle">
+              <strong>Директен достъп</strong>
+              <p>
+                {account.role === "consultant"
+                  ? "Отвори публичната си страница и прегледай как изглеждат свободните ти часове."
+                  : "Разгледай подредения списък с кариерни консултанти и виж кои профили CareerLane извежда по-напред за теб."}
+              </p>
+              <Link className="ghost-button" to={account.role === "consultant" ? "/consultants" : "/users"}>
+                {account.role === "consultant"
+                  ? "Към страницата за консултанти"
+                  : "Към търсенето на консултанти"}
+              </Link>
+            </div>
+            <div className="dashboard-actions">
+              {account.plan === "free" ? (
+                <button className="ghost-button" type="button" onClick={upgradeToPro}>
+                  Премини към разширен достъп
+                </button>
+              ) : (
+                <>
+                  <button className="ghost-button" type="button" onClick={toggleSubscriptionStatus}>
+                    {account.subscriptionStatus === "active"
+                      ? "Спри подновяването"
+                      : "Активирай отново"}
+                  </button>
+                  <button className="ghost-button" type="button" onClick={downgradeToFree}>
+                    Върни към Free
+                  </button>
+                </>
+              )}
+            </div>
           </aside>
         </div>
       </section>
@@ -1957,6 +2602,7 @@ function ConsultantPage() {
   const { slug = "" } = useParams();
   const { user, token } = useAuth();
   const navigate = useNavigate();
+  const previewAccount = useMockPreviewSnapshot();
   const [consultant, setConsultant] = useState<ConsultantProfile | null>(null);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [note, setNote] = useState("");
@@ -2000,18 +2646,25 @@ function ConsultantPage() {
     setMessage("");
     setError("");
 
-    if (!user) {
+    const bookingToken =
+      user && token
+        ? token
+        : previewAccount?.role === "client"
+          ? previewAccount.email
+          : "";
+
+    if (!bookingToken) {
       navigate(`/auth?redirect=${encodeURIComponent(`/consultants/${consultant.slug}`)}`);
       return;
     }
 
     try {
-      await api.createBooking(token, {
+      await api.createBooking(bookingToken, {
         consultantId: consultant.consultantId,
         scheduledAt: selectedSlot,
         note
       });
-      setMessage("Консултацията е заявена успешно. Ще я видиш и в таблото си.");
+      setMessage("Консултацията е заявена успешно. Ще я видиш в профила си.");
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешно създаване на заявка.");
     }
@@ -2051,10 +2704,11 @@ function ConsultantPage() {
           <aside className="booking-card">
             <span className="status-badge status-badge--success">Следващ свободен слот</span>
             <strong>{formatDate(consultant.nextAvailable)}</strong>
-            <span>Работа в {consultant.sessionModes.join(" · ")}</span>
+            <span>
+              {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
+            </span>
             <p>
-              Профилът е подготвен за ясна презентация на експертизата, без публично
-              показване на консултантски тарифи.
+              {getConsultantWorkApproach(consultant)}
             </p>
             <img src={resolvePublicUrl(consultant.mapImageUrl)} alt={consultant.city} />
           </aside>
@@ -2070,7 +2724,29 @@ function ConsultantPage() {
             </article>
 
             <article className="panel">
-              <h2>Езици, формати и фокус</h2>
+              <h2>Подходящо за</h2>
+              <div className="chip-row">
+                {getConsultantIdealFor(consultant).map((item) => (
+                  <span className="chip chip--soft" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+
+            <article className="panel">
+              <h2>Теми на консултацията</h2>
+              <div className="chip-row">
+                {getConsultationTopics(consultant).map((item) => (
+                  <span className="chip" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </article>
+
+            <article className="panel">
+              <h2>Езици, формати и професионален контекст</h2>
               <div className="chip-row">
                 {consultant.languages.map((item) => (
                   <span className="chip chip--soft" key={item}>
@@ -2089,10 +2765,18 @@ function ConsultantPage() {
                 ))}
               </div>
             </article>
+
+            <article className="panel">
+              <h2>Как протича работата</h2>
+              <p>{getConsultantWorkApproach(consultant)}</p>
+            </article>
           </div>
 
           <form className="panel booking-panel" onSubmit={submitBooking}>
             <h2>Заяви консултация</h2>
+            <p className="section-caption">
+              Избери свободен час и изпрати кратък контекст, за да започне разговорът по-лесно.
+            </p>
             <div className="slot-grid">
               {consultant.availability.map((slot) => (
                 <button
@@ -2196,14 +2880,14 @@ function AuthPage() {
             : "Влизаш в профила си";
   const authStageDescription =
     screen === "register"
-      ? "Избираш тип акаунт, членство и ако е нужно subscription данни, за да видиш цялостния продуктови flow."
+      ? "Създаваш акаунт според ролята си и подреждаш достъпа си до кариерни консултанти, документите и консултациите."
       : screen === "confirm"
-        ? "След завършване влизаш директно и продължаваш към профила и членството си."
+        ? "Потвърждаваш регистрацията и продължаваш директно към профила и членството си."
         : screen === "forgot-request"
-          ? "Изпращаме код само към посочения имейл за сигурно възстановяване."
+          ? "Изпращаме код за сигурно възстановяване само към посочения имейл."
           : screen === "forgot-confirm"
-            ? "С новата парола ще можеш да влезеш веднага в таблото си."
-            : "Входът е кратък и ясен, а след регистрация профилът и членството се отварят веднага.";
+            ? "Задаваш нова парола и веднага възстановяваш достъпа до профила си."
+            : "Влизаш бързо в своя профил и продължаваш към документите, консултантите и следващите си стъпки.";
   const canRegister = Boolean(
     form.name.trim() &&
       form.email.trim() &&
@@ -2234,12 +2918,47 @@ function AuthPage() {
       role: form.role,
       plan: form.plan,
       city: form.city.trim(),
+      occupation: "",
+      age: null,
       headline: form.headline.trim(),
+      bio: "",
+      interests: [],
+      keywords: [],
+      goals: "",
+      preferredSessionModes: form.role === "consultant" ? ["Онлайн"] : [],
       billingCycle: form.billingCycle,
       subscriptionStatus: isPro ? "active" : "inactive",
       paymentLast4,
       startedAt: new Date().toISOString(),
-      nextBillingAt: isPro ? buildMockNextBillingDate(form.billingCycle) : null
+      nextBillingAt: isPro ? buildMockNextBillingDate(form.billingCycle) : null,
+      consultantSlug:
+        form.role === "consultant" ? slugifyValue(form.name.trim()) : undefined,
+      consultantDisplayName: form.role === "consultant" ? form.name.trim() : undefined,
+      consultantBio:
+        form.role === "consultant"
+          ? "Добави по-подробен професионален профил, теми и свободни часове от профила си."
+          : undefined,
+      consultantExperienceYears: form.role === "consultant" ? 1 : undefined,
+      consultantLanguages: form.role === "consultant" ? ["Български"] : undefined,
+      consultantSpecializations:
+        form.role === "consultant" ? ["Кариерна стратегия"] : undefined,
+      consultantSessionModes: form.role === "consultant" ? ["Онлайн"] : undefined,
+      consultantTags: form.role === "consultant" ? ["CareerLane"] : undefined,
+      consultantIdealFor:
+        form.role === "consultant" ? ["Професионалисти в кариерен преход"] : undefined,
+      consultantConsultationTopics:
+        form.role === "consultant"
+          ? ["Кариерна стратегия", "CV и профил"]
+          : undefined,
+      consultantWorkApproach:
+        form.role === "consultant"
+          ? "Работим стъпка по стъпка: профил, цели и конкретна подготовка."
+          : undefined,
+      consultantAvailability:
+        form.role === "consultant"
+          ? [new Date(Date.now() + 86_400_000).toISOString()]
+          : undefined,
+      consultantSessionLengthMinutes: form.role === "consultant" ? 60 : undefined
     };
   }
 
@@ -2316,23 +3035,24 @@ function AuthPage() {
       <div className="container auth-layout">
         <div className="auth-copy">
           <p className="eyebrow">Вход и регистрация</p>
-          <h1>Една страница за достъп, създадена по-подредено и по-професионално.</h1>
+          <h1>Влизаш в CareerLane и продължаваш там, откъдето започва следващата ти стъпка.</h1>
           <p>
-            Потвърждението се появява само след успешна регистрация. Възстановяването на
-            парола е отделен професионален поток с forgot password стъпка и нов код.
+            Оттук създаваш профил, избираш Free или разширен достъп и управляваш сигурно
+            входа си. Потвърждението се появява само след регистрация, а забравената
+            парола има отделен ясен поток за възстановяване.
           </p>
 
           <div className="panel auth-side-panel">
             <h2>{authStageTitle}</h2>
             <p className="section-heading__copy">{authStageDescription}</p>
             <ul>
-              <li>Потребителски акаунт с Free или Pro достъп</li>
-              <li>Консултантски профил с отделна страница и видимост</li>
-              <li>Подредено начало за CV, документи и заявки</li>
+              <li>Потребителски акаунт с ясен избор между Free и разширен достъп</li>
+              <li>Консултантски профил с професионално присъствие в CareerLane</li>
+              <li>Едно начало за профил, документи и следващи действия</li>
             </ul>
             {existingPreview ? (
               <Link className="ghost-button" to="/account">
-                Отвори текущия профил
+                Отвори профила
               </Link>
             ) : null}
             {screen === "register" ? (
@@ -2498,24 +3218,24 @@ function AuthPage() {
                     onClick={() => setForm({ ...form, plan })}
                   >
                     <span className={plan === "pro" ? "status-badge" : "plan-pill"}>
-                      {plan === "pro" ? "Pro" : "Free"}
+                      {plan === "pro" ? "Разширен" : "Free"}
                     </span>
                     <strong>
                       {plan === "pro"
                         ? formatEuro(getMockProPrice(form.role, form.billingCycle))
                         : "0 €"}
                     </strong>
-                      <p>
-                        {plan === "pro"
-                        ? "Пълен каталог, повече място за документи и subscription управление."
-                        : "Базов профил, основен документ и безплатен старт."}
-                      </p>
+                    <p>
+                      {plan === "pro"
+                        ? "Пълен достъп до консултантите, повече място за документи и управление на членството."
+                        : "Базов профил, основен документ и ясен старт."}
+                    </p>
                   </button>
                 ))}
               </div>
 
               <div className="panel panel--subtle">
-                <strong>Включени features</strong>
+                <strong>Какво включва</strong>
                 <ul className="feature-list">
                   {planFeatures.map((item) => (
                     <li key={item}>{item}</li>
@@ -2544,7 +3264,7 @@ function AuthPage() {
                         <p>
                           {cycle === "monthly"
                             ? "Гъвкаво месечно членство."
-                            : "Годишен абонамент с по-завършен billing сценарий."}
+                            : "Годишно членство с по-дълъг хоризонт."}
                         </p>
                       </button>
                     ))}
@@ -2607,7 +3327,7 @@ function AuthPage() {
                           })
                         }
                       />
-                      <span>Потвърждавам subscription избора</span>
+                      <span>Потвърждавам избора на членство</span>
                     </label>
                   </div>
                 </>
@@ -2615,7 +3335,7 @@ function AuthPage() {
 
               <p className="form-note">
                 Регистрацията е подготвена така, че да покаже пълния продуктов поток за
-                Free и Pro акаунт още в тази презентационна версия.
+                Free и разширен достъп още в тази презентационна версия.
               </p>
               <div className="panel panel--subtle">
                 <strong>Избрано членство</strong>
@@ -2844,8 +3564,14 @@ function DashboardPage() {
       const updated = await api.updateMyProfile(token, {
         name: String(formData.get("name") || ""),
         city: String(formData.get("city") || ""),
+        occupation: String(formData.get("occupation") || ""),
+        age: Number(formData.get("age") || 0) || null,
         headline: String(formData.get("headline") || ""),
         bio: String(formData.get("bio") || ""),
+        interests: parseListValue(formData.get("interests")),
+        keywords: parseListValue(formData.get("keywords")),
+        goals: String(formData.get("goals") || ""),
+        preferredSessionModes: parseListValue(formData.get("preferredSessionModes")),
         plan: formData.get("plan") as PlanTier
       });
       setProfile(updated);
@@ -2932,6 +3658,10 @@ function DashboardPage() {
           .split(",")
           .map((item) => item.trim())
           .filter(Boolean),
+        idealFor: parseListValue(formData.get("idealFor")),
+        consultationTopics: parseListValue(formData.get("consultationTopics")),
+        workApproach: String(formData.get("workApproach") || ""),
+        sessionLengthMinutes: Number(formData.get("sessionLengthMinutes") || 60) || 60,
         availability
       });
 
@@ -2945,24 +3675,24 @@ function DashboardPage() {
   const membershipNote =
     profile.role === "consultant"
       ? profile.plan === "pro"
-        ? "Pro профилът ти е позициониран за по-богата презентация и premium видимост."
-        : "Free профилът ти е активен и може да бъде надграден към Pro по всяко време."
+        ? "Разширеният профил ти дава по-богато представяне и по-силно публично присъствие."
+        : "Free профилът ти е активен и може да бъде надграден с по-богато представяне по всяко време."
       : profile.plan === "pro"
-        ? "Pro акаунтът ти отключва пълния каталог и разширено пространство за документи."
-        : "Free акаунтът ти включва базов профил, основен документ и достъп до подбрана част от каталога.";
+        ? "Разширеният достъп ти отваря всички консултанти и по-широко пространство за документи."
+        : "Free акаунтът ти включва базов профил, основен документ и подбран достъп до кариерни консултанти.";
   const profileCompletion = getProfileCompletion(profile, consultantProfile);
   const nextBooking = getNextBooking(bookings);
   const setupChecklist =
     profile.role === "consultant"
       ? [
           "Подреди headline и биографията си така, че да звучат уверено и конкретно.",
-          "Добави езици, специализации и свободни слотове за по-лесно резервиране.",
+          "Добави езици, теми, подход и свободни слотове за по-лесно резервиране.",
           "Прегледай публичния си профил така, както ще го виждат потребителите."
         ]
       : [
-          "Добави град, headline и кратко описание, за да имаш по-пълен профил.",
+          "Добави професия, интереси и ключови думи, за да имаш по-точно съвпадение.",
           "Качи основното си CV, за да държиш материалите си на едно място.",
-          "Разгледай каталога и запази следващата консултация директно от профила на консултанта."
+          "Разгледай кариерните консултанти и запази следващата консултация директно от профила на консултанта."
         ];
 
   return (
@@ -3077,9 +3807,10 @@ function DashboardPage() {
           </section>
 
           <form className="panel form-stack" onSubmit={saveProfile}>
-            <h2>Основен профил</h2>
+            <h2>Профил за съвпадение</h2>
             <p className="section-caption">
-              Попълни основните данни така, че профилът ти да е ясен още от първия прочит.
+              Попълни основните данни така, че CareerLane да изгради по-ясна картина за
+              посоката ти и да подреди по-подходящите консултанти по-напред.
             </p>
             <div className="two-column">
               <label>
@@ -3100,8 +3831,28 @@ function DashboardPage() {
                 />
               </label>
             </div>
+            <div className="two-column">
+              <label>
+                Професия / роля
+                <input
+                  name="occupation"
+                  defaultValue={profile.occupation || ""}
+                  placeholder="Например: Product manager"
+                />
+              </label>
+              <label>
+                Възраст
+                <input
+                  name="age"
+                  type="number"
+                  min="16"
+                  defaultValue={profile.age || ""}
+                  placeholder="Например: 32"
+                />
+              </label>
+            </div>
             <label>
-              Кратко заглавие
+              Профилно заглавие
               <input
                 name="headline"
                 defaultValue={profile.headline || ""}
@@ -3120,10 +3871,45 @@ function DashboardPage() {
               />
             </label>
             <label>
+              Какво търсиш в момента
+              <textarea
+                name="goals"
+                rows={4}
+                defaultValue={profile.goals || ""}
+                placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
+              />
+            </label>
+            <div className="two-column">
+              <label>
+                Интереси
+                <input
+                  name="interests"
+                  defaultValue={(profile.interests || []).join(", ")}
+                  placeholder="Leadership roles, international teams, salary negotiation"
+                />
+              </label>
+              <label>
+                Ключови думи
+                <input
+                  name="keywords"
+                  defaultValue={(profile.keywords || []).join(", ")}
+                  placeholder="Product, leadership, career transition"
+                />
+              </label>
+            </div>
+            <label>
+              Предпочитан формат
+              <input
+                name="preferredSessionModes"
+                defaultValue={(profile.preferredSessionModes || []).join(", ")}
+                placeholder="Онлайн, В офис"
+              />
+            </label>
+            <label>
               Членство
               <select name="plan" defaultValue={profile.plan}>
                 <option value="free">Free</option>
-                <option value="pro">Pro</option>
+                <option value="pro">Разширен</option>
               </select>
             </label>
             <button className="primary-button" type="submit">
@@ -3238,6 +4024,26 @@ function DashboardPage() {
                 />
               </label>
               <label>
+                Основни теми на консултацията
+                <input
+                  name="consultationTopics"
+                  defaultValue={
+                    consultantProfile ? getConsultationTopics(consultantProfile).join(", ") : ""
+                  }
+                  placeholder="Кариерна стратегия, CV review, interview preparation"
+                />
+              </label>
+              <label>
+                Подходящо за
+                <input
+                  name="idealFor"
+                  defaultValue={
+                    consultantProfile ? getConsultantIdealFor(consultantProfile).join(", ") : ""
+                  }
+                  placeholder="Mid-senior professionals, leadership roles, career transition"
+                />
+              </label>
+              <label>
                 Формати на работа
                 <input
                   name="sessionModes"
@@ -3253,6 +4059,26 @@ function DashboardPage() {
                   placeholder="Leadership, Product, Promotions"
                 />
               </label>
+              <div className="two-column">
+                <label>
+                  Продължителност на сесия
+                  <input
+                    name="sessionLengthMinutes"
+                    type="number"
+                    min="30"
+                    step="15"
+                    defaultValue={consultantProfile?.sessionLengthMinutes || 60}
+                  />
+                </label>
+                <label>
+                  Работен подход
+                  <input
+                    name="workApproach"
+                    defaultValue={consultantProfile?.workApproach || ""}
+                    placeholder="Например: Първо подреждаме целите, после профила и подготовката."
+                  />
+                </label>
+              </div>
               <label>
                 Свободни слотове
                 <textarea
@@ -3279,7 +4105,7 @@ function DashboardPage() {
                 <p>Все още няма заявки или потвърдени консултации.</p>
                 <Link className="ghost-button" to={profile.role === "consultant" ? "/consultants" : "/users"}>
                   {profile.role === "consultant"
-                    ? "Виж как изглежда каталогът"
+                    ? "Виж как изглежда списъкът"
                     : "Разгледай консултантите"}
                 </Link>
               </div>
@@ -3355,18 +4181,28 @@ function PlanSection({
   );
 }
 
-function ConsultantCard({ consultant }: { consultant: ConsultantProfile }) {
+function ConsultantCard({
+  consultant,
+  match
+}: {
+  consultant: ConsultantProfile;
+  match?: ConsultantMatch | null;
+}) {
   return (
     <article className="consultant-card">
       <img src={resolvePublicUrl(consultant.heroUrl)} alt={consultant.name} />
       <div className="consultant-card__body">
         <div className="consultant-card__top">
           <div>
-            <span className={consultant.featured ? "status-badge" : "plan-pill"}>
-              {consultant.featured ? "Подбран профил" : "Активен профил"}
-            </span>
+            <div className="chip-row consultant-card__status-row">
+              <span className={consultant.featured ? "status-badge" : "plan-pill"}>
+                {consultant.featured ? "Подбран профил" : "Активен профил"}
+              </span>
+              {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
+            </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
+            {match ? <p className="consultant-card__match">{match.note}</p> : null}
           </div>
           <span className="rating-pill">{consultant.rating.toFixed(1)}</span>
         </div>
