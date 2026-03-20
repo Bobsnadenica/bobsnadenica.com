@@ -1,14 +1,13 @@
 project_name     = "careerdoc"
-environment      = "prod"
+environment      = "dev"
 aws_region       = "eu-west-1"
 
-# For GitHub Pages project sites the browser origin is still https://<username>.github.io
-# even if the app lives under /<repo-name>/.
+# Use the live site origin here so API Gateway and the S3 upload bucket both allow the browser.
 frontend_origins = [
   "https://www.bobsnadenica.com"
 ]
 
 tags = {
   Project = "CareerDoc"
-  Owner   = "YOUR_NAME"
+  Owner   = "BobSNadenica"
 }

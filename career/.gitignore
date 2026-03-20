@@ -1,0 +1,10 @@
+.DS_Store
+.env
+.env.local
+.env.development.local
+dist
+node_modules
+infra/terraform/.terraform/
+infra/terraform/.terraform-build/
+infra/terraform/terraform.tfstate
+infra/terraform/terraform.tfstate.backup

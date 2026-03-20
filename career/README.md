@@ -35,7 +35,11 @@ npm install
 npm run dev
 ```
 
-Copy `.env.example` to `.env` if you want the frontend to use AWS resources instead of mock mode.
+The Vite source now lives in `app/`, while `npm run build` writes the deployable static files into this `career/` folder so GitHub Pages can serve `/career/` directly from the main site repo.
+
+`.env.production` is checked in with the current Terraform outputs you shared, so the production build already points at your live AWS resources.
+
+If you want local AWS-backed development instead of mock mode, copy `.env.example` to `.env` and fill in your values.
 For your target URL `https://www.bobsnadenica.com/career/index.html`, use:
 
 ```bash
@@ -56,18 +60,18 @@ The Lambda package is zipped by Terraform from this folder, including `node_modu
 
 ```bash
 cd infra/terraform
-cp terraform.tfvars.example terraform.tfvars
 mkdir -p .terraform-build
 terraform init
 terraform apply
 ```
 
-After apply, copy the `frontend_env_snippet` output into `.env` or `.env.production`.
+`terraform.tfvars` is now set for the current live site origin `https://www.bobsnadenica.com`, which updates API Gateway, Lambda CORS headers, and the S3 bucket CORS away from `http://localhost:5173`.
+
+If Terraform returns a new API URL or Cognito IDs later, update `.env.production` with the new `frontend_env_snippet`.
 
 ## Suggested deploy flow
 
-1. Deploy AWS infra with Terraform.
-2. Add the Terraform output values to `.env.production`.
-3. Add the same values as GitHub repository variables for the Pages workflow.
-4. Build the frontend with `npm run build` or let GitHub Actions build it on push.
-5. Publish `dist` to GitHub Pages or upload the built `dist` contents into the `/career/` folder of your existing website host.
+1. Run `cd infra/terraform && terraform apply` so the live frontend origin is allowed by the backend.
+2. Run `npm run build` from `career/` to refresh the static files in this folder.
+3. Commit and push the updated `career/` files to `main`.
+4. GitHub Pages will then serve the built app at `/career/` from the main `bobsnadenica.com` repo.
