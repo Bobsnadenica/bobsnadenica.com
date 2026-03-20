@@ -16,7 +16,7 @@ const STORAGE_KEYS = {
   seedVersion: "careerdoc.mock.seed-version"
 };
 
-const MOCK_SEED_VERSION = "2026-03-20-production-ui";
+const MOCK_SEED_VERSION = "2026-03-20-production-ui-v2";
 const DEFAULT_CONSULTANT_PORTRAIT =
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80";
 const DEFAULT_WORKSPACE_SCENE =
@@ -112,6 +112,31 @@ function seedMockStore() {
   }
 }
 
+function getStoredConsultants() {
+  seedMockStore();
+  return readStorage<ConsultantProfile[]>(STORAGE_KEYS.consultants, demoConsultants);
+}
+
+function filterConsultants(
+  consultants: ConsultantProfile[],
+  filters: { query?: string; city?: string } = {}
+) {
+  const query = (filters.query || "").toLowerCase().trim();
+  const city = (filters.city || "").toLowerCase().trim();
+
+  return consultants.filter((consultant) => {
+    const matchesQuery =
+      !query ||
+      consultant.name.toLowerCase().includes(query) ||
+      consultant.headline.toLowerCase().includes(query) ||
+      consultant.specializations.join(" ").toLowerCase().includes(query) ||
+      consultant.tags.join(" ").toLowerCase().includes(query);
+    const matchesCity = !city || consultant.city.toLowerCase().includes(city);
+
+    return matchesQuery && matchesCity;
+  });
+}
+
 function getMockProfileByEmail(email: string) {
   seedMockStore();
   const profiles = readStorage<UserProfile[]>(STORAGE_KEYS.profiles, [demoProfile]);
@@ -156,23 +181,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 export const api = {
   async listConsultants(filters: { query?: string; city?: string } = {}) {
     if (!isApiConfigured) {
-      seedMockStore();
-      const consultants = readStorage<ConsultantProfile[]>(
-        STORAGE_KEYS.consultants,
-        demoConsultants
-      );
-
-      return consultants.filter((consultant) => {
-        const query = (filters.query || "").toLowerCase().trim();
-        const city = (filters.city || "").toLowerCase().trim();
-        const matchesQuery =
-          !query ||
-          consultant.name.toLowerCase().includes(query) ||
-          consultant.headline.toLowerCase().includes(query) ||
-          consultant.specializations.join(" ").toLowerCase().includes(query);
-        const matchesCity = !city || consultant.city.toLowerCase().includes(city);
-        return matchesQuery && matchesCity;
-      });
+      return filterConsultants(getStoredConsultants(), filters);
     }
 
     const params = new URLSearchParams();
@@ -180,18 +189,19 @@ export const api = {
     if (filters.city) params.set("city", filters.city);
     const queryString = params.toString();
 
-    return request<ConsultantProfile[]>(
-      `/consultants${queryString ? `?${queryString}` : ""}`
-    );
+    try {
+      return await request<ConsultantProfile[]>(
+        `/consultants${queryString ? `?${queryString}` : ""}`
+      );
+    } catch (error) {
+      console.warn("Falling back to mock consultant catalog.", error);
+      return filterConsultants(getStoredConsultants(), filters);
+    }
   },
 
   async getConsultant(slug: string) {
     if (!isApiConfigured) {
-      seedMockStore();
-      const consultants = readStorage<ConsultantProfile[]>(
-        STORAGE_KEYS.consultants,
-        demoConsultants
-      );
+      const consultants = getStoredConsultants();
       const consultant = consultants.find((item) => item.slug === slug);
 
       if (!consultant) {
@@ -201,7 +211,18 @@ export const api = {
       return consultant;
     }
 
-    return request<ConsultantProfile>(`/consultants/${slug}`);
+    try {
+      return await request<ConsultantProfile>(`/consultants/${slug}`);
+    } catch (error) {
+      console.warn("Falling back to mock consultant profile.", error);
+      const consultant = getStoredConsultants().find((item) => item.slug === slug);
+
+      if (!consultant) {
+        throw new Error("Консултантът не беше намерен.");
+      }
+
+      return consultant;
+    }
   },
 
   async bootstrapUser(token: string, input: BootstrapInput) {

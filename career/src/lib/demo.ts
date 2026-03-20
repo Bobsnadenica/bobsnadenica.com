@@ -309,6 +309,126 @@ export const demoConsultants: ConsultantProfile[] = [
       "2026-03-24T16:00:00.000Z",
       "2026-03-29T09:00:00.000Z"
     ]
+  },
+  {
+    consultantId: "consultant-kalina-mileva",
+    ownerUserId: "kalina@careerlane.bg",
+    slug: "kalina-mileva",
+    name: "Калина Милева",
+    headline: "LinkedIn и personal branding консултант за senior experts и visible specialists",
+    bio: "Работя с професионалисти, които вече имат добър опит, но искат по-ясно дигитално присъствие, по-силен LinkedIn профил и по-добър разказ за своите резултати и стойност.",
+    city: "София",
+    languages: ["Български", "English"],
+    specializations: ["LinkedIn strategy", "Personal branding", "Executive summary"],
+    experienceYears: 9,
+    priceBgn: 130,
+    sessionModes: ["Онлайн", "В офис"],
+    featured: false,
+    rating: 4.9,
+    reviewCount: 112,
+    nextAvailable: "2026-03-24T11:00:00.000Z",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=700&q=80",
+    heroUrl:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80",
+    mapImageUrl: officeScene,
+    tags: ["Branding", "LinkedIn", "Visibility"],
+    availability: [
+      "2026-03-24T11:00:00.000Z",
+      "2026-03-25T15:30:00.000Z",
+      "2026-03-27T10:30:00.000Z",
+      "2026-03-31T14:00:00.000Z"
+    ]
+  },
+  {
+    consultantId: "consultant-boris-georgiev",
+    ownerUserId: "boris@careerlane.bg",
+    slug: "boris-georgiev",
+    name: "Борис Георгиев",
+    headline: "Career coach за operations, program management и cross-functional leadership",
+    bio: "Помагам на operations и program лидери да структурират по-силен профил, да преведат комплексния си опит на ясен език и да се подготвят за ръководни и international роли.",
+    city: "Прага",
+    languages: ["Български", "English"],
+    specializations: ["Operations leadership", "Program management", "Interview strategy"],
+    experienceYears: 12,
+    priceBgn: 170,
+    sessionModes: ["Онлайн"],
+    featured: false,
+    rating: 4.8,
+    reviewCount: 91,
+    nextAvailable: "2026-03-25T12:00:00.000Z",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=700&q=80",
+    heroUrl:
+      "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=1200&q=80",
+    mapImageUrl: meetingScene,
+    tags: ["Operations", "Leadership", "Program"],
+    availability: [
+      "2026-03-25T12:00:00.000Z",
+      "2026-03-26T09:30:00.000Z",
+      "2026-03-28T13:00:00.000Z",
+      "2026-04-01T10:00:00.000Z"
+    ]
+  },
+  {
+    consultantId: "consultant-desi-atanasova",
+    ownerUserId: "desi@careerlane.bg",
+    slug: "desi-atanasova",
+    name: "Деси Атанасова",
+    headline: "Career advisor за HR, talent и people experience professionals",
+    bio: "Работя с HR и talent специалисти, които искат да покажат по-добре влиянието си върху бизнеса, да подредят успехите си и да се позиционират за по-видими people роли.",
+    city: "Брюксел",
+    languages: ["Български", "English", "Français"],
+    specializations: ["People careers", "HR positioning", "Promotion strategy"],
+    experienceYears: 8,
+    priceBgn: 140,
+    sessionModes: ["Онлайн"],
+    featured: false,
+    rating: 4.9,
+    reviewCount: 74,
+    nextAvailable: "2026-03-23T08:30:00.000Z",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=700&q=80",
+    heroUrl:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1200&q=80",
+    mapImageUrl: workshopScene,
+    tags: ["HR", "Talent", "People"],
+    availability: [
+      "2026-03-23T08:30:00.000Z",
+      "2026-03-24T12:00:00.000Z",
+      "2026-03-27T16:30:00.000Z",
+      "2026-03-30T09:00:00.000Z"
+    ]
+  },
+  {
+    consultantId: "consultant-radoslav-tanev",
+    ownerUserId: "radoslav@careerlane.bg",
+    slug: "radoslav-tanev",
+    name: "Радослав Танев",
+    headline: "Interview и CV strategist за engineering leadership и technical management",
+    bio: "Подготвям engineering managers и senior IC профили за leadership преходи, систематизиране на технически постижения и уверено представяне пред hiring panels и executive stakeholders.",
+    city: "Мюнхен",
+    languages: ["Български", "English", "Deutsch"],
+    specializations: ["Engineering leadership", "Technical CV", "Hiring panels"],
+    experienceYears: 14,
+    priceBgn: 185,
+    sessionModes: ["Онлайн"],
+    featured: true,
+    rating: 5,
+    reviewCount: 134,
+    nextAvailable: "2026-03-26T10:30:00.000Z",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=700&q=80",
+    heroUrl:
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=1200&q=80",
+    mapImageUrl: coachingScene,
+    tags: ["Engineering", "Leadership", "Interviews"],
+    availability: [
+      "2026-03-26T10:30:00.000Z",
+      "2026-03-27T12:30:00.000Z",
+      "2026-03-31T15:00:00.000Z",
+      "2026-04-02T09:30:00.000Z"
+    ]
   }
 ];
 

@@ -72,7 +72,7 @@ img {
 .site-header__inner {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
   min-height: 82px;
 }
 
@@ -141,6 +141,7 @@ img {
 
 .site-nav {
   margin-left: auto;
+  gap: 10px;
 }
 
 .site-nav a,
@@ -156,6 +157,9 @@ img {
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
+  white-space: nowrap;
+  line-height: 1;
+  flex-shrink: 0;
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -165,6 +169,7 @@ img {
 .site-nav a {
   color: var(--text-soft);
   font-weight: 700;
+  font-size: 0.94rem;
 }
 
 .site-nav a.active {
@@ -211,6 +216,9 @@ img {
   color: white;
   font-weight: 800;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  line-height: 1;
+  flex-shrink: 0;
   cursor: pointer;
   box-shadow: 0 18px 34px rgba(10, 102, 194, 0.24);
   transition:
