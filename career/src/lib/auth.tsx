@@ -1,7 +1,9 @@
 import {
+  confirmResetPassword,
   confirmSignUp,
   fetchAuthSession,
   getCurrentUser,
+  resetPassword,
   signIn,
   signOut,
   signUp
@@ -36,6 +38,12 @@ type AuthContextValue = {
   register: (input: RegisterInput) => Promise<{ needsConfirmation: boolean }>;
   confirm: (email: string, code: string) => Promise<void>;
   login: (email: string, password: string) => Promise<string>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  completePasswordReset: (
+    email: string,
+    code: string,
+    newPassword: string
+  ) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -221,6 +229,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         setToken(idToken);
         return idToken;
+      },
+      async requestPasswordReset(email) {
+        if (!isCognitoConfigured) {
+          const credentials = readCredentials();
+          const match = credentials.find((item) => item.email === email);
+
+          if (!match) {
+            throw new Error("Не открихме профил с този имейл.");
+          }
+
+          return;
+        }
+
+        await resetPassword({ username: email });
+      },
+      async completePasswordReset(email, code, newPassword) {
+        if (!isCognitoConfigured) {
+          if (code !== "123456") {
+            throw new Error("За предварителен достъп използвайте код 123456.");
+          }
+
+          const credentials = readCredentials();
+          const match = credentials.find((item) => item.email === email);
+
+          if (!match) {
+            throw new Error("Не открихме профил с този имейл.");
+          }
+
+          writeCredentials(
+            credentials.map((item) =>
+              item.email === email
+                ? { ...item, password: newPassword, confirmed: true }
+                : item
+            )
+          );
+          return;
+        }
+
+        await confirmResetPassword({
+          username: email,
+          confirmationCode: code,
+          newPassword
+        });
       },
       async logout() {
         if (!isCognitoConfigured) {

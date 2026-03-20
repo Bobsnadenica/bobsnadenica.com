@@ -12,8 +12,15 @@ import type {
 const STORAGE_KEYS = {
   profiles: "careerdoc.mock.profiles",
   consultants: "careerdoc.mock.consultants",
-  bookings: "careerdoc.mock.bookings"
+  bookings: "careerdoc.mock.bookings",
+  seedVersion: "careerdoc.mock.seed-version"
 };
+
+const MOCK_SEED_VERSION = "2026-03-20-production-ui";
+const DEFAULT_CONSULTANT_PORTRAIT =
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80";
+const DEFAULT_WORKSPACE_SCENE =
+  "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1400&q=80";
 
 type BootstrapInput = {
   email: string;
@@ -39,6 +46,7 @@ type UpdateConsultantInput = Partial<
     | "featured"
     | "rating"
     | "reviewCount"
+    | "nextAvailable"
     | "avatarUrl"
     | "heroUrl"
     | "mapImageUrl"
@@ -78,9 +86,30 @@ function writeStorage<T>(key: string, value: T) {
 }
 
 function seedMockStore() {
-  readStorage(STORAGE_KEYS.consultants, demoConsultants);
-  readStorage(STORAGE_KEYS.bookings, demoBookings);
-  readStorage(STORAGE_KEYS.profiles, [demoProfile]);
+  const consultants = readStorage<ConsultantProfile[]>(
+    STORAGE_KEYS.consultants,
+    demoConsultants
+  );
+  const bookings = readStorage<Booking[]>(STORAGE_KEYS.bookings, demoBookings);
+  const profiles = readStorage<UserProfile[]>(STORAGE_KEYS.profiles, [demoProfile]);
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const currentSeedVersion = window.localStorage.getItem(STORAGE_KEYS.seedVersion);
+
+  if (currentSeedVersion !== MOCK_SEED_VERSION) {
+    const customConsultants = consultants.filter(
+      (consultant) =>
+        !demoConsultants.some((demoConsultant) => demoConsultant.consultantId === consultant.consultantId)
+    );
+
+    writeStorage(STORAGE_KEYS.consultants, [...demoConsultants, ...customConsultants]);
+    writeStorage(STORAGE_KEYS.bookings, bookings);
+    writeStorage(STORAGE_KEYS.profiles, profiles);
+    window.localStorage.setItem(STORAGE_KEYS.seedVersion, MOCK_SEED_VERSION);
+  }
 }
 
 function getMockProfileByEmail(email: string) {
@@ -234,9 +263,9 @@ export const api = {
           rating: 5,
           reviewCount: 0,
           nextAvailable: new Date(Date.now() + 86_400_000).toISOString(),
-          avatarUrl: "/assets/consultant-1.jpg",
-          heroUrl: "/assets/consultant-1.jpg",
-          mapImageUrl: "/assets/map-static.jpg",
+          avatarUrl: DEFAULT_CONSULTANT_PORTRAIT,
+          heroUrl: DEFAULT_CONSULTANT_PORTRAIT,
+          mapImageUrl: DEFAULT_WORKSPACE_SCENE,
           tags: ["New"],
           availability: [new Date(Date.now() + 86_400_000).toISOString()]
         };

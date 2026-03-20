@@ -131,6 +131,7 @@ img {
 .site-header__actions,
 .chip-row,
 .hero-stats,
+.hero-actions,
 .meta-row,
 .consultant-card__meta {
   display: flex;
@@ -321,7 +322,9 @@ img {
 .hero__lede,
 .auth-copy p,
 .profile-card__headline,
-.pricing-track__intro p {
+.pricing-track__intro p,
+.section-heading__copy,
+.plan-card__note {
   margin: 18px 0 0;
   color: var(--text-soft);
   line-height: 1.75;
@@ -402,6 +405,11 @@ textarea {
 
 .hero-stats {
   margin-top: 26px;
+  flex-wrap: wrap;
+}
+
+.hero-actions {
+  margin-top: 24px;
   flex-wrap: wrap;
 }
 
@@ -560,6 +568,10 @@ textarea {
   margin-bottom: 24px;
 }
 
+.section-heading__copy {
+  max-width: 760px;
+}
+
 .section-heading h2,
 .panel h2,
 .journey-card h3,
@@ -683,6 +695,12 @@ textarea {
 .form-note {
   color: var(--text-soft);
   line-height: 1.75;
+}
+
+.journey-card .ghost-button,
+.pricing-card .ghost-button,
+.pricing-card .primary-button {
+  width: fit-content;
 }
 
 .filter-bar,
@@ -833,9 +851,75 @@ textarea {
   font-size: 0.92rem;
 }
 
+.text-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: var(--primary-dark);
+}
+
+.auth-inline-actions,
+.auth-state-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auth-state-header h2,
+.auth-side-panel h2 {
+  margin: 0;
+}
+
+.auth-side-panel ul {
+  margin: 16px 0 0;
+  padding-left: 18px;
+}
+
+.auth-state-panel {
+  padding-top: 4px;
+}
+
 .dashboard-sidebar {
   position: sticky;
   top: 106px;
+}
+
+.dashboard-metrics {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.dashboard-metrics > div {
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.dashboard-metrics strong {
+  display: block;
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+}
+
+.dashboard-metrics span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.unlock-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  justify-items: start;
 }
 
 .booking-item {
@@ -940,7 +1024,8 @@ textarea {
   .pricing-grid,
   .filter-bar,
   .two-column,
-  .hero__points {
+  .hero__points,
+  .dashboard-metrics {
     grid-template-columns: 1fr;
   }
 
@@ -957,6 +1042,14 @@ textarea {
   .site-header__actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .auth-inline-actions,
+  .auth-state-header,
+  .hero-actions,
+  .section-heading {
+    flex-direction: column;
+    align-items: start;
   }
 
   .profile-card {

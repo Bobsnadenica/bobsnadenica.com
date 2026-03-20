@@ -1,6 +1,6 @@
-# CareerDoc
+# CareerLane
 
-CareerDoc is a full-stack marketplace inspired by `superdoc.bg`, adapted for career consultants.
+CareerLane is a full-stack career network for professionals and consultants, with a static GitHub Pages frontend and AWS-backed API, auth, storage, and infrastructure.
 
 ## What is included
 
