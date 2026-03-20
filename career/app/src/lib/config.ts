@@ -1,5 +1,5 @@
 export const config = {
-  appName: import.meta.env.VITE_APP_NAME || "CareerDoc",
+  appName: import.meta.env.VITE_APP_NAME || "CareerLane",
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || "",
   region: import.meta.env.VITE_AWS_REGION || "eu-west-1",
   cognito: {

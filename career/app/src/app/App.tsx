@@ -40,6 +40,77 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
+function formatRoleLabel(role: UserRole) {
+  return role === "consultant" ? "Консултант" : "Професионалист";
+}
+
+function formatPlanLabel(plan: PlanTier) {
+  return plan === "pro" ? "Pro" : "Free";
+}
+
+function formatBookingStatusLabel(status: Booking["status"]) {
+  if (status === "confirmed") return "Потвърдена";
+  if (status === "cancelled") return "Отказана";
+  return "Заявена";
+}
+
+const pricingTracks = [
+  {
+    audience: "За професионалисти",
+    title: "Започни безплатно и надгради към Pro, когато искаш по-силно позициониране.",
+    description:
+      "Free планът е подходящ за първи профил, резервации и качване на материали. Pro е за по-ясна подготовка, приоритет и разширено присъствие.",
+    plans: [
+      {
+        name: "Free",
+        price: "0 лв.",
+        points: [
+          "Профил и история на сесиите",
+          "Записване на консултации",
+          "Качване на CV и работни файлове"
+        ]
+      },
+      {
+        name: "Pro",
+        price: "29 лв. / месец",
+        featured: true,
+        points: [
+          "Приоритетен onboarding и по-бърз старт",
+          "Разширени ресурси за подготовка",
+          "По-силно позициониране за следващия ход"
+        ]
+      }
+    ]
+  },
+  {
+    audience: "За консултанти",
+    title: "Изгради публично присъствие без входна бариера и отключи Pro при растеж.",
+    description:
+      "Free планът е достатъчен за старт, а Pro дава повече видимост, по-силно представяне на услугите и по-премиум присъствие.",
+    plans: [
+      {
+        name: "Free",
+        price: "0 лв.",
+        points: [
+          "Публичен профил и основни данни",
+          "Цени, езици и свободни часове",
+          "Получаване на нови заявки"
+        ]
+      },
+      {
+        name: "Pro",
+        price: "49 лв. / месец",
+        featured: true,
+        points: [
+          "По-видимо позициониране в каталога",
+          "По-богат профил и по-силно представяне",
+          "По-добър conversion flow за нови клиенти"
+        ]
+      }
+    ]
+  }
+] as const;
+
 function brandMark() {
   return (
     <span className="brand-mark" aria-hidden="true">
@@ -50,7 +121,7 @@ function brandMark() {
 }
 
 function AppShell() {
-  const { user, logout, configured } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="site-shell">
@@ -60,7 +131,7 @@ function AppShell() {
             {brandMark()}
             <div>
               <strong>{config.appName}</strong>
-              <span>Career consultants marketplace</span>
+              <span>Професионална мрежа за кариерно позициониране</span>
             </div>
           </Link>
 
@@ -71,7 +142,6 @@ function AppShell() {
           </nav>
 
           <div className="site-header__actions">
-            {!configured && <span className="status-badge">Demo mode</span>}
             {user ? (
               <>
                 <span className="user-chip">{user.name}</span>
@@ -102,26 +172,34 @@ function AppShell() {
       <footer className="site-footer">
         <div className="container footer-grid">
           <div>
-            <h3>CareerDoc</h3>
+            <h3>{config.appName}</h3>
             <p>
-              Версия за кариерни консултанти, вдъхновена от Superdoc, но построена за
-              срещи, профили, документи и професионално развитие.
+              Платформа за професионалисти, консултанти и партньори, които искат по-ясно
+              професионално присъствие, по-добро позициониране и по-силен следващ ход.
             </p>
           </div>
           <div>
-            <h4>За платформата</h4>
+            <h4>За професионалисти</h4>
             <ul>
-              <li>Открий консултант</li>
-              <li>Резервирай сесия</li>
-              <li>Качи CV и профил</li>
+              <li>Открий подходящ консултант</li>
+              <li>Поддържай силен профил</li>
+              <li>Записвай сесии и следващи стъпки</li>
             </ul>
           </div>
           <div>
-            <h4>Технологии</h4>
+            <h4>За консултанти</h4>
             <ul>
-              <li>GitHub Pages frontend</li>
-              <li>AWS Cognito + Lambda + DynamoDB + S3</li>
-              <li>Terraform инфраструктура</li>
+              <li>Публично присъствие с ясен фокус</li>
+              <li>Свободни часове и ясни цени</li>
+              <li>Free старт и Pro видимост</li>
+            </ul>
+          </div>
+          <div>
+            <h4>За партньори</h4>
+            <ul>
+              <li>Рекламни позиции в ключови зони</li>
+              <li>Подходящо за работодателски брандове и академии</li>
+              <li>Видимост пред активна професионална аудитория</li>
             </ul>
           </div>
         </div>
@@ -134,18 +212,19 @@ function HomePage() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const featured = useMemo(() => demoConsultants.filter((item) => item.featured), []);
+  const spotlight = featured[0] || demoConsultants[0];
 
   return (
     <>
       <section className="hero">
         <div className="container hero__grid">
           <div className="hero__copy">
-            <p className="eyebrow">Booking platform for career growth</p>
-            <h1>Намери точния кариерен консултант и резервирай сесия онлайн.</h1>
+            <p className="eyebrow">Професионална кариерна мрежа</p>
+            <h1>Намери правилния консултант и представи следващата си стъпка с увереност.</h1>
             <p className="hero__lede">
-              CareerDoc пренася модела на Superdoc в света на кариерното консултиране:
-              публични профили, свободни часове, документи, планове и табла за работа с
-              клиенти и консултанти.
+              CareerLane събира на едно място професионалисти, които търсят по-силно
+              позициониране, и консултанти, които искат по-видимо присъствие, свободни
+              часове и доверие още от първия поглед.
             </p>
 
             <form
@@ -160,7 +239,7 @@ function HomePage() {
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="CV, интервю, career change, leadership..."
+                  placeholder="CV стратегия, лидерски роли, интервю, кариерна промяна..."
                 />
               </label>
               <button className="primary-button" type="submit">
@@ -170,40 +249,76 @@ function HomePage() {
 
             <div className="hero-stats">
               <div>
-                <strong>3+</strong>
-                <span>готови профила в демо версията</span>
+                <strong>Free</strong>
+                <span>старт и за професионалисти, и за консултанти</span>
               </div>
               <div>
-                <strong>2 роли</strong>
-                <span>client и consultant</span>
+                <strong>Pro</strong>
+                <span>за повече видимост, инструменти и приоритет</span>
               </div>
               <div>
-                <strong>Free / Pro</strong>
-                <span>подготвен модел за планове</span>
+                <strong>Ясни профили</strong>
+                <span>цени, фокус и свободни часове на едно място</span>
               </div>
             </div>
           </div>
 
           <aside className="hero__card">
+            <div className="hero__visual">
+              <img src={resolvePublicUrl(spotlight.heroUrl)} alt={spotlight.name} />
+            </div>
             <div className="hero__card-top">
-              <span className="status-badge status-badge--success">Най-ранна сесия</span>
-              <strong>събота, 21 март · 10:30</strong>
-              <p>Никол Славова · Portfolio review и първа силна кандидатура</p>
+              <span className="status-badge status-badge--success">Подбран консултант</span>
+              <strong>{spotlight.name}</strong>
+              <p>{spotlight.headline}</p>
             </div>
             <div className="hero__consultant">
               <img
-                src={resolvePublicUrl("/assets/consultant-1.jpg")}
-                alt="Анна Петрова"
+                src={resolvePublicUrl(spotlight.avatarUrl)}
+                alt={spotlight.name}
               />
               <div>
-                <strong>Анна Петрова</strong>
-                <p>CV стратегия · LinkedIn · Интервю подготовка</p>
-                <span>4.9 рейтинг · 214 мнения</span>
+                <strong>{spotlight.city}</strong>
+                <p>{spotlight.specializations.slice(0, 2).join(" · ")}</p>
+                <span>
+                  {spotlight.rating} рейтинг · {spotlight.reviewCount} мнения
+                </span>
               </div>
             </div>
-            <Link className="ghost-button" to="/consultants/anna-petrova">
-              Виж профила
+            <div className="hero__points">
+              <div>
+                <span>Следващ час</span>
+                <strong>{formatDate(spotlight.nextAvailable)}</strong>
+              </div>
+              <div>
+                <span>Цена</span>
+                <strong>{formatCurrency(spotlight.priceBgn)}</strong>
+              </div>
+            </div>
+            <Link className="primary-button" to={`/consultants/${spotlight.slug}`}>
+              Прегледай профила
             </Link>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section section--tight">
+        <div className="container">
+          <aside className="ad-banner">
+            <div>
+              <span className="ad-banner__label">Реклама</span>
+              <h2>Имате академия, работодателски бранд или leadership програма?</h2>
+              <p>
+                Покажете я на хора и консултанти точно когато планират следващото си
+                професионално решение.
+              </p>
+            </div>
+            <div className="ad-banner__actions">
+              <span>Спонсорирана позиция</span>
+              <Link className="ghost-button" to="/auth">
+                Заяви рекламно място
+              </Link>
+            </div>
           </aside>
         </div>
       </section>
@@ -212,8 +327,8 @@ function HomePage() {
         <div className="container">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Featured consultants</p>
-              <h2>Подобно на Superdoc, но за кариерни консултанти.</h2>
+              <p className="eyebrow">Подбрани консултанти</p>
+              <h2>Профили с ясна експертиза, реални цени и силно професионално присъствие.</h2>
             </div>
             <Link className="ghost-button" to="/consultants">
               Виж всички
@@ -231,19 +346,19 @@ function HomePage() {
       <section className="section section--alt">
         <div className="container journey-grid">
           <article className="journey-card">
-            <span className="journey-card__step">1</span>
-            <h3>Откриване</h3>
-            <p>Публични профили с цена, специализация, локация, езици и свободни часове.</p>
+            <span className="journey-card__step">01</span>
+            <h3>За професионалисти</h3>
+            <p>Откриваш консултант по фокус, цена, локация и стил на работа.</p>
           </article>
           <article className="journey-card">
-            <span className="journey-card__step">2</span>
-            <h3>Профил и документи</h3>
-            <p>Потребителите поддържат профил, план и качват CV документ за работа по сесиите.</p>
+            <span className="journey-card__step">02</span>
+            <h3>За консултанти</h3>
+            <p>Създаваш профил, публикуваш свободни часове и изграждаш доверие още при първото посещение.</p>
           </article>
           <article className="journey-card">
-            <span className="journey-card__step">3</span>
-            <h3>Booking flow</h3>
-            <p>Избор на консултант, час, бележка за сесията и преглед на историята в таблото.</p>
+            <span className="journey-card__step">03</span>
+            <h3>Free и Pro</h3>
+            <p>И двете роли могат да стартират безплатно и да преминат към Pro при нужда от повече видимост и инструменти.</p>
           </article>
         </div>
       </section>
@@ -291,8 +406,8 @@ function ConsultantsPage() {
       <div className="container">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Consultants directory</p>
-            <h2>Открий подходящ консултант за следващия си професионален ход.</h2>
+            <p className="eyebrow">Каталог с консултанти</p>
+            <h2>Открий консултант с подходящ фокус, ниво на опит и професионален стил.</h2>
           </div>
         </div>
 
@@ -304,7 +419,7 @@ function ConsultantsPage() {
               onChange={(event) =>
                 setSearchParams({ q: event.target.value, city })
               }
-              placeholder="CV, interviews, leadership..."
+              placeholder="CV, позициониране, leadership, първа работа..."
             />
           </label>
           <label>
@@ -411,7 +526,7 @@ function ConsultantPage() {
               alt={consultant.name}
             />
             <div>
-              <p className="eyebrow">Career consultant</p>
+              <p className="eyebrow">Професионален профил</p>
               <h1>{consultant.name}</h1>
               <p className="profile-card__headline">{consultant.headline}</p>
               <div className="chip-row">
@@ -431,7 +546,7 @@ function ConsultantPage() {
 
           <aside className="booking-card">
             <strong>{formatCurrency(consultant.priceBgn)}</strong>
-            <span>за индивидуална сесия</span>
+            <span>за индивидуална консултация</span>
             <p>Следващ свободен час: {formatDate(consultant.nextAvailable)}</p>
             <img src={resolvePublicUrl(consultant.mapImageUrl)} alt={consultant.city} />
           </aside>
@@ -464,7 +579,7 @@ function ConsultantPage() {
           </div>
 
           <form className="panel booking-panel" onSubmit={submitBooking}>
-            <h2>Запази сесия</h2>
+            <h2>Запази консултация</h2>
             <div className="slot-grid">
               {consultant.availability.map((slot) => (
                 <button
@@ -484,7 +599,7 @@ function ConsultantPage() {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 rows={5}
-                placeholder="Например: искам преглед на CV, позициониране за leadership роли и интервю подготовка."
+                placeholder="Например: искам преглед на CV, позициониране за leadership роли и подготовка за интервю."
               />
             </label>
 
@@ -492,7 +607,7 @@ function ConsultantPage() {
             {error ? <div className="panel panel--error">{error}</div> : null}
 
             <button className="primary-button" type="submit">
-              {user ? "Заяви сесия" : "Влез и заяви сесия"}
+              {user ? "Заяви консултация" : "Влез и заяви консултация"}
             </button>
           </form>
         </div>
@@ -507,36 +622,46 @@ function PricingPage() {
       <div className="container">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Plans</p>
-            <h2>Free и Pro нива за по-силен career workflow.</h2>
+            <p className="eyebrow">Планове</p>
+            <h2>Free старт и Pro надграждане и за професионалисти, и за консултанти.</h2>
           </div>
         </div>
 
-        <div className="pricing-grid">
-          <article className="pricing-card">
-            <h3>Free</h3>
-            <strong>0 лв.</strong>
-            <ul>
-              <li>Базов профил</li>
-              <li>CV документ</li>
-              <li>Резервации и история</li>
-            </ul>
-          </article>
-          <article className="pricing-card pricing-card--featured">
-            <span className="status-badge">Recommended</span>
-            <h3>Pro</h3>
-            <strong>29 лв. / месец</strong>
-            <ul>
-              <li>Приоритетен onboarding</li>
-              <li>Разширен profile positioning</li>
-              <li>Повече документи и premium features</li>
-            </ul>
-          </article>
+        <div className="pricing-stack">
+          {pricingTracks.map((track) => (
+            <section className="pricing-track" key={track.audience}>
+              <div className="pricing-track__intro">
+                <p className="eyebrow">{track.audience}</p>
+                <h3>{track.title}</h3>
+                <p>{track.description}</p>
+              </div>
+
+              <div className="pricing-grid">
+                {track.plans.map((plan) => (
+                  <article
+                    className={`pricing-card ${plan.featured ? "pricing-card--featured" : ""}`}
+                    key={`${track.audience}-${plan.name}`}
+                  >
+                    <span className={plan.featured ? "status-badge" : "plan-pill"}>
+                      {plan.featured ? "Препоръчано" : "Винаги налично"}
+                    </span>
+                    <h3>{plan.name}</h3>
+                    <strong>{plan.price}</strong>
+                    <ul>
+                      {plan.points.map((point) => (
+                        <li key={point}>{point}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
 
         <div className="panel">
-          Реалното картово плащане не е включено в тази първа версия. Данните за `free/pro`
-          са подготвени в модела и могат да се свържат със Stripe в следващия етап.
+          Безплатният план остава реална отправна точка и за двете роли. Pro е за хора,
+          които искат повече видимост, по-силно представяне и по-премиум работен поток.
         </div>
       </div>
     </section>
@@ -552,7 +677,7 @@ function AuthPage() {
 
   const [mode, setMode] = useState<"login" | "register" | "confirm">("login");
   const [message, setMessage] = useState(
-    configured ? "" : "Работим в mock режим. Кодът за потвърждение е 123456."
+    configured ? "" : "За потвърждение в предварителната версия използвайте код 123456."
   );
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -639,11 +764,11 @@ function AuthPage() {
     <section className="section auth-section">
       <div className="container auth-layout">
         <div className="auth-copy">
-          <p className="eyebrow">Account access</p>
-          <h1>Вход, регистрация и onboarding за клиенти и консултанти.</h1>
+          <p className="eyebrow">Достъп до профил</p>
+          <h1>Създай профил като професионалист или консултант.</h1>
           <p>
-            С Cognito в production и local mock режим за development можем да работим по UX
-            и таблата още преди AWS да е provisioned.
+            И двата типа акаунти могат да започнат на Free и да преминат към Pro, когато
+            имат нужда от по-силно присъствие, повече инструменти и по-добър приоритет.
           </p>
         </div>
 
@@ -710,8 +835,8 @@ function AuthPage() {
                       setForm({ ...form, role: event.target.value as UserRole })
                     }
                   >
-                    <option value="client">Client</option>
-                    <option value="consultant">Consultant</option>
+                    <option value="client">Професионалист</option>
+                    <option value="consultant">Консултант</option>
                   </select>
                 </label>
                 <label>
@@ -727,6 +852,10 @@ function AuthPage() {
                   </select>
                 </label>
               </div>
+              <p className="form-note">
+                Започваш безплатно и можеш да преминеш към Pro, когато искаш повече
+                видимост и по-силно позициониране.
+              </p>
               <button className="primary-button" type="submit">
                 Създай профил
               </button>
@@ -930,8 +1059,8 @@ function DashboardPage() {
             <h2>{profile.name}</h2>
             <p>{profile.email}</p>
             <div className="chip-row">
-              <span className="chip chip--soft">{profile.role}</span>
-              <span className="chip chip--soft">{profile.plan}</span>
+              <span className="chip chip--soft">{formatRoleLabel(profile.role)}</span>
+              <span className="chip chip--soft">{formatPlanLabel(profile.plan)}</span>
             </div>
           </div>
         </aside>
@@ -953,16 +1082,16 @@ function DashboardPage() {
               </label>
             </div>
             <label>
-              Headline
+              Професионално заглавие
               <input name="headline" defaultValue={profile.headline || ""} />
             </label>
             <label>
-              Bio
+              Представяне
               <textarea name="bio" rows={4} defaultValue={profile.bio || ""} />
             </label>
-            <label>
-              План
-              <select name="plan" defaultValue={profile.plan}>
+              <label>
+                План
+                <select name="plan" defaultValue={profile.plan}>
                 <option value="free">Free</option>
                 <option value="pro">Pro</option>
               </select>
@@ -996,7 +1125,7 @@ function DashboardPage() {
                     <p>{formatDate(booking.scheduledAt)}</p>
                   </div>
                   <span className={`status-badge status-badge--${booking.status}`}>
-                    {booking.status}
+                    {formatBookingStatusLabel(booking.status)}
                   </span>
                 </article>
               ))}
@@ -1012,19 +1141,19 @@ function DashboardPage() {
                   <input name="slug" defaultValue={consultantProfile.slug} />
                 </label>
                 <label>
-                  Display name
+                  Име за публичен профил
                   <input name="displayName" defaultValue={consultantProfile.name} />
                 </label>
               </div>
               <label>
-                Headline
+                Професионално заглавие
                 <input
                   name="consultantHeadline"
                   defaultValue={consultantProfile.headline}
                 />
               </label>
               <label>
-                Bio
+                Представяне
                 <textarea name="consultantBio" rows={5} defaultValue={consultantProfile.bio} />
               </label>
               <div className="two-column">
@@ -1055,22 +1184,22 @@ function DashboardPage() {
                 </label>
               </div>
               <label>
-                Specializations
+                Специализации
                 <input
                   name="specializations"
                   defaultValue={consultantProfile.specializations.join(", ")}
                 />
               </label>
               <label>
-                Session modes
+                Формати на сесия
                 <input name="sessionModes" defaultValue={consultantProfile.sessionModes.join(", ")} />
               </label>
               <label>
-                Tags
+                Ключови теми
                 <input name="tags" defaultValue={consultantProfile.tags.join(", ")} />
               </label>
               <label>
-                Availability (one ISO date per line)
+                Свободни часове (по един ISO час на ред)
                 <textarea
                   name="availability"
                   rows={5}
@@ -1091,7 +1220,7 @@ function DashboardPage() {
 function ConsultantCard({ consultant }: { consultant: ConsultantProfile }) {
   return (
     <article className="consultant-card">
-      <img src={resolvePublicUrl(consultant.avatarUrl)} alt={consultant.name} />
+      <img src={resolvePublicUrl(consultant.heroUrl)} alt={consultant.name} />
       <div className="consultant-card__body">
         <div className="consultant-card__top">
           <div>
@@ -1116,7 +1245,7 @@ function ConsultantCard({ consultant }: { consultant: ConsultantProfile }) {
         </div>
 
         <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
-          Виж профила
+          Прегледай профила
         </Link>
       </div>
     </article>

@@ -174,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async confirm(email, code) {
         if (!isCognitoConfigured) {
           if (code !== "123456") {
-            throw new Error("В mock режима кодът за потвърждение е 123456.");
+            throw new Error("За предварителен достъп използвайте код 123456.");
           }
 
           const credentials = readCredentials().map((item) =>
