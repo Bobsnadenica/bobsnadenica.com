@@ -18,6 +18,7 @@ import { demoConsultants } from "../lib/demo";
 import {
   clearMockPreviewAccount,
   readMockPreviewAccount,
+  subscribeMockPreviewAccount,
   writeMockPreviewAccount,
   type MockBillingCycle,
   type MockPreviewAccount,
@@ -546,13 +547,25 @@ function useMockPreviewSnapshot() {
     setPreviewAccount(readMockPreviewAccount());
   }, [location.pathname]);
 
+  useEffect(() => {
+    return subscribeMockPreviewAccount(() => {
+      setPreviewAccount(readMockPreviewAccount());
+    });
+  }, []);
+
   return previewAccount;
 }
 
 function AppShell() {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const currentYear = new Date().getFullYear();
   const previewAccount = useMockPreviewSnapshot();
+
+  function handlePreviewLogout() {
+    clearMockPreviewAccount();
+    navigate("/", { replace: true });
+  }
 
   return (
     <div className="site-shell">
@@ -578,23 +591,30 @@ function AppShell() {
               <>
                 <span className="user-chip">{user.name}</span>
                 <Link className="ghost-button" to="/dashboard">
-                  Табло
+                  Профил
                 </Link>
                 <button className="ghost-button" onClick={() => logout()}>
                   Изход
                 </button>
               </>
-            ) : (
+            ) : previewAccount ? (
               <>
-                {previewAccount ? (
-                  <Link className="ghost-button" to="/account">
-                    Табло
-                  </Link>
-                ) : null}
-                <Link className="ghost-button" to="/auth">
-                  Вход / Регистрация
+                <span className="user-chip">{previewAccount.name}</span>
+                <Link className="ghost-button" to="/account">
+                  Профил
                 </Link>
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={handlePreviewLogout}
+                >
+                  Изход
+                </button>
               </>
+            ) : (
+              <Link className="ghost-button" to="/auth">
+                Вход / Регистрация
+              </Link>
             )}
           </div>
         </div>

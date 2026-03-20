@@ -18,6 +18,13 @@ export interface MockPreviewAccount {
 }
 
 const STORAGE_KEY = "careerdoc.mock.preview-account";
+const PREVIEW_EVENT = "careerdoc:mock-preview-change";
+
+function emitMockPreviewChange() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PREVIEW_EVENT));
+  }
+}
 
 export function readMockPreviewAccount() {
   if (typeof window === "undefined") {
@@ -40,11 +47,22 @@ export function readMockPreviewAccount() {
 export function writeMockPreviewAccount(account: MockPreviewAccount) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
+    emitMockPreviewChange();
   }
 }
 
 export function clearMockPreviewAccount() {
   if (typeof window !== "undefined") {
     window.localStorage.removeItem(STORAGE_KEY);
+    emitMockPreviewChange();
   }
+}
+
+export function subscribeMockPreviewAccount(listener: () => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  window.addEventListener(PREVIEW_EVENT, listener);
+  return () => window.removeEventListener(PREVIEW_EVENT, listener);
 }
