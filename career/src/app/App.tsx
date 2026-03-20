@@ -148,6 +148,140 @@ const userJourney = [
   }
 ] as const;
 
+const aboutHighlights = [
+  {
+    value: `${demoConsultants.length}+`,
+    label: "примерни консултантски профили в production каталога"
+  },
+  {
+    value: "Free / Pro",
+    label: "ясно разграничени планове за потребители и консултанти"
+  },
+  {
+    value: "1 workspace",
+    label: "централно място за профил, документи и предстоящи сесии"
+  }
+] as const;
+
+const aboutPrinciples = [
+  {
+    title: "Ясна структура",
+    text: "Потребителите трябва да разбират къде се намират, какво могат да направят и каква е следващата полезна стъпка."
+  },
+  {
+    title: "Професионално доверие",
+    text: "Профилите, страниците и публичните секции са оформени така, че да изглеждат уверено и сериозно още на първо отваряне."
+  },
+  {
+    title: "Лек процес на работа",
+    text: "Регистрацията, входът, профилът и каталогът са подредени с минимално триене и без излишни технически детайли."
+  }
+] as const;
+
+const faqItems = [
+  {
+    question: "Каква е разликата между Free и Pro за потребителите?",
+    answer:
+      "Free е подходящ за старт: базов профил, основен CV документ и достъп до подбрана част от каталога. Pro отключва целия каталог, повече пространство за документи и по-богат работен поток."
+  },
+  {
+    question: "Могат ли консултантите да използват платформата безплатно?",
+    answer:
+      "Да. Консултантите могат да започнат с Free профил и да публикуват присъствие, специализации и свободни слотове. Pro е за по-силно позициониране и по-богат публичен профил."
+  },
+  {
+    question: "Показват ли се публично консултантските тарифи?",
+    answer:
+      "Не. В текущата публична версия акцентът е върху профила, експертизата и свободните слотове, а не върху видими тарифи в каталога."
+  },
+  {
+    question: "Как работи регистрацията и потвърждението?",
+    answer:
+      "Потвърждението се появява само след успешна регистрация. След кода за потвърждение профилът се довършва и потребителят влиза директно в таблото си."
+  },
+  {
+    question: "Има ли forgot password процес?",
+    answer:
+      "Да. На страницата за вход има отделен поток за забравена парола с изпращане на код и въвеждане на нова парола."
+  },
+  {
+    question: "Какви документи могат да се пазят в профила?",
+    answer:
+      "Free включва основен CV документ. Pro е подготвен за по-широк документен профил, включително дипломи, портфолио и допълнителни материали."
+  },
+  {
+    question: "Как се заявява рекламна позиция?",
+    answer:
+      "Партньорите могат да използват рекламната зона и страницата Contact, където са описани каналите за партньорски и рекламни заявки."
+  },
+  {
+    question: "Гарантира ли платформата наемане или кариерен резултат?",
+    answer:
+      "Не. CareerLane предоставя среда за професионално позициониране и консултации, но не гарантира конкретен резултат при кандидатстване, интервю или наемане."
+  }
+] as const;
+
+const legalSections = [
+  {
+    title: "Условия за използване",
+    points: [
+      "Платформата е предназначена за професионалисти, консултанти и партньори, които използват услугата законосъобразно и добросъвестно.",
+      "Акаунтът е личен и потребителят носи отговорност за точността на предоставените данни и сигурността на достъпа си.",
+      "CareerLane може да актуализира интерфейса, членствата и публичните секции при развитие на услугата."
+    ]
+  },
+  {
+    title: "Поверителност и данни",
+    points: [
+      "Профилните данни и документите се използват за предоставяне на услугата, за достъп до таблото и за улесняване на консултантския процес.",
+      "Публично се показва само информацията, която е предназначена за публичен профил на консултант или маркетингова страница.",
+      "Потребителите могат да поискат корекция или заличаване на данни чрез канала за контакт, описан на Contact страницата."
+    ]
+  },
+  {
+    title: "Членства и платени услуги",
+    points: [
+      "Free и Pro членствата имат различен обхват и видимост, описани в публичните страници на платформата.",
+      "При бъдещи платени активации условията, периодът и цената следва да бъдат показани ясно преди потвърждение на покупката.",
+      "Публичната версия на сайта не представлява обещание за конкретна цена извън видимото описание на членството."
+    ]
+  },
+  {
+    title: "Роля на платформата",
+    points: [
+      "CareerLane е среда за свързване, позициониране и организация на консултации между потребители и консултанти.",
+      "Платформата не дава гаранция за интервю, оферта, наемане, повишение или конкретен кариерен резултат.",
+      "Консултантите носят отговорност за съдържанието и професионалното представяне в собствените си профили."
+    ]
+  },
+  {
+    title: "Cookies и комуникация",
+    points: [
+      "Сайтът може да използва функционални и аналитични механизми за нормална работа, сигурност и подобряване на потребителското изживяване.",
+      "Системните съобщения, потвържденията и възстановяването на парола са част от нормалното предоставяне на услугата.",
+      "Маркетингови и партньорски комуникации следва да бъдат отделени ясно от системните съобщения."
+    ]
+  }
+] as const;
+
+const contactChannels = [
+  {
+    title: "Общи въпроси и поддръжка",
+    description: "За въпроси по профила, достъпа, регистрацията и използването на платформата.",
+    email: "support@careerlane.eu"
+  },
+  {
+    title: "Партньорства и реклама",
+    description: "За рекламни позиции, работодателски брандове, академии и други партньорски формати.",
+    email: "partners@careerlane.eu"
+  },
+  {
+    title: "Правни и данни",
+    description: "За правни запитвания, privacy заявки и административни въпроси, свързани с данни.",
+    email: "legal@careerlane.eu"
+  }
+] as const;
+
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("bg-BG", {
     dateStyle: "medium",
@@ -239,6 +373,42 @@ function brandMark() {
   );
 }
 
+function RouteExperience() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const pathname = location.pathname;
+    const title =
+      pathname === "/"
+        ? "Начало"
+        : pathname === "/users"
+          ? "За потребители"
+          : pathname === "/consultants"
+            ? "За консултанти"
+            : pathname.startsWith("/consultants/")
+              ? "Профил на консултант"
+              : pathname === "/auth"
+                ? "Вход и регистрация"
+                : pathname === "/dashboard"
+                  ? "Моето табло"
+                  : pathname === "/about"
+                    ? "За нас"
+                    : pathname === "/contact"
+                      ? "Контакти"
+                      : pathname === "/faq"
+                        ? "Често задавани въпроси"
+                        : pathname === "/legal"
+                          ? "Правна информация"
+                          : "CareerLane";
+
+    document.title =
+      title === config.appName ? config.appName : `${title} | ${config.appName}`;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [location.pathname]);
+
+  return null;
+}
+
 function useViewerProfile() {
   const { user, token, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -291,9 +461,11 @@ function useViewerProfile() {
 
 function AppShell() {
   const { user, logout } = useAuth();
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="site-shell">
+      <RouteExperience />
       <header className="site-header">
         <div className="container site-header__inner">
           <Link className="brand-link" to="/">
@@ -308,6 +480,8 @@ function AppShell() {
             <NavLink to="/">Начало</NavLink>
             <NavLink to="/users">За потребители</NavLink>
             <NavLink to="/consultants">За консултанти</NavLink>
+            <NavLink to="/about">За нас</NavLink>
+            <NavLink to="/contact">Контакти</NavLink>
           </nav>
 
           <div className="site-header__actions">
@@ -336,44 +510,83 @@ function AppShell() {
           <Route path="/users" element={<UsersPage />} />
           <Route path="/consultants" element={<ConsultantsPage />} />
           <Route path="/consultants/:slug" element={<ConsultantPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/legal" element={<LegalPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/pricing" element={<Navigate to="/users" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
 
       <footer className="site-footer">
         <div className="container footer-grid">
-          <div>
+          <div className="footer-brand">
             <h3>{config.appName}</h3>
             <p>
               Професионална платформа за консултации, позициониране и по-ясна следваща
               стъпка в кариерата.
             </p>
+            <p className="footer-note">
+              Създадена за по-ясен избор на консултант, по-добро професионално
+              присъствие и по-подреден работен процес.
+            </p>
           </div>
-          <div>
-            <h4>Потребители</h4>
-            <ul>
-              <li>Каталог с консултанти</li>
-              <li>Free и Pro достъп</li>
-              <li>CV и документен профил</li>
+          <div className="footer-column">
+            <h4>Платформа</h4>
+            <ul className="footer-links">
+              <li>
+                <Link to="/users">За потребители</Link>
+              </li>
+              <li>
+                <Link to="/consultants">За консултанти</Link>
+              </li>
+              <li>
+                <Link to="/auth">Вход и регистрация</Link>
+              </li>
+              <li>
+                <Link to="/dashboard">Моето табло</Link>
+              </li>
             </ul>
           </div>
-          <div>
-            <h4>Консултанти</h4>
-            <ul>
-              <li>Публично присъствие</li>
-              <li>Слотове и заявки</li>
-              <li>Pro позициониране</li>
+          <div className="footer-column">
+            <h4>Компания</h4>
+            <ul className="footer-links">
+              <li>
+                <Link to="/about">За нас</Link>
+              </li>
+              <li>
+                <Link to="/faq">FAQ</Link>
+              </li>
+              <li>
+                <Link to="/contact">Contact us</Link>
+              </li>
             </ul>
           </div>
-          <div>
-            <h4>Партньори</h4>
-            <ul>
-              <li>Рекламни позиции</li>
-              <li>Видимост към активна аудитория</li>
-              <li>Работодателски и образователни кампании</li>
+          <div className="footer-column">
+            <h4>Правна информация</h4>
+            <ul className="footer-links">
+              <li>
+                <Link to="/legal">Условия и поверителност</Link>
+              </li>
+              <li>
+                <Link to="/legal">Cookies и комуникации</Link>
+              </li>
+              <li>
+                <Link to="/contact">Правни запитвания</Link>
+              </li>
             </ul>
+          </div>
+        </div>
+        <div className="container footer-bottom">
+          <span>{currentYear} {config.appName}. Всички права запазени.</span>
+          <div className="footer-bottom__links">
+            <Link to="/about">За нас</Link>
+            <Link to="/faq">FAQ</Link>
+            <Link to="/legal">Legal</Link>
+            <Link to="/contact">Contact</Link>
           </div>
         </div>
       </footer>
@@ -868,6 +1081,398 @@ function ConsultantsPage() {
         </div>
       </section>
     </>
+  );
+}
+
+function AboutPage() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">За нас</p>
+            <h1>CareerLane е създадена като професионална среда за по-ясни кариерни решения.</h1>
+            <p className="hero__lede">
+              Платформата свързва професионалисти, консултанти и партньори в по-подреден
+              и представителен онлайн формат. Целта ни е хората да намират правилната
+              подкрепа по-лесно и да работят от едно ясно място.
+            </p>
+
+            <div className="hero-stats">
+              {aboutHighlights.map((item) => (
+                <div key={item.label}>
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Какво стои зад продукта</p>
+            <h2>Професионална структура, а не шумен каталог.</h2>
+            <p>
+              В основата на CareerLane са ясно разграничени роли, добра навигация и
+              подредено представяне на профили, документи и следващи действия.
+            </p>
+            <div className="chip-row">
+              <span className="chip">Trust-first UX</span>
+              <span className="chip">Free / Pro модел</span>
+              <span className="chip">Професионално присъствие</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container info-grid">
+          {aboutPrinciples.map((item) => (
+            <article className="info-card" key={item.title}>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section section--alt">
+        <div className="container public-layout">
+          <div className="panel-stack">
+            <article className="panel">
+              <p className="eyebrow">Кого обслужваме</p>
+              <h2>Една платформа, няколко ясно разграничени аудитории.</h2>
+              <div className="info-grid">
+                <article className="info-card">
+                  <h3>Професионалисти</h3>
+                  <p>За хора, които търсят по-силен профил, по-ясен разказ и правилен консултант.</p>
+                </article>
+                <article className="info-card">
+                  <h3>Консултанти</h3>
+                  <p>За специалисти, които искат по-представителен публичен профил и по-добра видимост.</p>
+                </article>
+                <article className="info-card">
+                  <h3>Партньори</h3>
+                  <p>За работодателски брандове, академии и програми, които искат релевантно рекламно присъствие.</p>
+                </article>
+              </div>
+            </article>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Оперативен стандарт</p>
+            <h2>Сайтът е подготвен като пълна публична витрина.</h2>
+            <p>
+              Заедно с основните продуктови страници вече има отделни страници за компания,
+              контакт, FAQ и правна информация, така че публичното присъствие да изглежда
+              завършено и надеждно.
+            </p>
+            <Link className="ghost-button" to="/legal">
+              Виж правната информация
+            </Link>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ContactPage() {
+  const [message, setMessage] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    topic: "support",
+    details: ""
+  });
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
+    const recipient =
+      form.topic === "partnerships"
+        ? "partners@careerlane.eu"
+        : form.topic === "legal"
+          ? "legal@careerlane.eu"
+          : "support@careerlane.eu";
+    const subject = `[CareerLane] ${
+      form.topic === "partnerships"
+        ? "Партньорско запитване"
+        : form.topic === "legal"
+          ? "Правно запитване"
+          : "Обща поддръжка"
+    }`;
+    const body = `Име: ${form.name}\nИмейл: ${form.email}\nТема: ${form.topic}\n\nСъобщение:\n${form.details}`;
+
+    setMessage("Отваряме имейл клиента ти с подготвено съобщение.");
+
+    if (typeof window !== "undefined") {
+      window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+  }
+
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">Contact us</p>
+            <h1>Ясни канали за поддръжка, партньорства и правни въпроси.</h1>
+            <p className="hero__lede">
+              Контактната страница е оформена така, както би изглеждала на реален
+              production сайт: с отделни направления, ясни очаквания и директен начин за
+              започване на разговор.
+            </p>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Работен стандарт</p>
+            <h2>Бърза ориентация по тип запитване.</h2>
+            <p>
+              Общите въпроси, партньорствата и правните запитвания са разделени в различни
+              канали, за да се насочват по-точно и по-лесно.
+            </p>
+            <div className="hero__points">
+              <div>
+                <span>Отговор</span>
+                <strong>до 1 работен ден</strong>
+              </div>
+              <div>
+                <span>Формат</span>
+                <strong>имейл или форма</strong>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container contact-grid">
+          {contactChannels.map((channel) => (
+            <article className="info-card" key={channel.email}>
+              <p className="eyebrow">Контактен канал</p>
+              <h3>{channel.title}</h3>
+              <p>{channel.description}</p>
+              <a className="ghost-button" href={`mailto:${channel.email}`}>
+                {channel.email}
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section section--alt">
+        <div className="container public-layout">
+          <form className="panel form-stack" onSubmit={handleSubmit}>
+            <p className="eyebrow">Форма за контакт</p>
+            <h2>Изпрати запитване</h2>
+            <p className="section-caption">
+              Формата подготвя имейл към правилния канал според избраната тема.
+            </p>
+
+            {message ? <div className="panel panel--success">{message}</div> : null}
+
+            <div className="two-column">
+              <label>
+                Име
+                <input
+                  value={form.name}
+                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  placeholder="Име и фамилия"
+                  required
+                />
+              </label>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  placeholder="name@example.com"
+                  required
+                />
+              </label>
+            </div>
+
+            <label>
+              Тема
+              <select
+                value={form.topic}
+                onChange={(event) => setForm({ ...form, topic: event.target.value })}
+              >
+                <option value="support">Обща поддръжка</option>
+                <option value="partnerships">Партньорства и реклама</option>
+                <option value="legal">Правни и данни</option>
+              </select>
+            </label>
+
+            <label>
+              Съобщение
+              <textarea
+                rows={6}
+                value={form.details}
+                onChange={(event) => setForm({ ...form, details: event.target.value })}
+                placeholder="Опиши запитването си възможно най-ясно."
+                required
+              />
+            </label>
+
+            <button className="primary-button" type="submit">
+              Подготви имейл
+            </button>
+          </form>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Насоки</p>
+            <h2>Кога коя тема е правилният избор</h2>
+            <ul className="page-list">
+              <li>Използвай `Обща поддръжка` за акаунт, достъп, вход и потребителски въпроси.</li>
+              <li>Използвай `Партньорства и реклама` за рекламната зона и employer branding формати.</li>
+              <li>Използвай `Правни и данни` за privacy заявки, условия и административни въпроси.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function FaqPage() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">FAQ</p>
+            <h1>Отговори на най-честите въпроси за платформата, акаунтите и достъпа.</h1>
+            <p className="hero__lede">
+              FAQ страницата е подредена така, че нов потребител, консултант или партньор
+              да получи бърза ориентация без да търси информация в отделни секции.
+            </p>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Полезни връзки</p>
+            <h2>Още помощ</h2>
+            <div className="helper-grid helper-grid--single">
+              <article className="helper-card">
+                <strong>Contact</strong>
+                <p>За въпроси извън FAQ използвай страницата за контакти.</p>
+                <Link className="ghost-button" to="/contact">
+                  Отвори Contact
+                </Link>
+              </article>
+              <article className="helper-card">
+                <strong>Legal</strong>
+                <p>За условия, privacy и правни детайли виж правната страница.</p>
+                <Link className="ghost-button" to="/legal">
+                  Отвори Legal
+                </Link>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container faq-list">
+          {faqItems.map((item, index) => (
+            <details className="faq-item" key={item.question} open={index === 0}>
+              <summary>{item.question}</summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function LegalPage() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">Legal</p>
+            <h1>Правна информация, условия за използване и насоки за поверителност.</h1>
+            <p className="hero__lede">
+              Тази страница обобщава основните правила за използване на платформата,
+              обработката на данни и ролята на CareerLane като професионална среда за
+              свързване и организация на консултации.
+            </p>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Последна актуализация</p>
+            <h2>20 март 2026</h2>
+            <p>
+              При промени по членствата, политиките или начина на работа на платформата
+              правната информация следва да бъде обновявана ясно и навреме.
+            </p>
+            <a className="ghost-button" href="mailto:legal@careerlane.eu">
+              legal@careerlane.eu
+            </a>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container public-layout">
+          <div className="panel-stack">
+            {legalSections.map((section) => (
+              <article className="panel legal-section" key={section.title}>
+                <h2>{section.title}</h2>
+                <ul className="page-list">
+                  {section.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Важно</p>
+            <h2>Платформата не е гаранция за резултат.</h2>
+            <p>
+              CareerLane улеснява професионалното позициониране и организацията на
+              консултации, но не дава гаранция за интервю, оферта или наемане.
+            </p>
+            <Link className="ghost-button" to="/faq">
+              Прегледай FAQ
+            </Link>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="panel empty-state empty-state--centered">
+          <p className="eyebrow">404</p>
+          <h2>Тази страница не беше намерена.</h2>
+          <p>
+            Възможно е адресът да е променен или страницата вече да не е активна. Използвай
+            някоя от основните секции, за да продължиш.
+          </p>
+          <div className="dashboard-actions">
+            <Link className="primary-button" to="/">
+              Към началото
+            </Link>
+            <Link className="ghost-button" to="/users">
+              За потребители
+            </Link>
+            <Link className="ghost-button" to="/contact">
+              Contact us
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

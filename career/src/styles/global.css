@@ -294,9 +294,13 @@ img {
 }
 
 .hero__grid,
+.page-hero__grid,
 .journey-grid,
 .pricing-grid,
 .consultant-detail-grid,
+.public-layout,
+.contact-grid,
+.info-grid,
 .dashboard-grid,
 .auth-layout,
 .footer-grid {
@@ -309,7 +313,19 @@ img {
   align-items: stretch;
 }
 
+.page-hero__grid,
+.public-layout {
+  grid-template-columns: minmax(0, 1.2fr) 340px;
+  align-items: start;
+}
+
+.contact-grid,
+.info-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .hero__copy,
+.page-intro,
 .hero__card,
 .journey-card,
 .consultant-card,
@@ -594,6 +610,7 @@ textarea {
 .journey-card h3,
 .pricing-card h3,
 .consultant-card h3,
+.info-card h3,
 .pricing-track__intro h3 {
   margin: 0;
   letter-spacing: -0.05em;
@@ -791,7 +808,8 @@ textarea {
 }
 
 .summary-card,
-.helper-card {
+.helper-card,
+.info-card {
   padding: 20px;
   border-radius: 24px;
   border: 1px solid var(--border);
@@ -808,12 +826,68 @@ textarea {
 }
 
 .summary-card p,
-.helper-card p {
+.helper-card p,
+.info-card p {
   margin: 10px 0 0;
 }
 
 .helper-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.helper-grid--single {
+  grid-template-columns: 1fr;
+}
+
+.faq-list {
+  display: grid;
+  gap: 16px;
+}
+
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  padding: 0 24px;
+}
+
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 22px 0;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item p {
+  margin: 0 0 22px;
+  color: var(--text-soft);
+  line-height: 1.75;
+}
+
+.page-side-card {
+  position: sticky;
+  top: 106px;
+}
+
+.page-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.page-list li {
+  color: var(--text-soft);
+  line-height: 1.75;
+}
+
+.legal-section {
+  display: grid;
+  gap: 14px;
 }
 
 .booking-panel .slot-grid {
@@ -1017,7 +1091,7 @@ textarea {
 }
 
 .footer-grid {
-  grid-template-columns: 1.25fr 1fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
 }
 
 .site-footer h3,
@@ -1029,6 +1103,49 @@ textarea {
 .site-footer p,
 .site-footer li {
   line-height: 1.75;
+}
+
+.footer-links {
+  margin: 0;
+  padding-left: 0 !important;
+  list-style: none;
+}
+
+.footer-links a,
+.footer-bottom a {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.footer-links a:hover,
+.footer-bottom a:hover {
+  color: white;
+}
+
+.footer-note {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.footer-bottom__links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.empty-state--centered {
+  justify-items: center;
+  text-align: center;
 }
 
 @keyframes riseIn {
@@ -1055,8 +1172,12 @@ textarea {
 
 @media (max-width: 1120px) {
   .hero__grid,
+  .page-hero__grid,
   .profile-hero__grid,
   .consultant-detail-grid,
+  .public-layout,
+  .contact-grid,
+  .info-grid,
   .auth-layout,
   .dashboard-grid,
   .footer-grid {
@@ -1084,6 +1205,10 @@ textarea {
   .ad-banner__actions {
     justify-items: start;
   }
+
+  .page-side-card {
+    position: static;
+  }
 }
 
 @media (max-width: 820px) {
@@ -1094,6 +1219,8 @@ textarea {
   .consultant-grid,
   .journey-grid,
   .pricing-grid,
+  .contact-grid,
+  .info-grid,
   .filter-bar,
   .two-column,
   .hero__points,
@@ -1123,7 +1250,8 @@ textarea {
   .hero-actions,
   .section-heading,
   .filter-actions,
-  .dashboard-actions {
+  .dashboard-actions,
+  .footer-bottom {
     flex-direction: column;
     align-items: start;
   }
