@@ -1,5 +1,6 @@
 import type {
   ConsultantProfile,
+  ConsultantProfileType,
   PlanTier,
   UploadedDocument,
   UserProfile,
@@ -12,6 +13,7 @@ export type MockSubscriptionStatus = "inactive" | "active" | "cancelled";
 export interface MockPreviewAccount {
   name: string;
   email: string;
+  password?: string;
   role: UserRole;
   plan: PlanTier;
   city: string;
@@ -28,6 +30,7 @@ export interface MockPreviewAccount {
   paymentLast4: string | null;
   startedAt: string;
   nextBillingAt: string | null;
+  consultantProfileType?: ConsultantProfileType;
   consultantSlug?: string;
   consultantDisplayName?: string;
   consultantBio?: string;
@@ -119,6 +122,7 @@ export function buildPreviewConsultantProfile(account: MockPreviewAccount) {
   return {
     consultantId: `preview-consultant-${account.email}`,
     ownerUserId: `preview-${account.email}`,
+    profileType: account.consultantProfileType || "consultant",
     slug: account.consultantSlug || slugify(account.consultantDisplayName || account.name),
     name: account.consultantDisplayName || account.name,
     headline: account.headline,
@@ -160,6 +164,15 @@ export function buildPreviewConsultantProfile(account: MockPreviewAccount) {
       "Работим в ясен процес: профил, цели, следващи стъпки и конкретна подготовка.",
     sessionLengthMinutes: account.consultantSessionLengthMinutes || 60
   } satisfies ConsultantProfile;
+}
+
+export function isPublicConsultantPreview(account: MockPreviewAccount | null) {
+  return Boolean(
+    account &&
+      account.role === "consultant" &&
+      account.plan === "pro" &&
+      account.subscriptionStatus === "active"
+  );
 }
 
 export function writeMockPreviewAccount(account: MockPreviewAccount) {

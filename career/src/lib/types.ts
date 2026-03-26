@@ -1,6 +1,7 @@
 export type UserRole = "client" | "consultant";
 export type PlanTier = "free" | "pro";
 export type BookingStatus = "requested" | "confirmed" | "cancelled";
+export type ConsultantProfileType = "consultant" | "mentor";
 
 export interface UploadedDocument {
   fileName: string;
@@ -11,6 +12,7 @@ export interface UploadedDocument {
 export interface ConsultantProfile {
   consultantId: string;
   ownerUserId: string;
+  profileType?: ConsultantProfileType;
   slug: string;
   name: string;
   headline: string;

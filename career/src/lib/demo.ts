@@ -13,6 +13,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-anna-petrova",
     ownerUserId: "anna@careerlane.bg",
+    profileType: "mentor",
     slug: "anna-petrova",
     name: "Анна Петрова",
     headline: "Кариерен стратег за leadership преходи и международни роли",
@@ -43,6 +44,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-martin-iliev",
     ownerUserId: "martin@careerlane.bg",
+    profileType: "consultant",
     slug: "martin-iliev",
     name: "Мартин Илиев",
     headline: "Консултант по кариерна промяна, преговори и executive positioning",
@@ -73,6 +75,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-elena-georgieva",
     ownerUserId: "elena@careerlane.bg",
+    profileType: "mentor",
     slug: "elena-georgieva",
     name: "Елена Георгиева",
     headline: "Кариера в продуктови екипи, people management и strategic storytelling",
@@ -103,6 +106,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-stefan-rusev",
     ownerUserId: "stefan@careerlane.bg",
+    profileType: "consultant",
     slug: "stefan-rusev",
     name: "Стефан Русев",
     headline: "Interview coach за enterprise продажби, partnerships и go-to-market роли",
@@ -133,6 +137,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-nikol-slavova",
     ownerUserId: "nikol@careerlane.bg",
+    profileType: "mentor",
     slug: "nikol-slavova",
     name: "Никол Славова",
     headline: "Консултант за early-career кандидати и силно първо позициониране",
@@ -163,6 +168,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-maria-koleva",
     ownerUserId: "maria@careerlane.bg",
+    profileType: "consultant",
     slug: "maria-koleva",
     name: "Мария Колева",
     headline: "CV, LinkedIn и career reset за marketing и brand professionals",
@@ -193,6 +199,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-dimitar-vasilev",
     ownerUserId: "dimitar@careerlane.bg",
+    profileType: "consultant",
     slug: "dimitar-vasilev",
     name: "Димитър Василев",
     headline: "Career architect за data, analytics и AI product roles",
@@ -223,6 +230,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-yoana-dimitrova",
     ownerUserId: "yoana@careerlane.bg",
+    profileType: "mentor",
     slug: "yoana-dimitrova",
     name: "Йоана Димитрова",
     headline: "People manager coaching за women in leadership и visible career moves",
@@ -253,6 +261,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-petar-hristov",
     ownerUserId: "petar@careerlane.bg",
+    profileType: "consultant",
     slug: "petar-hristov",
     name: "Петър Христов",
     headline: "Coach за founders, operators и senior hires в scale-up екипи",
@@ -283,6 +292,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-ivana-stoyanova",
     ownerUserId: "ivana@careerlane.bg",
+    profileType: "mentor",
     slug: "ivana-stoyanova",
     name: "Ивана Стоянова",
     headline: "Career partner за finance, consulting и client-facing strategy roles",
@@ -313,6 +323,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-kalina-mileva",
     ownerUserId: "kalina@careerlane.bg",
+    profileType: "mentor",
     slug: "kalina-mileva",
     name: "Калина Милева",
     headline: "LinkedIn и personal branding консултант за senior experts и visible specialists",
@@ -343,6 +354,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-boris-georgiev",
     ownerUserId: "boris@careerlane.bg",
+    profileType: "consultant",
     slug: "boris-georgiev",
     name: "Борис Георгиев",
     headline: "Career coach за operations, program management и cross-functional leadership",
@@ -373,6 +385,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-desi-atanasova",
     ownerUserId: "desi@careerlane.bg",
+    profileType: "mentor",
     slug: "desi-atanasova",
     name: "Деси Атанасова",
     headline: "Career advisor за HR, talent и people experience professionals",
@@ -403,6 +416,7 @@ export const demoConsultants: ConsultantProfile[] = [
   {
     consultantId: "consultant-radoslav-tanev",
     ownerUserId: "radoslav@careerlane.bg",
+    profileType: "consultant",
     slug: "radoslav-tanev",
     name: "Радослав Танев",
     headline: "Interview и CV strategist за engineering leadership и technical management",

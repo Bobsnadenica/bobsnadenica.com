@@ -3,6 +3,7 @@ import { demoBookings, demoConsultants, demoProfile } from "./demo";
 import {
   buildPreviewConsultantProfile,
   buildPreviewUserProfile,
+  isPublicConsultantPreview,
   readMockPreviewAccount
 } from "./mock-preview";
 import type {
@@ -21,7 +22,7 @@ const STORAGE_KEYS = {
   seedVersion: "careerdoc.mock.seed-version"
 };
 
-const MOCK_SEED_VERSION = "2026-03-20-brand-refresh-v3";
+const MOCK_SEED_VERSION = "2026-03-26-go-to-market-v1";
 const DEFAULT_CONSULTANT_PORTRAIT =
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80";
 const DEFAULT_WORKSPACE_SCENE =
@@ -141,9 +142,10 @@ function getStoredConsultants() {
     STORAGE_KEYS.consultants,
     demoConsultants
   );
-  const previewConsultant = buildPreviewConsultantProfile(readMockPreviewAccount());
+  const previewAccount = readMockPreviewAccount();
+  const previewConsultant = buildPreviewConsultantProfile(previewAccount);
 
-  if (!previewConsultant) {
+  if (!previewConsultant || !isPublicConsultantPreview(previewAccount)) {
     return storedConsultants;
   }
 
@@ -318,6 +320,7 @@ export const api = {
         const consultantProfile: ConsultantProfile = {
           consultantId: `consultant-${Math.random().toString(36).slice(2, 10)}`,
           ownerUserId: nextProfile.userId,
+          profileType: "consultant",
           slug,
           name: input.name,
           headline: "Нов кариерен консултант",

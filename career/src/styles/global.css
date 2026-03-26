@@ -148,7 +148,8 @@ select:focus-visible {
 .hero-stats,
 .hero-actions,
 .meta-row,
-.consultant-card__meta {
+.consultant-card__meta,
+.profile-actions {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -157,7 +158,8 @@ select:focus-visible {
 .chip-row,
 .hero-stats,
 .meta-row,
-.consultant-card__meta {
+.consultant-card__meta,
+.profile-actions {
   flex-wrap: wrap;
 }
 
@@ -700,6 +702,10 @@ textarea {
   margin: -6px 0 18px;
 }
 
+.directory-switches {
+  margin: 0 0 18px;
+}
+
 .search-shortcuts__label {
   color: var(--muted);
   font-size: 0.8rem;
@@ -739,6 +745,10 @@ textarea {
   background: var(--primary-soft);
   color: var(--primary-dark);
   box-shadow: 0 14px 28px rgba(10, 102, 194, 0.08);
+}
+
+.profile-actions {
+  margin-top: 4px;
 }
 
 .consultants-hero .hero-stats {
@@ -1782,6 +1792,39 @@ textarea {
   gap: 16px;
 }
 
+.social-auth {
+  display: grid;
+  gap: 12px;
+}
+
+.social-auth__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.social-auth__button {
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text);
+  font-weight: 700;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.social-auth__button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(10, 102, 194, 0.26);
+  background: var(--primary-soft);
+  box-shadow: 0 16px 30px rgba(10, 102, 194, 0.08);
+}
+
 .tab-row {
   display: flex;
   gap: 8px;
@@ -2054,6 +2097,7 @@ textarea {
   .consultant-proof-grid,
   .contact-grid,
   .info-grid,
+  .social-auth__grid,
   .filter-bar,
   .two-column,
   .choice-grid,
@@ -2150,6 +2194,11 @@ textarea {
   }
 
   .answer-suggestions__grid {
+    gap: 8px;
+  }
+
+  .search-shortcuts__list,
+  .profile-actions {
     gap: 8px;
   }
 
