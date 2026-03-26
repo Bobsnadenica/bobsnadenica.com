@@ -5,8 +5,7 @@ const {
   GetCommand,
   PutCommand,
   QueryCommand,
-  ScanCommand,
-  UpdateCommand
+  ScanCommand
 } = require("@aws-sdk/lib-dynamodb");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
@@ -37,6 +36,10 @@ function response(statusCode, body) {
 
 function badRequest(message) {
   return response(400, { message });
+}
+
+function forbidden(message) {
+  return response(403, { message });
 }
 
 function notFound(message) {
@@ -112,6 +115,26 @@ async function getConsultantByOwner(ownerUserId) {
   return result.Items?.[0] || null;
 }
 
+function normalizeStringList(value, fallback = []) {
+  if (!Array.isArray(value)) {
+    return fallback;
+  }
+
+  return value
+    .map((item) => String(item || "").trim())
+    .filter(Boolean);
+}
+
+function getConsultantVisibility(plan) {
+  const isPublic = plan === "pro";
+
+  return {
+    isPublic,
+    profileStatus: isPublic ? "active" : "draft",
+    subscriptionStatus: isPublic ? "active" : "inactive"
+  };
+}
+
 async function listConsultants(event) {
   const query = String(event.queryStringParameters?.query || "")
     .trim()
@@ -127,11 +150,18 @@ async function listConsultants(event) {
   );
 
   const items = (result.Items || []).filter((item) => {
+    if (item.isPublic === false) {
+      return false;
+    }
+
     const matchesQuery =
       !query ||
       item.name?.toLowerCase().includes(query) ||
       item.headline?.toLowerCase().includes(query) ||
-      (item.specializations || []).join(" ").toLowerCase().includes(query);
+      (item.specializations || []).join(" ").toLowerCase().includes(query) ||
+      (item.tags || []).join(" ").toLowerCase().includes(query) ||
+      (item.consultationTopics || []).join(" ").toLowerCase().includes(query) ||
+      (item.idealFor || []).join(" ").toLowerCase().includes(query);
     const matchesCity = !city || item.city?.toLowerCase().includes(city);
     return matchesQuery && matchesCity;
   });
@@ -148,7 +178,7 @@ async function getConsultant(event) {
 
   const consultant = await getConsultantBySlug(slug);
 
-  if (!consultant) {
+  if (!consultant || consultant.isPublic === false) {
     return notFound("Consultant profile not found.");
   }
 
@@ -161,6 +191,7 @@ async function bootstrapUser(event) {
   const now = new Date().toISOString();
 
   const existing = await getUserBySub(claims.sub);
+  const consultantVisibility = getConsultantVisibility(body.plan || existing?.plan || "free");
   const nextUser = {
     userId: claims.sub,
     email: claims.email || body.email || "",
@@ -168,8 +199,14 @@ async function bootstrapUser(event) {
     role: body.role || existing?.role || "client",
     plan: body.plan || existing?.plan || "free",
     city: existing?.city || "",
+    occupation: existing?.occupation || "",
+    age: existing?.age ?? null,
     headline: existing?.headline || "",
     bio: existing?.bio || "",
+    interests: existing?.interests || [],
+    keywords: existing?.keywords || [],
+    goals: existing?.goals || "",
+    preferredSessionModes: existing?.preferredSessionModes || [],
     cvDocument: existing?.cvDocument || null,
     createdAt: existing?.createdAt || now,
     updatedAt: now
@@ -199,6 +236,7 @@ async function bootstrapUser(event) {
           Item: {
             consultantId: `consultant-${randomUUID()}`,
             ownerUserId: claims.sub,
+            profileType: body.consultantProfileType || "consultant",
             slug,
             name: nextUser.name || "Нов консултант",
             headline: "Нова публична страница на консултант",
@@ -217,7 +255,23 @@ async function bootstrapUser(event) {
             heroUrl: "/assets/consultant-1.jpg",
             mapImageUrl: "/assets/map-static.jpg",
             tags: ["New"],
-            availability: [new Date(Date.now() + 86_400_000).toISOString()]
+            availability: [new Date(Date.now() + 86_400_000).toISOString()],
+            idealFor: ["Професионалисти в кариерен преход"],
+            consultationTopics: ["Кариерна стратегия", "CV и профил"],
+            workApproach: "Работим стъпка по стъпка: цели, профил и подготовка.",
+            sessionLengthMinutes: 60,
+            ...consultantVisibility
+          }
+        })
+      );
+    } else {
+      await dynamo.send(
+        new PutCommand({
+          TableName: env.consultantsTable,
+          Item: {
+            ...existingConsultant,
+            profileType: body.consultantProfileType || existingConsultant.profileType || "consultant",
+            ...consultantVisibility
           }
         })
       );
@@ -251,8 +305,15 @@ async function updateMeProfile(event) {
     ...current,
     name: body.name ?? current.name,
     city: body.city ?? current.city,
+    occupation: body.occupation ?? current.occupation ?? "",
+    age: body.age ?? current.age ?? null,
     headline: body.headline ?? current.headline,
     bio: body.bio ?? current.bio,
+    interests: body.interests ?? current.interests ?? [],
+    keywords: body.keywords ?? current.keywords ?? [],
+    goals: body.goals ?? current.goals ?? "",
+    preferredSessionModes:
+      body.preferredSessionModes ?? current.preferredSessionModes ?? [],
     plan: body.plan ?? current.plan,
     cvDocument: body.cvDocument ?? current.cvDocument,
     updatedAt: new Date().toISOString()
@@ -283,10 +344,17 @@ async function updateMyConsultant(event) {
   const claims = requireAuth(event);
   const body = parseBody(event);
   const current = await getConsultantByOwner(claims.sub);
+  const user = await getUserBySub(claims.sub);
 
   if (!current) {
     return notFound("Consultant profile not found.");
   }
+
+  if (!user || user.role !== "consultant") {
+    return forbidden("Only consultant accounts can manage consultant profiles.");
+  }
+
+  const consultantVisibility = getConsultantVisibility(user.plan);
 
   if (body.slug && body.slug !== current.slug) {
     const existingSlug = await getConsultantBySlug(body.slug);
@@ -297,6 +365,7 @@ async function updateMyConsultant(event) {
 
   const nextConsultant = {
     ...current,
+    profileType: body.profileType ?? current.profileType ?? "consultant",
     slug: body.slug ?? current.slug,
     name: body.name ?? current.name,
     headline: body.headline ?? current.headline,
@@ -314,11 +383,18 @@ async function updateMyConsultant(event) {
     specializations: body.specializations ?? current.specializations,
     sessionModes: body.sessionModes ?? current.sessionModes,
     tags: body.tags ?? current.tags,
+    idealFor: body.idealFor ?? current.idealFor ?? [],
+    consultationTopics:
+      body.consultationTopics ?? current.consultationTopics ?? [],
+    workApproach: body.workApproach ?? current.workApproach ?? "",
+    sessionLengthMinutes:
+      body.sessionLengthMinutes ?? current.sessionLengthMinutes ?? 60,
     availability: body.availability ?? current.availability,
     nextAvailable:
       (body.availability && body.availability[0]) ||
       current.nextAvailable ||
-      new Date(Date.now() + 86_400_000).toISOString()
+      new Date(Date.now() + 86_400_000).toISOString(),
+    ...consultantVisibility
   };
 
   await dynamo.send(
@@ -373,6 +449,10 @@ async function createBooking(event) {
     return notFound("User profile not found.");
   }
 
+  if (user.role !== "client") {
+    return forbidden("Only users can create consultation bookings.");
+  }
+
   const consultantResult = await dynamo.send(
     new GetCommand({
       TableName: env.consultantsTable,
@@ -383,6 +463,14 @@ async function createBooking(event) {
 
   if (!consultant) {
     return notFound("Consultant not found.");
+  }
+
+  if (consultant.isPublic === false) {
+    return badRequest("Consultant profile is not public yet.");
+  }
+
+  if (consultant.ownerUserId === user.userId) {
+    return badRequest("You cannot book your own consultant profile.");
   }
 
   const booking = {

@@ -38,6 +38,45 @@ import type {
   UserRole
 } from "../lib/types";
 const PENDING_BOOTSTRAP_KEY = "careerdoc.pending-bootstrap";
+
+type PendingBootstrap = {
+  name: string;
+  email: string;
+  role: UserRole;
+  plan: PlanTier;
+  consultantProfileType?: ConsultantProfileType;
+};
+
+function readPendingBootstrap() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.localStorage.getItem(PENDING_BOOTSTRAP_KEY);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as PendingBootstrap;
+  } catch {
+    return null;
+  }
+}
+
+function writePendingBootstrap(value: PendingBootstrap) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(PENDING_BOOTSTRAP_KEY, JSON.stringify(value));
+  }
+}
+
+function clearPendingBootstrap() {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(PENDING_BOOTSTRAP_KEY);
+  }
+}
+
 const MATCH_STOP_WORDS = new Set([
   "and",
   "for",
@@ -3570,16 +3609,26 @@ function ConsultantPage() {
 }
 
 function AuthPage() {
-  const { user, loading } = useAuth();
+  const {
+    configured,
+    user,
+    loading,
+    register: registerWithAuth,
+    confirm: confirmWithAuth,
+    login: loginWithAuth,
+    requestPasswordReset,
+    completePasswordReset
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const redirect = params.get("redirect") || "/account";
+  const redirect = params.get("redirect") || (configured ? "/dashboard" : "/account");
+  const resolvedRedirect = configured && redirect === "/account" ? "/dashboard" : redirect;
   const initialTab = params.get("tab") === "register" ? "register" : "login";
   const initialRole = params.get("role") === "consultant" ? "consultant" : "client";
   const initialPlan =
     initialRole === "consultant" && params.get("plan") === "pro" ? "pro" : "free";
-  const existingPreview = readMockPreviewAccount();
+  const existingPreview = configured ? null : readMockPreviewAccount();
 
   const [screen, setScreen] = useState<AuthScreen>(initialTab);
   const [message, setMessage] = useState("");
@@ -3627,7 +3676,7 @@ function AuthPage() {
   }, [form.plan, form.role]);
 
   if (!loading && user) {
-    return <Navigate to={redirect} replace />;
+    return <Navigate to={resolvedRedirect} replace />;
   }
 
   const activeTab =
@@ -3741,7 +3790,7 @@ function AuthPage() {
     };
   }
 
-  function handleRegister(event: FormEvent) {
+  async function handleRegister(event: FormEvent) {
     event.preventDefault();
     clearFeedback();
 
@@ -3750,62 +3799,141 @@ function AuthPage() {
       return;
     }
 
-    writeMockPreviewAccount(buildPresentationAccount());
-    navigate("/account");
-  }
-
-  function handleConfirm(event: FormEvent) {
-    event.preventDefault();
-    clearFeedback();
-    writeMockPreviewAccount(buildPresentationAccount());
-    navigate("/account");
-  }
-
-  function handleLogin(event: FormEvent) {
-    event.preventDefault();
-    clearFeedback();
-
-    const previewAccount = readMockPreviewAccount();
-
-    if (!previewAccount) {
-      setError("Първо създай профил от регистрацията, за да влезеш.");
+    if (!configured) {
+      writeMockPreviewAccount(buildPresentationAccount());
+      navigate("/account");
       return;
     }
 
-    if (previewAccount.email.toLowerCase() !== form.email.trim().toLowerCase()) {
-      setError("Не открихме профил с този имейл.");
+    try {
+      await registerWithAuth({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password.trim(),
+        role: form.role,
+        plan: form.role === "consultant" ? form.plan : "free"
+      });
+
+      writePendingBootstrap({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        plan: form.role === "consultant" ? form.plan : "free",
+        consultantProfileType:
+          form.role === "consultant" ? form.consultantProfileType : undefined
+      });
+
+      setScreen("confirm");
+      setMessage("Изпратихме код за потвърждение на посочения имейл.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешна регистрация.");
+    }
+  }
+
+  async function handleConfirm(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!configured) {
+      writeMockPreviewAccount(buildPresentationAccount());
+      navigate("/account");
       return;
     }
+
+    if (!form.password.trim()) {
+      setError("Въведи паролата си, за да завършиш регистрацията.");
+      return;
+    }
+
+    try {
+      await confirmWithAuth(form.email.trim(), form.code.trim());
+      const token = await loginWithAuth(form.email.trim(), form.password.trim());
+      const pendingBootstrap = readPendingBootstrap();
+
+      if (pendingBootstrap && pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()) {
+        await api.bootstrapUser(token, pendingBootstrap);
+        clearPendingBootstrap();
+      }
+
+      navigate(resolvedRedirect);
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно потвърждение.");
+    }
+  }
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
 
     if (!form.password.trim()) {
       setError("Въведи паролата си, за да продължиш.");
       return;
     }
 
-    if (previewAccount.password && previewAccount.password !== form.password.trim()) {
-      setError("Паролата не съвпада с този профил.");
+    if (!configured) {
+      const previewAccount = readMockPreviewAccount();
+
+      if (!previewAccount) {
+        setError("Първо създай профил от регистрацията, за да влезеш.");
+        return;
+      }
+
+      if (previewAccount.email.toLowerCase() !== form.email.trim().toLowerCase()) {
+        setError("Не открихме профил с този имейл.");
+        return;
+      }
+
+      if (previewAccount.password && previewAccount.password !== form.password.trim()) {
+        setError("Паролата не съвпада с този профил.");
+        return;
+      }
+
+      navigate("/account");
       return;
     }
 
-    navigate("/account");
+    try {
+      const token = await loginWithAuth(form.email.trim(), form.password.trim());
+      const pendingBootstrap = readPendingBootstrap();
+
+      if (pendingBootstrap && pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()) {
+        await api.bootstrapUser(token, pendingBootstrap);
+        clearPendingBootstrap();
+      }
+
+      navigate(resolvedRedirect);
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешен вход.");
+    }
   }
 
-  function handlePasswordResetRequest(event: FormEvent) {
+  async function handlePasswordResetRequest(event: FormEvent) {
     event.preventDefault();
     clearFeedback();
 
-    const previewAccount = readMockPreviewAccount();
+    if (!configured) {
+      const previewAccount = readMockPreviewAccount();
 
-    if (!previewAccount || previewAccount.email.toLowerCase() !== form.email.trim().toLowerCase()) {
-      setError("Не открихме профил с този имейл.");
+      if (!previewAccount || previewAccount.email.toLowerCase() !== form.email.trim().toLowerCase()) {
+        setError("Не открихме профил с този имейл.");
+        return;
+      }
+
+      setScreen("forgot-confirm");
+      setMessage("Изпратихме код за нова парола. Въведи го заедно с новата си парола.");
       return;
     }
 
-    setScreen("forgot-confirm");
-    setMessage("Изпратихме код за нова парола. Въведи го заедно с новата си парола.");
+    try {
+      await requestPasswordReset(form.email.trim());
+      setScreen("forgot-confirm");
+      setMessage("Изпратихме код за нова парола. Въведи го заедно с новата си парола.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно изпращане на код.");
+    }
   }
 
-  function handlePasswordResetConfirm(event: FormEvent) {
+  async function handlePasswordResetConfirm(event: FormEvent) {
     event.preventDefault();
     clearFeedback();
 
@@ -3814,21 +3942,37 @@ function AuthPage() {
       return;
     }
 
-    const previewAccount = readMockPreviewAccount();
+    if (!configured) {
+      const previewAccount = readMockPreviewAccount();
 
-    if (!previewAccount) {
-      setError("Не открихме профил за възстановяване.");
+      if (!previewAccount) {
+        setError("Не открихме профил за възстановяване.");
+        return;
+      }
+
+      writeMockPreviewAccount({
+        ...previewAccount,
+        password: form.newPassword.trim()
+      });
+
+      setScreen("login");
+      setForm((current) => ({ ...current, code: "", newPassword: "", password: "" }));
+      setMessage("Паролата е обновена успешно. Можеш да влезеш отново.");
       return;
     }
 
-    writeMockPreviewAccount({
-      ...previewAccount,
-      password: form.newPassword.trim()
-    });
-
-    setScreen("login");
-    setForm((current) => ({ ...current, code: "", newPassword: "", password: "" }));
-    setMessage("Паролата е обновена успешно. Можеш да влезеш отново.");
+    try {
+      await completePasswordReset(
+        form.email.trim(),
+        form.code.trim(),
+        form.newPassword.trim()
+      );
+      setScreen("login");
+      setForm((current) => ({ ...current, code: "", newPassword: "", password: "" }));
+      setMessage("Паролата е обновена успешно. Можеш да влезеш отново.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно обновяване на паролата.");
+    }
   }
 
   return (
@@ -4239,6 +4383,17 @@ function AuthPage() {
                   value={form.code}
                   onChange={(event) => setForm({ ...form, code: event.target.value })}
                   placeholder="Въведи получения код"
+                  required
+                />
+              </label>
+              <label>
+                Парола
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  autoComplete="current-password"
+                  placeholder="Въведи паролата, с която се регистрира"
                   required
                 />
               </label>

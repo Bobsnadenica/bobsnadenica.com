@@ -9,6 +9,7 @@ import {
 import type {
   Booking,
   ConsultantProfile,
+  ConsultantProfileType,
   PlanTier,
   UploadedDocument,
   UserProfile,
@@ -33,6 +34,7 @@ type BootstrapInput = {
   name: string;
   role: UserRole;
   plan: PlanTier;
+  consultantProfileType?: ConsultantProfileType;
 };
 
 type UpdateProfileInput = Partial<
@@ -70,6 +72,7 @@ type UpdateConsultantInput = Partial<
     | "avatarUrl"
     | "heroUrl"
     | "mapImageUrl"
+    | "profileType"
     | "idealFor"
     | "consultationTopics"
     | "workApproach"
@@ -320,7 +323,7 @@ export const api = {
         const consultantProfile: ConsultantProfile = {
           consultantId: `consultant-${Math.random().toString(36).slice(2, 10)}`,
           ownerUserId: nextProfile.userId,
-          profileType: "consultant",
+          profileType: input.consultantProfileType || "consultant",
           slug,
           name: input.name,
           headline: "Нов кариерен консултант",
