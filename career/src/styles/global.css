@@ -135,6 +135,71 @@ main {
   min-width: 0;
 }
 
+.page-main {
+  position: relative;
+  overflow-x: clip;
+}
+
+.page-scene {
+  position: relative;
+  min-width: 0;
+  overflow-x: clip;
+  isolation: isolate;
+  animation: pageSceneFade 360ms ease both;
+}
+
+.page-scene > * {
+  position: relative;
+  z-index: 1;
+}
+
+.page-scene::before,
+.page-scene::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(8px);
+  opacity: 0.9;
+  animation: pageGlowDrift 14s ease-in-out infinite;
+}
+
+.page-scene::before {
+  inset: -90px auto auto -80px;
+  width: 300px;
+  height: 300px;
+}
+
+.page-scene::after {
+  inset: 120px -110px auto auto;
+  width: 340px;
+  height: 340px;
+  animation-direction: reverse;
+}
+
+.page-scene--home::before,
+.page-scene--directory::before,
+.page-scene--auth::before {
+  background: radial-gradient(circle, rgba(10, 102, 194, 0.16), transparent 68%);
+}
+
+.page-scene--home::after,
+.page-scene--consultant::after,
+.page-scene--dashboard::after {
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.13), transparent 70%);
+}
+
+.page-scene--company::before,
+.page-scene--support::before {
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.14), transparent 68%);
+}
+
+.page-scene--fallback::before,
+.page-scene--fallback::after {
+  background: radial-gradient(circle, rgba(100, 116, 139, 0.14), transparent 70%);
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -487,6 +552,7 @@ main {
 
 .hero__copy,
 .page-intro,
+.auth-copy,
 .hero__card,
 .journey-card,
 .consultant-card,
@@ -494,16 +560,20 @@ main {
 .profile-card,
 .booking-card,
 .panel,
-.ad-banner {
+.ad-banner,
+.consultant-proof-card,
+.faq-item {
   animation: riseIn 600ms ease both;
 }
 
 .hero__copy,
 .page-intro,
+.auth-copy,
 .hero__card,
 .consultant-card,
 .consultant-card__body,
 .consultant-card__top,
+.consultant-proof-card,
 .profile-card,
 .booking-card,
 .panel {
@@ -511,6 +581,7 @@ main {
 }
 
 .hero__copy h1,
+.page-intro h1,
 .auth-copy h1,
 .profile-card h1 {
   margin: 0;
@@ -518,6 +589,36 @@ main {
   line-height: 1;
   letter-spacing: -0.07em;
   max-width: 12ch;
+  text-wrap: balance;
+}
+
+.page-intro,
+.auth-copy {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0;
+  padding: 6px 0 4px;
+}
+
+.page-intro::before,
+.auth-copy::before {
+  content: "";
+  position: absolute;
+  inset: -16px auto auto -18px;
+  width: min(100%, 560px);
+  height: 210px;
+  border-radius: 36px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0)),
+    radial-gradient(circle at top left, rgba(10, 102, 194, 0.12), transparent 60%);
+  pointer-events: none;
+}
+
+.page-intro > *,
+.auth-copy > * {
+  position: relative;
+  z-index: 1;
 }
 
 .hero__lede,
@@ -530,6 +631,12 @@ main {
   color: var(--text-soft);
   line-height: 1.75;
   font-size: 1.04rem;
+}
+
+.page-intro .hero__lede,
+.auth-copy p,
+.section-heading__copy {
+  max-width: 62ch;
 }
 
 .search-card,
@@ -1404,6 +1511,7 @@ textarea {
 .pricing-track__intro h3 {
   margin: 0;
   letter-spacing: -0.05em;
+  text-wrap: balance;
 }
 
 .section-heading h2,
@@ -1419,6 +1527,14 @@ textarea {
   line-height: 1.08;
   overflow-wrap: anywhere;
   text-wrap: balance;
+}
+
+.page-side-card,
+.auth-side-panel {
+  border-color: rgba(177, 198, 220, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 22px 46px rgba(15, 23, 42, 0.06);
 }
 
 .consultant-grid,
@@ -2937,7 +3053,8 @@ textarea {
     transform 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease,
-    background-color 180ms ease;
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 .social-auth__button-content {
@@ -3037,6 +3154,18 @@ textarea {
     white;
   color: var(--text-soft);
   font-weight: 700;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.tab-row button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(10, 102, 194, 0.24);
+  box-shadow: 0 14px 28px rgba(10, 102, 194, 0.07);
 }
 
 .tab-row__active {
@@ -3266,6 +3395,29 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pageSceneFade {
+  from {
+    opacity: 0.72;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageGlowDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(12px, -12px, 0) scale(1.04);
   }
 }
 

@@ -4668,7 +4668,7 @@ export function DashboardPage() {
                 ))}
               </div>
               <div className="upgrade-preview-card__footer">
-                <span>Статус: coming soon</span>
+                <span>Статус: очаквай скоро</span>
                 <button className="ghost-button" type="button" disabled>
                   Очаквай скоро
                 </button>

@@ -31,6 +31,38 @@ function brandMark() {
   );
 }
 
+const primaryNavigation = [
+  { to: "/", label: "Начало" },
+  { to: "/users", label: "За потребители" },
+  { to: "/consultants", label: "За консултанти" }
+] as const;
+
+const footerPlatformLinks = [
+  { to: "/users", label: "За потребители" },
+  { to: "/consultants", label: "За консултанти" },
+  { to: "/auth", label: "Вход и регистрация" },
+  { to: "/dashboard", label: "Моето табло" }
+] as const;
+
+const footerCompanyLinks = [
+  { to: "/about", label: "За нас" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/contact", label: "Контакти" }
+] as const;
+
+const footerLegalLinks = [
+  { to: "/legal", label: "Условия и поверителност" },
+  { to: "/legal", label: "Cookies и комуникации" },
+  { to: "/contact", label: "Правни запитвания" }
+] as const;
+
+const footerBottomLinks = [
+  { to: "/about", label: "За нас" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/legal", label: "Правна информация" },
+  { to: "/contact", label: "Контакти" }
+] as const;
+
 function RouteExperience() {
   const location = useLocation();
 
@@ -180,9 +212,11 @@ export default function AppShell() {
           </Link>
 
           <nav className="site-nav" aria-label="Основна навигация">
-            <NavLink to="/">Начало</NavLink>
-            <NavLink to="/users">За потребители</NavLink>
-            <NavLink to="/consultants">За консултанти</NavLink>
+            {primaryNavigation.map((item) => (
+              <NavLink key={item.to} to={item.to}>
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
 
           <div className="site-header__actions">
@@ -210,14 +244,16 @@ export default function AppShell() {
         </div>
         <div className="container">
           <nav className="site-nav site-nav--mobile" aria-label="Мобилна навигация">
-            <NavLink to="/">Начало</NavLink>
-            <NavLink to="/users">За потребители</NavLink>
-            <NavLink to="/consultants">За консултанти</NavLink>
+            {primaryNavigation.map((item) => (
+              <NavLink key={item.to} to={item.to}>
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
         </div>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" className="page-main">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/users" element={<UsersPage />} />
@@ -251,46 +287,31 @@ export default function AppShell() {
           <div className="footer-column">
             <h4>Платформа</h4>
             <ul className="footer-links">
-              <li>
-                <Link to="/users">За потребители</Link>
-              </li>
-              <li>
-                <Link to="/consultants">За консултанти</Link>
-              </li>
-              <li>
-                <Link to="/auth">Вход и регистрация</Link>
-              </li>
-              <li>
-                <Link to="/dashboard">Моето табло</Link>
-              </li>
+              {footerPlatformLinks.map((item) => (
+                <li key={`${item.to}-${item.label}`}>
+                  <Link to={item.to}>{item.label}</Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="footer-column">
             <h4>Компания</h4>
             <ul className="footer-links">
-              <li>
-                <Link to="/about">За нас</Link>
-              </li>
-              <li>
-                <Link to="/faq">FAQ</Link>
-              </li>
-              <li>
-                <Link to="/contact">Контакти</Link>
-              </li>
+              {footerCompanyLinks.map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to}>{item.label}</Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="footer-column">
             <h4>Правна информация</h4>
             <ul className="footer-links">
-              <li>
-                <Link to="/legal">Условия и поверителност</Link>
-              </li>
-              <li>
-                <Link to="/legal">Cookies и комуникации</Link>
-              </li>
-              <li>
-                <Link to="/contact">Правни запитвания</Link>
-              </li>
+              {footerLegalLinks.map((item) => (
+                <li key={`${item.to}-${item.label}`}>
+                  <Link to={item.to}>{item.label}</Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -299,10 +320,11 @@ export default function AppShell() {
             {currentYear} {config.appName}. Всички права запазени.
           </span>
           <div className="footer-bottom__links">
-            <Link to="/about">За нас</Link>
-            <Link to="/faq">FAQ</Link>
-            <Link to="/legal">Правна информация</Link>
-            <Link to="/contact">Контакти</Link>
+            {footerBottomLinks.map((item) => (
+              <Link key={`${item.to}-${item.label}`} to={item.to}>
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       </footer>
