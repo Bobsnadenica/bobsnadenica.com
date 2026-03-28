@@ -331,6 +331,43 @@ const contactChannels = [
   }
 ] as const;
 
+function renderSocialProviderIcon(
+  providerKey: (typeof socialProviders)[number]["key"]
+) {
+  if (providerKey === "apple") {
+    return (
+      <span
+        className="social-auth__brand social-auth__brand--apple"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" role="presentation">
+          <path d="M15.2 4.3c.8-1 1.3-2.3 1.2-3.6-1.2.1-2.6.8-3.5 1.8-.8.9-1.4 2.2-1.2 3.5 1.3.1 2.6-.6 3.5-1.7Zm3.4 12.6c-.4 1-1 1.9-1.6 2.7-.9 1.1-1.9 2.4-3.3 2.4-1.2 0-1.7-.8-3.1-.8-1.4 0-1.9.8-3.1.8-1.3 0-2.2-1.2-3.1-2.4C2.7 17.6 1.4 14 2.6 11c.9-2.1 2.7-3.5 4.7-3.5 1.3 0 2.5.9 3.1.9.6 0 2-.9 3.5-.9.6 0 2.5.1 3.8 1.9-.1.1-2.2 1.3-2.2 3.8 0 3 2.7 4 2.8 4.1Z" />
+        </svg>
+      </span>
+    );
+  }
+
+  if (providerKey === "linkedin") {
+    return (
+      <span
+        className="social-auth__brand social-auth__brand--linkedin"
+        aria-hidden="true"
+      >
+        <span className="social-auth__brand-label">in</span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="social-auth__brand social-auth__brand--google"
+      aria-hidden="true"
+    >
+      <span className="social-auth__brand-letter">G</span>
+    </span>
+  );
+}
+
 function formatDate(date: string) {
   const parsed = new Date(date);
 
@@ -3374,11 +3411,11 @@ export function AuthPage() {
       <div className="container auth-layout">
         <div className="auth-copy">
           <p className="eyebrow">Вход и регистрация</p>
-          <h1>Един чист вход за профил, консултации и професионално присъствие в CareerLane.</h1>
+          <h1>Влез в CareerLane и управлявай професионалния си профил, консултации и следващи стъпки на едно място.</h1>
           <p>
-            Оттук създаваш или отваряш своя профил. Регистрацията е подредена по роли,
-            потвърждението се появява само след успешна регистрация, а възстановяването на
-            парола е отделен и ясен поток.
+            Оттук започва достъпът до платформата. Можеш да влезеш с имейл или
+            с външен профил, а CareerLane подрежда регистрацията, потвърждението
+            и възстановяването на парола в един ясен, професионален поток.
           </p>
 
           <div className="panel auth-side-panel">
@@ -3453,7 +3490,10 @@ export function AuthPage() {
                       void handleSocialProvider(provider.key);
                     }}
                   >
-                    {provider.label}
+                    <span className="social-auth__button-content">
+                      {renderSocialProviderIcon(provider.key)}
+                      <span>{provider.label}</span>
+                    </span>
                   </button>
                 ))}
               </div>
