@@ -9,8 +9,7 @@ CareerLane is a full-stack career network for professionals and consultants, wit
   - public consultant discovery
   - consultant detail pages and booking flow
   - auth screens
-  - dashboard for user profile, plan tier, CV upload, bookings, and consultant profile editing
-  - mock mode when AWS env vars are missing, so the product remains usable locally
+  - dashboard for user profile, CV upload, bookings, and consultant profile editing
 
 - `backend/api/`
   - Node.js Lambda API
@@ -24,10 +23,6 @@ CareerLane is a full-stack career network for professionals and consultants, wit
   - DynamoDB tables
   - S3 bucket for CV files
 
-## Assumption for phase one
-
-The product model supports `free` and `pro` users, but live card payments are not implemented in this first pass. The clean next step is Stripe integration on top of the existing plan model.
-
 ## Frontend setup
 
 ```bash
@@ -39,7 +34,7 @@ The frontend source lives in `src/`, and `npm run build` always regenerates the 
 
 `.env.production` is checked in with the current Terraform outputs you shared, so the production build already points at your live AWS resources.
 
-If you want local AWS-backed development instead of mock mode, copy `.env.example` to `.env` and fill in your values.
+If you want local AWS-backed development, copy `.env.example` to `.env` and fill in your values.
 For your target URL `https://www.bobsnadenica.com/career/index.html`, use:
 
 ```bash

@@ -215,6 +215,52 @@ function getConsultantVisibility(plan) {
   };
 }
 
+function createConsultantDraft({
+  userId,
+  name,
+  email,
+  plan,
+  profileType,
+  city,
+  headline
+}) {
+  const baseName = String(name || email || "consultant").trim();
+  const slug = String(baseName)
+    .toLowerCase()
+    .replace(/[^a-z0-9а-я]+/gi, "-")
+    .replace(/^-|-$/g, "");
+
+  return {
+    consultantId: `consultant-${randomUUID()}`,
+    ownerUserId: userId,
+    profileType: profileType || "consultant",
+    slug: slug || `consultant-${Date.now()}`,
+    name: baseName || "Нов профил",
+    headline: String(headline || "").trim() || "Кариерен консултант",
+    bio: "",
+    city: String(city || "").trim(),
+    languages: [],
+    specializations: [],
+    experienceYears: 0,
+    priceBgn: 0,
+    sessionModes: ["Онлайн"],
+    featured: false,
+    rating: 0,
+    reviewCount: 0,
+    nextAvailable: "",
+    avatarUrl: "",
+    heroUrl: "",
+    mapImageUrl: "",
+    tags: [],
+    availability: [],
+    idealFor: [],
+    consultationTopics: [],
+    workApproach: "",
+    sessionLengthMinutes: 60,
+    ...getConsultantVisibility(plan || "free")
+  };
+}
+
 async function listConsultants(event) {
   const query = String(event.queryStringParameters?.query || "")
     .trim()
@@ -246,8 +292,24 @@ async function listConsultants(event) {
     return matchesQuery && matchesCity;
   });
 
+  const orderedItems = [...items].sort((left, right) => {
+    if (left.featured !== right.featured) {
+      return left.featured ? -1 : 1;
+    }
+
+    if ((right.reviewCount || 0) !== (left.reviewCount || 0)) {
+      return (right.reviewCount || 0) - (left.reviewCount || 0);
+    }
+
+    if ((right.rating || 0) !== (left.rating || 0)) {
+      return (right.rating || 0) - (left.rating || 0);
+    }
+
+    return String(left.name || "").localeCompare(String(right.name || ""), "bg");
+  });
+
   const decoratedItems = await Promise.all(
-    items.map((item) => decorateConsultantMedia(item))
+    orderedItems.map((item) => decorateConsultantMedia(item))
   );
 
   return response(200, decoratedItems);
@@ -284,10 +346,10 @@ async function bootstrapUser(event) {
     plan: body.plan || existing?.plan || "free",
     avatarUrl: existing?.avatarUrl || "",
     avatarStorageKey: existing?.avatarStorageKey || "",
-    city: existing?.city || "",
-    occupation: existing?.occupation || "",
+    city: body.city ?? existing?.city ?? "",
+    occupation: body.occupation ?? existing?.occupation ?? "",
     age: existing?.age ?? null,
-    headline: existing?.headline || "",
+    headline: body.headline ?? existing?.headline ?? "",
     bio: existing?.bio || "",
     interests: existing?.interests || [],
     keywords: existing?.keywords || [],
@@ -309,45 +371,18 @@ async function bootstrapUser(event) {
     const existingConsultant = await getConsultantByOwner(claims.sub);
 
     if (!existingConsultant) {
-      const slug = String(
-        (nextUser.name || claims.email || "consultant")
-          .toLowerCase()
-          .replace(/[^a-z0-9а-я]+/gi, "-")
-          .replace(/^-|-$/g, "")
-      );
-
       await dynamo.send(
         new PutCommand({
           TableName: env.consultantsTable,
-          Item: {
-            consultantId: `consultant-${randomUUID()}`,
-            ownerUserId: claims.sub,
-            profileType: body.consultantProfileType || "consultant",
-            slug,
-            name: nextUser.name || "Нов консултант",
-            headline: "Нова публична страница на консултант",
-            bio: "Попълнете профила си от таблото.",
-            city: "София",
-            languages: ["Български"],
-            specializations: ["Кариерна консултация"],
-            experienceYears: 1,
-            priceBgn: 80,
-            sessionModes: ["Онлайн"],
-            featured: false,
-            rating: 5,
-            reviewCount: 0,
-            nextAvailable: new Date(Date.now() + 86_400_000).toISOString(),
-            avatarUrl: "/assets/consultant-1.jpg",
-            heroUrl: "/assets/consultant-1.jpg",
-            mapImageUrl: "/assets/map-static.jpg",
-            tags: ["New"],
-            availability: [new Date(Date.now() + 86_400_000).toISOString()],
-            idealFor: ["Професионалисти в кариерен преход"],
-            consultationTopics: ["Кариерна стратегия", "CV и профил"],
-            workApproach: "Работим стъпка по стъпка: цели, профил и подготовка.",
-            sessionLengthMinutes: 60,
-            ...consultantVisibility
-          }
+          Item: createConsultantDraft({
+            userId: claims.sub,
+            name: nextUser.name,
+            email: claims.email || body.email || "",
+            plan: nextUser.plan,
+            profileType: body.consultantProfileType,
+            city: nextUser.city,
+            headline: nextUser.headline
+          })
         })
       );
     } else {
@@ -431,59 +466,70 @@ async function getMyConsultant(event) {
 async function updateMyConsultant(event) {
   const claims = requireAuth(event);
   const body = parseBody(event);
-  const current = await getConsultantByOwner(claims.sub);
   const user = await getUserBySub(claims.sub);
-
-  if (!current) {
-    return notFound("Consultant profile not found.");
-  }
 
   if (!user || user.role !== "consultant") {
     return forbidden("Only consultant accounts can manage consultant profiles.");
   }
 
+  const current = await getConsultantByOwner(claims.sub);
+  const baseConsultant =
+    current ||
+    createConsultantDraft({
+      userId: claims.sub,
+      name: user.name,
+      email: user.email,
+      plan: user.plan,
+      profileType: body.profileType,
+      city: user.city,
+      headline: user.headline
+    });
+
   const consultantVisibility = getConsultantVisibility(user.plan);
 
-  if (body.slug && body.slug !== current.slug) {
+  if (body.slug && current && body.slug !== current.slug) {
     const existingSlug = await getConsultantBySlug(body.slug);
-    if (existingSlug && existingSlug.consultantId !== current.consultantId) {
+    if (
+      existingSlug &&
+      (!current || existingSlug.consultantId !== current.consultantId)
+    ) {
       return badRequest("This slug is already in use.");
     }
   }
 
   const nextConsultant = {
-    ...current,
-    profileType: body.profileType ?? current.profileType ?? "consultant",
-    slug: body.slug ?? current.slug,
-    name: body.name ?? current.name,
-    headline: body.headline ?? current.headline,
-    bio: body.bio ?? current.bio,
-    city: body.city ?? current.city,
-    experienceYears: body.experienceYears ?? current.experienceYears,
-    priceBgn: body.priceBgn ?? current.priceBgn,
-    featured: body.featured ?? current.featured,
-    rating: body.rating ?? current.rating,
-    reviewCount: body.reviewCount ?? current.reviewCount,
-    avatarUrl: body.avatarUrl ?? current.avatarUrl,
-    heroUrl: body.heroUrl ?? current.heroUrl,
-    avatarStorageKey: body.avatarStorageKey ?? current.avatarStorageKey,
-    heroStorageKey: body.heroStorageKey ?? current.heroStorageKey,
-    mapImageUrl: body.mapImageUrl ?? current.mapImageUrl,
-    languages: body.languages ?? current.languages,
-    specializations: body.specializations ?? current.specializations,
-    sessionModes: body.sessionModes ?? current.sessionModes,
-    tags: body.tags ?? current.tags,
-    idealFor: body.idealFor ?? current.idealFor ?? [],
+    ...baseConsultant,
+    profileType: body.profileType ?? baseConsultant.profileType ?? "consultant",
+    slug: body.slug ?? baseConsultant.slug,
+    name: body.name ?? baseConsultant.name,
+    headline: body.headline ?? baseConsultant.headline,
+    bio: body.bio ?? baseConsultant.bio,
+    city: body.city ?? baseConsultant.city,
+    experienceYears: body.experienceYears ?? baseConsultant.experienceYears ?? 0,
+    priceBgn: body.priceBgn ?? baseConsultant.priceBgn ?? 0,
+    featured: body.featured ?? baseConsultant.featured ?? false,
+    rating: body.rating ?? baseConsultant.rating ?? 0,
+    reviewCount: body.reviewCount ?? baseConsultant.reviewCount ?? 0,
+    avatarUrl: body.avatarUrl ?? baseConsultant.avatarUrl ?? "",
+    heroUrl: body.heroUrl ?? baseConsultant.heroUrl ?? "",
+    avatarStorageKey: body.avatarStorageKey ?? baseConsultant.avatarStorageKey ?? "",
+    heroStorageKey: body.heroStorageKey ?? baseConsultant.heroStorageKey ?? "",
+    mapImageUrl: body.mapImageUrl ?? baseConsultant.mapImageUrl ?? "",
+    languages: body.languages ?? baseConsultant.languages ?? [],
+    specializations: body.specializations ?? baseConsultant.specializations ?? [],
+    sessionModes: body.sessionModes ?? baseConsultant.sessionModes ?? ["Онлайн"],
+    tags: body.tags ?? baseConsultant.tags ?? [],
+    idealFor: body.idealFor ?? baseConsultant.idealFor ?? [],
     consultationTopics:
-      body.consultationTopics ?? current.consultationTopics ?? [],
-    workApproach: body.workApproach ?? current.workApproach ?? "",
+      body.consultationTopics ?? baseConsultant.consultationTopics ?? [],
+    workApproach: body.workApproach ?? baseConsultant.workApproach ?? "",
     sessionLengthMinutes:
-      body.sessionLengthMinutes ?? current.sessionLengthMinutes ?? 60,
-    availability: body.availability ?? current.availability,
+      body.sessionLengthMinutes ?? baseConsultant.sessionLengthMinutes ?? 60,
+    availability: body.availability ?? baseConsultant.availability ?? [],
     nextAvailable:
       (body.availability && body.availability[0]) ||
-      current.nextAvailable ||
-      new Date(Date.now() + 86_400_000).toISOString(),
+      baseConsultant.nextAvailable ||
+      "",
     ...consultantVisibility
   };
 

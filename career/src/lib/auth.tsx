@@ -20,8 +20,6 @@ import {
 import { config, isCognitoConfigured } from "./config";
 import type { AuthUser, PlanTier, UserRole } from "./types";
 
-const MOCK_KEY = "careerdoc.mock.credentials";
-
 type RegisterInput = {
   name: string;
   email: string;
@@ -48,6 +46,7 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const AUTH_NOT_READY_MESSAGE = "Системата за вход все още не е конфигурирана.";
 
 if (isCognitoConfigured) {
   Amplify.configure({
@@ -60,37 +59,6 @@ if (isCognitoConfigured) {
   });
 }
 
-type MockCredential = {
-  email: string;
-  password: string;
-  name: string;
-  confirmed: boolean;
-};
-
-function readCredentials() {
-  if (typeof window === "undefined") {
-    return [] as MockCredential[];
-  }
-
-  const raw = window.localStorage.getItem(MOCK_KEY);
-
-  if (!raw) {
-    return [] as MockCredential[];
-  }
-
-  try {
-    return JSON.parse(raw) as MockCredential[];
-  } catch {
-    return [] as MockCredential[];
-  }
-}
-
-function writeCredentials(credentials: MockCredential[]) {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(MOCK_KEY, JSON.stringify(credentials));
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -99,18 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function restoreSession() {
       if (!isCognitoConfigured) {
-        const currentEmail = window.localStorage.getItem("careerdoc.mock.session");
-
-        if (currentEmail) {
-          const credentials = readCredentials();
-          const match = credentials.find((item) => item.email === currentEmail);
-
-          if (match) {
-            setUser({ id: match.email, email: match.email, name: match.name });
-            setToken(match.email);
-          }
-        }
-
         setLoading(false);
         return;
       }
@@ -146,24 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token,
       async register(input) {
         if (!isCognitoConfigured) {
-          const credentials = readCredentials();
-          const exists = credentials.some((item) => item.email === input.email);
-
-          if (exists) {
-            throw new Error("Профил с този имейл вече съществува.");
-          }
-
-          writeCredentials([
-            ...credentials,
-            {
-              email: input.email,
-              password: input.password,
-              name: input.name,
-              confirmed: false
-            }
-          ]);
-
-          return { needsConfirmation: true };
+          throw new Error(AUTH_NOT_READY_MESSAGE);
         }
 
         await signUp({
@@ -181,15 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async confirm(email, code) {
         if (!isCognitoConfigured) {
-          if (code !== "123456") {
-            throw new Error("За предварителен достъп използвайте код 123456.");
-          }
-
-          const credentials = readCredentials().map((item) =>
-            item.email === email ? { ...item, confirmed: true } : item
-          );
-          writeCredentials(credentials);
-          return;
+          throw new Error(AUTH_NOT_READY_MESSAGE);
         }
 
         await confirmSignUp({
@@ -199,23 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async login(email, password) {
         if (!isCognitoConfigured) {
-          const credentials = readCredentials();
-          const match = credentials.find(
-            (item) => item.email === email && item.password === password
-          );
-
-          if (!match) {
-            throw new Error("Невалиден имейл или парола.");
-          }
-
-          if (!match.confirmed) {
-            throw new Error("Потвърдете регистрацията си с код 123456.");
-          }
-
-          window.localStorage.setItem("careerdoc.mock.session", match.email);
-          setUser({ id: match.email, email: match.email, name: match.name });
-          setToken(match.email);
-          return match.email;
+          throw new Error(AUTH_NOT_READY_MESSAGE);
         }
 
         await signIn({ username: email, password });
@@ -232,39 +147,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async requestPasswordReset(email) {
         if (!isCognitoConfigured) {
-          const credentials = readCredentials();
-          const match = credentials.find((item) => item.email === email);
-
-          if (!match) {
-            throw new Error("Не открихме профил с този имейл.");
-          }
-
-          return;
+          throw new Error(AUTH_NOT_READY_MESSAGE);
         }
 
         await resetPassword({ username: email });
       },
       async completePasswordReset(email, code, newPassword) {
         if (!isCognitoConfigured) {
-          if (code !== "123456") {
-            throw new Error("За предварителен достъп използвайте код 123456.");
-          }
-
-          const credentials = readCredentials();
-          const match = credentials.find((item) => item.email === email);
-
-          if (!match) {
-            throw new Error("Не открихме профил с този имейл.");
-          }
-
-          writeCredentials(
-            credentials.map((item) =>
-              item.email === email
-                ? { ...item, password: newPassword, confirmed: true }
-                : item
-            )
-          );
-          return;
+          throw new Error(AUTH_NOT_READY_MESSAGE);
         }
 
         await confirmResetPassword({
@@ -275,7 +165,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async logout() {
         if (!isCognitoConfigured) {
-          window.localStorage.removeItem("careerdoc.mock.session");
           setUser(null);
           setToken("");
           return;

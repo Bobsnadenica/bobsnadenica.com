@@ -123,8 +123,6 @@ export default function AppShell() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/dashboard" element={<ProfilePage />} />
-          <Route path="/preview-account" element={<Navigate to="/auth?tab=register" replace />} />
-          <Route path="/preview-dashboard" element={<Navigate to="/dashboard" replace />} />
           <Route path="/pricing" element={<Navigate to="/users" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
@@ -170,7 +168,7 @@ export default function AppShell() {
                 <Link to="/faq">FAQ</Link>
               </li>
               <li>
-                <Link to="/contact">Contact us</Link>
+                <Link to="/contact">Контакти</Link>
               </li>
             </ul>
           </div>
@@ -196,8 +194,8 @@ export default function AppShell() {
           <div className="footer-bottom__links">
             <Link to="/about">За нас</Link>
             <Link to="/faq">FAQ</Link>
-            <Link to="/legal">Legal</Link>
-            <Link to="/contact">Contact</Link>
+            <Link to="/legal">Правна информация</Link>
+            <Link to="/contact">Контакти</Link>
           </div>
         </div>
       </footer>

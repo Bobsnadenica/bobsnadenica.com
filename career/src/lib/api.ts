@@ -15,6 +15,9 @@ type BootstrapInput = {
   name: string;
   role: UserRole;
   plan: PlanTier;
+  city?: string;
+  occupation?: string;
+  headline?: string;
   consultantProfileType?: ConsultantProfileType;
 };
 
