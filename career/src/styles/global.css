@@ -1909,6 +1909,11 @@ textarea {
   gap: 18px;
 }
 
+.question-grid--profile {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
 .question-card {
   display: grid;
   gap: 14px;
@@ -1976,6 +1981,53 @@ textarea {
 .question-card__body > .availability-composer,
 .question-card__body > .answer-suggestions {
   margin: 0;
+}
+
+.question-grid--profile .question-card {
+  gap: 16px;
+  padding: 26px;
+}
+
+.question-grid--profile .question-card__header {
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.question-grid--profile .question-card__step {
+  width: 52px;
+  height: 52px;
+  border-radius: 17px;
+}
+
+.question-grid--profile .question-card__header h3 {
+  font-size: clamp(1.2rem, 1.2vw + 0.9rem, 1.5rem);
+  line-height: 1.15;
+}
+
+.question-grid--profile .question-card__header p {
+  max-width: 64ch;
+}
+
+.question-grid--profile .question-card__body {
+  gap: 20px;
+}
+
+.question-grid--profile .two-column {
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+}
+
+.question-grid--profile .three-column {
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+}
+
+.question-grid--profile .two-column > *,
+.question-grid--profile .three-column > *,
+.question-grid--profile .media-preview-grid > * {
+  min-width: 0;
+}
+
+.question-grid--profile .media-preview-card__placeholder {
+  min-height: 240px;
 }
 
 .availability-composer {
@@ -2606,6 +2658,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .question-grid--profile .three-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .consultants-hero .hero-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2648,6 +2704,10 @@ textarea {
   .match-card__meta,
   .match-card__slots,
   .availability-composer__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .question-grid--profile .three-column {
     grid-template-columns: 1fr;
   }
 
@@ -2709,6 +2769,10 @@ textarea {
   .question-flow__intro,
   .availability-composer {
     padding: 20px;
+  }
+
+  .question-grid--profile .question-card {
+    padding: 22px;
   }
 
   .rating-pill {

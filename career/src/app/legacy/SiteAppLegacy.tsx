@@ -4326,7 +4326,7 @@ export function DashboardPage() {
               description="Най-важни са няколко точни детайла: кой си, какво търсиш и какъв тип консултация предпочиташ."
               completion={profileCompletion}
             />
-            <div className="question-grid">
+            <div className="question-grid question-grid--profile">
               <QuestionBlock
                 step="01"
                 title="Кой си в момента?"
@@ -4665,7 +4665,7 @@ export function DashboardPage() {
                 description="Фокусът е върху ясно позициониране, добър портрет и реални свободни часове."
                 completion={profileCompletion}
               />
-              <div className="question-grid">
+              <div className="question-grid question-grid--profile">
                 <QuestionBlock
                   step="01"
                   title="Как изглеждаш публично?"
