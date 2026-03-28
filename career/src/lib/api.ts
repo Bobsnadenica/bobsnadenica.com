@@ -15,6 +15,7 @@ type BootstrapInput = {
   name: string;
   role: UserRole;
   plan: PlanTier;
+  avatarUrl?: string;
   city?: string;
   occupation?: string;
   headline?: string;
@@ -107,7 +108,14 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || "API request failed.");
+    let message = text || "API request failed.";
+
+    try {
+      const parsed = JSON.parse(text) as { message?: string };
+      message = parsed.message || message;
+    } catch {}
+
+    throw new Error(message);
   }
 
   if (response.status === 204) {

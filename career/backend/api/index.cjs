@@ -330,7 +330,8 @@ function createConsultantDraft({
   plan,
   profileType,
   city,
-  headline
+  headline,
+  avatarUrl
 }) {
   const baseName = String(name || email || "consultant").trim();
   const slug = normalizeSlug(baseName);
@@ -356,7 +357,7 @@ function createConsultantDraft({
     rating: 0,
     reviewCount: 0,
     nextAvailable: "",
-    avatarUrl: "",
+    avatarUrl: String(avatarUrl || "").trim(),
     heroUrl: "",
     mapImageUrl: "",
     tags: [],
@@ -455,7 +456,7 @@ async function bootstrapUser(event) {
     name: body.name || claims.name || existing?.name || "",
     role: body.role || existing?.role || "client",
     plan: body.plan || existing?.plan || "free",
-    avatarUrl: existing?.avatarUrl || "",
+    avatarUrl: body.avatarUrl ?? existing?.avatarUrl ?? claims.picture ?? "",
     avatarStorageKey: existing?.avatarStorageKey || "",
     city: body.city ?? existing?.city ?? "",
     occupation: body.occupation ?? existing?.occupation ?? "",
@@ -496,7 +497,8 @@ async function bootstrapUser(event) {
             plan: nextUser.plan,
             profileType: body.consultantProfileType,
             city: nextUser.city,
-            headline: nextUser.headline
+            headline: nextUser.headline,
+            avatarUrl: nextUser.avatarUrl
           })
         })
       );
@@ -507,6 +509,11 @@ async function bootstrapUser(event) {
           Item: {
             ...existingConsultant,
             profileType: body.consultantProfileType || existingConsultant.profileType || "consultant",
+            avatarUrl:
+              body.avatarUrl ??
+              existingConsultant.avatarUrl ??
+              nextUser.avatarUrl ??
+              "",
             ...consultantVisibility
           }
         })

@@ -1,3 +1,4 @@
+import "aws-amplify/auth/enable-oauth-listener";
 import {
   confirmResetPassword,
   confirmSignUp,
@@ -5,10 +6,12 @@ import {
   getCurrentUser,
   resetPassword,
   signIn,
+  signInWithRedirect,
   signOut,
   signUp
 } from "aws-amplify/auth";
 import { Amplify } from "aws-amplify";
+import { Hub } from "aws-amplify/utils";
 import {
   createContext,
   ReactNode,
@@ -17,7 +20,13 @@ import {
   useMemo,
   useState
 } from "react";
-import { config, isCognitoConfigured } from "./config";
+import { socialProviders, type SocialAuthProviderKey } from "./auth-flow";
+import {
+  config,
+  isCognitoConfigured,
+  isCognitoHostedUiConfigured,
+  resolveAuthRedirectUrl
+} from "./config";
 import type { AuthUser, PlanTier, UserRole } from "./types";
 
 type RegisterInput = {
@@ -30,12 +39,15 @@ type RegisterInput = {
 
 type AuthContextValue = {
   configured: boolean;
+  socialConfigured: boolean;
   loading: boolean;
   user: AuthUser | null;
   token: string;
+  availableSocialProviders: SocialAuthProviderKey[];
   register: (input: RegisterInput) => Promise<{ needsConfirmation: boolean }>;
   confirm: (email: string, code: string) => Promise<void>;
   login: (email: string, password: string) => Promise<string>;
+  loginWithProvider: (provider: SocialAuthProviderKey) => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   completePasswordReset: (
     email: string,
@@ -47,13 +59,55 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 const AUTH_NOT_READY_MESSAGE = "Системата за вход все още не е конфигурирана.";
+const SOCIAL_AUTH_NOT_READY_MESSAGE =
+  "Входът с външен профил още не е свързан за тази среда.";
+
+function mapProvider(provider: SocialAuthProviderKey) {
+  if (provider === "google") {
+    return "Google" as const;
+  }
+
+  if (provider === "apple") {
+    return "Apple" as const;
+  }
+
+  return { custom: "LinkedInOIDC" };
+}
+
+function mapAuthUserFromSession(userIdFallback: string, claims: Record<string, unknown> | undefined) {
+  return {
+    id: String(claims?.sub || userIdFallback),
+    email: String(claims?.email || ""),
+    name: String(claims?.name || claims?.email || userIdFallback),
+    avatarUrl: String(claims?.picture || "")
+  };
+}
 
 if (isCognitoConfigured) {
+  const redirectUrl = resolveAuthRedirectUrl();
+
   Amplify.configure({
     Auth: {
       Cognito: {
         userPoolId: config.cognito.userPoolId,
-        userPoolClientId: config.cognito.userPoolClientId
+        userPoolClientId: config.cognito.userPoolClientId,
+        ...(isCognitoHostedUiConfigured
+          ? {
+              loginWith: {
+                oauth: {
+                  domain: config.cognito.domain,
+                  scopes: ["email", "openid", "profile"],
+                  redirectSignIn: [redirectUrl],
+                  redirectSignOut: [redirectUrl],
+                  responseType: "code" as const,
+                  providers: config.cognito.socialProviders
+                    .map((provider) => socialProviders.find((item) => item.label === provider)?.key)
+                    .filter(Boolean)
+                    .map((provider) => mapProvider(provider as SocialAuthProviderKey))
+                }
+              }
+            }
+          : {})
       }
     }
   });
@@ -65,9 +119,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     async function restoreSession() {
       if (!isCognitoConfigured) {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
         return;
       }
 
@@ -77,29 +135,75 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const idToken = session.tokens?.idToken?.toString() || "";
         const claims = session.tokens?.idToken?.payload;
 
-        setUser({
-          id: String(claims?.sub || currentUser.userId),
-          email: String(claims?.email || ""),
-          name: String(claims?.name || currentUser.username)
-        });
+        if (!active) {
+          return;
+        }
+
+        setUser(mapAuthUserFromSession(currentUser.userId, claims));
         setToken(idToken);
       } catch {
+        if (!active) {
+          return;
+        }
+
         setUser(null);
         setToken("");
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
-    restoreSession();
+    void restoreSession();
+
+    const cancel = Hub.listen("auth", ({ payload }) => {
+      if (!active) {
+        return;
+      }
+
+      if (
+        payload.event === "signedIn" ||
+        payload.event === "signInWithRedirect" ||
+        payload.event === "customOAuthState" ||
+        payload.event === "tokenRefresh"
+      ) {
+        setLoading(true);
+        void restoreSession();
+        return;
+      }
+
+      if (payload.event === "signedOut") {
+        setUser(null);
+        setToken("");
+        setLoading(false);
+        return;
+      }
+
+      if (
+        payload.event === "signInWithRedirect_failure" ||
+        payload.event === "tokenRefresh_failure"
+      ) {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      active = false;
+      cancel();
+    };
   }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       configured: isCognitoConfigured,
+      socialConfigured: isCognitoHostedUiConfigured,
       loading,
       user,
       token,
+      availableSocialProviders: socialProviders
+        .filter((provider) => config.cognito.socialProviders.includes(provider.label))
+        .map((provider) => provider.key),
       async register(input) {
         if (!isCognitoConfigured) {
           throw new Error(AUTH_NOT_READY_MESSAGE);
@@ -137,13 +241,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const session = await fetchAuthSession();
         const idToken = session.tokens?.idToken?.toString() || "";
         const claims = session.tokens?.idToken?.payload;
-        setUser({
-          id: String(claims?.sub || email),
-          email: String(claims?.email || email),
-          name: String(claims?.name || email)
-        });
+        setUser(mapAuthUserFromSession(email, claims));
         setToken(idToken);
         return idToken;
+      },
+      async loginWithProvider(provider) {
+        if (!isCognitoHostedUiConfigured) {
+          throw new Error(SOCIAL_AUTH_NOT_READY_MESSAGE);
+        }
+
+        await signInWithRedirect({
+          provider: mapProvider(provider)
+        });
       },
       async requestPasswordReset(email) {
         if (!isCognitoConfigured) {

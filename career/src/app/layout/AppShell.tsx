@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Link, NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
+import {
+  clearPendingBootstrap,
+  clearSocialAuthIntent,
+  readPendingBootstrap,
+  readSocialAuthIntent
+} from "../../lib/auth-flow";
 import { config } from "../../lib/config";
 import AboutPage from "../pages/AboutPage";
 import AccountPage from "../pages/AccountPage";
@@ -61,9 +68,85 @@ function RouteExperience() {
 }
 
 export default function AppShell() {
-  const { user, logout } = useAuth();
+  const { user, token, loading, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const currentYear = new Date().getFullYear();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    if (loading || !user || !token) {
+      return;
+    }
+
+    const socialIntent = readSocialAuthIntent();
+
+    if (!socialIntent) {
+      return;
+    }
+
+    let cancelled = false;
+    let completed = false;
+
+    async function finishSocialSignIn() {
+      try {
+        const pendingBootstrap = readPendingBootstrap();
+
+        if (pendingBootstrap) {
+          await api.bootstrapUser(token, {
+            ...pendingBootstrap,
+            name: pendingBootstrap.name.trim() || user.name,
+            email: pendingBootstrap.email.trim() || user.email,
+            avatarUrl: user.avatarUrl || pendingBootstrap.avatarUrl || ""
+          });
+          clearPendingBootstrap();
+        } else {
+          try {
+            await api.getMyProfile(token);
+          } catch (value) {
+            const message = value instanceof Error ? value.message : "";
+
+            if (!message.includes("Profile not found")) {
+              throw value;
+            }
+
+            await api.bootstrapUser(token, {
+              name: user.name || user.email,
+              email: user.email,
+              role: "client",
+              plan: "free",
+              avatarUrl: user.avatarUrl || ""
+            });
+          }
+        }
+
+        if (!cancelled) {
+          completed = true;
+          navigate(socialIntent.redirect || "/dashboard", { replace: true });
+        }
+      } catch {
+        if (!cancelled) {
+          const authParams = new URLSearchParams();
+          authParams.set("tab", "register");
+          authParams.set("social", "1");
+          authParams.set("redirect", socialIntent.redirect || "/dashboard");
+          navigate(`/auth?${authParams.toString()}`, { replace: true });
+        }
+      } finally {
+        clearSocialAuthIntent();
+
+        if (completed) {
+          clearPendingBootstrap();
+        }
+      }
+    }
+
+    void finishSocialSignIn();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, location.key, navigate, token, user]);
 
   async function handleLogout() {
     if (isLoggingOut) {

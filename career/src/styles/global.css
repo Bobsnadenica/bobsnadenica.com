@@ -2654,6 +2654,13 @@ textarea {
   box-shadow: 0 16px 30px rgba(10, 102, 194, 0.08);
 }
 
+.social-auth__button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .tab-row {
   display: flex;
   gap: 8px;

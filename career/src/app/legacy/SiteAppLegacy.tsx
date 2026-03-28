@@ -13,6 +13,13 @@ import {
 } from "react-router-dom";
 import { api } from "../../lib/api";
 import { AuthProvider, useAuth } from "../../lib/auth";
+import {
+  clearPendingBootstrap,
+  readPendingBootstrap,
+  socialProviders,
+  writePendingBootstrap,
+  writeSocialAuthIntent
+} from "../../lib/auth-flow";
 import { config } from "../../lib/config";
 import { resolvePublicUrl } from "../../lib/url";
 import type {
@@ -25,48 +32,6 @@ import type {
   UserProfile,
   UserRole
 } from "../../lib/types";
-const PENDING_BOOTSTRAP_KEY = "careerdoc.pending-bootstrap";
-
-type PendingBootstrap = {
-  name: string;
-  email: string;
-  role: UserRole;
-  plan: PlanTier;
-  city?: string;
-  occupation?: string;
-  headline?: string;
-  consultantProfileType?: ConsultantProfileType;
-};
-
-function readPendingBootstrap() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const raw = window.localStorage.getItem(PENDING_BOOTSTRAP_KEY);
-
-  if (!raw) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(raw) as PendingBootstrap;
-  } catch {
-    return null;
-  }
-}
-
-function writePendingBootstrap(value: PendingBootstrap) {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(PENDING_BOOTSTRAP_KEY, JSON.stringify(value));
-  }
-}
-
-function clearPendingBootstrap() {
-  if (typeof window !== "undefined") {
-    window.localStorage.removeItem(PENDING_BOOTSTRAP_KEY);
-  }
-}
 
 async function uploadFileToSignedUrl(
   uploadUrl: string,
@@ -230,12 +195,6 @@ const popularSearchTopics = [
     label: "Executive CV",
     value: "executive CV"
   }
-] as const;
-
-const socialProviders = [
-  { key: "google", label: "Google" },
-  { key: "apple", label: "Apple" },
-  { key: "linkedin", label: "LinkedIn" }
 ] as const;
 
 const aboutHighlights = [
@@ -3080,11 +3039,15 @@ export function ConsultantPage() {
 export function AuthPage() {
   const {
     configured,
+    socialConfigured,
+    availableSocialProviders,
     user,
+    token,
     loading,
     register: registerWithAuth,
     confirm: confirmWithAuth,
     login: loginWithAuth,
+    loginWithProvider,
     requestPasswordReset,
     completePasswordReset
   } = useAuth();
@@ -3094,6 +3057,7 @@ export function AuthPage() {
   const resolvedRedirect = params.get("redirect") || "/dashboard";
   const initialTab = params.get("tab") === "register" ? "register" : "login";
   const initialRole = params.get("role") === "consultant" ? "consultant" : "client";
+  const isSocialOnboarding = params.get("social") === "1";
 
   const [screen, setScreen] = useState<AuthScreen>(initialTab);
   const [message, setMessage] = useState("");
@@ -3121,7 +3085,20 @@ export function AuthPage() {
     }));
   }, [initialRole, initialTab]);
 
-  if (!loading && user) {
+  useEffect(() => {
+    if (!isSocialOnboarding || !user) {
+      return;
+    }
+
+    setScreen("register");
+    setForm((current) => ({
+      ...current,
+      name: current.name || user.name || "",
+      email: current.email || user.email || ""
+    }));
+  }, [isSocialOnboarding, user]);
+
+  if (!loading && user && !isSocialOnboarding) {
     return <Navigate to={resolvedRedirect} replace />;
   }
 
@@ -3160,17 +3137,61 @@ export function AuthPage() {
           : screen === "forgot-confirm"
             ? "Задаваш нова парола и веднага възстановяваш достъпа до профила си."
             : "Влизаш бързо в своя профил и продължаваш към документите, консултантите и следващите си стъпки.";
-  const canRegister = Boolean(
-    form.name.trim() &&
-      form.email.trim() &&
-      form.password.trim().length >= 8 &&
-      form.city.trim() &&
-      form.headline.trim()
-  );
+  const canRegister = isSocialOnboarding && user
+    ? Boolean((form.name.trim() || user.name) && (form.email.trim() || user.email))
+    : Boolean(
+        form.name.trim() &&
+          form.email.trim() &&
+          form.password.trim().length >= 8 &&
+          form.city.trim() &&
+          form.headline.trim()
+      );
 
   function clearFeedback() {
     setMessage("");
     setError("");
+  }
+
+  async function handleSocialProvider(providerKey: (typeof socialProviders)[number]["key"]) {
+    clearFeedback();
+
+    if (!socialConfigured) {
+      setError("Входът с външен профил още не е активиран за тази среда.");
+      return;
+    }
+
+    const isRegisterFlow = activeTab === "register";
+
+    if (isRegisterFlow) {
+      writePendingBootstrap({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        plan: "free",
+        city: form.city.trim(),
+        occupation: form.occupation.trim(),
+        headline: form.headline.trim(),
+        consultantProfileType:
+          form.role === "consultant" ? form.consultantProfileType : undefined
+      });
+    } else {
+      clearPendingBootstrap();
+    }
+
+    writeSocialAuthIntent({
+      provider: providerKey,
+      mode: isRegisterFlow ? "register" : "login",
+      redirect: resolvedRedirect,
+      createdAt: new Date().toISOString()
+    });
+
+    try {
+      await loginWithProvider(providerKey);
+    } catch (value) {
+      setError(
+        value instanceof Error ? value.message : "Неуспешно пренасочване към външен вход."
+      );
+    }
   }
 
   async function handleRegister(event: FormEvent) {
@@ -3179,6 +3200,34 @@ export function AuthPage() {
 
     if (!canRegister) {
       setError("Попълни нужните полета, за да продължиш.");
+      return;
+    }
+
+    if (isSocialOnboarding && user) {
+      if (!token) {
+        setError("Подготвяме сесията ти. Опитай отново след миг.");
+        return;
+      }
+
+      try {
+        await api.bootstrapUser(token, {
+          name: form.name.trim() || user.name,
+          email: form.email.trim() || user.email,
+          role: form.role,
+          plan: "free",
+          avatarUrl: user.avatarUrl || "",
+          city: form.city.trim(),
+          occupation: form.occupation.trim(),
+          headline: form.headline.trim(),
+          consultantProfileType:
+            form.role === "consultant" ? form.consultantProfileType : undefined
+        });
+        clearPendingBootstrap();
+        navigate(resolvedRedirect);
+      } catch (value) {
+        setError(value instanceof Error ? value.message : "Неуспешно довършване на профила.");
+      }
+
       return;
     }
 
@@ -3382,24 +3431,39 @@ export function AuthPage() {
           {message ? <div className="panel panel--success">{message}</div> : null}
           {error ? <div className="panel panel--error">{error}</div> : null}
 
-          <div className="social-auth">
-            <span className="search-shortcuts__label">Вход с външен профил</span>
-            <div className="social-auth__grid">
-              {socialProviders.map((provider) => (
-                <button
-                  className="social-auth__button"
-                  key={provider.key}
-                  type="button"
-                  disabled
-                >
-                  {provider.label}
-                </button>
-              ))}
+          {isSocialOnboarding && user ? (
+            <div className="panel panel--subtle">
+              <strong>Профилът ти е разпознат.</strong>
+              <p>
+                Прехвърлихме наличните име, имейл и снимка от външния профил.
+                Довърши ролята си и запази първата версия на профила си в CareerLane.
+              </p>
             </div>
-            <p className="form-note">
-              Google, Apple и LinkedIn входът ще се активира след свързване на външните доставчици.
-            </p>
-          </div>
+          ) : (
+            <div className="social-auth">
+              <span className="search-shortcuts__label">Вход с външен профил</span>
+              <div className="social-auth__grid">
+                {socialProviders.map((provider) => (
+                  <button
+                    className="social-auth__button"
+                    key={provider.key}
+                    type="button"
+                    disabled={!availableSocialProviders.includes(provider.key)}
+                    onClick={() => {
+                      void handleSocialProvider(provider.key);
+                    }}
+                  >
+                    {provider.label}
+                  </button>
+                ))}
+              </div>
+              <p className="form-note">
+                {socialConfigured
+                  ? "При първи вход ще прехвърлим наличните име, имейл и снимка от избрания профил и ще довършиш само липсващата информация."
+                  : "Входът с външен профил ще се появи тук веднага след свързване на доставчиците в Cognito."}
+              </p>
+            </div>
+          )}
 
           {screen === "login" ? (
             <form className="form-stack" onSubmit={handleLogin}>
@@ -3474,6 +3538,7 @@ export function AuthPage() {
                   autoComplete="email"
                   placeholder="name@example.com"
                   required
+                  readOnly={isSocialOnboarding}
                 />
               </label>
               <div className="two-column">
@@ -3483,7 +3548,7 @@ export function AuthPage() {
                     value={form.city}
                     onChange={(event) => setForm({ ...form, city: event.target.value })}
                     placeholder="Например: София"
-                    required
+                    required={!isSocialOnboarding}
                   />
                 </label>
                 <label>
@@ -3535,21 +3600,23 @@ export function AuthPage() {
                   value={form.headline}
                   onChange={(event) => setForm({ ...form, headline: event.target.value })}
                   placeholder="Например: Product manager в преход към leadership роля"
-                  required
+                  required={!isSocialOnboarding}
                 />
               </label>
-              <label>
-                Парола
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(event) => setForm({ ...form, password: event.target.value })}
-                  autoComplete="new-password"
-                  placeholder="Минимум 8 символа"
-                  minLength={8}
-                  required
-                />
-              </label>
+              {!isSocialOnboarding ? (
+                <label>
+                  Парола
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(event) => setForm({ ...form, password: event.target.value })}
+                    autoComplete="new-password"
+                    placeholder="Минимум 8 символа"
+                    minLength={8}
+                    required
+                  />
+                </label>
+              ) : null}
 
               {form.role === "consultant" ? (
                 <div className="panel panel--subtle">
@@ -3580,15 +3647,16 @@ export function AuthPage() {
               </div>
 
               <p className="form-note">
-                След регистрация ще продължиш директно към профила си, настройките и
-                следващите стъпки в CareerLane.
+                {isSocialOnboarding
+                  ? "Запази ролята и основния професионален контекст. След това ще продължиш директно към профила си."
+                  : "След регистрация ще продължиш директно към профила си, настройките и следващите стъпки в CareerLane."}
               </p>
               <div className="panel panel--subtle">
                 <strong>Подготвен старт</strong>
                 <p>{registrationSummary}</p>
               </div>
               <button className="primary-button" type="submit" disabled={!canRegister}>
-                Създай профил
+                {isSocialOnboarding ? "Запази профила" : "Създай профил"}
               </button>
             </form>
           ) : null}

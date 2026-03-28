@@ -4,6 +4,34 @@ locals {
     Project     = var.project_name
     Environment = var.environment
   })
+  normalized_frontend_origins = [
+    for origin in var.frontend_origins : trimsuffix(origin, "/")
+  ]
+  default_oauth_urls = distinct(flatten([
+    for origin in local.normalized_frontend_origins : [
+      origin,
+      "${origin}/career/index.html"
+    ]
+  ]))
+  oauth_callback_urls   = length(var.frontend_oauth_callback_urls) > 0 ? var.frontend_oauth_callback_urls : local.default_oauth_urls
+  oauth_logout_urls     = length(var.frontend_oauth_logout_urls) > 0 ? var.frontend_oauth_logout_urls : local.default_oauth_urls
+  google_enabled        = nonsensitive(var.google_client_id != "" && var.google_client_secret != "")
+  apple_enabled         = nonsensitive(var.apple_client_id != "" && var.apple_team_id != "" && var.apple_key_id != "" && var.apple_private_key != "")
+  linkedin_provider_name = "LinkedInOIDC"
+  linkedin_enabled      = nonsensitive(var.linkedin_client_id != "" && var.linkedin_client_secret != "")
+  hosted_ui_enabled     = local.google_enabled || local.apple_enabled || local.linkedin_enabled
+  cognito_domain_prefix = var.cognito_domain_prefix != "" ? var.cognito_domain_prefix : "${local.name_prefix}-${random_string.suffix.result}"
+  supported_identity_providers = concat(
+    ["COGNITO"],
+    local.google_enabled ? ["Google"] : [],
+    local.apple_enabled ? ["SignInWithApple"] : [],
+    local.linkedin_enabled ? [local.linkedin_provider_name] : []
+  )
+  social_provider_labels = concat(
+    local.google_enabled ? ["Google"] : [],
+    local.apple_enabled ? ["Apple"] : [],
+    local.linkedin_enabled ? ["LinkedIn"] : []
+  )
 }
 
 resource "random_string" "suffix" {
@@ -62,14 +90,98 @@ resource "aws_cognito_user_pool_client" "frontend" {
 
   generate_secret                      = false
   prevent_user_existence_errors        = "ENABLED"
-  allowed_oauth_flows_user_pool_client = false
-  supported_identity_providers         = ["COGNITO"]
+  allowed_oauth_flows_user_pool_client = local.hosted_ui_enabled
+  allowed_oauth_flows                  = local.hosted_ui_enabled ? ["code"] : []
+  allowed_oauth_scopes                 = local.hosted_ui_enabled ? ["email", "openid", "profile"] : []
+  callback_urls                        = local.hosted_ui_enabled ? local.oauth_callback_urls : []
+  logout_urls                          = local.hosted_ui_enabled ? local.oauth_logout_urls : []
+  supported_identity_providers         = local.supported_identity_providers
 
   explicit_auth_flows = [
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_USER_SRP_AUTH"
   ]
+
+  depends_on = [
+    aws_cognito_identity_provider.google,
+    aws_cognito_identity_provider.apple,
+    aws_cognito_identity_provider.linkedin
+  ]
+}
+
+resource "aws_cognito_user_pool_domain" "frontend" {
+  count = local.hosted_ui_enabled ? 1 : 0
+
+  domain       = local.cognito_domain_prefix
+  user_pool_id = aws_cognito_user_pool.main.id
+}
+
+resource "aws_cognito_identity_provider" "google" {
+  count = local.google_enabled ? 1 : 0
+
+  user_pool_id  = aws_cognito_user_pool.main.id
+  provider_name = "Google"
+  provider_type = "Google"
+
+  provider_details = {
+    authorize_scopes = "email openid profile"
+    client_id        = var.google_client_id
+    client_secret    = var.google_client_secret
+  }
+
+  attribute_mapping = {
+    email   = "email"
+    name    = "name"
+    picture = "picture"
+  }
+}
+
+resource "aws_cognito_identity_provider" "apple" {
+  count = local.apple_enabled ? 1 : 0
+
+  user_pool_id  = aws_cognito_user_pool.main.id
+  provider_name = "SignInWithApple"
+  provider_type = "SignInWithApple"
+
+  provider_details = {
+    authorize_scopes = "email name"
+    client_id        = var.apple_client_id
+    team_id          = var.apple_team_id
+    key_id           = var.apple_key_id
+    private_key      = var.apple_private_key
+  }
+
+  attribute_mapping = {
+    email = "email"
+    name  = "name"
+  }
+}
+
+resource "aws_cognito_identity_provider" "linkedin" {
+  count = local.linkedin_enabled ? 1 : 0
+
+  user_pool_id  = aws_cognito_user_pool.main.id
+  provider_name = local.linkedin_provider_name
+  provider_type = "OIDC"
+
+  provider_details = {
+    attributes_request_method = "GET"
+    attributes_url            = "https://api.linkedin.com/v2/userinfo"
+    authorize_scopes          = "openid profile email"
+    authorize_url             = "https://www.linkedin.com/oauth/v2/authorization"
+    client_id                 = var.linkedin_client_id
+    client_secret             = var.linkedin_client_secret
+    jwks_uri                  = "https://www.linkedin.com/oauth/openid/jwks"
+    oidc_issuer               = "https://www.linkedin.com"
+    token_url                 = "https://www.linkedin.com/oauth/v2/accessToken"
+  }
+
+  attribute_mapping = {
+    email   = "email"
+    name    = "name"
+    picture = "picture"
+  }
 }
 
 resource "aws_s3_bucket" "cv_documents" {
