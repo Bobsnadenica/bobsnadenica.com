@@ -3667,6 +3667,8 @@ export function DashboardPage() {
   const [consultantAvailability, setConsultantAvailability] = useState<string[]>([]);
   const [availabilityDate, setAvailabilityDate] = useState(getRelativeDateInputValue(1));
   const [availabilityTime, setAvailabilityTime] = useState("09:00");
+  const [activeProfileSection, setActiveProfileSection] = useState("identity");
+  const [activeConsultantSection, setActiveConsultantSection] = useState("presentation");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -4015,6 +4017,114 @@ export function DashboardPage() {
     ...(consultantProfile?.specializations || []).slice(0, 2),
     ...(consultantProfile?.experienceHighlights || []).slice(0, 2)
   ].filter(Boolean) as string[];
+  const profileSetupSections = [
+    {
+      id: "identity",
+      step: "01",
+      label: "Основа",
+      title: "Кой си в момента?",
+      hint: "Основните данни дават контекст.",
+      ready: Boolean(
+        profile.name.trim() &&
+          (profile.occupation || profile.city || profile.age || profile.avatarUrl || profile.avatarStorageKey)
+      )
+    },
+    {
+      id: "direction",
+      step: "02",
+      label: "Посока",
+      title: "Към каква следваща стъпка се движиш?",
+      hint: "Заглавие и цел.",
+      ready: Boolean((profile.headline || "").trim() || (profile.goals || "").trim())
+    },
+    {
+      id: "experience",
+      step: "03",
+      label: "Опит",
+      title: "Опит и професионален контекст",
+      hint: "Кратко, подредено представяне в стил LinkedIn.",
+      ready: Boolean(
+        (profile.bio || "").trim() ||
+          (profile.experienceSummary || "").trim() ||
+          (profile.experienceHighlights || []).length ||
+          (profile.educationHighlights || []).length
+      )
+    },
+    {
+      id: "fit",
+      step: "04",
+      label: "Съвпадение",
+      title: "Умения, теми и предпочитан формат",
+      hint: "Това помага на платформата да те свързва по-точно.",
+      ready: Boolean(
+        (profile.skills || []).length ||
+          (profile.interests || []).length ||
+          (profile.keywords || []).length ||
+          (profile.preferredSessionModes || []).length
+      )
+    }
+  ];
+  const consultantSetupSections = [
+    {
+      id: "presentation",
+      step: "01",
+      label: "Визия",
+      title: "Как изглеждаш публично?",
+      hint: "Име, заглавие и снимка.",
+      ready: Boolean(
+        (consultantProfile?.slug || "").trim() &&
+          (consultantProfile?.name || profile.name).trim() &&
+          (consultantProfile?.headline || "").trim() &&
+          (consultantProfile?.city || "").trim()
+      )
+    },
+    {
+      id: "audience",
+      step: "02",
+      label: "Теми",
+      title: "С кого работиш и по какви теми?",
+      hint: "Това определя търсенето.",
+      ready: Boolean(
+        (consultantProfile?.specializations || []).length ||
+          (consultantProfile?.consultationTopics || []).length ||
+          (consultantProfile?.idealFor || []).length
+      )
+    },
+    {
+      id: "practice",
+      step: "03",
+      label: "Доверие",
+      title: "Опит, практика и подход",
+      hint: "Това е публичната част, която създава доверие.",
+      ready: Boolean(
+        (consultantProfile?.bio || "").trim() ||
+          (consultantProfile?.experienceSummary || "").trim() ||
+          (consultantProfile?.workApproach || "").trim()
+      )
+    },
+    {
+      id: "booking",
+      step: "04",
+      label: "Часове",
+      title: "Как и кога могат да те резервират?",
+      hint: "Езици, формат и свободни часове.",
+      ready: Boolean(
+        (consultantProfile?.languages || []).length ||
+          (consultantProfile?.sessionModes || []).length ||
+          consultantAvailability.length
+      )
+    }
+  ];
+  const activeProfileSectionIndex = Math.max(
+    0,
+    profileSetupSections.findIndex((section) => section.id === activeProfileSection)
+  );
+  const activeConsultantSectionIndex = Math.max(
+    0,
+    consultantSetupSections.findIndex((section) => section.id === activeConsultantSection)
+  );
+  const activeProfileSetup = profileSetupSections[activeProfileSectionIndex];
+  const activeConsultantSetup = consultantSetupSections[activeConsultantSectionIndex];
 
   function addAvailabilitySlot(slot: string) {
     if (!slot) {
@@ -4043,6 +4153,26 @@ export function DashboardPage() {
       behavior: "smooth",
       block: "start"
     });
+  }
+
+  function moveProfileSection(direction: -1 | 1) {
+    const nextIndex = activeProfileSectionIndex + direction;
+
+    if (nextIndex < 0 || nextIndex >= profileSetupSections.length) {
+      return;
+    }
+
+    setActiveProfileSection(profileSetupSections[nextIndex].id);
+  }
+
+  function moveConsultantSection(direction: -1 | 1) {
+    const nextIndex = activeConsultantSectionIndex + direction;
+
+    if (nextIndex < 0 || nextIndex >= consultantSetupSections.length) {
+      return;
+    }
+
+    setActiveConsultantSection(consultantSetupSections[nextIndex].id);
   }
 
   return (
@@ -4319,15 +4449,62 @@ export function DashboardPage() {
             </section>
           ) : null}
 
-          <form className="panel form-stack" id="profile-basics" onSubmit={saveProfile}>
+          <form className="panel form-stack" id="profile-basics" noValidate onSubmit={saveProfile}>
             <QuestionFlowIntro
               eyebrow="Основен профил"
               title="Подреди профила си ясно и професионално."
               description="Най-важни са няколко точни детайла: кой си, какво търсиш и какъв тип консултация предпочиташ."
               completion={profileCompletion}
             />
-            <div className="question-grid question-grid--profile">
-              <QuestionBlock
+            <div className="profile-setup-shell">
+              <div className="profile-setup-shell__header">
+                <div>
+                  <span className="plan-pill">
+                    {activeProfileSectionIndex + 1} от {profileSetupSections.length}
+                  </span>
+                  <strong>{activeProfileSetup.title}</strong>
+                  <p>{activeProfileSetup.hint}</p>
+                </div>
+                <span
+                  className={
+                    activeProfileSetup.ready
+                      ? "status-badge status-badge--success"
+                      : "plan-pill"
+                  }
+                >
+                  {activeProfileSetup.ready ? "Попълнено" : "В процес"}
+                </span>
+              </div>
+
+              <div
+                className="profile-setup-nav"
+                aria-label="Секции в основния профил"
+                role="tablist"
+              >
+                {profileSetupSections.map((section) => (
+                  <button
+                    key={section.id}
+                    className={`profile-setup-nav__button ${
+                      activeProfileSection === section.id ? "profile-setup-nav__button--active" : ""
+                    } ${section.ready ? "profile-setup-nav__button--ready" : ""}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeProfileSection === section.id}
+                    onClick={() => setActiveProfileSection(section.id)}
+                  >
+                    <span className="profile-setup-nav__step">{section.step}</span>
+                    <span className="profile-setup-nav__label">{section.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="question-grid question-grid--profile">
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "identity" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
                 step="01"
                 title="Кой си в момента?"
                 hint="Основните данни дават контекст."
@@ -4425,9 +4602,15 @@ export function DashboardPage() {
                     "HR business partner"
                   ]}
                 />
-              </QuestionBlock>
+                  </QuestionBlock>
+                </div>
 
-              <QuestionBlock
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "direction" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
                 step="02"
                 title="Към каква следваща стъпка се движиш?"
                 hint="Заглавие и цел."
@@ -4470,9 +4653,15 @@ export function DashboardPage() {
                     "Търся по-ясна посока за leadership роля и подготовка за разговори с работодатели."
                   ]}
                 />
-              </QuestionBlock>
+                  </QuestionBlock>
+                </div>
 
-              <QuestionBlock
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "experience" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
                 step="03"
                 title="Опит и професионален контекст"
                 hint="Кратко, подредено представяне в стил LinkedIn."
@@ -4547,9 +4736,15 @@ export function DashboardPage() {
                     "Product School"
                   ]}
                 />
-              </QuestionBlock>
+                  </QuestionBlock>
+                </div>
 
-              <QuestionBlock
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "fit" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
                 step="04"
                 title="Умения, теми и предпочитан формат"
                 hint="Това помага на платформата да те свързва по-точно."
@@ -4623,9 +4818,29 @@ export function DashboardPage() {
                   fieldName="preferredSessionModes"
                   options={["Онлайн", "В офис", "Хибридно"]}
                 />
-              </QuestionBlock>
+                  </QuestionBlock>
+                </div>
+              </div>
             </div>
-            <div className="question-form__footer">
+            <div className="question-form__footer question-form__footer--setup">
+              <div className="question-form__pager">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  disabled={activeProfileSectionIndex === 0}
+                  onClick={() => moveProfileSection(-1)}
+                >
+                  Назад
+                </button>
+                <button
+                  className="ghost-button"
+                  type="button"
+                  disabled={activeProfileSectionIndex === profileSetupSections.length - 1}
+                  onClick={() => moveProfileSection(1)}
+                >
+                  Напред
+                </button>
+              </div>
               <p className="form-note">
                 Подреденият профил прави търсенето по-ясно и съвпаденията по-полезни.
               </p>
@@ -4658,15 +4873,71 @@ export function DashboardPage() {
           </form>
 
           {profile.role === "consultant" ? (
-            <form className="panel form-stack" id="consultant-profile" onSubmit={saveConsultantProfile}>
+            <form
+              className="panel form-stack"
+              id="consultant-profile"
+              noValidate
+              onSubmit={saveConsultantProfile}
+            >
               <QuestionFlowIntro
                 eyebrow="Публичен профил"
                 title="Подготви страницата, която хората ще намират и резервират."
                 description="Фокусът е върху ясно позициониране, добър портрет и реални свободни часове."
                 completion={profileCompletion}
               />
-              <div className="question-grid question-grid--profile">
-                <QuestionBlock
+              <div className="profile-setup-shell">
+                <div className="profile-setup-shell__header">
+                  <div>
+                    <span className="plan-pill">
+                      {activeConsultantSectionIndex + 1} от {consultantSetupSections.length}
+                    </span>
+                    <strong>{activeConsultantSetup.title}</strong>
+                    <p>{activeConsultantSetup.hint}</p>
+                  </div>
+                  <span
+                    className={
+                      activeConsultantSetup.ready
+                        ? "status-badge status-badge--success"
+                        : "plan-pill"
+                    }
+                  >
+                    {activeConsultantSetup.ready ? "Попълнено" : "В процес"}
+                  </span>
+                </div>
+
+                <div
+                  className="profile-setup-nav"
+                  aria-label="Секции в публичния профил"
+                  role="tablist"
+                >
+                  {consultantSetupSections.map((section) => (
+                    <button
+                      key={section.id}
+                      className={`profile-setup-nav__button ${
+                        activeConsultantSection === section.id
+                          ? "profile-setup-nav__button--active"
+                          : ""
+                      } ${section.ready ? "profile-setup-nav__button--ready" : ""}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeConsultantSection === section.id}
+                      onClick={() => setActiveConsultantSection(section.id)}
+                    >
+                      <span className="profile-setup-nav__step">{section.step}</span>
+                      <span className="profile-setup-nav__label">{section.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="question-grid question-grid--profile">
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "presentation"
+                        ? "profile-setup-panel--active"
+                        : ""
+                    }`}
+                  >
+                    <QuestionBlock
                   step="01"
                   title="Как изглеждаш публично?"
                   hint="Име, заглавие и снимка."
@@ -4807,9 +5078,17 @@ export function DashboardPage() {
                       "Консултант по кариерни преходи и международно позициониране"
                     ]}
                   />
-                </QuestionBlock>
+                    </QuestionBlock>
+                  </div>
 
-                <QuestionBlock
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "audience"
+                        ? "profile-setup-panel--active"
+                        : ""
+                    }`}
+                  >
+                    <QuestionBlock
                   step="02"
                   title="С кого работиш и по какви теми?"
                   hint="Това определя търсенето."
@@ -4873,14 +5152,20 @@ export function DashboardPage() {
                       "International roles"
                     ]}
                   />
-                </QuestionBlock>
+                    </QuestionBlock>
+                  </div>
 
-              <QuestionBlock
-                step="03"
-                title="Опит, практика и подход"
-                hint="Това е публичната част, която създава доверие."
-                wide
-              >
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "practice" ? "profile-setup-panel--active" : ""
+                    }`}
+                  >
+                    <QuestionBlock
+                      step="03"
+                      title="Опит, практика и подход"
+                      hint="Това е публичната част, която създава доверие."
+                      wide
+                    >
                   <div className="two-column">
                     <label>
                       Биография
@@ -4959,9 +5244,15 @@ export function DashboardPage() {
                       "HR specialization"
                     ]}
                   />
-                </QuestionBlock>
+                    </QuestionBlock>
+                  </div>
 
-                <QuestionBlock
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "booking" ? "profile-setup-panel--active" : ""
+                    }`}
+                  >
+                    <QuestionBlock
                   step="04"
                   title="Как и кога могат да те резервират?"
                   hint="Езици, формат и свободни часове."
@@ -5103,9 +5394,31 @@ export function DashboardPage() {
                       </div>
                     )}
                   </div>
-                </QuestionBlock>
+                    </QuestionBlock>
+                  </div>
+                </div>
               </div>
-              <div className="question-form__footer">
+              <div className="question-form__footer question-form__footer--setup">
+                <div className="question-form__pager">
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    disabled={activeConsultantSectionIndex === 0}
+                    onClick={() => moveConsultantSection(-1)}
+                  >
+                    Назад
+                  </button>
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    disabled={
+                      activeConsultantSectionIndex === consultantSetupSections.length - 1
+                    }
+                    onClick={() => moveConsultantSection(1)}
+                  >
+                    Напред
+                  </button>
+                </div>
                 <p className="form-note">
                   Подреденият профил и свободните часове правят резервацията по-лесна.
                 </p>
