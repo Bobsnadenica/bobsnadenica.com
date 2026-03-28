@@ -129,6 +129,32 @@ function normalizeStringList(value, fallback = []) {
     .filter(Boolean);
 }
 
+function normalizeAvailabilitySlots(value, fallback = []) {
+  if (!Array.isArray(value)) {
+    return fallback;
+  }
+
+  return Array.from(
+    new Set(
+      value
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .filter((item) => !Number.isNaN(new Date(item).getTime()))
+    )
+  ).sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+}
+
+function getNextAvailableSlot(value, fallback = "") {
+  const availability = normalizeAvailabilitySlots(value, []);
+  const cutoff = Date.now() - 5 * 60 * 1000;
+
+  return (
+    availability.find((item) => new Date(item).getTime() >= cutoff) ||
+    availability[0] ||
+    fallback
+  );
+}
+
 function sanitizeFileName(fileName) {
   const normalized = String(fileName || "upload")
     .trim()
@@ -175,6 +201,7 @@ async function decorateConsultantMedia(consultant) {
     return consultant;
   }
 
+  const availability = normalizeAvailabilitySlots(consultant.availability || [], []);
   const [avatarUrl, heroUrl] = await Promise.all([
     consultant.avatarStorageKey
       ? getSignedObjectUrl(consultant.avatarStorageKey)
@@ -186,6 +213,8 @@ async function decorateConsultantMedia(consultant) {
 
   return {
     ...consultant,
+    availability,
+    nextAvailable: getNextAvailableSlot(availability, consultant.nextAvailable || ""),
     avatarUrl: avatarUrl || consultant.avatarUrl,
     heroUrl: heroUrl || consultant.heroUrl
   };
@@ -525,13 +554,17 @@ async function updateMyConsultant(event) {
     workApproach: body.workApproach ?? baseConsultant.workApproach ?? "",
     sessionLengthMinutes:
       body.sessionLengthMinutes ?? baseConsultant.sessionLengthMinutes ?? 60,
-    availability: body.availability ?? baseConsultant.availability ?? [],
-    nextAvailable:
-      (body.availability && body.availability[0]) ||
-      baseConsultant.nextAvailable ||
-      "",
+    availability: normalizeAvailabilitySlots(
+      body.availability ?? baseConsultant.availability ?? [],
+      []
+    ),
     ...consultantVisibility
   };
+
+  nextConsultant.nextAvailable = getNextAvailableSlot(
+    nextConsultant.availability,
+    baseConsultant.nextAvailable || ""
+  );
 
   await dynamo.send(
     new PutCommand({

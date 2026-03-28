@@ -569,6 +569,105 @@ function buildAvailabilityPreset(daysAhead: number, hour: number): {
   };
 }
 
+function formatDateInputValue(date: Date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function getRelativeDateInputValue(daysAhead = 0) {
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + daysAhead);
+  return formatDateInputValue(nextDate);
+}
+
+function buildAvailabilitySlot(dateValue: string, timeValue: string) {
+  if (!dateValue || !timeValue) {
+    return "";
+  }
+
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const [hours, minutes] = timeValue.split(":").map(Number);
+
+  if (!year || !month || !day || Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return "";
+  }
+
+  const slot = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
+  if (Number.isNaN(slot.getTime())) {
+    return "";
+  }
+
+  return slot.toISOString();
+}
+
+function normalizeAvailabilitySlots(value: string[]) {
+  return Array.from(
+    new Set(
+      value
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .filter((item) => !Number.isNaN(new Date(item).getTime()))
+    )
+  ).sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+}
+
+function getUpcomingAvailabilitySlots(
+  value: string[],
+  limit = Number.POSITIVE_INFINITY
+) {
+  const cutoff = Date.now() - 5 * 60 * 1000;
+
+  return normalizeAvailabilitySlots(value)
+    .filter((item) => new Date(item).getTime() >= cutoff)
+    .slice(0, limit);
+}
+
+function formatAvailabilityDayLabel(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }).format(parsed);
+}
+
+function formatAvailabilityTimeLabel(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(parsed);
+}
+
+function formatAvailabilityShortLabel(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(parsed);
+}
+
 function tokenizeText(value: string) {
   return value
     .toLowerCase()
@@ -2471,7 +2570,7 @@ export function ConsultantPage() {
       .getConsultant(slug)
       .then((value) => {
         setConsultant(value);
-        setSelectedSlot(value.availability[0] || "");
+        setSelectedSlot(getUpcomingAvailabilitySlots(value.availability, 1)[0] || "");
       })
       .catch((value) => {
         setError(value instanceof Error ? value.message : "Неуспешно зареждане.");
@@ -2500,6 +2599,8 @@ export function ConsultantPage() {
 
   const isConsultantViewer = viewerProfile?.role === "consultant";
   const bookingCtaTo = user ? "/dashboard" : "/auth?tab=register";
+  const visibleAvailability = getUpcomingAvailabilitySlots(consultant.availability, 8);
+  const nextVisibleSlot = visibleAvailability[0] || consultant.nextAvailable;
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultant.slug}`
@@ -2604,7 +2705,7 @@ export function ConsultantPage() {
 
           <aside className="booking-card">
             <span className="status-badge status-badge--success">Следващ свободен слот</span>
-            <strong>{formatDate(consultant.nextAvailable)}</strong>
+            <strong>{formatDate(nextVisibleSlot)}</strong>
             <span>
               {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
             </span>
@@ -2698,9 +2799,9 @@ export function ConsultantPage() {
               </div>
             ) : (
               <>
-                {consultant.availability.length ? (
+                {visibleAvailability.length ? (
                   <div className="slot-grid">
-                    {consultant.availability.map((slot) => (
+                    {visibleAvailability.map((slot) => (
                       <button
                         type="button"
                         key={slot}
@@ -2740,7 +2841,7 @@ export function ConsultantPage() {
               <button
                 className="primary-button"
                 type="submit"
-                disabled={viewerProfileLoading || !consultant.availability.length || !selectedSlot}
+                disabled={viewerProfileLoading || !visibleAvailability.length || !selectedSlot}
               >
                 {user ? "Изпрати заявка" : "Влез и изпрати заявка"}
               </button>
@@ -3417,6 +3518,9 @@ export function DashboardPage() {
   const [consultantProfile, setConsultantProfile] = useState<ConsultantProfile | null>(null);
   const [directoryConsultants, setDirectoryConsultants] = useState<ConsultantProfile[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [consultantAvailability, setConsultantAvailability] = useState<string[]>([]);
+  const [availabilityDate, setAvailabilityDate] = useState(getRelativeDateInputValue(1));
+  const [availabilityTime, setAvailabilityTime] = useState("09:00");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -3469,6 +3573,10 @@ export function DashboardPage() {
       mounted = false;
     };
   }, [token]);
+
+  useEffect(() => {
+    setConsultantAvailability(getUpcomingAvailabilitySlots(consultantProfile?.availability || []));
+  }, [consultantProfile]);
 
   if (loading || !user) {
     return (
@@ -3571,14 +3679,11 @@ export function DashboardPage() {
 
     try {
       const formData = new FormData(event.currentTarget);
-      const availability = String(formData.get("availability") || "")
-        .split(/\n|,/)
-        .map((item) => item.trim())
-        .filter(Boolean);
       const avatarLink = String(formData.get("avatarUrl") || "").trim();
       const heroLink = String(formData.get("heroUrl") || "").trim();
       const avatarFile = formData.get("avatarFile");
       const heroFile = formData.get("heroFile");
+      const availability = getUpcomingAvailabilitySlots(consultantAvailability);
       let avatarUrl = avatarLink || consultantProfile?.avatarUrl || "";
       let heroUrl = heroLink || consultantProfile?.heroUrl || "";
       let avatarStorageKey = avatarLink ? "" : consultantProfile?.avatarStorageKey;
@@ -3659,6 +3764,7 @@ export function DashboardPage() {
       });
 
       setConsultantProfile(updated);
+      setConsultantAvailability(getUpcomingAvailabilitySlots(updated.availability || []));
       setMessage("Консултантският профил е обновен.");
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешно записване.");
@@ -3671,6 +3777,10 @@ export function DashboardPage() {
       : "Профилът, документите и достъпът до кариерни консултанти се управляват оттук.";
   const profileCompletion = getProfileCompletion(profile, consultantProfile);
   const nextBooking = getNextBooking(bookings);
+  const consultantNextAvailable =
+    profile.role === "consultant"
+      ? getUpcomingAvailabilitySlots(consultantAvailability, 1)[0] || consultantProfile?.nextAvailable || ""
+      : "";
   const setupChecklist =
     profile.role === "consultant"
       ? [
@@ -3693,7 +3803,24 @@ export function DashboardPage() {
           .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
           .slice(0, 3)
       : [];
+  const availabilityPresetOptions = useMemo(
+    () => [
+      buildAvailabilityPreset(1, 9),
+      buildAvailabilityPreset(1, 14),
+      buildAvailabilityPreset(2, 11),
+      buildAvailabilityPreset(3, 16)
+    ],
+    []
+  );
   const firstName = profile.name.split(" ")[0] || profile.name;
+  const consultantPublicSlug =
+    consultantProfile?.slug || slugifyValue(consultantProfile?.name || profile.name);
+  const consultantPublicUrl =
+    profile.role === "consultant" && consultantPublicSlug
+      ? typeof window !== "undefined"
+        ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultantPublicSlug}`
+        : `/consultants/${consultantPublicSlug}`
+      : "";
   const dashboardSections = [
     {
       id: "profile-basics",
@@ -3722,10 +3849,28 @@ export function DashboardPage() {
           },
           {
             label: "Часове",
-            ready: Boolean((consultantProfile?.availability || []).length)
+            ready: Boolean(consultantAvailability.length)
           }
         ]
       : [];
+
+  function addAvailabilitySlot(slot: string) {
+    if (!slot) {
+      setError("Избери дата и час, за да добавиш свободен слот.");
+      return;
+    }
+
+    setError("");
+    setConsultantAvailability((current) => getUpcomingAvailabilitySlots([...current, slot]));
+  }
+
+  function addManualAvailabilitySlot() {
+    addAvailabilitySlot(buildAvailabilitySlot(availabilityDate, availabilityTime));
+  }
+
+  function removeAvailabilitySlot(slot: string) {
+    setConsultantAvailability((current) => current.filter((item) => item !== slot));
+  }
 
   function jumpToDashboardSection(sectionId: string) {
     if (typeof document === "undefined") {
@@ -3761,8 +3906,12 @@ export function DashboardPage() {
               <span>статус</span>
             </div>
             <div>
-              <strong>{bookings.length}</strong>
-              <span>сесии</span>
+              <strong>
+                {profile.role === "consultant"
+                  ? consultantAvailability.length || "0"
+                  : bookings.length}
+              </strong>
+              <span>{profile.role === "consultant" ? "свободни часа" : "сесии"}</span>
             </div>
           </div>
 
@@ -3800,20 +3949,47 @@ export function DashboardPage() {
                     : "Остава още малко, за да изглежда профилът ти по-пълен и професионален."}
                 </p>
               </article>
-              <article className="summary-card">
-                <span className="plan-pill">Документи</span>
-                <strong>{profile.cvDocument ? "1 активен файл" : "Няма качен файл"}</strong>
-                <p>{getDocumentCapacityNote(profile.plan)}</p>
-              </article>
-              <article className="summary-card">
-                <span className="plan-pill">Следваща сесия</span>
-                <strong>{nextBooking ? formatDate(nextBooking.scheduledAt) : "Все още няма"}</strong>
-                <p>
-                  {nextBooking
-                    ? `С ${nextBooking.consultantName}`
-                    : "След като резервираш консултация, тя ще се покаже тук."}
-                </p>
-              </article>
+              {profile.role === "consultant" ? (
+                <>
+                  <article className="summary-card">
+                    <span className="plan-pill">Публичен профил</span>
+                    <strong>{consultantProfile ? "Активен" : "Подготвя се"}</strong>
+                    <p>
+                      {consultantProfile
+                        ? "Провери снимката, темите и свободните часове, за да изглежда страницата ти завършена."
+                        : "След първото запазване профилът ти ще бъде достъпен за преглед и резервации."}
+                    </p>
+                  </article>
+                  <article className="summary-card">
+                    <span className="plan-pill">Свободни часове</span>
+                    <strong>
+                      {consultantNextAvailable ? formatDate(consultantNextAvailable) : "Няма добавени"}
+                    </strong>
+                    <p>
+                      {consultantAvailability.length
+                        ? `${consultantAvailability.length} активни слота за резервация`
+                        : "Добави поне няколко часа, за да могат хората да резервират веднага."}
+                    </p>
+                  </article>
+                </>
+              ) : (
+                <>
+                  <article className="summary-card">
+                    <span className="plan-pill">Документи</span>
+                    <strong>{profile.cvDocument ? "1 активен файл" : "Няма качен файл"}</strong>
+                    <p>{getDocumentCapacityNote(profile.plan)}</p>
+                  </article>
+                  <article className="summary-card">
+                    <span className="plan-pill">Следваща сесия</span>
+                    <strong>{nextBooking ? formatDate(nextBooking.scheduledAt) : "Все още няма"}</strong>
+                    <p>
+                      {nextBooking
+                        ? `С ${nextBooking.consultantName}`
+                        : "След като резервираш консултация, тя ще се покаже тук."}
+                    </p>
+                  </article>
+                </>
+              )}
               <article className="summary-card">
                 <span className="plan-pill">Акаунт</span>
                 <strong>{formatRoleLabel(profile.role)} · {formatPlanLabel(profile.plan)}</strong>
@@ -3884,20 +4060,49 @@ export function DashboardPage() {
           {profile.role === "client" ? (
             <section className="panel" id="matches">
               <p className="eyebrow">Подходящи консултанти</p>
-              <h2>Тези профили са най-близо до целите ти</h2>
+              <h2>Профили с най-добро съвпадение и видими свободни часове</h2>
               {dashboardMatchedConsultants.length ? (
                 <div className="info-grid">
                   {dashboardMatchedConsultants.map(({ consultant, match }) => (
-                    <article className="info-card" key={consultant.consultantId}>
-                      <span className={match ? "status-badge status-badge--success" : "plan-pill"}>
-                        {match ? `${match.score}% съвпадение` : "Профил"}
-                      </span>
-                      <h3>{consultant.name}</h3>
-                      <p>{consultant.headline}</p>
+                    <article className="info-card match-card" key={consultant.consultantId}>
+                      <div className="match-card__header">
+                        <AvatarMedia
+                          src={consultant.avatarUrl}
+                          name={consultant.name}
+                          className="match-card__avatar"
+                        />
+                        <div className="match-card__content">
+                          <span
+                            className={match ? "status-badge status-badge--success" : "plan-pill"}
+                          >
+                            {match ? `${match.score}% съвпадение` : "Профил"}
+                          </span>
+                          <h3>{consultant.name}</h3>
+                          <p>{consultant.headline}</p>
+                        </div>
+                      </div>
                       <p>{match?.note || "Подходящ консултант според профила ти."}</p>
-                      <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
-                        Отвори
-                      </Link>
+                      <div className="match-card__meta">
+                        <span>{getConsultantLocationLabel(consultant)}</span>
+                        <span>{getSessionLengthLabel(consultant)}</span>
+                        <span>{consultant.sessionModes[0] || "Онлайн"}</span>
+                      </div>
+                      <div className="match-card__slots">
+                        {getUpcomingAvailabilitySlots(consultant.availability, 3).length ? (
+                          getUpcomingAvailabilitySlots(consultant.availability, 3).map((slot) => (
+                            <span className="chip chip--soft" key={slot}>
+                              {formatAvailabilityShortLabel(slot)}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="chip chip--soft">Часовете ще се покажат скоро</span>
+                        )}
+                      </div>
+                      <div className="match-card__actions">
+                        <Link className="primary-button" to={`/consultants/${consultant.slug}`}>
+                          Виж профила
+                        </Link>
+                      </div>
                     </article>
                   ))}
                 </div>
@@ -3924,8 +4129,8 @@ export function DashboardPage() {
           <form className="panel form-stack" id="profile-basics" onSubmit={saveProfile}>
             <QuestionFlowIntro
               eyebrow="Основен профил"
-              title="Попълни само това, което помага на профила ти."
-              description="Име, роля, кратко описание и няколко ключови теми са достатъчни, за да работи съвпадението добре."
+              title="Подреди профила си ясно и професионално."
+              description="Най-важни са няколко точни детайла: кой си, какво търсиш и какъв тип консултация предпочиташ."
               completion={profileCompletion}
             />
             <div className="question-grid">
@@ -3980,6 +4185,15 @@ export function DashboardPage() {
                       required
                     />
                   </label>
+                  <label>
+                    Имейл
+                    <input value={profile.email} readOnly />
+                    <span className="form-note">
+                      Имейлът идва от входа в акаунта и не се редактира тук.
+                    </span>
+                  </label>
+                </div>
+                <div className="two-column">
                   <label>
                     Град
                     <input
@@ -4158,7 +4372,7 @@ export function DashboardPage() {
                 Подреденият профил прави търсенето по-ясно и съвпаденията по-полезни.
               </p>
               <button className="primary-button" type="submit">
-                Запази профила
+                Запази
               </button>
             </div>
           </form>
@@ -4181,7 +4395,7 @@ export function DashboardPage() {
               </div>
             ) : null}
             <button className="primary-button" type="submit">
-              Качи документ
+              Качи CV
             </button>
           </form>
 
@@ -4189,8 +4403,8 @@ export function DashboardPage() {
             <form className="panel form-stack" id="consultant-profile" onSubmit={saveConsultantProfile}>
               <QuestionFlowIntro
                 eyebrow="Публичен профил"
-                title="Подреди страницата, която хората ще виждат."
-                description="Най-важното е профилът ти да е ясен, кратък и лесен за резервация."
+                title="Подготви страницата, която хората ще намират и резервират."
+                description="Фокусът е върху ясно позициониране, добър портрет и реални свободни часове."
                 completion={profileCompletion}
               />
               <div className="question-grid">
@@ -4201,16 +4415,19 @@ export function DashboardPage() {
                 >
                   <div className="two-column">
                     <label>
-                      Slug
+                      Адрес на профила
                       <input
                         name="slug"
                         defaultValue={consultantProfile?.slug || ""}
                         placeholder="ivan-petrov"
                         required
                       />
+                      <span className="form-note">
+                        Публична страница: {consultantPublicUrl || "Ще се създаде след записване"}
+                      </span>
                     </label>
                     <label>
-                      Име за профила
+                      Публично име
                       <input
                         name="displayName"
                         defaultValue={consultantProfile?.name || profile.name}
@@ -4481,27 +4698,104 @@ export function DashboardPage() {
                       />
                     </label>
                   </div>
-                  <label>
-                    Свободни слотове
-                    <textarea
-                      name="availability"
-                      rows={5}
-                      defaultValue={consultantProfile?.availability.join("\n") || ""}
-                      placeholder="2026-03-25T09:00:00.000Z"
-                      required
-                    />
-                  </label>
-                  <SuggestionPills
-                    label="Добави примерни слотове"
-                    fieldName="availability"
-                    mode="append-lines"
-                    options={[
-                      buildAvailabilityPreset(1, 9),
-                      buildAvailabilityPreset(1, 14),
-                      buildAvailabilityPreset(2, 11),
-                      buildAvailabilityPreset(3, 16)
-                    ]}
+                  <input
+                    name="availability"
+                    type="hidden"
+                    value={consultantAvailability.join("\n")}
+                    readOnly
                   />
+                  <div className="availability-composer">
+                    <div className="availability-composer__header">
+                      <div>
+                        <strong>Свободни часове</strong>
+                        <p>
+                          Показвай само реални часове, в които можеш да поемеш нова
+                          консултация.
+                        </p>
+                      </div>
+                      <span
+                        className={
+                          consultantAvailability.length
+                            ? "status-badge status-badge--success"
+                            : "plan-pill"
+                        }
+                      >
+                        {consultantAvailability.length
+                          ? `${consultantAvailability.length} активни`
+                          : "Няма слотове"}
+                      </span>
+                    </div>
+
+                    <div className="availability-composer__controls">
+                      <label>
+                        Дата
+                        <input
+                          type="date"
+                          value={availabilityDate}
+                          onChange={(event) => setAvailabilityDate(event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Час
+                        <input
+                          type="time"
+                          value={availabilityTime}
+                          onChange={(event) => setAvailabilityTime(event.target.value)}
+                        />
+                      </label>
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        onClick={addManualAvailabilitySlot}
+                      >
+                        Добави слот
+                      </button>
+                    </div>
+
+                    <div className="answer-suggestions">
+                      <span className="answer-suggestions__label">Бързи предложения</span>
+                      <div className="answer-suggestions__grid">
+                        {availabilityPresetOptions.map((option) => (
+                          <button
+                            className="suggestion-pill"
+                            key={option.value}
+                            type="button"
+                            onClick={() => addAvailabilitySlot(option.value)}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {consultantAvailability.length ? (
+                      <div className="availability-list">
+                        {consultantAvailability.map((slot) => (
+                          <article className="availability-item" key={slot}>
+                            <div>
+                              <strong>{formatAvailabilityDayLabel(slot)}</strong>
+                              <p>{formatAvailabilityTimeLabel(slot)}</p>
+                            </div>
+                            <button
+                              className="text-button"
+                              type="button"
+                              onClick={() => removeAvailabilitySlot(slot)}
+                            >
+                              Премахни
+                            </button>
+                          </article>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="panel panel--subtle">
+                        <strong>Все още няма свободни часове.</strong>
+                        <p>
+                          Добави поне няколко слота за следващите дни, за да могат хората
+                          да изпращат заявки директно през профила ти.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </QuestionBlock>
               </div>
               <div className="question-form__footer">
@@ -4509,7 +4803,7 @@ export function DashboardPage() {
                   Подреденият профил и свободните часове правят резервацията по-лесна.
                 </p>
                 <button className="primary-button" type="submit">
-                  Запази публичния профил
+                  Запази профила
                 </button>
               </div>
             </form>
