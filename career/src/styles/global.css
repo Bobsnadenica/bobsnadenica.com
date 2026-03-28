@@ -911,6 +911,20 @@ textarea {
   border: 1px solid rgba(213, 222, 233, 0.92);
 }
 
+.media-preview-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 20px;
+  text-align: center;
+  border-radius: 16px;
+  border: 1px dashed rgba(184, 214, 244, 0.96);
+  background: rgba(240, 247, 255, 0.88);
+  color: var(--muted);
+  line-height: 1.65;
+}
+
 .ad-banner::before,
 .ad-banner::after {
   content: "";
@@ -1936,6 +1950,16 @@ textarea {
 .dashboard-sidebar {
   position: sticky;
   top: 106px;
+}
+
+.dashboard-sidebar__avatar {
+  width: 96px;
+  height: 96px;
+  margin: 2px 0 18px;
+  object-fit: cover;
+  border-radius: 24px;
+  border: 1px solid rgba(213, 222, 233, 0.92);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
 }
 
 .dashboard-metrics {

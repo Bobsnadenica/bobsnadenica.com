@@ -3,6 +3,7 @@ export type PlanTier = "free" | "pro";
 export type BookingStatus = "requested" | "confirmed" | "cancelled";
 export type ConsultantProfileType = "consultant" | "mentor";
 export type ConsultantMediaKind = "avatar" | "hero";
+export type UserMediaKind = "user-avatar";
 
 export interface UploadedDocument {
   fileName: string;
@@ -47,6 +48,8 @@ export interface UserProfile {
   name: string;
   role: UserRole;
   plan: PlanTier;
+  avatarUrl?: string;
+  avatarStorageKey?: string;
   city?: string;
   occupation?: string;
   age?: number | null;

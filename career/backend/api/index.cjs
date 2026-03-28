@@ -143,7 +143,12 @@ function sanitizeFileName(fileName) {
 function normalizeUploadKind(value) {
   const kind = String(value || "cv").trim().toLowerCase();
 
-  if (kind === "cv" || kind === "avatar" || kind === "hero") {
+  if (
+    kind === "cv" ||
+    kind === "avatar" ||
+    kind === "hero" ||
+    kind === "user-avatar"
+  ) {
     return kind;
   }
 
@@ -183,6 +188,21 @@ async function decorateConsultantMedia(consultant) {
     ...consultant,
     avatarUrl: avatarUrl || consultant.avatarUrl,
     heroUrl: heroUrl || consultant.heroUrl
+  };
+}
+
+async function decorateUserMedia(user) {
+  if (!user) {
+    return user;
+  }
+
+  const avatarUrl = user.avatarStorageKey
+    ? await getSignedObjectUrl(user.avatarStorageKey)
+    : "";
+
+  return {
+    ...user,
+    avatarUrl: avatarUrl || user.avatarUrl || ""
   };
 }
 
@@ -262,6 +282,8 @@ async function bootstrapUser(event) {
     name: body.name || claims.name || existing?.name || "",
     role: body.role || existing?.role || "client",
     plan: body.plan || existing?.plan || "free",
+    avatarUrl: existing?.avatarUrl || "",
+    avatarStorageKey: existing?.avatarStorageKey || "",
     city: existing?.city || "",
     occupation: existing?.occupation || "",
     age: existing?.age ?? null,
@@ -342,7 +364,7 @@ async function bootstrapUser(event) {
     }
   }
 
-  return response(200, nextUser);
+  return response(200, await decorateUserMedia(nextUser));
 }
 
 async function getMeProfile(event) {
@@ -353,7 +375,7 @@ async function getMeProfile(event) {
     return notFound("Profile not found. Call /auth/bootstrap first.");
   }
 
-  return response(200, user);
+  return response(200, await decorateUserMedia(user));
 }
 
 async function updateMeProfile(event) {
@@ -368,6 +390,8 @@ async function updateMeProfile(event) {
   const nextUser = {
     ...current,
     name: body.name ?? current.name,
+    avatarUrl: body.avatarUrl ?? current.avatarUrl ?? "",
+    avatarStorageKey: body.avatarStorageKey ?? current.avatarStorageKey ?? "",
     city: body.city ?? current.city,
     occupation: body.occupation ?? current.occupation ?? "",
     age: body.age ?? current.age ?? null,
@@ -390,7 +414,7 @@ async function updateMeProfile(event) {
     })
   );
 
-  return response(200, nextUser);
+  return response(200, await decorateUserMedia(nextUser));
 }
 
 async function getMyConsultant(event) {
@@ -491,6 +515,8 @@ async function createUploadUrl(event) {
   const storageKey =
     kind === "cv"
       ? `profiles/${claims.sub}/documents/${Date.now()}-${safeFileName}`
+      : kind === "user-avatar"
+        ? `profiles/${claims.sub}/avatar/${Date.now()}-${safeFileName}`
       : `consultants/${claims.sub}/${kind}/${Date.now()}-${safeFileName}`;
   const command = new PutObjectCommand({
     Bucket: env.cvBucket,
