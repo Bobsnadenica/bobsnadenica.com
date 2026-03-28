@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   HashRouter,
   Link,
@@ -1279,27 +1279,97 @@ function SuggestionPills({
   options: QuestionSuggestionOption[];
   mode?: SuggestedFillMode;
 }) {
-  return (
-    <div className="answer-suggestions">
-      <span className="answer-suggestions__label">{label}</span>
-      <div className="answer-suggestions__grid">
-        {options.map((option) => {
-          const item = typeof option === "string" ? { label: option, value: option } : option;
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [hasValue, setHasValue] = useState(false);
 
-          return (
-            <button
-              className="suggestion-pill"
-              key={`${fieldName}-${item.label}`}
-              type="button"
-              onClick={(event) =>
-                applySuggestedFieldValue(event.currentTarget.form, fieldName, item.value, mode)
-              }
-            >
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
+  useEffect(() => {
+    const form = rootRef.current?.closest("form");
+
+    if (!form) {
+      return;
+    }
+
+    const control = form.elements.namedItem(fieldName);
+
+    if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    const syncValueState = () => {
+      setHasValue(Boolean(control.value.trim()));
+    };
+
+    const handleFocus = () => {
+      setIsFocused(true);
+      syncValueState();
+    };
+
+    const handleBlur = () => {
+      window.setTimeout(() => {
+        const activeElement = document.activeElement;
+        const stillInsideSuggestions =
+          activeElement instanceof Node && rootRef.current?.contains(activeElement);
+        const fieldStillFocused = activeElement === control;
+
+        if (!stillInsideSuggestions && !fieldStillFocused) {
+          setIsFocused(false);
+        }
+      }, 0);
+    };
+
+    syncValueState();
+
+    control.addEventListener("focus", handleFocus);
+    control.addEventListener("blur", handleBlur);
+    control.addEventListener("input", syncValueState);
+    control.addEventListener("change", syncValueState);
+
+    return () => {
+      control.removeEventListener("focus", handleFocus);
+      control.removeEventListener("blur", handleBlur);
+      control.removeEventListener("input", syncValueState);
+      control.removeEventListener("change", syncValueState);
+    };
+  }, [fieldName]);
+
+  if (!isFocused) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`answer-suggestions ${hasValue ? "answer-suggestions--open" : "answer-suggestions--hint"}`}
+      ref={rootRef}
+    >
+      {hasValue ? (
+        <>
+          <span className="answer-suggestions__label">{label}</span>
+          <div className="answer-suggestions__grid">
+            {options.map((option) => {
+              const item = typeof option === "string" ? { label: option, value: option } : option;
+
+              return (
+                <button
+                  className="suggestion-pill"
+                  key={`${fieldName}-${item.label}`}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={(event) =>
+                    applySuggestedFieldValue(event.currentTarget.form, fieldName, item.value, mode)
+                  }
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <span className="answer-suggestions__hint">
+          Започни да пишеш, за да видиш идеи за това поле.
+        </span>
+      )}
     </div>
   );
 }
