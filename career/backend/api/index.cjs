@@ -126,12 +126,11 @@ function normalizeStringList(value, fallback = []) {
 }
 
 function getConsultantVisibility(plan) {
-  const isPublic = plan === "pro";
-
   return {
-    isPublic,
-    profileStatus: isPublic ? "active" : "draft",
-    subscriptionStatus: isPublic ? "active" : "inactive"
+    isPublic: true,
+    profileStatus: "active",
+    subscriptionStatus: "active",
+    membershipTier: plan === "pro" ? "enhanced" : "standard"
   };
 }
 

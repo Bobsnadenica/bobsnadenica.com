@@ -169,9 +169,7 @@ export function buildPreviewConsultantProfile(account: MockPreviewAccount) {
 export function isPublicConsultantPreview(account: MockPreviewAccount | null) {
   return Boolean(
     account &&
-      account.role === "consultant" &&
-      account.plan === "pro" &&
-      account.subscriptionStatus === "active"
+      account.role === "consultant"
   );
 }
 

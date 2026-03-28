@@ -124,7 +124,7 @@ type QuestionSuggestionOption = string | { label: string; value: string };
 
 const userPlans: MarketingPlan[] = [
   {
-    name: "Free access",
+    name: "Free user",
     price: "0 €",
     badge: "Отворен достъп",
     note: "Потребителите използват CareerLane без платено членство и могат да разглеждат всички активни консултанти и ментори.",
@@ -135,34 +135,59 @@ const userPlans: MarketingPlan[] = [
     ],
     ctaLabel: "Създай безплатен профил",
     ctaTo: "/auth?tab=register&plan=free&role=client"
+  },
+  {
+    name: "Paid user",
+    badge: "Очаквай скоро",
+    note: "Разширеният потребителски tier остава в продуктовата посока, но няма да се активира в текущия production launch.",
+    points: [
+      "Подготвен модел за повече пространство и разширени инструменти",
+      "Възможност за бъдещи премиум функционалности",
+      "Няма плащане или активация в текущата версия"
+    ],
+    ctaLabel: "Научи повече",
+    ctaTo: "/faq"
   }
 ];
 
 const consultantPlans: MarketingPlan[] = [
   {
-    name: "Чернова",
-    badge: "Подготви профила",
-    note: "Създаваш профил, подреждаш темите и свободните си часове, но профилът остава в подготовка до активиране.",
+    name: "Free consultant",
+    price: "0 €",
+    badge: "Публичен профил",
+    note: "Консултантите и менторите могат да създадат безплатен публичен профил, да добавят снимка, CV, теми и свободни слотове и да бъдат намирани в търсенето.",
     points: [
-      "Създаване и редакция на консултантски или менторски профил",
-      "Подготовка на специализации, теми и свободни часове",
-      "Преглед как ще изглежда профилът преди публикуване"
+      "Публичен профил, достъпен в списъка с консултанти и ментори",
+      "Редакция на специализации, теми, снимка и свободни слотове",
+      "Възможност потребителите да разглеждат и резервират консултации"
     ],
     ctaLabel: "Създай профил",
     ctaTo: "/auth?tab=register&plan=free&role=consultant"
   },
   {
-    name: "Активен профил",
-    badge: "Публично присъствие",
+    name: "Paid consultant",
+    badge: "Очаквай скоро",
     featured: true,
-    note: "Абонаментът активира профила, позволява той да се показва в каталога и да се промотира пред потребители.",
+    note: "Разширеният consultant tier ще даде по-силно представяне и допълнителни възможности, но не се активира в текущия launch.",
     points: [
-      "Активен публичен профил в каталога",
-      "По-видимо присъствие и промотиране в платформата",
-      "Споделяем профил и активни заявки за консултации"
+      "Подготвен модел за разширено представяне",
+      "Бъдещи опции за по-видимо присъствие",
+      "Без плащане и без активиране на платени услуги в текущата версия"
     ],
-    ctaLabel: "Активирай профила",
-    ctaTo: "/auth?tab=register&plan=pro&role=consultant"
+    ctaLabel: "Очаквай скоро",
+    ctaTo: "/faq"
+  },
+  {
+    name: "Consultant gold",
+    badge: "Премиум tier",
+    note: "Gold tier остава част от roadmap-а за бъдещо разширение на продукта и не е включен в текущата production активация.",
+    points: [
+      "Подготвена посока за premium видимост и разширен профил",
+      "Подходящо за по-късен етап на продукта",
+      "Не се активира в текущия launch"
+    ],
+    ctaLabel: "Очаквай скоро",
+    ctaTo: "/faq"
   }
 ];
 
@@ -177,7 +202,7 @@ const homeJourney = [
   {
     step: "02",
     title: "За консултанти и ментори",
-    text: "Изграждаш професионално присъствие, подреждаш профила си и активираш публично представяне чрез абонамент.",
+    text: "Изграждаш професионално присъствие, подреждаш профила си и стартираш с безплатен публичен профил, който хората могат да намират и разглеждат.",
     ctaLabel: "Разгледай страницата за консултанти и ментори",
     ctaTo: "/consultants"
   },
@@ -276,7 +301,7 @@ const faqItems = [
   {
     question: "Могат ли консултантите да използват платформата безплатно?",
     answer:
-      "Да. Консултантите и менторите могат да започнат с профил в чернова безплатно. За да стане профилът публичен, споделяем и активен в списъка с профили, е нужен абонамент."
+      "Да. Консултантите и менторите могат да създадат безплатен публичен профил, който да бъде откриваем, отваряем и споделяем. Разширените tiers остават за следващ етап на продукта."
   },
   {
     question: "Показват ли се публично консултантските тарифи?",
@@ -391,15 +416,15 @@ function formatRoleLabel(role: UserRole) {
 }
 
 function formatPlanLabel(plan: PlanTier) {
-  return plan === "pro" ? "Активен" : "Free";
+  return plan === "pro" ? "Plus" : "Free";
 }
 
 function formatMembershipLabel(role: UserRole, plan: PlanTier) {
   if (role === "consultant") {
-    return plan === "pro" ? "Активен профил" : "Чернова";
+    return plan === "pro" ? "Разширен профил" : "Публичен профил";
   }
 
-  return "Free";
+  return plan === "pro" ? "Разширен достъп" : "Free";
 }
 
 function formatConsultantTypeLabel(profileType?: ConsultantProfileType) {
@@ -439,16 +464,16 @@ function getMockPlanFeatures(role: UserRole, plan: PlanTier) {
   if (role === "consultant") {
     return plan === "pro"
       ? [
-          "Активен публичен профил в каталога",
-          "Промотирано присъствие пред потребители",
-          "Споделяем профил и активни запитвания",
-          "По-богато представяне на темите и свободните часове"
+          "Публичен профил с разширено представяне",
+          "По-богато описание на услугите и материалите",
+          "Подготвена основа за бъдещи премиум възможности",
+          "Споделяем профил и активни запитвания"
         ]
       : [
-          "Подготовка на профил в чернова",
+          "Публичен консултантски или менторски профил",
           "Основни специализации, езици и свободни слотове",
-          "Преглед на профила преди публикуване",
-          "Готовност за активиране на публично присъствие"
+          "CV и професионално присъствие, достъпни за потребителите",
+          "Възможност да бъдеш намиран и резервиран"
         ];
   }
 
@@ -536,11 +561,13 @@ function getDocumentCapacityNote(plan: PlanTier) {
 function getRolePlanSummary(role: UserRole, plan: PlanTier) {
   if (role === "consultant") {
     return plan === "pro"
-      ? "Активен консултантски или менторски профил с публично присъствие, споделяне и промотиране."
-      : "Профил в подготовка, който може да бъде активиран с абонамент.";
+      ? "Публичен консултантски или менторски профил с по-богато представяне и подготвена основа за бъдещи premium възможности."
+      : "Публичен консултантски или менторски профил, който хората могат да намират, отварят и резервират.";
   }
 
-  return "Безплатен потребителски профил с достъп до активните консултанти и ментори.";
+  return plan === "pro"
+    ? "Разширен потребителски профил, подготвен за бъдещи premium възможности."
+    : "Безплатен потребителски профил с достъп до активните консултанти и ментори.";
 }
 
 function slugifyValue(value: string) {
@@ -1247,7 +1274,7 @@ function HomePage() {
               </div>
               <div>
                 <strong>Потребителите са free</strong>
-                <span>абонаментът е за активни консултанти и ментори</span>
+                <span>консултантите и менторите могат да стартират с безплатен публичен профил</span>
               </div>
               <div>
                 <strong>Рекламна зона</strong>
@@ -1773,10 +1800,10 @@ function ConsultantsPage() {
         <div className="container hero__grid consultants-hero__grid">
           <div className="hero__copy">
             <p className="eyebrow">За консултанти и ментори</p>
-            <h1>Профил, който изглежда сериозно, може да се активира с абонамент и да се споделя уверено.</h1>
+            <h1>Профил, който изглежда сериозно, стартира безплатно и може да се споделя уверено.</h1>
             <p className="hero__lede">
               Страницата за консултанти и ментори е отделена ясно от потребителската
-              част. Тук акцентът е върху активния публичен профил, свободните часове,
+              част. Тук акцентът е върху публичния профил, свободните часове,
               споделянето и начина, по който хората вземат решение да резервират среща.
             </p>
 
@@ -1795,8 +1822,8 @@ function ConsultantsPage() {
                 <span>ясен фокус, град, езици и специализации</span>
               </div>
               <div>
-                <strong>Активиране с абонамент</strong>
-                <span>профилът става публичен и подходящ за промотиране</span>
+                <strong>Безплатен старт</strong>
+                <span>профилът може да бъде създаден и публикуван още от началото</span>
               </div>
               <div>
                 <strong>Професионална визия</strong>
@@ -1811,7 +1838,7 @@ function ConsultantsPage() {
               <strong>Какво получаваш още от старт</strong>
               <p>
                 Отделна страница за консултанти и ментори, ясна структура за профила и
-                възможност за активиране, промотиране и споделяне.
+                възможност за споделяне, свободни слотове и по-добро професионално присъствие.
               </p>
             </div>
             <div className="consultant-intro-card__list">
@@ -1868,7 +1895,7 @@ function ConsultantsPage() {
           ))}
           <aside className="panel consultant-proof-panel">
             <p className="eyebrow">Как изглежда добрият списък</p>
-            <h2>Подредени профили, видими детайли и ясен active model.</h2>
+            <h2>Подредени профили, видими детайли и ясен публичен модел.</h2>
             <p>
               Консултантската секция трябва да е лесна за преглеждане във всеки браузър:
               подредена решетка, ясни акценти и без визуален шум.
@@ -1876,7 +1903,7 @@ function ConsultantsPage() {
             <ul className="page-list">
               <li>Разпознаваем headline още в първия екран</li>
               <li>Специализации и град без пренатрупване</li>
-              <li>Ясни теми, формати, active статус и share възможност</li>
+              <li>Ясни теми, формати, публичен статус и share възможност</li>
             </ul>
           </aside>
         </div>
@@ -1884,8 +1911,8 @@ function ConsultantsPage() {
 
       <PlanSection
         eyebrow="Планове за консултанти и ментори"
-        title="Чернова за подготовка и активен профил за публично присъствие."
-        description="Платеното членство е за консултантите и менторите. То активира профила в каталога, прави го споделяем и позволява по-силно представяне."
+        title="Безплатен публичен старт с подготвени tiers за бъдещо разширение."
+        description="Текущият production launch позволява безплатен публичен профил за консултанти и ментори. Допълнителните tiers остават част от продуктовата посока и не са обвързани с платени активации в момента."
         plans={consultantPlans}
       />
 
@@ -3626,8 +3653,7 @@ function AuthPage() {
   const resolvedRedirect = configured && redirect === "/account" ? "/dashboard" : redirect;
   const initialTab = params.get("tab") === "register" ? "register" : "login";
   const initialRole = params.get("role") === "consultant" ? "consultant" : "client";
-  const initialPlan =
-    initialRole === "consultant" && params.get("plan") === "pro" ? "pro" : "free";
+  const initialPlan = "free";
   const existingPreview = configured ? null : readMockPreviewAccount();
 
   const [screen, setScreen] = useState<AuthScreen>(initialTab);
@@ -3670,10 +3696,10 @@ function AuthPage() {
   }, [initialPlan, initialRole, initialTab]);
 
   useEffect(() => {
-    if (form.role !== "consultant" && form.plan !== "free") {
+    if (form.plan !== "free") {
       setForm((current) => ({ ...current, plan: "free" }));
     }
-  }, [form.plan, form.role]);
+  }, [form.plan]);
 
   if (!loading && user) {
     return <Navigate to={resolvedRedirect} replace />;
@@ -4201,29 +4227,13 @@ function AuthPage() {
               </label>
 
               {form.role === "consultant" ? (
-                <div className="choice-grid">
-                  {(["free", "pro"] as PlanTier[]).map((plan) => (
-                    <button
-                      type="button"
-                      key={plan}
-                      className={`choice-card ${form.plan === plan ? "choice-card--active" : ""}`}
-                      onClick={() => setForm({ ...form, plan })}
-                    >
-                      <span className={plan === "pro" ? "status-badge" : "plan-pill"}>
-                        {plan === "pro" ? "Активен профил" : "Чернова"}
-                      </span>
-                      <strong>
-                        {plan === "pro"
-                          ? formatEuro(getMockProPrice(form.role, form.billingCycle))
-                          : "0 €"}
-                      </strong>
-                      <p>
-                        {plan === "pro"
-                          ? "Профилът става публичен, активен и подходящ за промотиране пред потребители."
-                          : "Подготвяш профила, специализациите и свободните си часове преди активиране."}
-                      </p>
-                    </button>
-                  ))}
+                <div className="panel panel--subtle">
+                  <strong>Безплатният публичен профил е активен в текущата версия.</strong>
+                  <p>
+                    Можеш да създадеш безплатен консултантски или менторски профил,
+                    да добавиш специализации, снимка, CV и свободни слотове и да бъдеш
+                    намиран в платформата. Разширените tiers остават за следващ етап.
+                  </p>
                 </div>
               ) : (
                 <div className="panel panel--subtle">
@@ -4646,6 +4656,9 @@ function DashboardPage() {
       const updated = await api.updateMyConsultantProfile(token, {
         slug: String(formData.get("slug") || consultantProfile?.slug || ""),
         name: String(formData.get("displayName") || consultantProfile?.name || ""),
+        profileType: String(
+          formData.get("consultantProfileType") || consultantProfile?.profileType || "consultant"
+        ) as ConsultantProfileType,
         headline: String(
           formData.get("consultantHeadline") || consultantProfile?.headline || ""
         ),
@@ -4670,6 +4683,8 @@ function DashboardPage() {
           .split(",")
           .map((item) => item.trim())
           .filter(Boolean),
+        avatarUrl: String(formData.get("avatarUrl") || consultantProfile?.avatarUrl || ""),
+        heroUrl: String(formData.get("heroUrl") || consultantProfile?.heroUrl || ""),
         idealFor: parseListValue(formData.get("idealFor")),
         consultationTopics: parseListValue(formData.get("consultationTopics")),
         workApproach: String(formData.get("workApproach") || ""),
@@ -5140,6 +5155,16 @@ function DashboardPage() {
                   </div>
                   <div className="two-column">
                     <label>
+                      Тип профил
+                      <select
+                        name="consultantProfileType"
+                        defaultValue={consultantProfile?.profileType || "consultant"}
+                      >
+                        <option value="consultant">Консултант</option>
+                        <option value="mentor">Ментор</option>
+                      </select>
+                    </label>
+                    <label>
                       Град
                       <input
                         name="consultantCity"
@@ -5155,6 +5180,24 @@ function DashboardPage() {
                         type="number"
                         min="0"
                         defaultValue={consultantProfile?.experienceYears || 1}
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Линк към профилна снимка
+                      <input
+                        name="avatarUrl"
+                        defaultValue={consultantProfile?.avatarUrl || ""}
+                        placeholder="https://..."
+                      />
+                    </label>
+                    <label>
+                      Линк към снимка за корицата
+                      <input
+                        name="heroUrl"
+                        defaultValue={consultantProfile?.heroUrl || ""}
+                        placeholder="https://..."
                       />
                     </label>
                   </div>
