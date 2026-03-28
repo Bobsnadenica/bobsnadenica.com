@@ -3693,6 +3693,50 @@ export function DashboardPage() {
           .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
           .slice(0, 3)
       : [];
+  const firstName = profile.name.split(" ")[0] || profile.name;
+  const dashboardSections = [
+    {
+      id: "profile-basics",
+      label: profile.role === "consultant" ? "Личен профил" : "Моят профил"
+    },
+    { id: "documents", label: "Документи" },
+    profile.role === "consultant"
+      ? { id: "consultant-profile", label: "Публична страница" }
+      : { id: "matches", label: "Подходящи профили" },
+    { id: "sessions", label: "Сесии" }
+  ];
+  const consultantReadiness =
+    profile.role === "consultant"
+      ? [
+          {
+            label: "Снимка",
+            ready: Boolean(consultantProfile?.avatarUrl || consultantProfile?.avatarStorageKey)
+          },
+          {
+            label: "Описание",
+            ready: Boolean((consultantProfile?.bio || "").trim())
+          },
+          {
+            label: "Теми",
+            ready: Boolean((consultantProfile?.consultationTopics || []).length)
+          },
+          {
+            label: "Часове",
+            ready: Boolean((consultantProfile?.availability || []).length)
+          }
+        ]
+      : [];
+
+  function jumpToDashboardSection(sectionId: string) {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
 
   return (
     <section className="section">
@@ -3710,15 +3754,15 @@ export function DashboardPage() {
           <div className="dashboard-metrics">
             <div>
               <strong>{formatRoleLabel(profile.role)}</strong>
-              <span>тип акаунт</span>
+              <span>роля</span>
             </div>
             <div>
               <strong>{formatPlanLabel(profile.plan)}</strong>
-              <span>активно членство</span>
+              <span>статус</span>
             </div>
             <div>
               <strong>{bookings.length}</strong>
-              <span>записани сесии</span>
+              <span>сесии</span>
             </div>
           </div>
 
@@ -3734,19 +3778,19 @@ export function DashboardPage() {
           {message ? <div className="panel panel--success">{message}</div> : null}
           {error ? <div className="panel panel--error">{error}</div> : null}
 
-          <section className="panel dashboard-overview">
+          <section className="panel dashboard-overview" id="overview">
             <div className="section-heading">
               <div>
                 <p className="eyebrow">Работно табло</p>
-                <h2>Добре дошъл в профила си, {profile.name.split(" ")[0]}.</h2>
+                <h2>Добре дошъл, {firstName}.</h2>
                 <p className="section-heading__copy">
-                  Това е централното място за профила ти, документите и следващите действия.
-                  Подредихме го така, че да е ясно какво да направиш първо.
+                  Всичко важно е събрано на едно място: профил, документи, публично
+                  представяне и предстоящи сесии.
                 </p>
               </div>
             </div>
 
-            <div className="summary-grid">
+            <div className="summary-grid summary-grid--compact">
               <article className="summary-card">
                 <span className="plan-pill">Завършеност</span>
                 <strong>{profileCompletion}%</strong>
@@ -3777,13 +3821,41 @@ export function DashboardPage() {
               </article>
             </div>
 
-            <div className="helper-grid">
-              {setupChecklist.map((item) => (
-                <article className="helper-card" key={item}>
-                  <strong>Следваща стъпка</strong>
-                  <p>{item}</p>
-                </article>
+            <div className="dashboard-section-nav" aria-label="Секции в профила">
+              {dashboardSections.map((section) => (
+                <button
+                  className="ghost-button"
+                  key={section.id}
+                  type="button"
+                  onClick={() => jumpToDashboardSection(section.id)}
+                >
+                  {section.label}
+                </button>
               ))}
+            </div>
+
+            <div className="panel panel--subtle dashboard-checklist">
+              <div>
+                <strong>Фокус за днес</strong>
+                <ul className="dashboard-checklist__list">
+                  {setupChecklist.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              {consultantReadiness.length ? (
+                <div className="dashboard-status-grid">
+                  {consultantReadiness.map((item) => (
+                    <span
+                      className={item.ready ? "status-badge status-badge--success" : "plan-pill"}
+                      key={item.label}
+                    >
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             <div className="dashboard-actions">
@@ -3796,24 +3868,23 @@ export function DashboardPage() {
                 }
               >
                 {profile.role === "consultant" && consultantProfile
-                  ? "Виж публичния профил"
-                  : "Разгледай консултантите"}
+                  ? "Виж страницата"
+                  : "Търси консултант"}
               </Link>
-              <Link
+              <button
                 className="ghost-button"
-                to={profile.role === "consultant" ? "/consultants" : "/users"}
+                type="button"
+                onClick={() => jumpToDashboardSection("profile-basics")}
               >
-                {profile.role === "consultant"
-                  ? "Отвори страницата за консултанти"
-                  : "Отвори страницата за потребители"}
-              </Link>
+                Редактирай профила
+              </button>
             </div>
           </section>
 
           {profile.role === "client" ? (
-            <section className="panel">
+            <section className="panel" id="matches">
               <p className="eyebrow">Подходящи консултанти</p>
-              <h2>CareerLane подрежда тези профили най-близо до твоите цели</h2>
+              <h2>Тези профили са най-близо до целите ти</h2>
               {dashboardMatchedConsultants.length ? (
                 <div className="info-grid">
                   {dashboardMatchedConsultants.map(({ consultant, match }) => (
@@ -3825,7 +3896,7 @@ export function DashboardPage() {
                       <p>{consultant.headline}</p>
                       <p>{match?.note || "Подходящ консултант според профила ти."}</p>
                       <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
-                        Виж профила
+                        Отвори
                       </Link>
                     </article>
                   ))}
@@ -3840,29 +3911,28 @@ export function DashboardPage() {
           ) : null}
 
           {profile.role === "consultant" ? (
-            <section className="panel">
-              <p className="eyebrow">Заявки и търсене</p>
-              <h2>Тук ще се показват реалните сигнали от потребители, а не примерни профили.</h2>
+            <section className="panel" id="signals">
+              <p className="eyebrow">Сигнали и интерес</p>
+              <h2>Тук ще виждаш интереса към профила си</h2>
               <p className="section-caption">
-                След като започнат да идват реални резервации и интерес към профила ти,
-                тази секция ще показва полезни сигнали за търсените теми, предпочитаните
-                формати и активността по профила.
+                Когато започнат реални резервации и прегледи на профила, в тази зона ще
+                се показват най-търсените теми, формати и полезни сигнали за практиката ти.
               </p>
             </section>
           ) : null}
 
-          <form className="panel form-stack" onSubmit={saveProfile}>
+          <form className="panel form-stack" id="profile-basics" onSubmit={saveProfile}>
             <QuestionFlowIntro
-              eyebrow="Профил за съвпадение"
-              title="Подреди профила си през няколко ясни въпроса."
-              description="Това е по-чист начин да попълниш информацията си. Можеш да пишеш свободно или да използваш готовите подсказки, за да изградиш профила по-бързо."
+              eyebrow="Основен профил"
+              title="Попълни само това, което помага на профила ти."
+              description="Име, роля, кратко описание и няколко ключови теми са достатъчни, за да работи съвпадението добре."
               completion={profileCompletion}
             />
             <div className="question-grid">
               <QuestionBlock
                 step="01"
                 title="Кой си в момента?"
-                hint="Името, градът и ролята ти дават базов контекст за съвпадението."
+                hint="Основните данни дават контекст."
               >
                 <div className="two-column">
                   <label>
@@ -3955,7 +4025,7 @@ export function DashboardPage() {
               <QuestionBlock
                 step="02"
                 title="Към каква следваща стъпка се движиш?"
-                hint="Заглавието и текущата цел помагат на CareerLane да изведе по-подходящите профили."
+                hint="Заглавие и цел."
               >
                 <label>
                   Профилно заглавие
@@ -4000,7 +4070,7 @@ export function DashboardPage() {
               <QuestionBlock
                 step="03"
                 title="Какъв е професионалният ти контекст?"
-                hint="Краткият разказ за опита ти дава повече яснота на консултантите."
+                hint="Кратко описание на опита ти."
                 wide
               >
                 <label>
@@ -4028,7 +4098,7 @@ export function DashboardPage() {
               <QuestionBlock
                 step="04"
                 title="Кои теми описват най-добре търсенето ти?"
-                hint="Използвай интереси, ключови думи и предпочитан формат, за да направиш съвпадението по-точно."
+                hint="Интереси, ключови думи и формат."
               >
                 <div className="two-column">
                   <label>
@@ -4093,11 +4163,10 @@ export function DashboardPage() {
             </div>
           </form>
 
-          <form className="panel form-stack" onSubmit={uploadCv}>
+          <form className="panel form-stack" id="documents" onSubmit={uploadCv}>
             <h2>Основен документ</h2>
             <p className="section-caption">
-              Дръж основния си документ на едно място. Това улеснява подготовката преди
-              консултации, споделяне на резюме и следващи кандидатствания.
+              Дръж CV-то си на едно място, за да е лесно за обновяване и споделяне.
             </p>
             <p className="form-note">
               {getDocumentCapacityNote(profile.plan)}
@@ -4117,18 +4186,18 @@ export function DashboardPage() {
           </form>
 
           {profile.role === "consultant" ? (
-            <form className="panel form-stack" onSubmit={saveConsultantProfile}>
+            <form className="panel form-stack" id="consultant-profile" onSubmit={saveConsultantProfile}>
               <QuestionFlowIntro
-                eyebrow="Консултантски профил"
-                title="Подреди публичния си профил през няколко ясни въпроса."
-                description="Така профилът изглежда по-сериозно, по-подредено и по-лесно води до резервация. Подсказките под въпросите ти помагат да попълниш по-бързо основните секции."
+                eyebrow="Публичен профил"
+                title="Подреди страницата, която хората ще виждат."
+                description="Най-важното е профилът ти да е ясен, кратък и лесен за резервация."
                 completion={profileCompletion}
               />
               <div className="question-grid">
                 <QuestionBlock
                   step="01"
                   title="Как изглеждаш публично?"
-                  hint="Името, slug-ът, заглавието и градът изграждат първото впечатление."
+                  hint="Име, заглавие и снимка."
                 >
                   <div className="two-column">
                     <label>
@@ -4268,7 +4337,7 @@ export function DashboardPage() {
                 <QuestionBlock
                   step="02"
                   title="С кого работиш и по какви теми?"
-                  hint="Тези отговори определят как ще бъдеш намиран в CareerLane."
+                  hint="Това определя търсенето."
                 >
                   <label>
                     Специализации
@@ -4334,7 +4403,7 @@ export function DashboardPage() {
                 <QuestionBlock
                   step="03"
                   title="Как протича работата с теб?"
-                  hint="Добрият консултантски профил обяснява ясно процеса, а не само изброява услуги."
+                  hint="Опиши процеса кратко и ясно."
                   wide
                 >
                   <label>
@@ -4371,7 +4440,7 @@ export function DashboardPage() {
                 <QuestionBlock
                   step="04"
                   title="Как и кога могат да те резервират?"
-                  hint="Езиците, форматът на работа, продължителността и свободните слотове завършват профила."
+                  hint="Езици, формат и свободни часове."
                 >
                   <div className="two-column">
                     <label>
@@ -4437,19 +4506,19 @@ export function DashboardPage() {
               </div>
               <div className="question-form__footer">
                 <p className="form-note">
-                  Подреденият профил, ясен подход и налични часове правят резервирането по-лесно.
+                  Подреденият профил и свободните часове правят резервацията по-лесна.
                 </p>
                 <button className="primary-button" type="submit">
-                  Запази консултантския профил
+                  Запази публичния профил
                 </button>
               </div>
             </form>
           ) : null}
 
-          <section className="panel">
+          <section className="panel" id="sessions">
             <h2>Предстоящи сесии</h2>
             <p className="section-caption">
-              Тук държиш всички заявки и потвърдени срещи на едно място.
+              Всички заявки и потвърдени срещи са събрани тук.
             </p>
             {bookings.length === 0 ? (
               <div className="empty-state">

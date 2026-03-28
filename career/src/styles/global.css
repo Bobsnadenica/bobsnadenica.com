@@ -189,11 +189,13 @@ select:focus-visible {
   align-items: center;
   justify-content: center;
   min-height: 42px;
-  padding: 0 14px;
+  max-width: 100%;
+  padding: 0 16px;
   border-radius: 999px;
   border: 1px solid var(--border);
   white-space: nowrap;
   line-height: 1;
+  font-size: 0.94rem;
   flex-shrink: 0;
   transition:
     transform 180ms ease,
@@ -247,11 +249,13 @@ select:focus-visible {
   align-items: center;
   justify-content: center;
   min-height: 50px;
-  padding: 0 20px;
+  max-width: 100%;
+  padding: 0 18px;
   border: none;
   border-radius: 16px;
   background: linear-gradient(180deg, #1274d6 0%, var(--primary) 100%);
   color: white;
+  font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -1401,6 +1405,13 @@ textarea {
   flex-wrap: wrap;
 }
 
+.dashboard-actions .primary-button,
+.dashboard-actions .ghost-button,
+.dashboard-section-nav .ghost-button {
+  min-height: 46px;
+  padding-inline: 16px;
+}
+
 .filter-bar {
   margin-bottom: 16px;
   padding: 18px;
@@ -1481,6 +1492,45 @@ textarea {
 .empty-state {
   display: grid;
   gap: 18px;
+}
+
+.dashboard-section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-checklist {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.dashboard-checklist strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.dashboard-checklist__list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-soft);
+}
+
+.dashboard-checklist__list li {
+  line-height: 1.7;
+}
+
+.dashboard-status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: start;
+}
+
+.summary-grid--compact .summary-card {
+  min-height: 0;
 }
 
 .feature-list {
@@ -1597,8 +1647,8 @@ textarea {
   display: flex;
   align-items: start;
   justify-content: space-between;
-  gap: 18px;
-  padding: 22px;
+  gap: 16px;
+  padding: 18px 20px;
   border-radius: 26px;
   border: 1px solid rgba(10, 102, 194, 0.16);
   background:
@@ -1615,7 +1665,7 @@ textarea {
   display: grid;
   gap: 6px;
   min-width: 132px;
-  padding: 16px 18px;
+  padding: 14px 16px;
   border-radius: 22px;
   border: 1px solid rgba(10, 102, 194, 0.14);
   background: rgba(255, 255, 255, 0.86);
@@ -1645,9 +1695,9 @@ textarea {
 
 .question-card {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   min-width: 0;
-  padding: 22px;
+  padding: 18px;
   border-radius: 26px;
   border: 1px solid var(--border);
   background: var(--surface-alt);
@@ -1660,8 +1710,8 @@ textarea {
 
 .question-card__header {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
 }
 
@@ -1669,9 +1719,9 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
   background: linear-gradient(180deg, #1274d6 0%, var(--primary) 100%);
   color: white;
   font-weight: 800;
@@ -1684,9 +1734,10 @@ textarea {
 }
 
 .question-card__header p {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: var(--text-soft);
-  line-height: 1.7;
+  line-height: 1.55;
+  font-size: 0.95rem;
 }
 
 .question-card__body {
@@ -1711,20 +1762,20 @@ textarea {
 .answer-suggestions__grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .suggestion-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 10px 14px;
+  min-height: 38px;
+  padding: 9px 13px;
   border-radius: 999px;
   border: 1px solid rgba(10, 102, 194, 0.14);
   background: rgba(232, 243, 253, 0.86);
   color: var(--primary-dark);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   line-height: 1.2;
   transition:
@@ -2193,7 +2244,8 @@ textarea {
 
   .helper-grid,
   .summary-grid,
-  .media-preview-grid {
+  .media-preview-grid,
+  .dashboard-checklist {
     grid-template-columns: 1fr;
   }
 
@@ -2280,7 +2332,8 @@ textarea {
   .filter-actions,
   .dashboard-actions,
   .footer-bottom,
-  .question-flow__intro {
+  .question-flow__intro,
+  .dashboard-checklist {
     flex-direction: column;
     align-items: start;
   }
@@ -2330,7 +2383,10 @@ textarea {
   }
 
   .ad-banner .ghost-button,
-  .site-nav--mobile a {
+  .site-nav--mobile a,
+  .dashboard-actions .primary-button,
+  .dashboard-actions .ghost-button,
+  .dashboard-section-nav .ghost-button {
     width: 100%;
     justify-content: center;
   }
