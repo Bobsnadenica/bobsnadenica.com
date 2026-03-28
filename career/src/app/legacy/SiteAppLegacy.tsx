@@ -239,29 +239,6 @@ const consultantExperienceCards = [
   }
 ] as const;
 
-const popularSearchTopics = [
-  {
-    label: "CV и LinkedIn",
-    value: "LinkedIn профил"
-  },
-  {
-    label: "Интервю подготовка",
-    value: "интервю подготовка"
-  },
-  {
-    label: "Кариерна промяна",
-    value: "кариерна промяна"
-  },
-  {
-    label: "Leadership",
-    value: "leadership"
-  },
-  {
-    label: "Executive CV",
-    value: "executive CV"
-  }
-] as const;
-
 const aboutHighlights = [
   {
     value: "Публични профили",
@@ -1537,25 +1514,6 @@ export function HomePage() {
               </button>
             </form>
 
-            <div className="search-shortcuts">
-              <span className="search-shortcuts__label">Популярни теми</span>
-              <div className="search-shortcuts__list">
-                {popularSearchTopics.map((topic) => (
-                  <button
-                    className="shortcut-chip"
-                    key={topic.label}
-                    type="button"
-                    onClick={() => {
-                      setQuery(topic.value);
-                      navigate(`/users?q=${encodeURIComponent(topic.value)}`);
-                    }}
-                  >
-                    {topic.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="hero-actions">
               <Link className="primary-button" to="/users">
                 За потребители
@@ -1679,28 +1637,57 @@ export function HomePage() {
                 <span className="ad-banner__label">Партньорски продукт</span>
                 <span className="ad-banner__partner">Spesti</span>
               </div>
-              <h2>Пазарувай по-умно с бързо сравнение на цени преди да купиш.</h2>
+              <h2>Спри за секунда преди покупка и виж къде излиза по-изгодно.</h2>
               <p>
-                Spesti ти дава по-ясна картина къде седмичната кошница е най-изгодна,
-                за да вземаш по-добри решения още преди да тръгнеш към магазина.
+                Spesti помага да сравниш цени по-ясно и да планираш седмичните покупки
+                с по-малко импулсни решения и повече увереност.
               </p>
               <div className="ad-banner__metrics">
-                <span>Сравнение между магазини</span>
-                <span>По-ясно седмично пазаруване</span>
-                <span>Отваря в нов прозорец</span>
+                <span>Сравнение преди покупка</span>
+                <span>По-умен избор за кошницата</span>
+                <span>Бърз достъп от телефон и уеб</span>
+              </div>
+              <div className="ad-banner__actions">
+                <strong>Практичен инструмент за хора, които искат да харчат по-разумно.</strong>
+                <span>
+                  Част от екосистемата на bobsnadenica.com с фокус върху реална
+                  ежедневна стойност.
+                </span>
+                <div className="ad-banner__buttons">
+                  <a
+                    className="primary-button"
+                    href="https://www.bobsnadenica.com/cena/index.html"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Отвори Spesti
+                  </a>
+                  <a
+                    className="ghost-button"
+                    href="https://www.bobsnadenica.com/cena/index.html"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Виж цените
+                  </a>
+                </div>
               </div>
             </div>
-            <div className="ad-banner__actions">
-              <strong>Полезен партньор за хора, които искат да харчат по-разумно.</strong>
-              <span>Част от екосистемата на bobsnadenica.com с фокус върху реална ежедневна стойност.</span>
-              <a
-                className="primary-button"
-                href="https://www.bobsnadenica.com/cena/index.html"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Разгледай Spesti
-              </a>
+            <div className="ad-banner__visual" aria-hidden="true">
+              <div className="ad-banner__visual-card ad-banner__visual-card--main">
+                <span className="ad-banner__visual-eyebrow">По-умен навик</span>
+                <strong>Сравни. Планирай. Спести.</strong>
+                <p>Проверка на цените преди магазина, без излишно лутане.</p>
+              </div>
+              <div className="ad-banner__visual-card ad-banner__visual-card--floating">
+                <span>Spesti</span>
+                <strong>Ясна картина за седмичната кошница.</strong>
+              </div>
+              <div className="ad-banner__visual-pills">
+                <span>Сравнение на цени</span>
+                <span>По-ясен избор</span>
+                <span>Пестене на време</span>
+              </div>
             </div>
           </aside>
         </div>
@@ -2082,22 +2069,6 @@ export function UsersPage() {
               >
                 Само водещи профили
               </button>
-            </div>
-          </div>
-
-          <div className="directory-presets">
-            <span className="search-shortcuts__label">Бързи филтри</span>
-            <div className="search-shortcuts__list">
-              {popularSearchTopics.map((topic) => (
-                <button
-                  className={`shortcut-chip ${query === topic.value ? "shortcut-chip--active" : ""}`}
-                  key={topic.label}
-                  type="button"
-                  onClick={() => applyPresetQuery(topic.value)}
-                >
-                  {topic.label}
-                </button>
-              ))}
             </div>
           </div>
 
