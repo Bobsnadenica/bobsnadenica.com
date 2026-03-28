@@ -85,6 +85,7 @@ type MarketingPlan = {
   price?: string;
   badge: string;
   featured?: boolean;
+  disabled?: boolean;
   note: string;
   points: string[];
   ctaLabel: string;
@@ -113,6 +114,20 @@ const userPlans: MarketingPlan[] = [
     ],
     ctaLabel: "Създай профил",
     ctaTo: "/auth?tab=register&role=client"
+  },
+  {
+    name: "Разширен потребителски профил",
+    badge: "Coming soon",
+    featured: true,
+    disabled: true,
+    note: "Подготвяме по-богат профил за хора, които искат по-подредена история, повече пространство за документи и по-силен работен поток.",
+    points: [
+      "Повече място за CV, дипломи и допълнителни материали",
+      "Запазени профили и лични бележки към консултации",
+      "По-подреден работен изглед за следващи стъпки и подготовка"
+    ],
+    ctaLabel: "Очаквай скоро",
+    ctaTo: "/dashboard"
   }
 ];
 
@@ -129,6 +144,20 @@ const consultantPlans: MarketingPlan[] = [
     ],
     ctaLabel: "Създай профил",
     ctaTo: "/auth?tab=register&role=consultant"
+  },
+  {
+    name: "Pro профил за консултант",
+    badge: "Coming soon",
+    featured: true,
+    disabled: true,
+    note: "Подготвяме Pro абонамент за консултанти и ментори с по-силна видимост, по-богато представяне и още инструменти за растеж.",
+    points: [
+      "Приоритетно показване и по-силно позициониране в каталога",
+      "Разширени секции за материали, визия и практика",
+      "По-добър профилен прочит за споделяне и представяне"
+    ],
+    ctaLabel: "Очаквай скоро",
+    ctaTo: "/dashboard"
   }
 ];
 
@@ -171,6 +200,42 @@ const userJourney = [
     step: "03",
     title: "Подготви профила си",
     text: "Качи CV, довърши заглавието си и използвай таблото като работно място за следващите стъпки."
+  }
+] as const;
+
+const userExperienceCards = [
+  {
+    eyebrow: "Профил и посока",
+    title: "Потребителският поток е за ясно търсене, а не за сложна настройка.",
+    text: "Профилът служи като професионален контекст, за да могат съвпаденията и препоръките да звучат смислено още от първия екран."
+  },
+  {
+    eyebrow: "Съвпадение",
+    title: "CareerLane подрежда консултантите според твоята тема, опит и предпочитания.",
+    text: "Ключови думи, интереси и формат на работа помагат на платформата да извади по-подходящите профили по-напред."
+  },
+  {
+    eyebrow: "Следваща стъпка",
+    title: "От профила към консултацията всичко остава в едно подредено работно място.",
+    text: "CV, активни профили и предстоящи сесии са събрани така, че да мислиш за следващата стъпка, а не за навигацията."
+  }
+] as const;
+
+const consultantExperienceCards = [
+  {
+    eyebrow: "Видимост",
+    title: "Консултантският поток е изграден около публично присъствие и доверие.",
+    text: "Профилът ти има собствена страница, ясна визия и структура, която помага на хората да разберат бързо с какво можеш да бъдеш полезен."
+  },
+  {
+    eyebrow: "Резервации",
+    title: "Свободните часове, темите и форматите стоят в центъра на практиката ти.",
+    text: "Таблото е организирано така, че да подреждаш наличности, да поддържаш профила си актуален и да изглеждаш готов за резервации."
+  },
+  {
+    eyebrow: "Растеж",
+    title: "Профилът е подготвен за следващ слой видимост и по-силно позициониране.",
+    text: "Когато Pro абонаментът се активира, ще имаш естествено място за по-богато представяне и по-силен профилен прочит."
   }
 ] as const;
 
@@ -1516,7 +1581,7 @@ export function HomePage() {
             </div>
           </div>
 
-          <aside className="hero__card">
+          <aside className="hero__card hero__card--client">
             {spotlight ? (
               <>
                 <div className="hero__visual">
@@ -1924,6 +1989,18 @@ export function UsersPage() {
         </div>
       </section>
 
+      <section className="section section--tight">
+        <div className="container role-experience-grid role-experience-grid--client">
+          {userExperienceCards.map((item) => (
+            <article className="role-experience-card role-experience-card--client" key={item.title}>
+              <span className="role-experience-card__eyebrow">{item.eyebrow}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <PlanSection
         eyebrow="Планове за потребители"
         title="Потребителският достъп е свободен, а фокусът е върху профила и точния избор на консултант или ментор."
@@ -2157,7 +2234,7 @@ export function ConsultantsPage() {
             </div>
           </div>
 
-          <aside className="hero__card consultant-intro-card">
+          <aside className="hero__card hero__card--consultant consultant-intro-card">
             <div className="hero__card-top">
               <span className="status-badge status-badge--success">Активен профил</span>
               <strong>Какво получаваш още от старт</strong>
@@ -2196,6 +2273,21 @@ export function ConsultantsPage() {
               <span className="chip">Кариерни преходи</span>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="section section--tight">
+        <div className="container role-experience-grid role-experience-grid--consultant">
+          {consultantExperienceCards.map((item) => (
+            <article
+              className="role-experience-card role-experience-card--consultant"
+              key={item.title}
+            >
+              <span className="role-experience-card__eyebrow">{item.eyebrow}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -4311,6 +4403,30 @@ export function DashboardPage() {
   );
   const activeProfileSetup = profileSetupSections[activeProfileSectionIndex];
   const activeConsultantSetup = consultantSetupSections[activeConsultantSectionIndex];
+  const upgradePreview =
+    profile.role === "consultant"
+      ? {
+          eyebrow: "Pro за консултанти",
+          title: "Подготвяме следващ слой видимост за профила ти.",
+          description:
+            "Pro абонаментът ще добави по-силно позициониране, по-богат публичен профил и още инструменти за представяне.",
+          points: [
+            "По-силно присъствие и приоритетно показване в подходящи списъци",
+            "Разширени секции за материали, визия и представяне на практиката",
+            "По-добро профилно изживяване за споделяне и професионално позициониране"
+          ]
+        }
+      : {
+          eyebrow: "Разширен профил",
+          title: "Подготвяме по-силен работен слой за потребителския профил.",
+          description:
+            "Разширеният профил ще събере повече документи, по-добра организация и по-ясно проследяване на следващите стъпки.",
+          points: [
+            "Повече място за CV, дипломи и допълнителни материали",
+            "Лични бележки и по-подредена подготовка около консултациите",
+            "По-ясно работно табло за кариерни задачи, профили и решения"
+          ]
+        };
 
   function addAvailabilitySlot(slot: string) {
     if (!slot) {
@@ -4363,8 +4479,8 @@ export function DashboardPage() {
 
   return (
     <section className="section">
-      <div className="container dashboard-grid">
-        <aside className="panel dashboard-sidebar">
+      <div className={`container dashboard-grid dashboard-grid--${profile.role}`}>
+        <aside className={`panel dashboard-sidebar dashboard-sidebar--${profile.role}`}>
           <p className="eyebrow">Табло</p>
           <AvatarMedia
             src={profile.avatarUrl}
@@ -4405,7 +4521,10 @@ export function DashboardPage() {
           {message ? <div className="panel panel--success">{message}</div> : null}
           {error ? <div className="panel panel--error">{error}</div> : null}
 
-          <section className="panel dashboard-overview" id="overview">
+          <section
+            className={`panel dashboard-overview dashboard-overview--${profile.role}`}
+            id="overview"
+          >
             <div className="section-heading">
               <div>
                 <p className="eyebrow">Работно табло</p>
@@ -4535,7 +4654,7 @@ export function DashboardPage() {
             </div>
           </section>
 
-          <section className="helper-grid helper-grid--single">
+          <section className="helper-grid helper-grid--dashboard">
             <article className="helper-card profile-snapshot-card">
               <span className="plan-pill">
                 {profile.role === "consultant" ? "Публичен прочит" : "Профилен прочит"}
@@ -4562,6 +4681,26 @@ export function DashboardPage() {
                     </span>
                   )
                 )}
+              </div>
+            </article>
+            <article
+              className={`helper-card upgrade-preview-card upgrade-preview-card--${profile.role}`}
+            >
+              <span className="status-badge">{upgradePreview.eyebrow}</span>
+              <strong>{upgradePreview.title}</strong>
+              <p>{upgradePreview.description}</p>
+              <div className="upgrade-preview-card__benefits">
+                {upgradePreview.points.map((point) => (
+                  <span className="chip chip--soft" key={point}>
+                    {point}
+                  </span>
+                ))}
+              </div>
+              <div className="upgrade-preview-card__footer">
+                <span>Статус: coming soon</span>
+                <button className="ghost-button" type="button" disabled>
+                  Очаквай скоро
+                </button>
               </div>
             </article>
           </section>
@@ -5676,7 +5815,9 @@ function PlanSection({
         <div className="pricing-grid">
           {plans.map((plan) => (
             <article
-              className={`pricing-card ${plan.featured ? "pricing-card--featured" : ""}`}
+              className={`pricing-card ${plan.featured ? "pricing-card--featured" : ""} ${
+                plan.disabled ? "pricing-card--coming-soon" : ""
+              }`}
               key={`${eyebrow}-${plan.name}`}
             >
               <span className={plan.featured ? "status-badge" : "plan-pill"}>
@@ -5690,9 +5831,19 @@ function PlanSection({
                   <li key={point}>{point}</li>
                 ))}
               </ul>
-              <Link className={plan.featured ? "primary-button" : "ghost-button"} to={plan.ctaTo}>
-                {plan.ctaLabel}
-              </Link>
+              {plan.disabled ? (
+                <button
+                  className={plan.featured ? "primary-button" : "ghost-button"}
+                  type="button"
+                  disabled
+                >
+                  {plan.ctaLabel}
+                </button>
+              ) : (
+                <Link className={plan.featured ? "primary-button" : "ghost-button"} to={plan.ctaTo}>
+                  {plan.ctaLabel}
+                </Link>
+              )}
             </article>
           ))}
         </div>
