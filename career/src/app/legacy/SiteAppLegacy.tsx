@@ -1193,6 +1193,12 @@ function QuestionFlowIntro({
       <div className="question-flow__meter">
         <span>Завършеност</span>
         <strong>{completion}%</strong>
+        <div
+          aria-hidden="true"
+          className="question-flow__progress"
+        >
+          <span style={{ width: `${Math.max(8, Math.min(100, completion))}%` }} />
+        </div>
       </div>
     </div>
   );
