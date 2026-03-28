@@ -4385,7 +4385,7 @@ export function DashboardPage() {
               <p className="eyebrow">Подходящи консултанти</p>
               <h2>Профили с най-добро съвпадение и видими свободни часове</h2>
               {dashboardMatchedConsultants.length ? (
-                <div className="info-grid">
+                <div className="info-grid info-grid--match">
                   {dashboardMatchedConsultants.map(({ consultant, match }) => (
                     <article className="info-card match-card" key={consultant.consultantId}>
                       <div className="match-card__header">

@@ -248,6 +248,8 @@ main {
   border-radius: 999px;
   border: 1px solid var(--border);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: center;
   line-height: 1;
   font-size: 0.94rem;
@@ -1166,6 +1168,8 @@ textarea {
 .booking-panel h2,
 .page-side-card h2 {
   line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .consultant-grid,
@@ -1725,6 +1729,7 @@ textarea {
 .info-card {
   display: grid;
   gap: 10px;
+  min-width: 0;
   align-content: start;
   padding: 20px;
   border-radius: 24px;
@@ -1745,12 +1750,15 @@ textarea {
   font-size: 1.3rem;
   line-height: 1.1;
   letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .summary-card p,
 .helper-card p,
 .info-card p {
   margin: 10px 0 0;
+  overflow-wrap: anywhere;
 }
 
 .info-card .ghost-button,
@@ -1759,8 +1767,13 @@ textarea {
   margin-top: auto;
 }
 
+.info-grid--match {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
 .match-card {
   gap: 14px;
+  height: 100%;
 }
 
 .match-card__header,
@@ -1790,18 +1803,22 @@ textarea {
 .match-card__content {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .match-card__content h3 {
   margin: 0;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .match-card__content p {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .match-card__meta {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   color: var(--text-soft);
   font-size: 0.92rem;
 }
@@ -1811,10 +1828,11 @@ textarea {
   border-radius: 14px;
   background: rgba(236, 243, 251, 0.84);
   border: 1px solid rgba(193, 208, 225, 0.72);
+  overflow-wrap: anywhere;
 }
 
 .match-card__slots {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
 }
 
 .match-card__slots .chip {
