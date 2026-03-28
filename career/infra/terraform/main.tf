@@ -381,6 +381,7 @@ resource "aws_lambda_function" "api" {
   source_code_hash = data.archive_file.api.output_base64sha256
   architectures    = ["arm64"]
   timeout          = 15
+  reserved_concurrent_executions = var.lambda_reserved_concurrency
 
   environment {
     variables = {
@@ -518,6 +519,11 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.http.id
   name        = "$default"
   auto_deploy = true
+
+  default_route_settings {
+    throttling_burst_limit = var.api_throttle_burst_limit
+    throttling_rate_limit  = var.api_throttle_rate_limit
+  }
 
   tags = local.common_tags
 }

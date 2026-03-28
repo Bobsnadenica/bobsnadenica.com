@@ -18,6 +18,22 @@ variable "frontend_origins" {
   default = ["http://localhost:5173"]
 }
 
+variable "api_throttle_burst_limit" {
+  type    = number
+  default = 50
+}
+
+variable "api_throttle_rate_limit" {
+  type    = number
+  default = 20
+}
+
+variable "lambda_reserved_concurrency" {
+  type     = number
+  default  = null
+  nullable = true
+}
+
 variable "frontend_oauth_callback_urls" {
   type    = list(string)
   default = []

@@ -25,14 +25,15 @@ const env = {
   allowedOrigin: process.env.ALLOWED_ORIGIN || "*"
 };
 
-function response(statusCode, body) {
+function response(statusCode, body, extraHeaders = {}) {
   return {
     statusCode,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": env.allowedOrigin,
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
-      "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS"
+      "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS",
+      ...extraHeaders
     },
     body: JSON.stringify(body)
   };
@@ -424,7 +425,9 @@ async function listConsultants(event) {
     orderedItems.map((item) => decorateConsultantMedia(item))
   );
 
-  return response(200, decoratedItems);
+  return response(200, decoratedItems, {
+    "Cache-Control": "public, max-age=60, stale-while-revalidate=300"
+  });
 }
 
 async function getConsultant(event) {
@@ -440,7 +443,9 @@ async function getConsultant(event) {
     return notFound("Consultant profile not found.");
   }
 
-  return response(200, await decorateConsultantMedia(consultant));
+  return response(200, await decorateConsultantMedia(consultant), {
+    "Cache-Control": "public, max-age=120, stale-while-revalidate=600"
+  });
 }
 
 async function bootstrapUser(event) {
@@ -892,7 +897,9 @@ async function listBookings(event) {
 }
 
 function health() {
-  return response(200, { ok: true, service: "careerlane-api" });
+  return response(200, { ok: true, service: "careerlane-api" }, {
+    "Cache-Control": "no-store"
+  });
 }
 
 exports.handler = async (event) => {
