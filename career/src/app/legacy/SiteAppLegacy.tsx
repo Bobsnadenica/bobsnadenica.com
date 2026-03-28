@@ -800,7 +800,7 @@ function AvatarMedia({
   className: string;
 }) {
   if (src) {
-    return <img className={className} src={resolvePublicUrl(src)} alt={name} />;
+    return <img className={className} src={resolvePublicUrl(src)} alt={name} decoding="async" />;
   }
 
   return (
@@ -826,7 +826,7 @@ function CoverMedia({
   subtitle: string;
 }) {
   if (src) {
-    return <img className={className} src={resolvePublicUrl(src)} alt={name} />;
+    return <img className={className} src={resolvePublicUrl(src)} alt={name} decoding="async" />;
   }
 
   return (

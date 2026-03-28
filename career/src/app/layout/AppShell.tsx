@@ -67,6 +67,9 @@ export default function AppShell() {
   return (
     <div className="site-shell">
       <RouteExperience />
+      <a className="skip-link" href="#main-content">
+        Към съдържанието
+      </a>
       <header className="site-header">
         <div className="container site-header__inner">
           <Link className="brand-link" to="/">
@@ -77,7 +80,7 @@ export default function AppShell() {
             </div>
           </Link>
 
-          <nav className="site-nav">
+          <nav className="site-nav" aria-label="Основна навигация">
             <NavLink to="/">Начало</NavLink>
             <NavLink to="/users">За потребители</NavLink>
             <NavLink to="/consultants">За консултанти</NavLink>
@@ -90,7 +93,7 @@ export default function AppShell() {
                 <Link className="ghost-button" to="/dashboard">
                   Профил
                 </Link>
-                <button className="ghost-button" onClick={() => logout()}>
+                <button className="ghost-button" type="button" onClick={() => logout()}>
                   Изход
                 </button>
               </>
@@ -102,7 +105,7 @@ export default function AppShell() {
           </div>
         </div>
         <div className="container">
-          <nav className="site-nav site-nav--mobile">
+          <nav className="site-nav site-nav--mobile" aria-label="Мобилна навигация">
             <NavLink to="/">Начало</NavLink>
             <NavLink to="/users">За потребители</NavLink>
             <NavLink to="/consultants">За консултанти</NavLink>
@@ -110,7 +113,7 @@ export default function AppShell() {
         </div>
       </header>
 
-      <main>
+      <main id="main-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/users" element={<UsersPage />} />
