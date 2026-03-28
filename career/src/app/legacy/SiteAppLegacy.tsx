@@ -675,6 +675,54 @@ function formatAvailabilityShortLabel(value: string) {
   }).format(parsed);
 }
 
+function getAvailabilityDayKey(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  return [
+    parsed.getFullYear(),
+    String(parsed.getMonth() + 1).padStart(2, "0"),
+    String(parsed.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function groupAvailabilityByDay(value: string[]) {
+  const groups = new Map<
+    string,
+    {
+      key: string;
+      label: string;
+      slots: string[];
+    }
+  >();
+
+  getUpcomingAvailabilitySlots(value).forEach((slot) => {
+    const key = getAvailabilityDayKey(slot);
+
+    if (!key) {
+      return;
+    }
+
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.slots.push(slot);
+      return;
+    }
+
+    groups.set(key, {
+      key,
+      label: formatAvailabilityDayLabel(slot),
+      slots: [slot]
+    });
+  });
+
+  return Array.from(groups.values());
+}
+
 function tokenizeText(value: string) {
   return value
     .toLowerCase()
@@ -2621,12 +2669,25 @@ export function ConsultantPage() {
 
   const isConsultantViewer = viewerProfile?.role === "consultant";
   const bookingCtaTo = user ? "/dashboard" : "/auth?tab=register";
-  const visibleAvailability = getUpcomingAvailabilitySlots(consultant.availability, 8);
+  const visibleAvailability = getUpcomingAvailabilitySlots(consultant.availability, 12);
+  const availabilityCalendar = groupAvailabilityByDay(visibleAvailability);
   const nextVisibleSlot = visibleAvailability[0] || consultant.nextAvailable;
+  const availabilityPreviewSlots = visibleAvailability.slice(0, 4);
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultant.slug}`
       : "";
+
+  const jumpToAvailability = () => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.getElementById("availability-calendar")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  };
 
   const shareProfile = async () => {
     setShareMessage("");
@@ -2734,6 +2795,31 @@ export function ConsultantPage() {
             <p>
               {getConsultantWorkApproach(consultant)}
             </p>
+            {availabilityPreviewSlots.length ? (
+              <div className="booking-card__schedule">
+                <span className="search-shortcuts__label">Свободни часове</span>
+                <div className="booking-card__slot-preview">
+                  {availabilityPreviewSlots.map((slot) => (
+                    <button
+                      className={`slot-button slot-button--compact ${
+                        selectedSlot === slot ? "slot-button--active" : ""
+                      }`}
+                      key={slot}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSlot(slot);
+                        jumpToAvailability();
+                      }}
+                    >
+                      {formatAvailabilityShortLabel(slot)}
+                    </button>
+                  ))}
+                </div>
+                <button className="ghost-button" type="button" onClick={jumpToAvailability}>
+                  Виж календара
+                </button>
+              </div>
+            ) : null}
             <CoverMedia
               src={consultant.mapImageUrl}
               name={consultant.name}
@@ -2835,6 +2921,40 @@ export function ConsultantPage() {
             <p className="section-caption">
               Избери свободен час и изпрати кратък контекст, за да започне разговорът по-лесно.
             </p>
+            {visibleAvailability.length ? (
+              <div className="availability-calendar" id="availability-calendar">
+                {availabilityCalendar.map((day) => (
+                  <article className="availability-calendar__day" key={day.key}>
+                    <div className="availability-calendar__day-header">
+                      <strong>{day.label}</strong>
+                      <span>{day.slots.length} часа</span>
+                    </div>
+                    <div className="availability-calendar__slots">
+                      {day.slots.map((slot) => (
+                        <button
+                          className={`slot-button slot-button--compact ${
+                            selectedSlot === slot ? "slot-button--active" : ""
+                          }`}
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedSlot(slot)}
+                        >
+                          {formatAvailabilityTimeLabel(slot)}
+                        </button>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="panel panel--subtle">
+                <strong>Свободните часове се подготвят.</strong>
+                <p>
+                  Профилът вече е активен, но консултантът още не е добавил конкретни
+                  часове за резервация.
+                </p>
+              </div>
+            )}
             {isConsultantViewer ? (
               <div className="panel panel--subtle role-guard-panel">
                 <strong>Тази стъпка е активна за потребители.</strong>
@@ -2848,29 +2968,6 @@ export function ConsultantPage() {
               </div>
             ) : (
               <>
-                {visibleAvailability.length ? (
-                  <div className="slot-grid">
-                    {visibleAvailability.map((slot) => (
-                      <button
-                        type="button"
-                        key={slot}
-                        className={`slot-button ${selectedSlot === slot ? "slot-button--active" : ""}`}
-                        onClick={() => setSelectedSlot(slot)}
-                      >
-                        {formatDate(slot)}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="panel panel--subtle">
-                    <strong>Свободните часове се подготвят.</strong>
-                    <p>
-                      Профилът вече е активен, но консултантът още не е добавил конкретни
-                      часове за резервация.
-                    </p>
-                  </div>
-                )}
-
                 <label>
                   Кратка бележка
                   <textarea
@@ -4289,7 +4386,7 @@ export function DashboardPage() {
                     </span>
                   </label>
                 </div>
-                <div className="two-column">
+                <div className="three-column">
                   <label>
                     Град
                     <input
@@ -4298,8 +4395,6 @@ export function DashboardPage() {
                       placeholder="Например: София"
                     />
                   </label>
-                </div>
-                <div className="two-column">
                   <label>
                     Професия / роля
                     <input
@@ -4459,7 +4554,7 @@ export function DashboardPage() {
                 title="Умения, теми и предпочитан формат"
                 hint="Това помага на платформата да те свързва по-точно."
               >
-                <div className="two-column">
+                <div className="three-column">
                   <label>
                     Основни умения
                     <input
@@ -4598,7 +4693,7 @@ export function DashboardPage() {
                       />
                     </label>
                   </div>
-                  <div className="two-column">
+                  <div className="three-column">
                     <label>
                       Тип профил
                       <select

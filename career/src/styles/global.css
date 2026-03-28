@@ -1552,6 +1552,59 @@ textarea {
   line-height: 1.6;
 }
 
+.booking-card__schedule,
+.availability-calendar,
+.availability-calendar__day {
+  display: grid;
+  gap: 12px;
+}
+
+.booking-card__schedule {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(193, 208, 225, 0.72);
+  background:
+    linear-gradient(180deg, rgba(248, 251, 254, 0.98), rgba(255, 255, 255, 0.98)),
+    var(--surface-alt);
+}
+
+.booking-card__slot-preview,
+.availability-calendar__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.availability-calendar {
+  margin-bottom: 18px;
+}
+
+.availability-calendar__day {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(193, 208, 225, 0.72);
+  background:
+    linear-gradient(180deg, rgba(248, 251, 254, 0.98), rgba(255, 255, 255, 0.98)),
+    var(--surface-alt);
+}
+
+.availability-calendar__day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.availability-calendar__day-header strong {
+  text-transform: capitalize;
+  letter-spacing: -0.03em;
+}
+
+.availability-calendar__day-header span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .consultant-detail-grid {
   grid-template-columns: minmax(0, 1fr) 360px;
 }
@@ -1860,7 +1913,7 @@ textarea {
   display: grid;
   gap: 14px;
   min-width: 0;
-  padding: 18px;
+  padding: 22px;
   border-radius: 26px;
   border: 1px solid var(--border);
   background:
@@ -1878,6 +1931,8 @@ textarea {
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(212, 223, 234, 0.8);
 }
 
 .question-card__step {
@@ -1907,8 +1962,20 @@ textarea {
 
 .question-card__body {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
+}
+
+.question-card__body .two-column,
+.question-card__body .three-column,
+.question-card__body .media-preview-grid {
+  margin-bottom: 0;
+}
+
+.question-card__body > label,
+.question-card__body > .availability-composer,
+.question-card__body > .answer-suggestions {
+  margin: 0;
 }
 
 .availability-composer {
@@ -2139,6 +2206,12 @@ textarea {
   transform: translateY(-1px);
   border-color: rgba(10, 102, 194, 0.24);
   box-shadow: 0 14px 28px rgba(10, 102, 194, 0.08);
+}
+
+.slot-button--compact {
+  min-height: 42px;
+  padding: 10px 14px;
+  font-size: 0.92rem;
 }
 
 .slot-button--active {
@@ -2686,7 +2759,8 @@ textarea {
   }
 
   .match-card__header,
-  .availability-composer__header {
+  .availability-composer__header,
+  .availability-calendar__day-header {
     grid-template-columns: 1fr;
   }
 
@@ -2710,6 +2784,11 @@ textarea {
     gap: 8px;
   }
 
+  .booking-card__slot-preview,
+  .availability-calendar__slots {
+    gap: 8px;
+  }
+
   .suggestion-pill {
     width: 100%;
     justify-content: center;
@@ -2718,7 +2797,8 @@ textarea {
 
   .consultants-hero .hero-actions .primary-button,
   .consultants-hero .hero-actions .ghost-button,
-  .consultant-card__body .ghost-button {
+  .consultant-card__body .ghost-button,
+  .booking-card__schedule .ghost-button {
     width: 100%;
     justify-content: center;
   }
