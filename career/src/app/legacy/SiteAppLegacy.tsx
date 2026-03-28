@@ -1613,24 +1613,32 @@ export function HomePage() {
       <section className="section section--tight" id="advertise">
         <div className="container">
           <aside className="ad-banner">
-            <div>
-              <span className="ad-banner__label">Партньорска реклама</span>
-              <span className="ad-banner__partner">Spesti</span>
-              <h2>Save money while you shop. Намери къде цените са най-изгодни.</h2>
+            <div className="ad-banner__content">
+              <div className="ad-banner__header">
+                <span className="ad-banner__label">Партньорски продукт</span>
+                <span className="ad-banner__partner">Spesti</span>
+              </div>
+              <h2>Пазарувай по-умно с бързо сравнение на цени преди да купиш.</h2>
               <p>
-                Spesti сравнява цени между магазини и ти помага да спестяваш по време на
-                седмичното пазаруване с по-ясна картина къде е най-евтино.
+                Spesti ти дава по-ясна картина къде седмичната кошница е най-изгодна,
+                за да вземаш по-добри решения още преди да тръгнеш към магазина.
               </p>
+              <div className="ad-banner__metrics">
+                <span>Сравнение между магазини</span>
+                <span>По-ясно седмично пазаруване</span>
+                <span>Отваря в нов прозорец</span>
+              </div>
             </div>
             <div className="ad-banner__actions">
-              <span>Полезен партньор за хора, които искат да пазаруват по-умно.</span>
+              <strong>Полезен партньор за хора, които искат да харчат по-разумно.</strong>
+              <span>Част от екосистемата на bobsnadenica.com с фокус върху реална ежедневна стойност.</span>
               <a
-                className="ghost-button"
+                className="primary-button"
                 href="https://www.bobsnadenica.com/cena/index.html"
                 target="_blank"
                 rel="noreferrer"
               >
-                Отвори Spesti
+                Разгледай Spesti
               </a>
             </div>
           </aside>

@@ -191,7 +191,8 @@ export const api = {
         method: "POST",
         body: JSON.stringify({
           fileName: file.name,
-          contentType: file.type || "application/octet-stream"
+          contentType: file.type || "application/octet-stream",
+          fileSize: file.size || 0
         })
       },
       token
@@ -213,6 +214,7 @@ export const api = {
         body: JSON.stringify({
           fileName: file.name,
           contentType: file.type || "application/octet-stream",
+          fileSize: file.size || 0,
           kind
         })
       },
@@ -231,6 +233,7 @@ export const api = {
         body: JSON.stringify({
           fileName: file.name,
           contentType: file.type || "application/octet-stream",
+          fileSize: file.size || 0,
           kind: "user-avatar"
         })
       },

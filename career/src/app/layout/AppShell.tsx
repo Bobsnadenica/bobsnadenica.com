@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/auth";
 import { config } from "../../lib/config";
@@ -63,9 +63,25 @@ function RouteExperience() {
 export default function AppShell() {
   const { user, logout } = useAuth();
   const currentYear = new Date().getFullYear();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+
+    try {
+      await new Promise((resolve) => window.setTimeout(resolve, 180));
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
-    <div className="site-shell">
+    <div className={`site-shell ${isLoggingOut ? "site-shell--signing-out" : ""}`}>
       <RouteExperience />
       <a className="skip-link" href="#main-content">
         Към съдържанието
@@ -93,8 +109,13 @@ export default function AppShell() {
                 <Link className="ghost-button" to="/dashboard">
                   Профил
                 </Link>
-                <button className="ghost-button" type="button" onClick={() => logout()}>
-                  Изход
+                <button
+                  className="ghost-button"
+                  type="button"
+                  disabled={isLoggingOut}
+                  onClick={handleLogout}
+                >
+                  {isLoggingOut ? "Излизаме..." : "Изход"}
                 </button>
               </>
             ) : (

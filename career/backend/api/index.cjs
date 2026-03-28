@@ -181,6 +181,57 @@ function normalizeUploadKind(value) {
   return null;
 }
 
+function normalizeSlug(value, fallback = "") {
+  const normalized = String(value || fallback || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9а-я]+/gi, "-")
+    .replace(/^-|-$/g, "");
+
+  return normalized || fallback || "";
+}
+
+function validateUploadRequest({ kind, contentType, fileSize }) {
+  const safeContentType = String(contentType || "").trim().toLowerCase();
+  const safeFileSize = Number(fileSize || 0);
+
+  if (!safeContentType) {
+    return "contentType is required.";
+  }
+
+  if (!Number.isFinite(safeFileSize) || safeFileSize <= 0) {
+    return "fileSize must be a positive number.";
+  }
+
+  if (kind === "cv") {
+    const allowedDocumentTypes = new Set([
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ]);
+
+    if (!allowedDocumentTypes.has(safeContentType)) {
+      return "Unsupported CV file type.";
+    }
+
+    if (safeFileSize > 8 * 1024 * 1024) {
+      return "CV files must be 8 MB or smaller.";
+    }
+
+    return null;
+  }
+
+  if (!safeContentType.startsWith("image/")) {
+    return "Profile media must be an image.";
+  }
+
+  if (safeFileSize > 5 * 1024 * 1024) {
+    return "Profile images must be 5 MB or smaller.";
+  }
+
+  return null;
+}
+
 async function getSignedObjectUrl(storageKey) {
   if (!storageKey) {
     return "";
@@ -282,10 +333,7 @@ function createConsultantDraft({
   headline
 }) {
   const baseName = String(name || email || "consultant").trim();
-  const slug = String(baseName)
-    .toLowerCase()
-    .replace(/[^a-z0-9а-я]+/gi, "-")
-    .replace(/^-|-$/g, "");
+  const slug = normalizeSlug(baseName);
 
   return {
     consultantId: `consultant-${randomUUID()}`,
@@ -566,8 +614,10 @@ async function updateMyConsultant(event) {
 
   const consultantVisibility = getConsultantVisibility(user.plan);
 
-  if (body.slug && current && body.slug !== current.slug) {
-    const existingSlug = await getConsultantBySlug(body.slug);
+  const normalizedSlug = body.slug ? normalizeSlug(body.slug, baseConsultant.slug) : null;
+
+  if (normalizedSlug && current && normalizedSlug !== current.slug) {
+    const existingSlug = await getConsultantBySlug(normalizedSlug);
     if (
       existingSlug &&
       (!current || existingSlug.consultantId !== current.consultantId)
@@ -579,7 +629,7 @@ async function updateMyConsultant(event) {
   const nextConsultant = {
     ...baseConsultant,
     profileType: body.profileType ?? baseConsultant.profileType ?? "consultant",
-    slug: body.slug ?? baseConsultant.slug,
+    slug: normalizedSlug || baseConsultant.slug,
     name: body.name ?? baseConsultant.name,
     headline: body.headline ?? baseConsultant.headline,
     bio: body.bio ?? baseConsultant.bio,
@@ -658,6 +708,16 @@ async function createUploadUrl(event) {
     return badRequest("Invalid upload kind.");
   }
 
+  const uploadValidationError = validateUploadRequest({
+    kind,
+    contentType: body.contentType,
+    fileSize: body.fileSize
+  });
+
+  if (uploadValidationError) {
+    return badRequest(uploadValidationError);
+  }
+
   const safeFileName = sanitizeFileName(body.fileName);
   const storageKey =
     kind === "cv"
@@ -692,6 +752,16 @@ async function createBooking(event) {
     return badRequest("consultantId and scheduledAt are required.");
   }
 
+  const scheduledDate = new Date(String(body.scheduledAt || ""));
+
+  if (Number.isNaN(scheduledDate.getTime())) {
+    return badRequest("scheduledAt must be a valid ISO date.");
+  }
+
+  if (scheduledDate.getTime() <= Date.now() + 5 * 60 * 1000) {
+    return badRequest("The selected booking time must be in the future.");
+  }
+
   const user = await getUserBySub(claims.sub);
 
   if (!user) {
@@ -722,14 +792,42 @@ async function createBooking(event) {
     return badRequest("You cannot book your own consultant profile.");
   }
 
+  const normalizedAvailability = normalizeAvailabilitySlots(consultant.availability || [], []);
+  const normalizedScheduledAt = scheduledDate.toISOString();
+
+  if (!normalizedAvailability.includes(normalizedScheduledAt)) {
+    return badRequest("The selected slot is no longer available.");
+  }
+
+  const existingBookings = await dynamo.send(
+    new QueryCommand({
+      TableName: env.bookingsTable,
+      IndexName: "consultant-index",
+      KeyConditionExpression: "consultantId = :consultantId",
+      ExpressionAttributeValues: {
+        ":consultantId": consultant.consultantId
+      }
+    })
+  );
+
+  const hasConflictingBooking = (existingBookings.Items || []).some(
+    (item) =>
+      item.scheduledAt === normalizedScheduledAt &&
+      item.status !== "cancelled"
+  );
+
+  if (hasConflictingBooking) {
+    return badRequest("The selected slot already has an active booking request.");
+  }
+
   const booking = {
     bookingId: `booking-${randomUUID()}`,
     consultantId: consultant.consultantId,
     consultantName: consultant.name,
     clientId: user.userId,
-    scheduledAt: body.scheduledAt,
+    scheduledAt: normalizedScheduledAt,
     status: "requested",
-    note: body.note || "",
+    note: String(body.note || "").trim().slice(0, 1200),
     createdAt: new Date().toISOString()
   };
 

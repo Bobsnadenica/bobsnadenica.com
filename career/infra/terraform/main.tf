@@ -85,6 +85,16 @@ resource "aws_s3_bucket_public_access_block" "cv_documents" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "cv_documents" {
+  bucket = aws_s3_bucket.cv_documents.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 resource "aws_s3_bucket_cors_configuration" "cv_documents" {
   bucket = aws_s3_bucket.cv_documents.id
 
@@ -257,6 +267,7 @@ resource "aws_lambda_function" "api" {
   handler          = "index.handler"
   filename         = data.archive_file.api.output_path
   source_code_hash = data.archive_file.api.output_base64sha256
+  architectures    = ["arm64"]
   timeout          = 15
 
   environment {
