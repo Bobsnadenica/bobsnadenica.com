@@ -213,6 +213,30 @@ main {
   box-shadow: 0 10px 34px rgba(15, 23, 42, 0.05);
 }
 
+.route-transition {
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.route-transition::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -24%;
+  width: 24%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(10, 102, 194, 0.96), rgba(15, 118, 110, 0.92));
+  opacity: 0;
+  box-shadow: 0 0 24px rgba(10, 102, 194, 0.26);
+}
+
+.route-transition--active::before {
+  opacity: 1;
+  animation: routeProgress 540ms ease forwards;
+}
+
 .site-header__inner {
   display: flex;
   align-items: center;
@@ -3418,6 +3442,16 @@ textarea {
 
   50% {
     transform: translate3d(12px, -12px, 0) scale(1.04);
+  }
+}
+
+@keyframes routeProgress {
+  0% {
+    transform: translateX(0) scaleX(0.82);
+  }
+
+  100% {
+    transform: translateX(520%) scaleX(1.12);
   }
 }
 

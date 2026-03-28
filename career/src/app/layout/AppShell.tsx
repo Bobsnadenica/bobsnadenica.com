@@ -63,33 +63,55 @@ const footerBottomLinks = [
   { to: "/contact", label: "Контакти" }
 ] as const;
 
+function resolveDocumentTitle(pathname: string) {
+  if (pathname === "/") {
+    return "Начало";
+  }
+
+  if (pathname === "/users") {
+    return "За потребители";
+  }
+
+  if (pathname === "/consultants") {
+    return "За консултанти";
+  }
+
+  if (pathname.startsWith("/consultants/")) {
+    return "Профил на консултант";
+  }
+
+  if (pathname === "/auth") {
+    return "Вход и регистрация";
+  }
+
+  if (pathname === "/account" || pathname === "/dashboard") {
+    return "Моето табло";
+  }
+
+  if (pathname === "/about") {
+    return "За нас";
+  }
+
+  if (pathname === "/contact") {
+    return "Контакти";
+  }
+
+  if (pathname === "/faq") {
+    return "Често задавани въпроси";
+  }
+
+  if (pathname === "/legal") {
+    return "Правна информация";
+  }
+
+  return "CareerLane";
+}
+
 function RouteExperience() {
   const location = useLocation();
 
   useEffect(() => {
-    const pathname = location.pathname;
-    const title =
-      pathname === "/"
-        ? "Начало"
-        : pathname === "/users"
-          ? "За потребители"
-          : pathname === "/consultants"
-            ? "За консултанти"
-            : pathname.startsWith("/consultants/")
-              ? "Профил на консултант"
-              : pathname === "/auth"
-                ? "Вход и регистрация"
-                : pathname === "/account" || pathname === "/dashboard"
-                  ? "Моето табло"
-                  : pathname === "/about"
-                    ? "За нас"
-                    : pathname === "/contact"
-                      ? "Контакти"
-                      : pathname === "/faq"
-                        ? "Често задавани въпроси"
-                        : pathname === "/legal"
-                          ? "Правна информация"
-                          : "CareerLane";
+    const title = resolveDocumentTitle(location.pathname);
 
     document.title =
       title === config.appName ? config.appName : `${title} | ${config.appName}`;
@@ -105,6 +127,19 @@ export default function AppShell() {
   const location = useLocation();
   const currentYear = new Date().getFullYear();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isRouteTransitioning, setIsRouteTransitioning] = useState(false);
+
+  useEffect(() => {
+    setIsRouteTransitioning(true);
+
+    const timeout = window.setTimeout(() => {
+      setIsRouteTransitioning(false);
+    }, 340);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     if (loading || !user || !token) {
@@ -202,6 +237,10 @@ export default function AppShell() {
         Към съдържанието
       </a>
       <header className="site-header">
+        <div
+          className={`route-transition ${isRouteTransitioning ? "route-transition--active" : ""}`}
+          aria-hidden="true"
+        />
         <div className="container site-header__inner">
           <Link className="brand-link" to="/">
             {brandMark()}

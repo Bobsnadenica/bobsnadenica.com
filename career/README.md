@@ -76,7 +76,8 @@ career/
 │   └── app/
 │       ├── App.tsx             # top-level app boot
 │       ├── layout/AppShell.tsx # header, footer, route shell
-│       ├── pages/              # route entry files
+│       ├── layout/PageScene.tsx# shared route-level visual wrapper
+│       ├── pages/              # route wrappers for each public/private page
 │       └── legacy/SiteAppLegacy.tsx
 │                                # most page implementations currently live here
 ├── backend/
@@ -138,6 +139,7 @@ It is responsible for:
 - header
 - footer
 - route switching
+- route transition feedback
 - page title updates
 - scroll reset on navigation
 
@@ -163,13 +165,25 @@ This avoids 404s on refresh that would happen with a normal browser-history rout
 
 ### 3.3 Current UI Code Organization
 
-The route files inside `src/app/pages/` are the clean route entry points, but most of the actual page implementation still lives in:
+The route files inside `src/app/pages/` are now real route wrappers. Each one:
+
+- imports the corresponding page implementation from `src/app/legacy/SiteAppLegacy.tsx`
+- wraps it in `src/app/layout/PageScene.tsx`
+- assigns a route-specific tone such as `home`, `directory`, `consultant`, `auth`, or `dashboard`
+
+This gives the app:
+
+- a consistent page-level motion layer
+- unified visual backgrounds and route rhythm
+- cleaner future refactors, because page-level structure is no longer hidden inside a single giant file
+
+Most of the actual page implementation still lives in:
 
 - `src/app/legacy/SiteAppLegacy.tsx`
 
 This means:
 
-- the architecture is already separated into layout + routes
+- the architecture is already separated into layout + route wrappers + page scene + page implementations
 - the rendering logic is still centralized in one larger file
 - future refactors can gradually move page logic out of `SiteAppLegacy.tsx` into smaller files without changing the deployment model
 
@@ -788,6 +802,14 @@ node -c backend/api/index.cjs
 cd infra/terraform && terraform validate
 ```
 
+For a fuller production sanity pass, use this order:
+
+1. `npm run build`
+2. `node -c backend/api/index.cjs`
+3. `cd infra/terraform && terraform validate`
+4. review that root `index.html` and `assets/` were regenerated
+5. if backend or Terraform changed, run `terraform apply`
+
 ## 17. Known Limitations / Current Product Notes
 
 These are important to know when working on the project:
@@ -796,6 +818,7 @@ These are important to know when working on the project:
 - Google / Apple / LinkedIn buttons are not fully wired until Cognito social identity providers are configured
 - the payment / subscription model is presented in the UI, but paid billing is not yet fully wired into a real payments backend
 - most of the UI implementation still lives in `src/app/legacy/SiteAppLegacy.tsx`
+- route-level structure now lives in `src/app/pages/` and `src/app/layout/PageScene.tsx`, but detailed page logic is still being extracted gradually from the legacy file
 - the public site is static, so route handling depends on `HashRouter`
 - the root `index.html` is generated during build; it is not a normal hand-maintained template
 
