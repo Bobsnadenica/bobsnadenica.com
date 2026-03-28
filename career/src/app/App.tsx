@@ -30,6 +30,7 @@ import {
 import { resolvePublicUrl } from "../lib/url";
 import type {
   Booking,
+  ConsultantMediaKind,
   ConsultantProfile,
   ConsultantProfileType,
   PlanTier,
@@ -74,6 +75,28 @@ function writePendingBootstrap(value: PendingBootstrap) {
 function clearPendingBootstrap() {
   if (typeof window !== "undefined") {
     window.localStorage.removeItem(PENDING_BOOTSTRAP_KEY);
+  }
+}
+
+async function uploadFileToSignedUrl(
+  uploadUrl: string,
+  file: File,
+  failureLabel: string
+) {
+  if (!uploadUrl) {
+    return;
+  }
+
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream"
+    },
+    body: file
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Неуспешно качване на ${failureLabel}.`);
   }
 }
 
@@ -862,7 +885,7 @@ function RouteExperience() {
 }
 
 function useViewerProfile() {
-  const { user, token, loading: authLoading } = useAuth();
+  const { configured, user, token, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -872,6 +895,12 @@ function useViewerProfile() {
     }
 
     if (!user || !token) {
+      if (configured) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
       const previewAccount = readMockPreviewAccount();
       setProfile(previewAccount ? buildPreviewUserProfile(previewAccount) : null);
       setLoading(false);
@@ -902,9 +931,13 @@ function useViewerProfile() {
     return () => {
       mounted = false;
     };
-  }, [authLoading, token, user]);
+  }, [authLoading, configured, token, user]);
 
   useEffect(() => {
+    if (configured) {
+      return;
+    }
+
     return subscribeMockPreviewAccount(() => {
       if (!user || !token) {
         const previewAccount = readMockPreviewAccount();
@@ -912,7 +945,7 @@ function useViewerProfile() {
         setLoading(false);
       }
     });
-  }, [token, user]);
+  }, [configured, token, user]);
 
   return {
     loading,
@@ -922,28 +955,38 @@ function useViewerProfile() {
   };
 }
 
-function useMockPreviewSnapshot() {
+function useMockPreviewSnapshot(enabled = true) {
   const location = useLocation();
   const [previewAccount, setPreviewAccount] = useState<MockPreviewAccount | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setPreviewAccount(null);
+      return;
+    }
+
     setPreviewAccount(readMockPreviewAccount());
-  }, [location.pathname]);
+  }, [enabled, location.pathname]);
 
   useEffect(() => {
+    if (!enabled) {
+      setPreviewAccount(null);
+      return;
+    }
+
     return subscribeMockPreviewAccount(() => {
       setPreviewAccount(readMockPreviewAccount());
     });
-  }, []);
+  }, [enabled]);
 
   return previewAccount;
 }
 
 function AppShell() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { configured, user, logout } = useAuth();
   const currentYear = new Date().getFullYear();
-  const previewAccount = useMockPreviewSnapshot();
+  const previewAccount = useMockPreviewSnapshot(!configured);
 
   function handlePreviewLogout() {
     clearMockPreviewAccount();
@@ -1001,6 +1044,13 @@ function AppShell() {
             )}
           </div>
         </div>
+        <div className="container">
+          <nav className="site-nav site-nav--mobile">
+            <NavLink to="/">Начало</NavLink>
+            <NavLink to="/users">За потребители</NavLink>
+            <NavLink to="/consultants">За консултанти</NavLink>
+          </nav>
+        </div>
       </header>
 
       <main>
@@ -1014,7 +1064,10 @@ function AppShell() {
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/legal" element={<LegalPage />} />
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/account" element={<AccountPage />} />
+          <Route
+            path="/account"
+            element={configured ? <Navigate to="/dashboard" replace /> : <AccountPage />}
+          />
           <Route path="/preview-account" element={<Navigate to="/auth?tab=register" replace />} />
           <Route path="/preview-dashboard" element={<Navigate to="/account" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -1188,22 +1241,57 @@ function SuggestionPills({
 function HomePage() {
   const [query, setQuery] = useState("");
   const [topDirectoryType, setTopDirectoryType] = useState<"all" | ConsultantProfileType>("all");
+  const [homeConsultants, setHomeConsultants] = useState<ConsultantProfile[]>(demoConsultants);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let mounted = true;
+
+    api
+      .listConsultants()
+      .then((items) => {
+        if (mounted && items.length) {
+          setHomeConsultants(items);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setHomeConsultants(demoConsultants);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const directorySource = homeConsultants.length ? homeConsultants : demoConsultants;
   const featured = useMemo(
     () =>
-      demoConsultants
-        .filter((item) => item.featured)
+      [...directorySource]
         .filter(
           (item) =>
             topDirectoryType === "all" ||
             getConsultantProfileType(item) === topDirectoryType
         )
+        .sort((left, right) => {
+          if (left.featured !== right.featured) {
+            return left.featured ? -1 : 1;
+          }
+
+          if (right.rating !== left.rating) {
+            return right.rating - left.rating;
+          }
+
+          return right.reviewCount - left.reviewCount;
+        })
         .slice(0, 4),
-    [topDirectoryType]
+    [directorySource, topDirectoryType]
   );
   const spotlight =
     featured[0] ||
-    demoConsultants.find((item) => item.featured) ||
+    directorySource.find((item) => item.featured) ||
+    directorySource[0] ||
     demoConsultants[0];
 
   return (
@@ -1269,7 +1357,7 @@ function HomePage() {
 
             <div className="hero-stats">
               <div>
-                <strong>{demoConsultants.length} активни профила</strong>
+                <strong>{directorySource.length} активни профила</strong>
                 <span>консултанти и ментори с публично присъствие</span>
               </div>
               <div>
@@ -1277,8 +1365,8 @@ function HomePage() {
                 <span>консултантите и менторите могат да стартират с безплатен публичен профил</span>
               </div>
               <div>
-                <strong>Рекламна зона</strong>
-                <span>за работодатели, академии и кариерни програми</span>
+                <strong>Партньорска реклама</strong>
+                <span>позиция за полезни продукти и силни кариерни програми</span>
               </div>
             </div>
           </div>
@@ -1340,18 +1428,24 @@ function HomePage() {
         <div className="container">
           <aside className="ad-banner">
             <div>
-              <span className="ad-banner__label">Реклама</span>
-              <h2>Позиция за работодатели, академии и силни кариерни програми.</h2>
+              <span className="ad-banner__label">Партньорска реклама</span>
+              <span className="ad-banner__partner">Spesti</span>
+              <h2>Save money while you shop. Намери къде цените са най-изгодни.</h2>
               <p>
-                Рекламната зона е разположена в контекст с високо намерение за действие:
-                хора, които активно търсят кариерно решение или консултант.
+                Spesti сравнява цени между магазини и ти помага да спестяваш по време на
+                седмичното пазаруване с по-ясна картина къде е най-евтино.
               </p>
             </div>
             <div className="ad-banner__actions">
-              <span>Спонсорирана рекламна позиция</span>
-              <Link className="ghost-button" to="/auth?tab=register">
-                Заяви рекламно място
-              </Link>
+              <span>Полезен партньор за хора, които искат да пазаруват по-умно.</span>
+              <a
+                className="ghost-button"
+                href="https://www.bobsnadenica.com/cena/index.html"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Отвори Spesti
+              </a>
             </div>
           </aside>
         </div>
@@ -1413,7 +1507,7 @@ function UsersPage() {
   const city = searchParams.get("city") || "";
   const kind = searchParams.get("kind") || "all";
   const topOnly = searchParams.get("top") === "1";
-  const { user } = useAuth();
+  const { configured, user } = useAuth();
   const { profile, loading: viewerLoading } = useViewerProfile();
   const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1480,7 +1574,8 @@ function UsersPage() {
   const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
   const topMatch = rankedConsultants.find((item) => item.match)?.consultant || null;
   const topMatchDetails = topMatch ? getConsultantMatch(profile, topMatch) : null;
-  const profileCtaTo = user ? "/dashboard" : profile ? "/account" : "/auth?tab=register";
+  const profileCtaTo =
+    user ? "/dashboard" : !configured && profile ? "/account" : "/auth?tab=register";
   const isConsultantViewer = profile?.role === "consultant";
   const profileSignals = [
     profile?.occupation,
@@ -3352,9 +3447,9 @@ function NotFoundPage() {
 
 function ConsultantPage() {
   const { slug = "" } = useParams();
-  const { user, token } = useAuth();
+  const { configured, user, token } = useAuth();
   const navigate = useNavigate();
-  const previewAccount = useMockPreviewSnapshot();
+  const previewAccount = useMockPreviewSnapshot(!configured);
   const { profile: viewerProfile, loading: viewerProfileLoading } = useViewerProfile();
   const [consultant, setConsultant] = useState<ConsultantProfile | null>(null);
   const [selectedSlot, setSelectedSlot] = useState("");
@@ -3396,10 +3491,11 @@ function ConsultantPage() {
   }
 
   const isConsultantViewer = viewerProfile?.role === "consultant";
-  const bookingCtaTo = user ? "/dashboard" : previewAccount ? "/account" : "/auth?tab=register";
+  const bookingCtaTo =
+    user ? "/dashboard" : !configured && previewAccount ? "/account" : "/auth?tab=register";
   const shareUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/career/#/consultants/${consultant.slug}`
+      ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultant.slug}`
       : "";
 
   const shareProfile = async () => {
@@ -4506,6 +4602,9 @@ function DashboardPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [consultantProfile, setConsultantProfile] = useState<ConsultantProfile | null>(null);
+  const [directoryConsultants, setDirectoryConsultants] = useState<ConsultantProfile[]>(
+    demoConsultants
+  );
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -4529,9 +4628,16 @@ function DashboardPage() {
       api
         .getMyConsultantProfile(token)
         .then((value) => value)
-        .catch(() => null)
+        .catch(() => null),
+      api.listConsultants().catch(() => demoConsultants)
     ])
-      .then(([nextProfile, nextBookings, nextConsultantProfile]) => {
+      .then(
+        ([
+          nextProfile,
+          nextBookings,
+          nextConsultantProfile,
+          nextDirectoryConsultants
+        ]) => {
         if (!mounted) {
           return;
         }
@@ -4539,7 +4645,9 @@ function DashboardPage() {
         setProfile(nextProfile);
         setBookings(nextBookings);
         setConsultantProfile(nextConsultantProfile);
-      })
+        setDirectoryConsultants(nextDirectoryConsultants);
+        }
+      )
       .catch((value) => {
         if (mounted) {
           setError(value instanceof Error ? value.message : "Неуспешно зареждане на таблото.");
@@ -4619,15 +4727,7 @@ function DashboardPage() {
     try {
       const result = await api.createCvUpload(token, file);
 
-      if (result.uploadUrl) {
-        await fetch(result.uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": file.type || "application/octet-stream"
-          },
-          body: file
-        });
-      }
+      await uploadFileToSignedUrl(result.uploadUrl, file, "документа");
 
       const updated = await api.updateMyProfile(token, {
         cvDocument: result.document as UploadedDocument
@@ -4652,6 +4752,53 @@ function DashboardPage() {
         .split(/\n|,/)
         .map((item) => item.trim())
         .filter(Boolean);
+      const avatarLink = String(formData.get("avatarUrl") || "").trim();
+      const heroLink = String(formData.get("heroUrl") || "").trim();
+      const avatarFile = formData.get("avatarFile");
+      const heroFile = formData.get("heroFile");
+      let avatarUrl = avatarLink || consultantProfile?.avatarUrl || "";
+      let heroUrl = heroLink || consultantProfile?.heroUrl || "";
+      let avatarStorageKey = avatarLink ? undefined : consultantProfile?.avatarStorageKey;
+      let heroStorageKey = heroLink ? undefined : consultantProfile?.heroStorageKey;
+
+      async function uploadConsultantMedia(
+        fileValue: FormDataEntryValue | null,
+        kind: ConsultantMediaKind,
+        failureLabel: string
+      ) {
+        if (!(fileValue instanceof File) || !fileValue.name) {
+          return null;
+        }
+
+        const result = await api.createConsultantMediaUpload(token, fileValue, kind);
+        await uploadFileToSignedUrl(result.uploadUrl, fileValue, failureLabel);
+        return result;
+      }
+
+      const avatarUpload = await uploadConsultantMedia(
+        avatarFile,
+        "avatar",
+        "профилната снимка"
+      );
+      const heroUpload = await uploadConsultantMedia(
+        heroFile,
+        "hero",
+        "снимката за корицата"
+      );
+
+      if (avatarUpload) {
+        avatarStorageKey = avatarUpload.storageKey;
+        if ("previewUrl" in avatarUpload && avatarUpload.previewUrl) {
+          avatarUrl = String(avatarUpload.previewUrl);
+        }
+      }
+
+      if (heroUpload) {
+        heroStorageKey = heroUpload.storageKey;
+        if ("previewUrl" in heroUpload && heroUpload.previewUrl) {
+          heroUrl = String(heroUpload.previewUrl);
+        }
+      }
 
       const updated = await api.updateMyConsultantProfile(token, {
         slug: String(formData.get("slug") || consultantProfile?.slug || ""),
@@ -4683,8 +4830,10 @@ function DashboardPage() {
           .split(",")
           .map((item) => item.trim())
           .filter(Boolean),
-        avatarUrl: String(formData.get("avatarUrl") || consultantProfile?.avatarUrl || ""),
-        heroUrl: String(formData.get("heroUrl") || consultantProfile?.heroUrl || ""),
+        avatarUrl,
+        heroUrl,
+        avatarStorageKey,
+        heroStorageKey,
         idealFor: parseListValue(formData.get("idealFor")),
         consultationTopics: parseListValue(formData.get("consultationTopics")),
         workApproach: String(formData.get("workApproach") || ""),
@@ -4719,7 +4868,7 @@ function DashboardPage() {
         ];
   const dashboardMatchedConsultants =
     profile.role === "client"
-      ? demoConsultants
+      ? directoryConsultants
           .map((consultant) => ({
             consultant,
             match: getConsultantMatch(profile, consultant)
@@ -5101,13 +5250,13 @@ function DashboardPage() {
             <h2>Основен документ</h2>
             <p className="section-caption">
               Дръж основния си документ на едно място. Това улеснява подготовката преди
-              консултации и следващи кандидатствания.
+              консултации, споделяне на резюме и следващи кандидатствания.
             </p>
             <p className="form-note">
               {getDocumentCapacityNote(profile.plan)}
             </p>
             <label>
-              Качи CV
+              Качи CV или резюме
               <input name="cv" type="file" />
             </label>
             {profile.cvDocument ? (
@@ -5185,21 +5334,63 @@ function DashboardPage() {
                   </div>
                   <div className="two-column">
                     <label>
-                      Линк към профилна снимка
-                      <input
-                        name="avatarUrl"
-                        defaultValue={consultantProfile?.avatarUrl || ""}
-                        placeholder="https://..."
-                      />
+                      Качи профилна снимка
+                      <input name="avatarFile" type="file" accept="image/*" />
+                      <span className="form-note">
+                        Портретна снимка, която ще се показва в каталога и профила ти.
+                      </span>
                     </label>
                     <label>
-                      Линк към снимка за корицата
+                      Качи снимка за корицата
+                      <input name="heroFile" type="file" accept="image/*" />
+                      <span className="form-note">
+                        По-широка снимка за публичната страница на профила.
+                      </span>
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Външен линк към профилна снимка
                       <input
-                        name="heroUrl"
-                        defaultValue={consultantProfile?.heroUrl || ""}
+                        name="avatarUrl"
+                        defaultValue={
+                          consultantProfile?.avatarStorageKey ? "" : consultantProfile?.avatarUrl || ""
+                        }
                         placeholder="https://..."
                       />
+                      <span className="form-note">
+                        Остави празно, ако използваш качен файл.
+                      </span>
                     </label>
+                    <label>
+                      Външен линк към снимка за корицата
+                      <input
+                        name="heroUrl"
+                        defaultValue={
+                          consultantProfile?.heroStorageKey ? "" : consultantProfile?.heroUrl || ""
+                        }
+                        placeholder="https://..."
+                      />
+                      <span className="form-note">
+                        Остави празно, ако използваш качен файл.
+                      </span>
+                    </label>
+                  </div>
+                  <div className="media-preview-grid">
+                    <article className="media-preview-card">
+                      <span className="search-shortcuts__label">Профилна снимка</span>
+                      <img
+                        src={resolvePublicUrl(consultantProfile?.avatarUrl || "/assets/consultant-1.jpg")}
+                        alt={`${consultantProfile?.name || profile.name} profile portrait`}
+                      />
+                    </article>
+                    <article className="media-preview-card">
+                      <span className="search-shortcuts__label">Корица на профила</span>
+                      <img
+                        src={resolvePublicUrl(consultantProfile?.heroUrl || consultantProfile?.avatarUrl || "/assets/consultant-1.jpg")}
+                        alt={`${consultantProfile?.name || profile.name} profile cover`}
+                      />
+                    </article>
                   </div>
                   <label>
                     Заглавие

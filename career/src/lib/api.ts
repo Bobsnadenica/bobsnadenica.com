@@ -9,6 +9,7 @@ import {
 import type {
   Booking,
   ConsultantProfile,
+  ConsultantMediaKind,
   ConsultantProfileType,
   PlanTier,
   UploadedDocument,
@@ -71,6 +72,8 @@ type UpdateConsultantInput = Partial<
     | "nextAvailable"
     | "avatarUrl"
     | "heroUrl"
+    | "avatarStorageKey"
+    | "heroStorageKey"
     | "mapImageUrl"
     | "profileType"
     | "idealFor"
@@ -110,6 +113,15 @@ function writeStorage<T>(key: string, value: T) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(key, JSON.stringify(value));
   }
+}
+
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Неуспешно прочитане на файла."));
+    reader.readAsDataURL(file);
+  });
 }
 
 function seedMockStore() {
@@ -552,6 +564,36 @@ export const api = {
         body: JSON.stringify({
           fileName: file.name,
           contentType: file.type || "application/octet-stream"
+        })
+      },
+      token
+    );
+  },
+
+  async createConsultantMediaUpload(
+    token: string,
+    file: File,
+    kind: ConsultantMediaKind
+  ) {
+    if (!isApiConfigured) {
+      return {
+        uploadUrl: "",
+        storageKey: `mock/${token}/${kind}/${Date.now()}-${file.name}`,
+        previewUrl: await readFileAsDataUrl(file)
+      };
+    }
+
+    return request<{
+      uploadUrl: string;
+      storageKey: string;
+    }>(
+      "/me/cv/upload-url",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          fileName: file.name,
+          contentType: file.type || "application/octet-stream",
+          kind
         })
       },
       token

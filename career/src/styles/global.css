@@ -97,6 +97,10 @@ select:focus-visible {
   gap: 14px;
 }
 
+.brand-link > div {
+  min-width: 0;
+}
+
 .brand-link strong {
   display: block;
   font-size: 1.3rem;
@@ -166,6 +170,13 @@ select:focus-visible {
 .site-nav {
   margin-left: auto;
   gap: 10px;
+}
+
+.site-nav--mobile {
+  display: none;
+  margin-left: 0;
+  margin: 0 0 14px;
+  justify-content: flex-start;
 }
 
 .site-nav a,
@@ -857,11 +868,47 @@ textarea {
   text-transform: uppercase;
 }
 
+.ad-banner__partner {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
 .ad-banner__actions {
   display: grid;
   gap: 12px;
   justify-items: end;
   min-width: 220px;
+}
+
+.media-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.media-preview-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.92);
+  border: 1px solid rgba(213, 222, 233, 0.9);
+}
+
+.media-preview-card img {
+  width: 100%;
+  aspect-ratio: 1 / 0.72;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(213, 222, 233, 0.92);
 }
 
 .ad-banner::before,
@@ -2051,12 +2098,19 @@ textarea {
   }
 
   .helper-grid,
-  .summary-grid {
+  .summary-grid,
+  .media-preview-grid {
     grid-template-columns: 1fr;
   }
 
   .site-nav {
     display: none;
+  }
+
+  .site-nav--mobile {
+    display: flex;
+    margin-top: -4px;
+    flex-wrap: wrap;
   }
 
   .ad-banner {
@@ -2180,9 +2234,33 @@ textarea {
     height: auto;
     aspect-ratio: 1 / 0.92;
   }
+
+  .ad-banner .ghost-button,
+  .site-nav--mobile a {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 640px) {
+  .brand-link span {
+    display: none;
+  }
+
+  .brand-link strong {
+    font-size: 1.12rem;
+  }
+
+  .site-header__actions {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .site-header__actions .ghost-button,
+  .site-header__actions .user-chip {
+    flex: 1 1 auto;
+  }
+
   .question-card__header {
     grid-template-columns: 1fr;
   }

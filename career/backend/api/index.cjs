@@ -7,7 +7,11 @@ const {
   QueryCommand,
   ScanCommand
 } = require("@aws-sdk/lib-dynamodb");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand
+} = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -125,6 +129,63 @@ function normalizeStringList(value, fallback = []) {
     .filter(Boolean);
 }
 
+function sanitizeFileName(fileName) {
+  const normalized = String(fileName || "upload")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return normalized || "upload";
+}
+
+function normalizeUploadKind(value) {
+  const kind = String(value || "cv").trim().toLowerCase();
+
+  if (kind === "cv" || kind === "avatar" || kind === "hero") {
+    return kind;
+  }
+
+  return null;
+}
+
+async function getSignedObjectUrl(storageKey) {
+  if (!storageKey) {
+    return "";
+  }
+
+  return getSignedUrl(
+    s3,
+    new GetObjectCommand({
+      Bucket: env.cvBucket,
+      Key: storageKey
+    }),
+    { expiresIn: 3600 }
+  );
+}
+
+async function decorateConsultantMedia(consultant) {
+  if (!consultant) {
+    return consultant;
+  }
+
+  const [avatarUrl, heroUrl] = await Promise.all([
+    consultant.avatarStorageKey
+      ? getSignedObjectUrl(consultant.avatarStorageKey)
+      : Promise.resolve(""),
+    consultant.heroStorageKey
+      ? getSignedObjectUrl(consultant.heroStorageKey)
+      : Promise.resolve("")
+  ]);
+
+  return {
+    ...consultant,
+    avatarUrl: avatarUrl || consultant.avatarUrl,
+    heroUrl: heroUrl || consultant.heroUrl
+  };
+}
+
 function getConsultantVisibility(plan) {
   return {
     isPublic: true,
@@ -165,7 +226,11 @@ async function listConsultants(event) {
     return matchesQuery && matchesCity;
   });
 
-  return response(200, items);
+  const decoratedItems = await Promise.all(
+    items.map((item) => decorateConsultantMedia(item))
+  );
+
+  return response(200, decoratedItems);
 }
 
 async function getConsultant(event) {
@@ -181,7 +246,7 @@ async function getConsultant(event) {
     return notFound("Consultant profile not found.");
   }
 
-  return response(200, consultant);
+  return response(200, await decorateConsultantMedia(consultant));
 }
 
 async function bootstrapUser(event) {
@@ -336,7 +401,7 @@ async function getMyConsultant(event) {
     return notFound("Consultant profile not found.");
   }
 
-  return response(200, consultant);
+  return response(200, await decorateConsultantMedia(consultant));
 }
 
 async function updateMyConsultant(event) {
@@ -377,6 +442,8 @@ async function updateMyConsultant(event) {
     reviewCount: body.reviewCount ?? current.reviewCount,
     avatarUrl: body.avatarUrl ?? current.avatarUrl,
     heroUrl: body.heroUrl ?? current.heroUrl,
+    avatarStorageKey: body.avatarStorageKey ?? current.avatarStorageKey,
+    heroStorageKey: body.heroStorageKey ?? current.heroStorageKey,
     mapImageUrl: body.mapImageUrl ?? current.mapImageUrl,
     languages: body.languages ?? current.languages,
     specializations: body.specializations ?? current.specializations,
@@ -403,7 +470,7 @@ async function updateMyConsultant(event) {
     })
   );
 
-  return response(200, nextConsultant);
+  return response(200, await decorateConsultantMedia(nextConsultant));
 }
 
 async function createUploadUrl(event) {
@@ -414,7 +481,17 @@ async function createUploadUrl(event) {
     return badRequest("fileName is required.");
   }
 
-  const storageKey = `profiles/${claims.sub}/${Date.now()}-${body.fileName}`;
+  const kind = normalizeUploadKind(body.kind);
+
+  if (!kind) {
+    return badRequest("Invalid upload kind.");
+  }
+
+  const safeFileName = sanitizeFileName(body.fileName);
+  const storageKey =
+    kind === "cv"
+      ? `profiles/${claims.sub}/documents/${Date.now()}-${safeFileName}`
+      : `consultants/${claims.sub}/${kind}/${Date.now()}-${safeFileName}`;
   const command = new PutObjectCommand({
     Bucket: env.cvBucket,
     Key: storageKey,
@@ -537,7 +614,7 @@ async function listBookings(event) {
 }
 
 function health() {
-  return response(200, { ok: true, service: "careerdoc-api" });
+  return response(200, { ok: true, service: "careerlane-api" });
 }
 
 exports.handler = async (event) => {

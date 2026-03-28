@@ -46,6 +46,13 @@ resource "aws_cognito_user_pool" "main" {
     default_email_option = "CONFIRM_WITH_CODE"
   }
 
+  lifecycle {
+    # Cognito does not allow schema mutations after pool creation.
+    # Ignore provider drift here so later applies can update the rest
+    # of the stack without forcing an invalid schema update attempt.
+    ignore_changes = [schema]
+  }
+
   tags = local.common_tags
 }
 

@@ -2,6 +2,7 @@ export type UserRole = "client" | "consultant";
 export type PlanTier = "free" | "pro";
 export type BookingStatus = "requested" | "confirmed" | "cancelled";
 export type ConsultantProfileType = "consultant" | "mentor";
+export type ConsultantMediaKind = "avatar" | "hero";
 
 export interface UploadedDocument {
   fileName: string;
@@ -29,6 +30,8 @@ export interface ConsultantProfile {
   nextAvailable: string;
   avatarUrl: string;
   heroUrl: string;
+  avatarStorageKey?: string;
+  heroStorageKey?: string;
   mapImageUrl: string;
   tags: string[];
   availability: string[];
