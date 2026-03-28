@@ -448,6 +448,10 @@ function getProfileCompletion(
     Boolean(profile.age),
     Boolean((profile.headline || "").trim()),
     Boolean((profile.bio || "").trim()),
+    Boolean((profile.experienceSummary || "").trim()),
+    Boolean((profile.experienceHighlights || []).length),
+    Boolean((profile.educationHighlights || []).length),
+    Boolean((profile.skills || []).length),
     Boolean((profile.interests || []).length),
     Boolean((profile.keywords || []).length),
     Boolean((profile.goals || "").trim()),
@@ -457,14 +461,17 @@ function getProfileCompletion(
   const consultantChecks =
     profile.role === "consultant"
       ? [
-          Boolean(consultantProfile?.headline.trim()),
-          Boolean(consultantProfile?.bio.trim()),
-          Boolean(consultantProfile?.specializations.length),
-          Boolean(consultantProfile?.languages.length),
+          Boolean((consultantProfile?.headline || "").trim()),
+          Boolean((consultantProfile?.bio || "").trim()),
+          Boolean((consultantProfile?.experienceSummary || "").trim()),
+          Boolean((consultantProfile?.experienceHighlights || []).length),
+          Boolean((consultantProfile?.educationHighlights || []).length),
+          Boolean((consultantProfile?.specializations || []).length),
+          Boolean((consultantProfile?.languages || []).length),
           Boolean((consultantProfile?.idealFor || []).length),
           Boolean((consultantProfile?.consultationTopics || []).length),
           Boolean((consultantProfile?.workApproach || "").trim()),
-          Boolean(consultantProfile?.availability.length)
+          Boolean((consultantProfile?.availability || []).length)
         ]
       : [];
 
@@ -685,13 +692,13 @@ function formatSignalLabel(value: string) {
 }
 
 function getConsultantIdealFor(consultant: ConsultantProfile) {
-  return consultant.idealFor?.length ? consultant.idealFor : consultant.tags;
+  return consultant.idealFor?.length ? consultant.idealFor : consultant.tags || [];
 }
 
 function getConsultationTopics(consultant: ConsultantProfile) {
   return consultant.consultationTopics?.length
     ? consultant.consultationTopics
-    : consultant.specializations;
+    : consultant.specializations || [];
 }
 
 function getConsultantWorkApproach(consultant: ConsultantProfile) {
@@ -710,9 +717,11 @@ function getConsultantLocationLabel(consultant: ConsultantProfile) {
 }
 
 function getConsultantSummaryTags(consultant: ConsultantProfile) {
-  return consultant.specializations.length
-    ? consultant.specializations.slice(0, 2)
-    : getConsultationTopics(consultant).slice(0, 2);
+  return (consultant.specializations || []).length
+    ? (consultant.specializations || []).slice(0, 2)
+    : getConsultationTopics(consultant).length
+      ? getConsultationTopics(consultant).slice(0, 2)
+      : (consultant.experienceHighlights || []).slice(0, 2);
 }
 
 function getConsultantTrustLabel(consultant: ConsultantProfile) {
@@ -789,7 +798,11 @@ function getProfileSignalTokens(profile: UserProfile) {
           profile.occupation,
           profile.headline,
           profile.bio,
+          profile.experienceSummary,
           profile.goals,
+          ...(profile.experienceHighlights || []),
+          ...(profile.educationHighlights || []),
+          ...(profile.skills || []),
           ...(profile.interests || []),
           ...(profile.keywords || [])
         ]
@@ -806,8 +819,11 @@ function getConsultantSignalTokens(consultant: ConsultantProfile) {
       [
         consultant.headline,
         consultant.bio,
+        consultant.experienceSummary,
         ...consultant.specializations,
         ...consultant.tags,
+        ...(consultant.experienceHighlights || []),
+        ...(consultant.educationHighlights || []),
         ...getConsultantIdealFor(consultant),
         ...getConsultationTopics(consultant)
       ].join(" ")
@@ -2686,7 +2702,7 @@ export function ConsultantPage() {
               <h1>{consultant.name}</h1>
               <p className="profile-card__headline">{consultant.headline}</p>
               <div className="chip-row">
-                {consultant.specializations.map((item) => (
+                {getConsultantSummaryTags(consultant).map((item) => (
                   <span className="chip" key={item}>
                     {item}
                   </span>
@@ -2738,6 +2754,20 @@ export function ConsultantPage() {
               <p>{consultant.bio}</p>
             </article>
 
+            {consultant.experienceSummary || (consultant.experienceHighlights || []).length ? (
+              <article className="panel">
+                <h2>Професионален опит</h2>
+                {consultant.experienceSummary ? <p>{consultant.experienceSummary}</p> : null}
+                {(consultant.experienceHighlights || []).length ? (
+                  <ul className="feature-list">
+                    {(consultant.experienceHighlights || []).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
+            ) : null}
+
             <article className="panel">
               <h2>Подходящо за</h2>
               <div className="chip-row">
@@ -2785,6 +2815,19 @@ export function ConsultantPage() {
               <h2>Как протича работата</h2>
               <p>{getConsultantWorkApproach(consultant)}</p>
             </article>
+
+            {(consultant.educationHighlights || []).length ? (
+              <article className="panel">
+                <h2>Образование и сертификати</h2>
+                <div className="chip-row">
+                  {(consultant.educationHighlights || []).map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ) : null}
           </div>
 
           <form className="panel booking-panel" onSubmit={submitBooking}>
@@ -3635,6 +3678,10 @@ export function DashboardPage() {
         age: Number(formData.get("age") || 0) || null,
         headline: String(formData.get("headline") || ""),
         bio: String(formData.get("bio") || ""),
+        experienceSummary: String(formData.get("experienceSummary") || ""),
+        experienceHighlights: parseListValue(formData.get("experienceHighlights")),
+        educationHighlights: parseListValue(formData.get("educationHighlights")),
+        skills: parseListValue(formData.get("skills")),
         interests: parseListValue(formData.get("interests")),
         keywords: parseListValue(formData.get("keywords")),
         goals: String(formData.get("goals") || ""),
@@ -3738,6 +3785,11 @@ export function DashboardPage() {
           formData.get("consultantHeadline") || consultantProfile?.headline || ""
         ),
         bio: String(formData.get("consultantBio") || consultantProfile?.bio || ""),
+        experienceSummary: String(
+          formData.get("consultantExperienceSummary") || consultantProfile?.experienceSummary || ""
+        ),
+        experienceHighlights: parseListValue(formData.get("consultantExperienceHighlights")),
+        educationHighlights: parseListValue(formData.get("consultantEducationHighlights")),
         city: String(formData.get("consultantCity") || consultantProfile?.city || ""),
         experienceYears: Number(
           formData.get("experienceYears") || consultantProfile?.experienceYears || 0
@@ -3809,15 +3861,12 @@ export function DashboardPage() {
           .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
           .slice(0, 3)
       : [];
-  const availabilityPresetOptions = useMemo(
-    () => [
-      buildAvailabilityPreset(1, 9),
-      buildAvailabilityPreset(1, 14),
-      buildAvailabilityPreset(2, 11),
-      buildAvailabilityPreset(3, 16)
-    ],
-    []
-  );
+  const availabilityPresetOptions = [
+    buildAvailabilityPreset(1, 9),
+    buildAvailabilityPreset(1, 14),
+    buildAvailabilityPreset(2, 11),
+    buildAvailabilityPreset(3, 16)
+  ];
   const firstName = profile.name.split(" ")[0] || profile.name;
   const consultantPublicSlug =
     consultantProfile?.slug || slugifyValue(consultantProfile?.name || profile.name);
@@ -3859,6 +3908,16 @@ export function DashboardPage() {
           }
         ]
       : [];
+  const userSnapshotChips = [
+    profile.occupation,
+    profile.city,
+    ...(profile.skills || []).slice(0, 3)
+  ].filter(Boolean) as string[];
+  const consultantSnapshotChips = [
+    consultantProfile?.city,
+    ...(consultantProfile?.specializations || []).slice(0, 2),
+    ...(consultantProfile?.experienceHighlights || []).slice(0, 2)
+  ].filter(Boolean) as string[];
 
   function addAvailabilitySlot(slot: string) {
     if (!slot) {
@@ -4061,6 +4120,37 @@ export function DashboardPage() {
                 Редактирай профила
               </button>
             </div>
+          </section>
+
+          <section className="helper-grid helper-grid--single">
+            <article className="helper-card profile-snapshot-card">
+              <span className="plan-pill">
+                {profile.role === "consultant" ? "Публичен прочит" : "Профилен прочит"}
+              </span>
+              <strong>
+                {profile.role === "consultant"
+                  ? consultantProfile?.headline || "Добави ясно професионално заглавие."
+                  : profile.headline || "Добави кратко заглавие за профила си."}
+              </strong>
+              <p>
+                {profile.role === "consultant"
+                  ? consultantProfile?.experienceSummary ||
+                    consultantProfile?.bio ||
+                    "Опиши накратко опита, темите и начина си на работа, за да звучи профилът уверено."
+                  : profile.experienceSummary ||
+                    profile.bio ||
+                    "Добави кратко описание на опита и посоката си, за да е по-ясно какъв тип консултант търсиш."}
+              </p>
+              <div className="chip-row">
+                {(profile.role === "consultant" ? consultantSnapshotChips : userSnapshotChips).map(
+                  (item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
           </section>
 
           {profile.role === "client" ? (
@@ -4289,20 +4379,49 @@ export function DashboardPage() {
 
               <QuestionBlock
                 step="03"
-                title="Какъв е професионалният ти контекст?"
-                hint="Кратко описание на опита ти."
+                title="Опит и професионален контекст"
+                hint="Кратко, подредено представяне в стил LinkedIn."
                 wide
               >
-                <label>
-                  Професионално описание
-                  <textarea
-                    name="bio"
-                    rows={5}
-                    defaultValue={profile.bio || ""}
-                    placeholder="Разкажи накратко за посоката си, опита си и какво търсиш."
-                    required
-                  />
-                </label>
+                <div className="two-column">
+                  <label>
+                    Професионално описание
+                    <textarea
+                      name="bio"
+                      rows={5}
+                      defaultValue={profile.bio || ""}
+                      placeholder="Разкажи накратко за посоката си, опита си и какво търсиш."
+                      required
+                    />
+                  </label>
+                  <label>
+                    Професионален опит
+                    <textarea
+                      name="experienceSummary"
+                      rows={5}
+                      defaultValue={profile.experienceSummary || ""}
+                      placeholder="Например: 7 години опит в продуктови екипи, управление на roadmap, растеж на SaaS продукти и работа с международни stakeholders."
+                    />
+                  </label>
+                </div>
+                <div className="two-column">
+                  <label>
+                    Акценти от опита
+                    <input
+                      name="experienceHighlights"
+                      defaultValue={(profile.experienceHighlights || []).join(", ")}
+                      placeholder="B2B SaaS, Product strategy, Team leadership"
+                    />
+                  </label>
+                  <label>
+                    Образование и сертификати
+                    <input
+                      name="educationHighlights"
+                      defaultValue={(profile.educationHighlights || []).join(", ")}
+                      placeholder="MBA, Product School, Google Analytics"
+                    />
+                  </label>
+                </div>
                 <SuggestionPills
                   label="Подсказки за тона"
                   fieldName="bio"
@@ -4313,14 +4432,42 @@ export function DashboardPage() {
                     "Искам да представя по-ясно опита си и да подготвя уверен разказ за интервюта и кандидатстване."
                   ]}
                 />
+                <SuggestionPills
+                  label="Акценти от опита"
+                  fieldName="experienceHighlights"
+                  options={[
+                    "Team leadership",
+                    "B2B SaaS",
+                    "International teams",
+                    "Go-to-market"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Образование и сертификати"
+                  fieldName="educationHighlights"
+                  options={[
+                    "MBA",
+                    "Scrum certification",
+                    "Google Analytics",
+                    "Product School"
+                  ]}
+                />
               </QuestionBlock>
 
               <QuestionBlock
                 step="04"
-                title="Кои теми описват най-добре търсенето ти?"
-                hint="Интереси, ключови думи и формат."
+                title="Умения, теми и предпочитан формат"
+                hint="Това помага на платформата да те свързва по-точно."
               >
                 <div className="two-column">
+                  <label>
+                    Основни умения
+                    <input
+                      name="skills"
+                      defaultValue={(profile.skills || []).join(", ")}
+                      placeholder="Stakeholder management, CV writing, Interview prep"
+                    />
+                  </label>
                   <label>
                     Интереси
                     <input
@@ -4346,6 +4493,16 @@ export function DashboardPage() {
                     placeholder="Онлайн, В офис"
                   />
                 </label>
+                <SuggestionPills
+                  label="Добави умения"
+                  fieldName="skills"
+                  options={[
+                    "Leadership",
+                    "Product strategy",
+                    "Interview preparation",
+                    "CV writing"
+                  ]}
+                />
                 <SuggestionPills
                   label="Добави теми"
                   fieldName="interests"
@@ -4623,22 +4780,51 @@ export function DashboardPage() {
                   />
                 </QuestionBlock>
 
-                <QuestionBlock
-                  step="03"
-                  title="Как протича работата с теб?"
-                  hint="Опиши процеса кратко и ясно."
-                  wide
-                >
-                  <label>
-                    Биография
-                    <textarea
-                      name="consultantBio"
-                      rows={5}
-                      defaultValue={consultantProfile?.bio || ""}
-                      placeholder="Опиши с кого работиш, по какви теми и какъв резултат постигате."
-                      required
-                    />
-                  </label>
+              <QuestionBlock
+                step="03"
+                title="Опит, практика и подход"
+                hint="Това е публичната част, която създава доверие."
+                wide
+              >
+                  <div className="two-column">
+                    <label>
+                      Биография
+                      <textarea
+                        name="consultantBio"
+                        rows={5}
+                        defaultValue={consultantProfile?.bio || ""}
+                        placeholder="Опиши с кого работиш, по какви теми и какъв резултат постигате."
+                        required
+                      />
+                    </label>
+                    <label>
+                      Опит и практика
+                      <textarea
+                        name="consultantExperienceSummary"
+                        rows={5}
+                        defaultValue={consultantProfile?.experienceSummary || ""}
+                        placeholder="Например: 10+ години работа с mid-senior и leadership профили, международни компании и стратегически кариерни преходи."
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Акценти от практиката
+                      <input
+                        name="consultantExperienceHighlights"
+                        defaultValue={(consultantProfile?.experienceHighlights || []).join(", ")}
+                        placeholder="Executive search, Leadership coaching, CV positioning"
+                      />
+                    </label>
+                    <label>
+                      Образование и сертификати
+                      <input
+                        name="consultantEducationHighlights"
+                        defaultValue={(consultantProfile?.educationHighlights || []).join(", ")}
+                        placeholder="ICF certification, MBA, HR specialization"
+                      />
+                    </label>
+                  </div>
                   <label>
                     Работен подход
                     <textarea
@@ -4656,6 +4842,26 @@ export function DashboardPage() {
                       "Първо подреждаме целта и текущия профил, след това работим върху позиционирането и подготовката за следващата стъпка.",
                       "Работя на етапи: анализ на профила, конкретни насоки и практическа подготовка за разговори и кандидатстване.",
                       "Всяка консултация започва с ясен контекст и завършва с конкретен план за действие."
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Акценти от практиката"
+                    fieldName="consultantExperienceHighlights"
+                    options={[
+                      "Executive positioning",
+                      "Interview preparation",
+                      "Leadership coaching",
+                      "Career transitions"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Образование и сертификати"
+                    fieldName="consultantEducationHighlights"
+                    options={[
+                      "ICF certification",
+                      "MBA",
+                      "Psychology background",
+                      "HR specialization"
                     ]}
                   />
                 </QuestionBlock>
@@ -4932,7 +5138,11 @@ function ConsultantCard({
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
-            {match ? <p className="consultant-card__match">{match.note}</p> : null}
+            {match ? (
+              <p className="consultant-card__match">{match.note}</p>
+            ) : consultant.experienceSummary ? (
+              <p className="consultant-card__match">{consultant.experienceSummary}</p>
+            ) : null}
           </div>
           <span className="rating-pill">
             {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}

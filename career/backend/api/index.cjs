@@ -202,6 +202,14 @@ async function decorateConsultantMedia(consultant) {
   }
 
   const availability = normalizeAvailabilitySlots(consultant.availability || [], []);
+  const languages = normalizeStringList(consultant.languages, []);
+  const specializations = normalizeStringList(consultant.specializations, []);
+  const sessionModes = normalizeStringList(consultant.sessionModes, ["Онлайн"]);
+  const tags = normalizeStringList(consultant.tags, []);
+  const idealFor = normalizeStringList(consultant.idealFor, []);
+  const consultationTopics = normalizeStringList(consultant.consultationTopics, []);
+  const experienceHighlights = normalizeStringList(consultant.experienceHighlights, []);
+  const educationHighlights = normalizeStringList(consultant.educationHighlights, []);
   const [avatarUrl, heroUrl] = await Promise.all([
     consultant.avatarStorageKey
       ? getSignedObjectUrl(consultant.avatarStorageKey)
@@ -213,6 +221,17 @@ async function decorateConsultantMedia(consultant) {
 
   return {
     ...consultant,
+    bio: consultant.bio || "",
+    experienceSummary: consultant.experienceSummary || "",
+    experienceHighlights,
+    educationHighlights,
+    languages,
+    specializations,
+    sessionModes,
+    tags,
+    idealFor,
+    consultationTopics,
+    workApproach: consultant.workApproach || "",
     availability,
     nextAvailable: getNextAvailableSlot(availability, consultant.nextAvailable || ""),
     avatarUrl: avatarUrl || consultant.avatarUrl,
@@ -231,6 +250,15 @@ async function decorateUserMedia(user) {
 
   return {
     ...user,
+    headline: user.headline || "",
+    bio: user.bio || "",
+    experienceSummary: user.experienceSummary || "",
+    experienceHighlights: normalizeStringList(user.experienceHighlights, []),
+    educationHighlights: normalizeStringList(user.educationHighlights, []),
+    skills: normalizeStringList(user.skills, []),
+    interests: normalizeStringList(user.interests, []),
+    keywords: normalizeStringList(user.keywords, []),
+    preferredSessionModes: normalizeStringList(user.preferredSessionModes, []),
     avatarUrl: avatarUrl || user.avatarUrl || ""
   };
 }
@@ -267,6 +295,9 @@ function createConsultantDraft({
     name: baseName || "Нов профил",
     headline: String(headline || "").trim() || "Кариерен консултант",
     bio: "",
+    experienceSummary: "",
+    experienceHighlights: [],
+    educationHighlights: [],
     city: String(city || "").trim(),
     languages: [],
     specializations: [],
@@ -313,8 +344,11 @@ async function listConsultants(event) {
       !query ||
       item.name?.toLowerCase().includes(query) ||
       item.headline?.toLowerCase().includes(query) ||
+      item.experienceSummary?.toLowerCase().includes(query) ||
       (item.specializations || []).join(" ").toLowerCase().includes(query) ||
       (item.tags || []).join(" ").toLowerCase().includes(query) ||
+      (item.experienceHighlights || []).join(" ").toLowerCase().includes(query) ||
+      (item.educationHighlights || []).join(" ").toLowerCase().includes(query) ||
       (item.consultationTopics || []).join(" ").toLowerCase().includes(query) ||
       (item.idealFor || []).join(" ").toLowerCase().includes(query);
     const matchesCity = !city || item.city?.toLowerCase().includes(city);
@@ -380,6 +414,10 @@ async function bootstrapUser(event) {
     age: existing?.age ?? null,
     headline: body.headline ?? existing?.headline ?? "",
     bio: existing?.bio || "",
+    experienceSummary: existing?.experienceSummary || "",
+    experienceHighlights: existing?.experienceHighlights || [],
+    educationHighlights: existing?.educationHighlights || [],
+    skills: existing?.skills || [],
     interests: existing?.interests || [],
     keywords: existing?.keywords || [],
     goals: existing?.goals || "",
@@ -461,11 +499,23 @@ async function updateMeProfile(event) {
     age: body.age ?? current.age ?? null,
     headline: body.headline ?? current.headline,
     bio: body.bio ?? current.bio,
-    interests: body.interests ?? current.interests ?? [],
-    keywords: body.keywords ?? current.keywords ?? [],
+    experienceSummary: body.experienceSummary ?? current.experienceSummary ?? "",
+    experienceHighlights: normalizeStringList(
+      body.experienceHighlights,
+      current.experienceHighlights ?? []
+    ),
+    educationHighlights: normalizeStringList(
+      body.educationHighlights,
+      current.educationHighlights ?? []
+    ),
+    skills: normalizeStringList(body.skills, current.skills ?? []),
+    interests: normalizeStringList(body.interests, current.interests ?? []),
+    keywords: normalizeStringList(body.keywords, current.keywords ?? []),
     goals: body.goals ?? current.goals ?? "",
-    preferredSessionModes:
-      body.preferredSessionModes ?? current.preferredSessionModes ?? [],
+    preferredSessionModes: normalizeStringList(
+      body.preferredSessionModes,
+      current.preferredSessionModes ?? []
+    ),
     plan: body.plan ?? current.plan,
     cvDocument: body.cvDocument ?? current.cvDocument,
     updatedAt: new Date().toISOString()
@@ -533,6 +583,16 @@ async function updateMyConsultant(event) {
     name: body.name ?? baseConsultant.name,
     headline: body.headline ?? baseConsultant.headline,
     bio: body.bio ?? baseConsultant.bio,
+    experienceSummary:
+      body.experienceSummary ?? baseConsultant.experienceSummary ?? "",
+    experienceHighlights: normalizeStringList(
+      body.experienceHighlights,
+      baseConsultant.experienceHighlights ?? []
+    ),
+    educationHighlights: normalizeStringList(
+      body.educationHighlights,
+      baseConsultant.educationHighlights ?? []
+    ),
     city: body.city ?? baseConsultant.city,
     experienceYears: body.experienceYears ?? baseConsultant.experienceYears ?? 0,
     priceBgn: body.priceBgn ?? baseConsultant.priceBgn ?? 0,
@@ -544,13 +604,21 @@ async function updateMyConsultant(event) {
     avatarStorageKey: body.avatarStorageKey ?? baseConsultant.avatarStorageKey ?? "",
     heroStorageKey: body.heroStorageKey ?? baseConsultant.heroStorageKey ?? "",
     mapImageUrl: body.mapImageUrl ?? baseConsultant.mapImageUrl ?? "",
-    languages: body.languages ?? baseConsultant.languages ?? [],
-    specializations: body.specializations ?? baseConsultant.specializations ?? [],
-    sessionModes: body.sessionModes ?? baseConsultant.sessionModes ?? ["Онлайн"],
-    tags: body.tags ?? baseConsultant.tags ?? [],
-    idealFor: body.idealFor ?? baseConsultant.idealFor ?? [],
-    consultationTopics:
-      body.consultationTopics ?? baseConsultant.consultationTopics ?? [],
+    languages: normalizeStringList(body.languages, baseConsultant.languages ?? []),
+    specializations: normalizeStringList(
+      body.specializations,
+      baseConsultant.specializations ?? []
+    ),
+    sessionModes: normalizeStringList(
+      body.sessionModes,
+      baseConsultant.sessionModes ?? ["Онлайн"]
+    ),
+    tags: normalizeStringList(body.tags, baseConsultant.tags ?? []),
+    idealFor: normalizeStringList(body.idealFor, baseConsultant.idealFor ?? []),
+    consultationTopics: normalizeStringList(
+      body.consultationTopics,
+      baseConsultant.consultationTopics ?? []
+    ),
     workApproach: body.workApproach ?? baseConsultant.workApproach ?? "",
     sessionLengthMinutes:
       body.sessionLengthMinutes ?? baseConsultant.sessionLengthMinutes ?? 60,

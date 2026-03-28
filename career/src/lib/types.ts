@@ -19,6 +19,9 @@ export interface ConsultantProfile {
   name: string;
   headline: string;
   bio: string;
+  experienceSummary?: string;
+  experienceHighlights?: string[];
+  educationHighlights?: string[];
   city: string;
   languages: string[];
   specializations: string[];
@@ -55,6 +58,10 @@ export interface UserProfile {
   age?: number | null;
   headline?: string;
   bio?: string;
+  experienceSummary?: string;
+  experienceHighlights?: string[];
+  educationHighlights?: string[];
+  skills?: string[];
   interests?: string[];
   keywords?: string[];
   goals?: string;
