@@ -80,6 +80,27 @@
       margin: 0 0 1.5rem;
     }
 
+    .search-wrap {
+      margin: 0 0 1.25rem;
+    }
+
+    .search-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(240, 246, 252, 0.04);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .search-input:focus {
+      border-color: rgba(88, 166, 255, 0.45);
+      box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.12);
+    }
+
     .tech-tab {
       border: 1px solid var(--border);
       background: rgba(240, 246, 252, 0.04);
@@ -142,6 +163,25 @@
       overflow-y: auto;
     }
 
+    .phase-heading {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 0.7rem 1rem;
+      background: #111823;
+      border-top: 1px solid rgba(240, 246, 252, 0.05);
+      border-bottom: 1px solid rgba(240, 246, 252, 0.08);
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .empty-state {
+      padding: 1rem;
+      color: var(--muted);
+    }
+
     .command-item {
       width: 100%;
       text-align: left;
@@ -167,6 +207,20 @@
     .command-title {
       font-size: 0.95rem;
       color: var(--text);
+    }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      border: 1px solid rgba(88, 166, 255, 0.22);
+      background: rgba(88, 166, 255, 0.1);
+      color: #a9d5ff;
+      border-radius: 999px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.76rem;
+      font-family: var(--font-mono);
     }
 
     .command-code {
@@ -244,10 +298,13 @@
     <header>
       <div class="breadcrumb"><a href="index.html">&larr; Back to Hub</a> / Guides</div>
       <h1>Command Atlas</h1>
-      <p class="subtitle">Choose a technology, then click a command to see a simulated output.</p>
+      <p class="subtitle">Choose a technology, follow the steps from first checks to deeper troubleshooting, then click a command to see a simulated output.</p>
     </header>
 
     <div class="tech-tabs" id="techTabs"></div>
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="text" placeholder="Search commands, titles, or output text" />
+    </div>
 
     <main class="layout">
       <section class="panel">
@@ -328,6 +385,30 @@
         "output": "name: github.com\nip_address: 140.82.114.4"
       },
       {
+        "stack": "macOS",
+        "title": "Show the local host name",
+        "command": "scutil --get LocalHostName",
+        "output": "macbook-pro-14"
+      },
+      {
+        "stack": "macOS",
+        "title": "List Homebrew managed services",
+        "command": "brew services list",
+        "output": "Name        Status  User File\npostgresql  started bob  ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist\nredis       none"
+      },
+      {
+        "stack": "macOS",
+        "title": "Inspect the routing table",
+        "command": "netstat -rn | head",
+        "output": "Routing tables\nInternet:\ndefault            192.168.1.1        UGSc           en0\n192.168.1/24       link#4             UCS            en0"
+      },
+      {
+        "stack": "macOS",
+        "title": "Ping a remote host",
+        "command": "ping -c 4 github.com",
+        "output": "PING github.com (140.82.114.4): 56 data bytes\n64 bytes from 140.82.114.4: icmp_seq=0 ttl=54 time=21.1 ms\n--- github.com ping statistics ---\n4 packets transmitted, 4 packets received, 0.0% packet loss"
+      },
+      {
         "stack": "Linux",
         "title": "Fingerprint the running kernel and OS",
         "command": "uname -a",
@@ -398,6 +479,30 @@
         "title": "Capture a short packet sample on port 443",
         "command": "tcpdump -ni eth0 port 443 -c 20",
         "output": "10:22:15.112233 IP 10.1.4.15.52544 > 10.1.2.20.443: Flags [S], seq 1742\n10:22:15.112260 IP 10.1.2.20.443 > 10.1.4.15.52544: Flags [S.], ack 1743"
+      },
+      {
+        "stack": "Linux",
+        "title": "List block devices and filesystems",
+        "command": "lsblk -f",
+        "output": "NAME        FSTYPE FSVER LABEL UUID                                 MOUNTPOINTS\nnvme0n1\n└─nvme0n1p1 ext4   1.0         1234-5678                            /"
+      },
+      {
+        "stack": "Linux",
+        "title": "Inspect interface addresses",
+        "command": "ip addr show",
+        "output": "2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001\n    inet 10.1.2.20/24 brd 10.1.2.255 scope global eth0"
+      },
+      {
+        "stack": "Linux",
+        "title": "Show the routing table",
+        "command": "ip route",
+        "output": "default via 10.1.2.1 dev eth0 proto dhcp\n10.1.2.0/24 dev eth0 proto kernel scope link src 10.1.2.20"
+      },
+      {
+        "stack": "Linux",
+        "title": "Sample CPU wait and run queue",
+        "command": "vmstat 1 5",
+        "output": "procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----\n r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st\n 2  1 327680 112640  40960 240000    0    0   120   440  987 1201 38 12 41  9  0"
       },
       {
         "stack": "Kubernetes",
@@ -472,6 +577,30 @@
         "output": "deployment.apps/api restarted"
       },
       {
+        "stack": "Kubernetes",
+        "title": "List cluster nodes",
+        "command": "kubectl get nodes -o wide",
+        "output": "NAME            STATUS   ROLES    VERSION   INTERNAL-IP\nip-10-0-14-21   Ready    <none>   v1.30.1   10.0.14.21"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Describe one node",
+        "command": "kubectl describe node ip-10-0-14-21",
+        "output": "Allocated resources:\n  cpu    3850m (96%)\n  memory 15360Mi (93%)\nEvents:\n  Warning  NodeHasMemoryPressure"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "List ingress objects",
+        "command": "kubectl get ingress -A",
+        "output": "NAMESPACE NAME        CLASS   HOSTS             ADDRESS\nprod      api-public  alb     api.example.com   internal-alb-123.amazonaws.com"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Show persistent volume claims",
+        "command": "kubectl get pvc -A",
+        "output": "NAMESPACE NAME        STATUS   VOLUME        CAPACITY\nprod      data-api-0  Bound    pvc-0ab123    50Gi"
+      },
+      {
         "stack": "Terraform",
         "title": "Enforce formatting before review",
         "command": "terraform fmt -check -recursive",
@@ -538,6 +667,30 @@
         "output": "aws_security_group.api: Modifying... [id=sg-0ab123]\nApply complete! Resources: 0 added, 1 changed, 0 destroyed."
       },
       {
+        "stack": "Terraform",
+        "title": "List available workspaces",
+        "command": "terraform workspace list",
+        "output": "default\n* prod\n  staging"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Show the active workspace",
+        "command": "terraform workspace show",
+        "output": "prod"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Print Terraform outputs",
+        "command": "terraform output",
+        "output": "alb_dns_name = \"api-prod-123.eu-central-1.elb.amazonaws.com\"\nvpc_id = \"vpc-0ab123456789\""
+      },
+      {
+        "stack": "Terraform",
+        "title": "Create a refresh-only plan",
+        "command": "terraform plan -refresh-only",
+        "output": "Note: Objects have changed outside of Terraform\nPlan: 0 to add, 2 to change, 0 to destroy."
+      },
+      {
         "stack": "Ansible",
         "title": "Visualize inventory layout",
         "command": "ansible-inventory -i inventory.ini --graph",
@@ -584,6 +737,30 @@
         "title": "View vaulted secrets intentionally",
         "command": "ansible-vault view group_vars/prod/vault.yml",
         "output": "db_password: s3cr3t-redacted\nslack_webhook_url: https://hooks.slack.com/services/..."
+      },
+      {
+        "stack": "Ansible",
+        "title": "Dump inventory as JSON",
+        "command": "ansible-inventory -i inventory.ini --list",
+        "output": "{\n  \"_meta\": { \"hostvars\": { \"web-01\": { \"ansible_host\": \"10.0.1.14\" } } },\n  \"web\": { \"hosts\": [\"web-01\", \"web-02\"] }\n}"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Preview targeted hosts",
+        "command": "ansible-playbook site.yml --list-hosts",
+        "output": "playbook: site.yml\n\n  play #1 (web): web\n    hosts (2):\n      web-01\n      web-02"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Preview playbook task names",
+        "command": "ansible-playbook site.yml --list-tasks",
+        "output": "playbook: site.yml\n\n  play #1 (web): web\n    tasks:\n      nginx : install packages\n      nginx : template nginx.conf"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Gather default IPv4 facts",
+        "command": "ansible all -i inventory.ini -m setup -a \"filter=ansible_default_ipv4\"",
+        "output": "web-01 | SUCCESS => {\n  \"ansible_facts\": {\n    \"ansible_default_ipv4\": { \"address\": \"10.0.1.14\", \"interface\": \"eth0\" }\n  }\n}"
       },
       {
         "stack": "AWS CLI",
@@ -658,6 +835,30 @@
         "output": "2026-03-29 10:18:12   14.2 MiB app-2026-03-29.log.gz\nTotal Objects: 34\n   Total Size: 1.7 GiB"
       },
       {
+        "stack": "AWS CLI",
+        "title": "Describe security group rules",
+        "command": "aws ec2 describe-security-groups --group-ids sg-0ab123456789cdef0",
+        "output": "{\n  \"SecurityGroups\": [\n    { \"GroupId\": \"sg-0ab123456789cdef0\", \"IpPermissions\": [{ \"FromPort\": 443, \"IpProtocol\": \"tcp\" }] }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "List Route 53 records",
+        "command": "aws route53 list-resource-record-sets --hosted-zone-id Z123456789 --max-items 5",
+        "output": "{\n  \"ResourceRecordSets\": [\n    { \"Name\": \"api.example.com.\", \"Type\": \"A\", \"AliasTarget\": { \"DNSName\": \"dualstack.alb-123.eu-central-1.elb.amazonaws.com.\" } }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Inspect recent ECR images",
+        "command": "aws ecr describe-images --repository-name prod-api --max-items 3",
+        "output": "{\n  \"imageDetails\": [\n    { \"imageTags\": [\"1.9.5\"], \"imagePushedAt\": \"2026-03-29T09:48:00Z\" },\n    { \"imageTags\": [\"1.9.4\"], \"imagePushedAt\": \"2026-03-28T18:11:00Z\" }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Check RDS instance status",
+        "command": "aws rds describe-db-instances --db-instance-identifier prod-db",
+        "output": "{\n  \"DBInstances\": [\n    { \"DBInstanceIdentifier\": \"prod-db\", \"DBInstanceStatus\": \"available\", \"Endpoint\": { \"Address\": \"prod-db.abc123.eu-central-1.rds.amazonaws.com\" } }\n  ]\n}"
+      },
+      {
         "stack": "Docker",
         "title": "List running and exited containers",
         "command": "docker ps -a",
@@ -717,14 +918,154 @@
         "command": "docker restart api",
         "output": "api"
       }
+      ,
+      {
+        "stack": "Docker",
+        "title": "List local images",
+        "command": "docker images",
+        "output": "REPOSITORY   TAG     IMAGE ID       CREATED       SIZE\napi          1.9.5   9f8e7d6c5b4a   2 hours ago   418MB"
+      },
+      {
+        "stack": "Docker",
+        "title": "List Docker volumes",
+        "command": "docker volume ls",
+        "output": "DRIVER    VOLUME NAME\nlocal     project_db-data\nlocal     project_redis-data"
+      },
+      {
+        "stack": "Docker",
+        "title": "Show published container ports",
+        "command": "docker port api",
+        "output": "80/tcp -> 0.0.0.0:8080\n443/tcp -> 0.0.0.0:8443"
+      },
+      {
+        "stack": "Docker",
+        "title": "Render compose service names",
+        "command": "docker compose config --services",
+        "output": "api\ndb\nredis"
+      }
     ];
+
+    const troubleshootingFlow = {
+      "macOS": [
+        { label: "1. Host and tools", titles: ["Show the local host name", "Verify Apple Command Line Tools", "Audit Homebrew health", "List Homebrew managed services"] },
+        { label: "2. Basic network path", titles: ["Map network adapters", "Inspect the routing table", "Ping a remote host"] },
+        { label: "3. DNS and resolution", titles: ["Dump the active DNS resolver chain", "Resolve a hostname through the local cache"] },
+        { label: "4. Ports and process load", titles: ["See which process owns a listening TCP port", "Sort hot processes by CPU"] },
+        { label: "5. Service logs", titles: ["Inspect recent sshd log lines"] }
+      ],
+      "Linux": [
+        { label: "1. System identity", titles: ["Fingerprint the running kernel and OS", "Check uptime and load averages"] },
+        { label: "2. CPU and memory pressure", titles: ["Sample CPU wait and run queue", "See memory pressure and swap usage", "Show top CPU consumers with process details"] },
+        { label: "3. Disk and filesystems", titles: ["Check filesystem usage", "List block devices and filesystems", "Find large directories under /var"] },
+        { label: "4. Services and logs", titles: ["Check systemd service state", "Read recent service logs", "Probe a local TLS health endpoint"] },
+        { label: "5. Network path", titles: ["Inspect interface addresses", "Show the routing table", "Show listening sockets and owning processes", "Capture a short packet sample on port 443"] },
+        { label: "6. Kernel deep dive", titles: ["Inspect recent kernel messages"] }
+      ],
+      "Kubernetes": [
+        { label: "1. Cluster and access", titles: ["Confirm the active kube context", "Test RBAC before blaming the API", "List cluster nodes"] },
+        { label: "2. Broad health check", titles: ["Get a cluster-wide pod view", "Sort recent cluster events", "Check pod and container resource pressure", "Describe one node"] },
+        { label: "3. Workload rollout", titles: ["Wait on rollout status", "Describe a single troubled pod", "Tail deployment logs"] },
+        { label: "4. Networking and traffic", titles: ["Map Services to endpoints", "List ingress objects"] },
+        { label: "5. Storage and runtime", titles: ["Show persistent volume claims", "Open a shell in the running workload"] },
+        { label: "6. Review or change", titles: ["Diff manifests before apply", "Restart a deployment rollout"] }
+      ],
+      "Terraform": [
+        { label: "1. Workspace and context", titles: ["List available workspaces", "Show the active workspace", "Print Terraform outputs"] },
+        { label: "2. Local sanity checks", titles: ["Enforce formatting before review", "Initialize providers and modules", "Validate configuration shape", "Confirm provider dependency tree"] },
+        { label: "3. State inspection", titles: ["List everything tracked in state", "Inspect one resource exactly as state knows it", "Evaluate expressions in terraform console"] },
+        { label: "4. Drift and plan review", titles: ["Create a refresh-only plan", "Create a saved execution plan", "Read the saved plan in plain text"] },
+        { label: "5. Recovery and apply", titles: ["Clear a stuck remote state lock", "Apply the reviewed plan file"] }
+      ],
+      "Ansible": [
+        { label: "1. Inventory and targeting", titles: ["Visualize inventory layout", "Dump inventory as JSON", "Preview targeted hosts", "Preview playbook task names"] },
+        { label: "2. Reachability and facts", titles: ["Test basic host reachability", "Gather default IPv4 facts", "Run a quick ad-hoc uptime command"] },
+        { label: "3. Safe playbook checks", titles: ["Syntax-check a playbook", "Dry-run with check mode and diff"] },
+        { label: "4. Live inspection", titles: ["Inspect a service with privilege escalation", "View vaulted secrets intentionally"] },
+        { label: "5. Targeted execution", titles: ["Run only the web tag on web hosts"] }
+      ],
+      "AWS CLI": [
+        { label: "1. Identity and config", titles: ["See who AWS thinks you are", "Show active CLI config sources"] },
+        { label: "2. Compute and service inventory", titles: ["Query EC2 instances as a compact table", "Inspect Auto Scaling desired versus current capacity", "Check ECS service rollout state", "Check RDS instance status", "Inspect recent ECR images"] },
+        { label: "3. Network and edge", titles: ["Check ALB target health", "Describe security group rules", "List Route 53 records"] },
+        { label: "4. Logs and event history", titles: ["Tail CloudWatch log groups live", "Read CloudFormation stack event history", "Summarize S3 objects and total size"] },
+        { label: "5. Access and sessions", titles: ["Simulate IAM policy decisions", "Open an SSM shell to an instance", "Refresh kubeconfig from EKS"] }
+      ],
+      "Docker": [
+        { label: "1. Container and compose overview", titles: ["List running and exited containers", "See compose service state at a glance", "Render compose service names", "List local images", "List Docker volumes"] },
+        { label: "2. Logs and state", titles: ["Read recent container logs", "Tail one compose service log stream", "Inspect full container metadata"] },
+        { label: "3. Ports and networking", titles: ["Show published container ports", "Inspect Docker network wiring"] },
+        { label: "4. Resource and disk usage", titles: ["Watch live container CPU and memory", "Check where Docker disk is going"] },
+        { label: "5. Interactive and restart", titles: ["Open a shell inside a running container", "Restart one container deliberately"] }
+      ]
+    };
+
+    function keyFor(item) {
+      return `${item.stack}::${item.title}`;
+    }
+
+    const commandMeta = new Map();
+    Object.entries(troubleshootingFlow).forEach(([stack, phases]) => {
+      let rank = 0;
+      phases.forEach((phase, phaseIndex) => {
+        phase.titles.forEach((title, titleIndex) => {
+          commandMeta.set(`${stack}::${title}`, {
+            phaseLabel: phase.label,
+            stepLabel: `${phaseIndex + 1}.${titleIndex + 1}`,
+            rank: rank++
+          });
+        });
+      });
+    });
+
+    commands.forEach((item, index) => {
+      const key = keyFor(item);
+      if (!commandMeta.has(key)) {
+        commandMeta.set(key, {
+          phaseLabel: "Other",
+          stepLabel: "",
+          rank: 1000 + index
+        });
+      }
+    });
 
     const stacks = [...new Set(commands.map((item) => item.stack))];
     let activeStack = stacks[0];
-    let activeCommandIndex = 0;
+    let searchTerm = "";
+    let activeCommandKey = commands.find((item) => item.stack === activeStack)?.command || "";
+
+    function getMeta(item) {
+      return commandMeta.get(keyFor(item));
+    }
 
     function getVisibleCommands() {
-      return commands.filter((item) => item.stack === activeStack);
+      const query = searchTerm.trim().toLowerCase();
+      return commands
+        .filter((item) => {
+          if (item.stack !== activeStack) {
+            return false;
+          }
+
+          if (!query) {
+            return true;
+          }
+
+          return `${item.title} ${item.command} ${item.output}`.toLowerCase().includes(query);
+        })
+        .sort((a, b) => getMeta(a).rank - getMeta(b).rank);
+    }
+
+    function getSelectedCommand(visible) {
+      if (!visible.length) {
+        return null;
+      }
+
+      const selected = visible.find((item) => item.command === activeCommandKey);
+      if (selected) {
+        return selected;
+      }
+
+      activeCommandKey = visible[0].command;
+      return visible[0];
     }
 
     function renderTabs() {
@@ -741,26 +1082,45 @@
       const visible = getVisibleCommands();
       document.getElementById("listTitle").textContent = activeStack;
       document.getElementById("listCount").textContent = `${visible.length} commands`;
-      document.getElementById("commandList").innerHTML = visible
-        .map((item, index) => `
-          <button class="command-item ${index === activeCommandIndex ? "active" : ""}" type="button" data-index="${index}">
-            <span class="command-title">${item.title}</span>
-            <span class="command-code">${item.command}</span>
-          </button>
-        `)
-        .join("");
-    }
-
-    function renderOutput() {
-      const selected = getVisibleCommands()[activeCommandIndex];
-      if (!selected) {
-        document.getElementById("selectedTitle").textContent = "";
-        document.getElementById("selectedCommand").textContent = "";
-        document.getElementById("selectedOutput").textContent = "";
+      if (!visible.length) {
+        document.getElementById("commandList").innerHTML = `<div class="empty-state">No commands found.</div>`;
         return;
       }
 
-      document.getElementById("selectedTitle").textContent = selected.title;
+      const selected = getSelectedCommand(visible);
+      let currentPhase = "";
+      const html = [];
+
+      visible.forEach((item) => {
+        const meta = getMeta(item);
+        if (meta.phaseLabel !== currentPhase) {
+          currentPhase = meta.phaseLabel;
+          html.push(`<div class="phase-heading">${meta.phaseLabel}</div>`);
+        }
+
+        html.push(`
+          <button class="command-item ${selected && item.command === selected.command ? "active" : ""}" type="button" data-command="${encodeURIComponent(item.command)}">
+            <span class="step-pill">${meta.stepLabel}</span>
+            <span class="command-title">${item.title}</span>
+            <span class="command-code">${item.command}</span>
+          </button>
+        `);
+      });
+
+      document.getElementById("commandList").innerHTML = html.join("");
+    }
+
+    function renderOutput() {
+      const selected = getSelectedCommand(getVisibleCommands());
+      if (!selected) {
+        document.getElementById("selectedTitle").textContent = "No results";
+        document.getElementById("selectedCommand").textContent = "";
+        document.getElementById("selectedOutput").textContent = "Try a different search term.";
+        return;
+      }
+
+      const meta = getMeta(selected);
+      document.getElementById("selectedTitle").textContent = `${meta.stepLabel} ${selected.title}`;
       document.getElementById("selectedCommand").textContent = selected.command;
       document.getElementById("selectedOutput").textContent = selected.output;
     }
@@ -775,17 +1135,23 @@
       const tab = event.target.closest(".tech-tab");
       if (tab) {
         activeStack = tab.dataset.stack;
-        activeCommandIndex = 0;
+        activeCommandKey = commands.find((item) => item.stack === activeStack)?.command || "";
         renderAll();
         return;
       }
 
       const commandItem = event.target.closest(".command-item");
       if (commandItem) {
-        activeCommandIndex = Number(commandItem.dataset.index);
+        activeCommandKey = decodeURIComponent(commandItem.dataset.command);
         renderCommandList();
         renderOutput();
       }
+    });
+
+    document.getElementById("searchInput").addEventListener("input", (event) => {
+      searchTerm = event.target.value;
+      renderCommandList();
+      renderOutput();
     });
 
     renderAll();
