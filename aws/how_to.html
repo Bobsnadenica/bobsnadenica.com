@@ -3,29 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SRE Command Atlas | Tech Knowledge Hub</title>
+  <title>Command Atlas | Tech Knowledge Hub</title>
   <style>
     :root {
-      --bg-body: #0a0d12;
-      --bg-surface: #111826;
-      --bg-card: #0d1117;
-      --border-subtle: rgba(240, 246, 252, 0.1);
-      --border-strong: rgba(240, 246, 252, 0.18);
-      --text-primary: #f0f6fc;
-      --text-secondary: #9aa4b2;
-      --text-muted: #6e7681;
-      --accent-primary: #58a6ff;
-      --accent-guide: #2ea043;
-      --accent-warn: #d29922;
-      --accent-danger: #ff7b72;
-      --accent-mac: #c7d0db;
-      --accent-linux: #dd4814;
-      --accent-k8s: #326ce5;
-      --accent-terraform: #7b42bc;
-      --accent-ansible: #ee0000;
-      --accent-aws: #ff9900;
-      --accent-docker: #2496ed;
-      --shadow-soft: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --bg: #0a0d12;
+      --surface: #10151d;
+      --card: #0d1117;
+      --border: rgba(240, 246, 252, 0.12);
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-soft: rgba(88, 166, 255, 0.14);
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
@@ -38,14 +26,12 @@
 
     body {
       background:
-        radial-gradient(circle at 10% 10%, rgba(88, 166, 255, 0.12), transparent 30%),
-        radial-gradient(circle at 90% 20%, rgba(46, 160, 67, 0.1), transparent 26%),
-        linear-gradient(180deg, #08101a 0%, var(--bg-body) 26%, #06080d 100%);
-      color: var(--text-primary);
+        radial-gradient(circle at top left, rgba(88, 166, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, #08101a 0%, var(--bg) 100%);
+      color: var(--text);
       font-family: var(--font-sans);
-      line-height: 1.6;
       min-height: 100vh;
-      padding-bottom: 4rem;
+      line-height: 1.5;
     }
 
     a {
@@ -54,526 +40,201 @@
     }
 
     .container {
-      max-width: 1360px;
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 0 1.5rem;
+      padding: 0 1.5rem 2rem;
     }
 
     header {
-      padding: 3.5rem 0 2.5rem;
-      margin-bottom: 2rem;
+      padding: 3rem 0 2rem;
     }
 
     .breadcrumb {
-      color: var(--text-secondary);
+      color: var(--muted);
       font-size: 0.95rem;
       margin-bottom: 1rem;
     }
 
     .breadcrumb a:hover {
-      color: var(--accent-primary);
-    }
-
-    .hero-shell {
-      border: 1px solid var(--border-subtle);
-      border-radius: 24px;
-      padding: 2rem;
-      background:
-        linear-gradient(135deg, rgba(88, 166, 255, 0.09), rgba(46, 160, 67, 0.03)),
-        rgba(13, 17, 23, 0.88);
-      box-shadow: var(--shadow-soft);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .hero-shell::after {
-      content: "";
-      position: absolute;
-      inset: auto -10% -40% auto;
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(88, 166, 255, 0.14), transparent 65%);
-      pointer-events: none;
-    }
-
-    .hero-topline {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      border: 1px solid rgba(88, 166, 255, 0.24);
-      background: rgba(88, 166, 255, 0.08);
-      color: #a5d6ff;
-      border-radius: 999px;
-      padding: 0.35rem 0.8rem;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 1rem;
+      color: var(--accent);
     }
 
     h1 {
-      font-size: clamp(2.4rem, 4vw, 4.2rem);
-      line-height: 1.05;
+      font-size: clamp(2.1rem, 4vw, 3.6rem);
       letter-spacing: -0.04em;
-      margin-bottom: 1rem;
-      max-width: 820px;
-      background: linear-gradient(90deg, #ffffff 0%, #a5d6ff 45%, #b6f7c6 100%);
+      margin-bottom: 0.6rem;
+      background: linear-gradient(90deg, #fff, #9cd3ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .intro {
-      max-width: 860px;
-      color: var(--text-secondary);
-      font-size: 1.1rem;
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
     }
 
-    .meta-row {
+    .tech-tabs {
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
-      margin-top: 1.25rem;
+      margin: 0 0 1.5rem;
     }
 
-    .meta-pill {
-      border: 1px solid var(--border-subtle);
+    .tech-tab {
+      border: 1px solid var(--border);
       background: rgba(240, 246, 252, 0.04);
-      color: var(--text-secondary);
+      color: var(--muted);
       border-radius: 999px;
-      padding: 0.45rem 0.8rem;
-      font-size: 0.9rem;
-    }
-
-    .panel {
-      background: rgba(13, 17, 23, 0.88);
-      border: 1px solid var(--border-subtle);
-      border-radius: 22px;
-      padding: 1.4rem;
-      box-shadow: var(--shadow-soft);
-      margin-bottom: 1.5rem;
-    }
-
-    .panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .panel-head h2,
-    .section-head h2 {
-      font-size: 1.4rem;
-      letter-spacing: -0.02em;
-    }
-
-    .panel-note,
-    .section-note {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .stat-card {
-      background: linear-gradient(180deg, rgba(17, 24, 38, 0.92), rgba(13, 17, 23, 0.92));
-      border: 1px solid var(--border-subtle);
-      border-radius: 18px;
-      padding: 1rem;
-    }
-
-    .stat-value {
-      display: block;
-      font-size: 2rem;
-      line-height: 1;
-      font-weight: 800;
-      margin-bottom: 0.35rem;
-      color: #ffffff;
-    }
-
-    .stat-label {
-      display: block;
-      color: var(--text-secondary);
-      font-size: 0.92rem;
-    }
-
-    .search-wrap {
-      margin-bottom: 1rem;
-    }
-
-    .search-wrap label {
-      display: block;
-      color: var(--text-secondary);
-      font-size: 0.92rem;
-      margin-bottom: 0.45rem;
-    }
-
-    .search-input {
-      width: 100%;
-      border-radius: 14px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(17, 24, 38, 0.96);
-      color: var(--text-primary);
-      padding: 0.95rem 1rem;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .search-input:focus {
-      border-color: rgba(88, 166, 255, 0.6);
-      box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.14);
-    }
-
-    .filter-group {
-      margin-top: 1rem;
-    }
-
-    .filter-label {
-      display: block;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 0.55rem;
-    }
-
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem;
-    }
-
-    .filter-chip {
-      border: 1px solid var(--border-subtle);
-      background: rgba(240, 246, 252, 0.04);
-      color: var(--text-secondary);
-      border-radius: 999px;
-      padding: 0.48rem 0.85rem;
+      padding: 0.6rem 0.95rem;
+      font-size: 0.95rem;
       cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
-      font-size: 0.92rem;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
     }
 
-    .filter-chip:hover {
+    .tech-tab:hover {
       transform: translateY(-1px);
-      border-color: rgba(88, 166, 255, 0.45);
-      color: var(--text-primary);
+      border-color: rgba(88, 166, 255, 0.4);
+      color: var(--text);
     }
 
-    .filter-chip.active {
-      background: rgba(88, 166, 255, 0.14);
-      border-color: rgba(88, 166, 255, 0.55);
+    .tech-tab.active {
+      background: var(--accent-soft);
+      border-color: rgba(88, 166, 255, 0.5);
       color: #d8ebff;
     }
 
-    .section-block {
-      margin-top: 2.2rem;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .results-count {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      white-space: nowrap;
-    }
-
-    .command-grid {
+    .layout {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: 420px minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(13, 17, 23, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 0.95rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 1rem;
     }
 
-    .command-card {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(180deg, rgba(13, 17, 23, 0.96), rgba(9, 12, 17, 0.98));
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      padding: 1.2rem;
-      box-shadow: var(--shadow-soft);
+    .panel-head h2 {
+      font-size: 1rem;
+      letter-spacing: -0.02em;
     }
 
-    .command-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 4px;
-      background: var(--stack-color, var(--accent-primary));
-    }
-
-    .card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.8rem;
-      margin-bottom: 0.9rem;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.26rem 0.58rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text-secondary);
-    }
-
-    .badge.level-beginner {
-      background: rgba(46, 160, 67, 0.12);
-      color: #8ae8a0;
-      border-color: rgba(46, 160, 67, 0.3);
-    }
-
-    .badge.level-advanced {
-      background: rgba(88, 166, 255, 0.12);
-      color: #abd5ff;
-      border-color: rgba(88, 166, 255, 0.3);
-    }
-
-    .badge.level-senior {
-      background: rgba(210, 153, 34, 0.14);
-      color: #f6d68f;
-      border-color: rgba(210, 153, 34, 0.3);
-    }
-
-    .badge.safety-read-only {
-      background: rgba(88, 166, 255, 0.09);
-      color: #abd5ff;
-    }
-
-    .badge.safety-low-risk {
-      background: rgba(210, 153, 34, 0.12);
-      color: #f6d68f;
-    }
-
-    .badge.safety-changes-state {
-      background: rgba(255, 123, 114, 0.12);
-      color: #ffb2ac;
-    }
-
-    .copy-btn {
-      border: 1px solid var(--border-subtle);
-      background: rgba(240, 246, 252, 0.04);
-      color: var(--text-secondary);
-      border-radius: 10px;
-      padding: 0.45rem 0.7rem;
-      font-size: 0.86rem;
-      cursor: pointer;
-      transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+    .count {
+      color: var(--muted);
+      font-size: 0.9rem;
       white-space: nowrap;
     }
 
-    .copy-btn:hover {
-      border-color: rgba(88, 166, 255, 0.42);
-      color: var(--text-primary);
+    .command-list {
+      max-height: 72vh;
+      overflow-y: auto;
+    }
+
+    .command-item {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-bottom: 1px solid rgba(240, 246, 252, 0.06);
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      padding: 1rem;
+      transition: background 0.18s ease;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .command-item:hover {
+      background: rgba(240, 246, 252, 0.03);
+    }
+
+    .command-item.active {
       background: rgba(88, 166, 255, 0.08);
     }
 
-    .command-card h3 {
-      font-size: 1.12rem;
-      margin-bottom: 0.45rem;
-      line-height: 1.3;
+    .command-title {
+      font-size: 0.95rem;
+      color: var(--text);
     }
 
-    .command-card p {
-      color: var(--text-secondary);
-    }
-
-    .meta-stack {
-      display: grid;
-      gap: 0.7rem;
-      margin: 1rem 0;
-    }
-
-    .meta-item {
-      border-left: 2px solid rgba(255, 255, 255, 0.08);
-      padding-left: 0.7rem;
-    }
-
-    .meta-item strong {
-      display: block;
-      color: var(--text-primary);
-      font-size: 0.92rem;
-      margin-bottom: 0.12rem;
-    }
-
-    .terminal-block {
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #03070d;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-top: 0.95rem;
-    }
-
-    .terminal-label {
-      padding: 0.55rem 0.8rem;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .terminal-block pre {
-      padding: 0.95rem;
-      overflow-x: auto;
+    .command-code {
       font-family: var(--font-mono);
       font-size: 0.86rem;
-      line-height: 1.55;
-      color: #c9d1d9;
-      white-space: pre-wrap;
+      color: #9cd3ff;
+      line-height: 1.5;
       word-break: break-word;
     }
 
-    .terminal-block.command-view pre {
+    .output-wrap {
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .selected-title {
+      font-size: 1.05rem;
+    }
+
+    .terminal {
+      border: 1px solid rgba(240, 246, 252, 0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #05080d;
+    }
+
+    .terminal-bar {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid rgba(240, 246, 252, 0.08);
+      background: rgba(240, 246, 252, 0.03);
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    pre {
+      margin: 0;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .command-preview {
       color: #9cd3ff;
     }
 
-    .takeaway {
-      margin-top: 0.95rem;
-      color: var(--text-secondary);
+    .output-preview {
+      color: #c9d1d9;
+      min-height: 420px;
     }
 
-    .takeaway strong {
-      color: var(--text-primary);
-    }
-
-    .playbook-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1rem;
-    }
-
-    .playbook-card {
-      border: 1px solid var(--border-subtle);
-      border-radius: 20px;
-      background: rgba(13, 17, 23, 0.9);
-      box-shadow: var(--shadow-soft);
-      overflow: hidden;
-    }
-
-    .playbook-card summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 1.15rem;
-      display: grid;
-      gap: 0.7rem;
-    }
-
-    .playbook-card summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .playbook-card[open] summary {
-      border-bottom: 1px solid var(--border-subtle);
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .playbook-card h3 {
-      font-size: 1.08rem;
-      line-height: 1.35;
-    }
-
-    .playbook-card p {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-    }
-
-    .playbook-body {
-      padding: 1.15rem;
-      display: grid;
-      gap: 1rem;
-    }
-
-    .playbook-section h4 {
-      font-size: 0.92rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-bottom: 0.45rem;
-    }
-
-    .playbook-list {
-      display: grid;
-      gap: 0.45rem;
-      color: var(--text-secondary);
-      padding-left: 1rem;
-    }
-
-    .rules-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .rule-card {
-      border: 1px solid var(--border-subtle);
-      border-radius: 18px;
-      padding: 1rem;
-      background: rgba(17, 24, 38, 0.85);
-    }
-
-    .rule-card h3 {
-      font-size: 1rem;
-      margin-bottom: 0.45rem;
-    }
-
-    .rule-card p {
-      color: var(--text-secondary);
-      font-size: 0.94rem;
-    }
-
-    .empty-state {
-      border: 1px dashed var(--border-strong);
-      border-radius: 18px;
-      padding: 1.5rem;
-      text-align: center;
-      color: var(--text-secondary);
-      background: rgba(17, 24, 38, 0.55);
-    }
-
-    @media (max-width: 760px) {
-      .container {
-        padding: 0 1rem;
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
       }
 
-      .hero-shell,
-      .panel {
-        padding: 1.1rem;
+      .command-list {
+        max-height: 42vh;
       }
 
-      .panel-head,
-      .section-head,
-      .card-top {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .copy-btn {
-        width: 100%;
+      .output-preview {
+        min-height: 280px;
       }
     }
   </style>
@@ -582,1449 +243,549 @@
   <div class="container">
     <header>
       <div class="breadcrumb"><a href="index.html">&larr; Back to Hub</a> / Guides</div>
-      <div class="hero-shell">
-        <div class="hero-topline">SRE Reference &middot; Simulated Outputs &middot; Troubleshooting First</div>
-        <h1>How-To Playbook: SRE Command Atlas</h1>
-        <p class="intro">
-          This page is now a single place for practical Mac, Linux, Kubernetes, Terraform, Ansible, AWS CLI, and Docker commands. Every card shows what the command is for, when to use it, a representative output sample, and how to interpret the result during an incident.
-        </p>
-        <div class="meta-row">
-          <span class="meta-pill">Beginner-friendly commands</span>
-          <span class="meta-pill">Senior-level triage patterns</span>
-          <span class="meta-pill">Read-only and state-changing commands are labeled</span>
-          <span class="meta-pill">Outputs below are simulated examples, not literal production output</span>
-        </div>
-      </div>
+      <h1>Command Atlas</h1>
+      <p class="subtitle">Choose a technology, then click a command to see a simulated output.</p>
     </header>
 
-    <section class="panel">
-      <div class="panel-head">
-        <h2>How To Use This Page</h2>
-        <span class="panel-note">Start read-only. Filter by stack. Open the playbooks when you need a fast incident path.</span>
-      </div>
-      <div class="stats-grid" id="statsGrid"></div>
-    </section>
+    <div class="tech-tabs" id="techTabs"></div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Filter The Atlas</h2>
-        <span class="panel-note">Search by command name, stack, incident clue, or troubleshooting goal.</span>
-      </div>
-      <div class="search-wrap">
-        <label for="searchInput">Search commands, use cases, or technologies</label>
-        <input
-          class="search-input"
-          id="searchInput"
-          type="text"
-          placeholder="Try: crashloop, dns, tfplan, iam, port, logs, health, memory"
-        />
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Technology</span>
-        <div class="chip-row" id="stackFilters"></div>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Experience level</span>
-        <div class="chip-row" id="levelFilters"></div>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Command impact</span>
-        <div class="chip-row" id="safetyFilters"></div>
-      </div>
-    </section>
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2 id="listTitle">Commands</h2>
+          <span class="count" id="listCount"></span>
+        </div>
+        <div class="command-list" id="commandList"></div>
+      </section>
 
-    <section class="section-block">
-      <div class="section-head">
-        <h2>Command Atlas</h2>
-        <span class="results-count" id="resultsCount"></span>
-      </div>
-      <div class="command-grid" id="commandGrid"></div>
-    </section>
-
-    <section class="section-block">
-      <div class="section-head">
-        <h2>Incident Cheat Sheets</h2>
-        <span class="section-note">These playbooks stay biased toward safe evidence gathering before remediation.</span>
-      </div>
-      <div class="playbook-grid" id="playbookGrid"></div>
-    </section>
-
-    <section class="panel section-block">
-      <div class="panel-head">
-        <h2>Fast Rules For SREs</h2>
-        <span class="panel-note">Simple habits that prevent noisy incidents from turning into bigger outages.</span>
-      </div>
-      <div class="rules-grid">
-        <article class="rule-card">
-          <h3>Verify scope first</h3>
-          <p>Check the active account, region, cluster, namespace, host, and inventory before touching anything. Half of incident pain comes from fixing the wrong place.</p>
-        </article>
-        <article class="rule-card">
-          <h3>Read before write</h3>
-          <p>Look at logs, events, describe output, plans, and health checks before restarts or applies. Evidence disappears quickly after you change state.</p>
-        </article>
-        <article class="rule-card">
-          <h3>Change one variable</h3>
-          <p>Restart one deployment, target one host, or apply one reviewed plan. Small blast radius makes rollback and root cause much easier.</p>
-        </article>
-        <article class="rule-card">
-          <h3>Capture the clue trail</h3>
-          <p>Write down timestamps, pod names, instance IDs, request IDs, and exact commands. That turns troubleshooting into a repeatable playbook instead of memory work.</p>
-        </article>
-      </div>
-    </section>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Simulated Output</h2>
+        </div>
+        <div class="output-wrap">
+          <div class="selected-title" id="selectedTitle"></div>
+          <div class="terminal">
+            <div class="terminal-bar">Command</div>
+            <pre class="command-preview" id="selectedCommand"></pre>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">Output</div>
+            <pre class="output-preview" id="selectedOutput"></pre>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
-    const stackAccent = {
-      "macOS": "var(--accent-mac)",
-      "Linux": "var(--accent-linux)",
-      "Kubernetes": "var(--accent-k8s)",
-      "Terraform": "var(--accent-terraform)",
-      "Ansible": "var(--accent-ansible)",
-      "AWS CLI": "var(--accent-aws)",
-      "Docker": "var(--accent-docker)"
-    };
-
-    const commandCatalog = [
-      {
-        stack: "macOS",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Map network adapters",
-        command: "networksetup -listallhardwareports",
-        purpose: "Shows the friendly adapter name, BSD device name, and MAC address for every local interface.",
-        useCase: "Use this before packet capture, VPN debugging, or when you need to know whether Wi-Fi is en0 or en1 on this Mac.",
-        output: `Hardware Port: Wi-Fi
-Device: en0
-Ethernet Address: ac:de:48:00:11:22`,
-        takeaway: "If you point troubleshooting tools at the wrong interface name, every next step is misleading."
-      },
-      {
-        stack: "macOS",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Dump the active DNS resolver chain",
-        command: "scutil --dns",
-        purpose: "Prints the resolvers, search domains, and interface bindings that macOS is actually using.",
-        useCase: "Use this when DNS works on Wi-Fi but not on VPN, or when split-DNS makes one hostname resolve differently than expected.",
-        output: `resolver #1
-  search domain[0] : corp.example.com
-  nameserver[0] : 10.0.0.2
-  if_index : 14 (en0)`,
-        takeaway: "Look for the wrong nameserver, stale VPN search domain, or an unexpected interface binding."
-      },
-      {
-        stack: "macOS",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "See which process owns a listening TCP port",
-        command: "lsof -iTCP -sTCP:LISTEN -n -P",
-        purpose: "Lists processes that are currently listening on TCP ports without doing DNS or service-name lookups.",
-        useCase: "Use this when localhost is busy, a dev service says port already allocated, or you need to confirm that a daemon is actually listening.",
-        output: `COMMAND   PID USER   FD   TYPE             NAME
-node    48211 bob   22u  IPv6             TCP *:3000 (LISTEN)
-nginx    1245 root   6u  IPv4             TCP *:80 (LISTEN)`,
-        takeaway: "If the expected process is missing, the app is down. If the wrong process owns the port, fix the conflict first."
-      },
-      {
-        stack: "macOS",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Sort hot processes by CPU",
-        command: "top -o cpu -stats pid,command,cpu,mem,time",
-        purpose: "Shows the busiest processes on the machine with CPU, memory, and runtime at a glance.",
-        useCase: "Use this when the laptop is sluggish, fans are loud, or a local build feels stuck.",
-        output: `PID   COMMAND      CPU%   MEM     TIME
-611   Google Chrome  79.3  1824M  01:42:15
-48211 node           54.1   612M  00:18:04`,
-        takeaway: "A single runaway process is often easier to fix than vague 'the Mac is slow' reports."
-      },
-      {
-        stack: "macOS",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Inspect recent sshd log lines",
-        command: "log show --style compact --last 15m --predicate 'process == \"sshd\"'",
-        purpose: "Queries the unified macOS log for SSH daemon activity over a short time window.",
-        useCase: "Use this when remote login fails, you need to prove whether auth reached the host, or you are checking repeated brute-force noise.",
-        output: `Timestamp               Ty Process EventMessage
-2026-03-29 09:15:42.211 sshd   Accepted publickey for bob from 10.0.3.7 port 53314
-2026-03-29 09:17:01.992 sshd   Failed password for invalid user admin from 10.0.3.9`,
-        takeaway: "This quickly separates a network path issue from an authentication or key problem."
-      },
-      {
-        stack: "macOS",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Verify Apple Command Line Tools",
-        command: "xcode-select -p",
-        purpose: "Returns the active developer tools path or errors if Command Line Tools are missing.",
-        useCase: "Use this when git, clang, make, or Homebrew formulas fail because the toolchain is incomplete.",
-        output: `/Library/Developer/CommandLineTools`,
-        takeaway: "If this prints an error instead of a path, your build environment is not ready yet."
-      },
-      {
-        stack: "macOS",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Audit Homebrew health",
-        command: "brew doctor",
-        purpose: "Runs Brew diagnostics and points out unsupported files, PATH issues, or missing symlinks.",
-        useCase: "Use this when CLI tools installed with Brew behave oddly or Brew itself complains during upgrade.",
-        output: `Your system is ready to brew.
-Warning: Unbrewed header files were found in /usr/local/include.`,
-        takeaway: "Warnings here often explain why binaries or headers resolve differently than you expect."
-      },
-      {
-        stack: "macOS",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Resolve a hostname through the local cache",
-        command: "dscacheutil -q host -a name github.com",
-        purpose: "Asks the local directory service cache for the host record it currently knows about.",
-        useCase: "Use this to compare resolver output versus cached answers when troubleshooting inconsistent hostname resolution.",
-        output: `name: github.com
-ip_address: 140.82.114.4`,
-        takeaway: "If the answer is stale or missing, clear cache and compare again with the active resolver chain."
-      },
-      {
-        stack: "Linux",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Fingerprint the running kernel and OS",
-        command: "uname -a",
-        purpose: "Prints the system name, kernel version, architecture, and build details.",
-        useCase: "Use this at the start of a session so you know what platform you are actually debugging.",
-        output: `Linux web-01 5.15.0-102-generic #112-Ubuntu SMP x86_64 GNU/Linux`,
-        takeaway: "Kernel version matters for package availability, filesystem behavior, and known bugs."
-      },
-      {
-        stack: "Linux",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Check uptime and load averages",
-        command: "uptime",
-        purpose: "Shows how long the host has been up, logged-in users, and recent load averages.",
-        useCase: "Use this when a host is slow or when you want a quick smell test for CPU saturation.",
-        output: `10:24:09 up 18 days,  3:11,  2 users,  load average: 7.42, 6.90, 4.11`,
-        takeaway: "If load averages are far above CPU core count, the box is under real pressure."
-      },
-      {
-        stack: "Linux",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "See memory pressure and swap usage",
-        command: "free -h",
-        purpose: "Summarizes RAM, buffers, cache, and swap in human readable units.",
-        useCase: "Use this to confirm whether a slow app is memory-starved or swapping heavily.",
-        output: `               total   used   free  shared  buff/cache  available
-Mem:            31Gi   28Gi  1.1Gi   512Mi       2.3Gi       1.8Gi
-Swap:            8Gi  3.2Gi   4.8Gi`,
-        takeaway: "High used swap plus low available memory is a strong signal of memory contention."
-      },
-      {
-        stack: "Linux",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Check filesystem usage",
-        command: "df -h",
-        purpose: "Shows space usage by mounted filesystem with human readable sizes.",
-        useCase: "Use this first whenever you see 'no space left on device' or pods fail because the node disk is full.",
-        output: `Filesystem      Size  Used Avail Use% Mounted on
-/dev/nvme0n1p1   80G   76G  1.2G  99% /`,
-        takeaway: "A full root filesystem explains broken package installs, logging failures, and container restarts."
-      },
-      {
-        stack: "Linux",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Find large directories under /var",
-        command: "du -xh /var --max-depth=1 | sort -h | tail",
-        purpose: "Ranks the biggest directories under /var so you can locate runaway logs, caches, or container layers.",
-        useCase: "Use this after df shows a full disk and you need to identify where the space went.",
-        output: `1.1G  /var/cache
-12G   /var/lib
-18G   /var/log`,
-        takeaway: "This narrows disk cleanup to the real offender instead of deleting random files."
-      },
-      {
-        stack: "Linux",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Show top CPU consumers with process details",
-        command: "ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head",
-        purpose: "Gives a sortable process snapshot including parent PID and resource usage.",
-        useCase: "Use this when top is noisy and you want a copyable list of the hottest processes.",
-        output: `  PID  PPID CMD                         %MEM %CPU
-18277 18210 java -jar api.jar             28.4 312
-  921     1 /usr/bin/containerd           11.2  48`,
-        takeaway: "Parent PID helps you connect a hot worker process back to the service that launched it."
-      },
-      {
-        stack: "Linux",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Show listening sockets and owning processes",
-        command: "ss -tulpn",
-        purpose: "Lists listening TCP and UDP sockets with the process that owns each one.",
-        useCase: "Use this when a port is unreachable, a service is bound to localhost only, or a conflict blocks startup.",
-        output: `Netid State  Local Address:Port  Process
-tcp   LISTEN 127.0.0.1:8080      users:(("java",pid=18277,fd=123))
-tcp   LISTEN   0.0.0.0:22        users:(("sshd",pid=812,fd=3))`,
-        takeaway: "If a service is bound to 127.0.0.1 instead of 0.0.0.0, remote clients will never reach it."
-      },
-      {
-        stack: "Linux",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Read recent service logs",
-        command: "journalctl -u nginx -n 100 --no-pager",
-        purpose: "Shows the latest systemd journal lines for one service.",
-        useCase: "Use this as soon as a service fails health checks, restarts repeatedly, or returns 5xx.",
-        output: `Mar 29 10:18:07 web-01 nginx[1442]: connect() failed (111: Connection refused) while connecting to upstream
-Mar 29 10:18:07 web-01 systemd[1]: nginx.service: Succeeded.`,
-        takeaway: "The log usually tells you whether the problem is inside nginx or in the upstream application."
-      },
-      {
-        stack: "Linux",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Check systemd service state",
-        command: "systemctl status nginx",
-        purpose: "Displays whether a service is active, failed, restarting, or disabled.",
-        useCase: "Use this when a daemon seems down and you need a quick status plus the latest log summary.",
-        output: `● nginx.service - A high performance web server
-   Active: failed (Result: exit-code) since Sat 2026-03-29 10:18:07 UTC
-   Main PID: 1442 (code=exited, status=1/FAILURE)`,
-        takeaway: "A failed unit with an exit code points you directly to logs and recent config changes."
-      },
-      {
-        stack: "Linux",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Inspect recent kernel messages",
-        command: "dmesg --ctime | tail -n 50",
-        purpose: "Prints the latest kernel ring buffer messages with human timestamps.",
-        useCase: "Use this when you suspect OOM kills, disk I/O errors, driver faults, or networking drops below user space.",
-        output: `[Sat Mar 29 10:19:22 2026] Out of memory: Killed process 18277 (java) total-vm:8052668kB
-[Sat Mar 29 10:20:11 2026] nvme0n1: I/O 981 QID 3 timeout, reset controller`,
-        takeaway: "Kernel-level errors explain incidents that never show up in application logs."
-      },
-      {
-        stack: "Linux",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Probe a local TLS health endpoint",
-        command: "curl -vk https://127.0.0.1/health",
-        purpose: "Tests an HTTP or HTTPS endpoint locally while printing handshake details and headers.",
-        useCase: "Use this when the load balancer says unhealthy and you need to know whether the app works from the node itself.",
-        output: `* Connected to 127.0.0.1 (127.0.0.1) port 443
-> GET /health HTTP/1.1
-< HTTP/1.1 503 Service Unavailable`,
-        takeaway: "If localhost already returns 503, the problem is inside the host or app, not just the external network."
-      },
-      {
-        stack: "Linux",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Capture a short packet sample on port 443",
-        command: "tcpdump -ni eth0 port 443 -c 20",
-        purpose: "Sniffs a bounded number of packets without name resolution so you can see whether traffic reaches the host.",
-        useCase: "Use this when security groups, firewalls, or upstream devices are suspected and you need packet-level truth.",
-        output: `10:22:15.112233 IP 10.1.4.15.52544 > 10.1.2.20.443: Flags [S], seq 1742
-10:22:15.112260 IP 10.1.2.20.443 > 10.1.4.15.52544: Flags [S.], ack 1743`,
-        takeaway: "A SYN with no reply means the host or network path is blocking. SYN and SYN-ACK means the path is alive."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Confirm the active kube context",
-        command: "kubectl config current-context",
-        purpose: "Prints the cluster context kubectl will target right now.",
-        useCase: "Use this before any troubleshooting or remediation so you do not inspect or change the wrong cluster.",
-        output: `prod-eks-eu-central-1`,
-        takeaway: "Context mistakes are one of the fastest ways to create accidental incidents."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Get a cluster-wide pod view",
-        command: "kubectl get pods -A -o wide",
-        purpose: "Lists pods across namespaces with node placement, IPs, and high-level status.",
-        useCase: "Use this first when you need a broad picture of what is broken and whether the issue is isolated or widespread.",
-        output: `NAMESPACE   NAME                         READY STATUS             NODE
-prod        api-7d8b9f69b6-j22ds         0/1   CrashLoopBackOff   ip-10-0-14-21
-ingress     nginx-ingress-5d9488d4b6     1/1   Running            ip-10-0-10-11`,
-        takeaway: "Wide output helps you spot if failures cluster on one node, one namespace, or one rollout."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Describe a single troubled pod",
-        command: "kubectl describe pod api-7d8b9f69b6-j22ds -n prod",
-        purpose: "Shows conditions, events, probes, volume mounts, images, and the latest scheduler and kubelet clues.",
-        useCase: "Use this when a pod is Pending, CrashLooping, or failing readiness and you need context beyond the short status line.",
-        output: `Events:
-  Warning  BackOff    2m12s  kubelet  Back-off restarting failed container
-  Warning  Unhealthy  48s    kubelet  Readiness probe failed: HTTP probe failed with statuscode: 500`,
-        takeaway: "Events often explain the failure faster than logs alone because they include scheduling and probe history."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Tail deployment logs",
-        command: "kubectl logs deploy/api -n prod --tail=100",
-        purpose: "Streams or prints recent logs from the current replica set behind a deployment.",
-        useCase: "Use this when the app is crashing, returning 500, or after a fresh rollout looks suspicious.",
-        output: `2026-03-29T10:14:08Z ERROR database connection failed: dial tcp 10.2.4.19:5432: i/o timeout
-2026-03-29T10:14:09Z INFO retrying in 5s`,
-        takeaway: "Application logs usually tell you which dependency is failing next."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Sort recent cluster events",
-        command: "kubectl get events -A --sort-by=.metadata.creationTimestamp",
-        purpose: "Builds a time-ordered event feed across namespaces.",
-        useCase: "Use this during active incidents to see image pulls, probe failures, evictions, reschedules, and policy denials in one place.",
-        output: `prod     Warning  FailedScheduling  pod/api-7d8b9f69b6-j22ds  0/6 nodes available: insufficient memory
-prod     Warning  BackOff           pod/api-7d8b9f69b6-j22ds  Back-off restarting failed container`,
-        takeaway: "Events create the timeline. They are especially valuable when multiple components fail together."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Check pod and container resource pressure",
-        command: "kubectl top pod -A --containers",
-        purpose: "Shows current CPU and memory consumption if metrics-server is available.",
-        useCase: "Use this when requests are slow, nodes are hot, or you suspect one container is starving the node.",
-        output: `NAMESPACE POD                    CONTAINER CPU(cores) MEMORY(bytes)
-prod      api-7d8b9f69b6-j22ds   api       920m       768Mi`,
-        takeaway: "If this command fails, metrics-server may be missing. If it works, you get quick evidence for sizing issues."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Map Services to endpoints",
-        command: "kubectl get svc,endpoints -n prod",
-        purpose: "Shows service ClusterIPs and the backing pod IPs currently registered as endpoints.",
-        useCase: "Use this when traffic reaches the Service but not the app, or when a load balancer looks healthy but requests fail.",
-        output: `NAME           TYPE        CLUSTER-IP    PORT(S)
-service/api    ClusterIP   10.100.7.12   80/TCP
-endpoints/api  <none>`,
-        takeaway: "An empty endpoint list means the Service selector found no ready pods."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Wait on rollout status",
-        command: "kubectl rollout status deployment/api -n prod",
-        purpose: "Watches the rollout controller and reports whether the new ReplicaSet becomes available.",
-        useCase: "Use this after a deployment change to see whether the release finishes or stalls.",
-        output: `Waiting for deployment "api" rollout to finish: 1 out of 4 new replicas have been updated...
-deployment "api" exceeded its progress deadline`,
-        takeaway: "A progress deadline failure means the rollout changed state but the new pods never stabilized."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Test RBAC before blaming the API",
-        command: "kubectl auth can-i get secrets -n prod",
-        purpose: "Checks whether the current identity is authorized for an action.",
-        useCase: "Use this when kubectl says forbidden and you need to prove whether the issue is RBAC, auth, or context.",
-        output: `no`,
-        takeaway: "A clean 'no' is much faster than guessing whether the API server or IAM bridge is broken."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Senior",
-        safety: "Low-risk",
-        title: "Open a shell in the running workload",
-        command: "kubectl exec -it deploy/api -n prod -- sh",
-        purpose: "Starts an interactive shell inside one pod replica for live inspection.",
-        useCase: "Use this to inspect environment variables, DNS, mounted secrets, certificates, or local connectivity from the app container.",
-        output: `/app # env | grep DATABASE_URL
-DATABASE_URL=postgres://api@db.prod.internal:5432/app`,
-        takeaway: "Exec is powerful, but it inspects one live replica. Always confirm the pod you entered is the right one."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Diff manifests before apply",
-        command: "kubectl diff -f manifest.yaml",
-        purpose: "Shows the live-versus-local manifest difference using kubectl's server-side diff.",
-        useCase: "Use this to review a change before apply, especially when incidents tempt you to rush a hotfix.",
-        output: `@@ Deployment api @@
-- image: registry.example.com/api:1.9.4
-+ image: registry.example.com/api:1.9.5`,
-        takeaway: "A short diff is much safer than applying a manifest and hoping only one field changed."
-      },
-      {
-        stack: "Kubernetes",
-        level: "Senior",
-        safety: "Changes state",
-        title: "Restart a deployment rollout",
-        command: "kubectl rollout restart deployment/api -n prod",
-        purpose: "Triggers a new rollout by patching the deployment template annotation.",
-        useCase: "Use this after config or secret changes, or when you intentionally want fresh pods without editing the manifest.",
-        output: `deployment.apps/api restarted`,
-        takeaway: "This is a deliberate state change. Capture evidence first so you do not erase the original failure conditions."
-      },
-      {
-        stack: "Terraform",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Enforce formatting before review",
-        command: "terraform fmt -check -recursive",
-        purpose: "Checks whether Terraform files follow canonical formatting without rewriting them.",
-        useCase: "Use this in local review or CI to catch noise before you discuss real infrastructure changes.",
-        output: `modules/vpc/main.tf
-environments/prod/ecs.tf`,
-        takeaway: "If it prints files, formatting drift exists and should be cleaned before deeper review."
-      },
-      {
-        stack: "Terraform",
-        level: "Beginner",
-        safety: "Low-risk",
-        title: "Initialize providers and modules",
-        command: "terraform init -upgrade",
-        purpose: "Downloads or upgrades providers and modules required by the current configuration.",
-        useCase: "Use this before validate or plan, especially after provider version bumps or a fresh clone.",
-        output: `Initializing provider plugins...
-- Finding hashicorp/aws versions matching "~> 5.0"...
-- Installed hashicorp/aws v5.47.0`,
-        takeaway: "Init proves whether the workspace can even talk to the required provider ecosystem."
-      },
-      {
-        stack: "Terraform",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Validate configuration shape",
-        command: "terraform validate",
-        purpose: "Checks syntax and internal references without contacting the provider APIs.",
-        useCase: "Use this before plan to catch simple mistakes such as unknown variables, bad references, or malformed blocks.",
-        output: `Success! The configuration is valid.`,
-        takeaway: "A valid config can still plan dangerous changes, but an invalid config cannot safely move forward."
-      },
-      {
-        stack: "Terraform",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Create a saved execution plan",
-        command: "terraform plan -out=tfplan",
-        purpose: "Builds a provider-aware plan and stores it for later review or apply.",
-        useCase: "Use this when you want deterministic review before making any change to live infrastructure.",
-        output: `Plan: 2 to add, 1 to change, 0 to destroy.
-Saved the plan to: tfplan`,
-        takeaway: "Saving the plan separates review from execution and reduces 'I planned one thing and applied another' mistakes."
-      },
-      {
-        stack: "Terraform",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Read the saved plan in plain text",
-        command: "terraform show tfplan",
-        purpose: "Expands a saved binary plan so humans can inspect the exact resource actions.",
-        useCase: "Use this to verify why a replacement is happening, which attributes drifted, and whether the blast radius is acceptable.",
-        output: `# aws_db_instance.app must be replaced
--/+ resource "aws_db_instance" "app" {
-    allocated_storage = 100 -> 200`,
-        takeaway: "If a plan wants to replace something expensive, show output helps you pinpoint the triggering field."
-      },
-      {
-        stack: "Terraform",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "List everything tracked in state",
-        command: "terraform state list",
-        purpose: "Prints the resources and data sources Terraform currently believes it manages in this workspace.",
-        useCase: "Use this when you suspect drift, import mistakes, or you simply need the exact resource address for further inspection.",
-        output: `aws_vpc.main
-aws_subnet.private[0]
-module.ecs.aws_ecs_service.api`,
-        takeaway: "State list is the index. It tells you what Terraform thinks is in scope right now."
-      },
-      {
-        stack: "Terraform",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Inspect one resource exactly as state knows it",
-        command: "terraform state show aws_instance.web",
-        purpose: "Displays the full recorded attributes for a single managed resource address.",
-        useCase: "Use this when plan output is too short and you need to compare real tracked attributes against code or cloud reality.",
-        output: `# aws_instance.web:
-resource "aws_instance" "web" {
-  id = "i-0a12bc34def567890"
-  private_ip = "10.0.12.44"
-}`,
-        takeaway: "This is the fastest way to connect Terraform addresses to real cloud resource IDs."
-      },
-      {
-        stack: "Terraform",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Confirm provider dependency tree",
-        command: "terraform providers",
-        purpose: "Shows which providers and versions are required by the root module and all child modules.",
-        useCase: "Use this during plugin version conflicts or when one module quietly pins an older provider.",
-        output: `Providers required by configuration:
-.
-├── provider[registry.terraform.io/hashicorp/aws] ~> 5.0
-└── module.eks
-    └── provider[registry.terraform.io/hashicorp/kubernetes] >= 2.25.0`,
-        takeaway: "This helps explain strange init failures and mismatched provider behavior across modules."
-      },
-      {
-        stack: "Terraform",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Evaluate expressions in terraform console",
-        command: "terraform console",
-        purpose: "Opens an interactive REPL for testing expressions, locals, and outputs.",
-        useCase: "Use this when complex interpolation, conditionals, or maps behave differently than expected.",
-        output: `> cidrsubnet("10.0.0.0/16", 4, 3)
-"10.0.48.0/20"`,
-        takeaway: "Console is excellent for debugging logic without running a full plan loop every time."
-      },
-      {
-        stack: "Terraform",
-        level: "Senior",
-        safety: "Changes state",
-        title: "Clear a stuck remote state lock",
-        command: "terraform force-unlock LOCK_ID",
-        purpose: "Removes a lock entry when the previous run died and left the workspace blocked.",
-        useCase: "Use this only after verifying no active Terraform process is still legitimately holding the lock.",
-        output: `Terraform state has been successfully unlocked!`,
-        takeaway: "Force-unlock is a recovery tool, not a habit. Wrong use can corrupt concurrent workflows."
-      },
-      {
-        stack: "Terraform",
-        level: "Senior",
-        safety: "Changes state",
-        title: "Apply the reviewed plan file",
-        command: "terraform apply tfplan",
-        purpose: "Executes the exact actions stored in a previously reviewed plan file.",
-        useCase: "Use this to make infrastructure changes after review, not as a replacement for planning.",
-        output: `aws_security_group.api: Modifying... [id=sg-0ab123]
-Apply complete! Resources: 0 added, 1 changed, 0 destroyed.`,
-        takeaway: "Applying a saved plan is safer than applying fresh because it avoids last-second drift surprises."
-      },
-      {
-        stack: "Ansible",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Visualize inventory layout",
-        command: "ansible-inventory -i inventory.ini --graph",
-        purpose: "Shows group membership and host structure from the chosen inventory.",
-        useCase: "Use this first when a playbook seems to skip hosts or when you need to confirm targeting before a run.",
-        output: `@all:
-  |--@web:
-  |  |--web-01
-  |  |--web-02`,
-        takeaway: "Bad inventory structure causes cleanly written playbooks to hit the wrong hosts."
-      },
-      {
-        stack: "Ansible",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Test basic host reachability",
-        command: "ansible all -i inventory.ini -m ping",
-        purpose: "Uses the ping module to confirm SSH, Python, and inventory reachability.",
-        useCase: "Use this before blaming a playbook when the real problem is network path, SSH keys, or Python availability.",
-        output: `web-01 | SUCCESS => { "ping": "pong" }
-db-01  | UNREACHABLE! => Failed to connect to the host via ssh`,
-        takeaway: "If ping fails, fix transport first. The playbook is rarely the first problem."
-      },
-      {
-        stack: "Ansible",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Run a quick ad-hoc uptime command",
-        command: "ansible all -i inventory.ini -a \"uptime\"",
-        purpose: "Executes a simple shell command across many hosts without a full playbook.",
-        useCase: "Use this during incident triage when you need fast confirmation that a host group is alive and responding.",
-        output: `web-01 | CHANGED | rc=0 >>
- 10:42:11 up 3 days,  4:12,  1 user,  load average: 0.51, 0.38, 0.27`,
-        takeaway: "Ad-hoc commands are ideal for quick evidence gathering before you build or edit a playbook."
-      },
-      {
-        stack: "Ansible",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Syntax-check a playbook",
-        command: "ansible-playbook site.yml --syntax-check",
-        purpose: "Validates YAML and playbook structure without executing tasks.",
-        useCase: "Use this before review or CI, especially after editing conditionals, loops, or include files.",
-        output: `playbook: site.yml`,
-        takeaway: "Syntax-check is cheap and catches obvious mistakes before they waste a real change window."
-      },
-      {
-        stack: "Ansible",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Dry-run with check mode and diff",
-        command: "ansible-playbook site.yml --check --diff",
-        purpose: "Simulates task changes and shows before-and-after diffs where supported.",
-        useCase: "Use this to preview configuration drift and validate your intent before a live run.",
-        output: `TASK [nginx : template nginx.conf]
---- before
-+++ after
-@@ server_name api.old.example.com -> api.example.com`,
-        takeaway: "Check mode is not perfect, but it is one of the best ways to reduce accidental change blast radius."
-      },
-      {
-        stack: "Ansible",
-        level: "Advanced",
-        safety: "Changes state",
-        title: "Run only the web tag on web hosts",
-        command: "ansible-playbook site.yml --limit web --tags nginx",
-        purpose: "Executes a narrow subset of tasks against a narrowed host target.",
-        useCase: "Use this when you need a controlled remediation instead of running the whole automation estate.",
-        output: `PLAY [web]
-TASK [nginx : restart nginx] changed: [web-01]
-PLAY RECAP web-01 : ok=8 changed=1 failed=0`,
-        takeaway: "Limit plus tags is the Ansible version of blast-radius control."
-      },
-      {
-        stack: "Ansible",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Inspect a service with privilege escalation",
-        command: "ansible all -i inventory.ini -b -m shell -a \"systemctl status nginx --no-pager\"",
-        purpose: "Runs a root-level inspection command across hosts through Ansible.",
-        useCase: "Use this when application owners say 'nginx is down everywhere' and you need fast fleet-wide truth.",
-        output: `web-02 | CHANGED | rc=3 >>
-Active: failed (Result: exit-code) since Sat 2026-03-29 10:14:02 UTC`,
-        takeaway: "This lets you sample many hosts without opening dozens of SSH sessions."
-      },
-      {
-        stack: "Ansible",
-        level: "Senior",
-        safety: "Read-only",
-        title: "View vaulted secrets intentionally",
-        command: "ansible-vault view group_vars/prod/vault.yml",
-        purpose: "Decrypts and prints one vault file for inspection.",
-        useCase: "Use this when a playbook fails because a secret changed, a variable is missing, or a credential looks outdated.",
-        output: `db_password: s3cr3t-redacted
-slack_webhook_url: https://hooks.slack.com/services/...`,
-        takeaway: "Handle this carefully. The command is read-only, but the data is still sensitive."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "See who AWS thinks you are",
-        command: "aws sts get-caller-identity",
-        purpose: "Returns the current IAM ARN, account ID, and user or role context.",
-        useCase: "Use this first whenever permissions look wrong or you are unsure which profile or role is active.",
-        output: `{
-  "UserId": "AROA123EXAMPLE:bob",
-  "Account": "123456789012",
-  "Arn": "arn:aws:sts::123456789012:assumed-role/Admin/bob"
-}`,
-        takeaway: "This one command prevents a lot of 'why is prod broken' confusion caused by working in the wrong account."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Show active CLI config sources",
-        command: "aws configure list",
-        purpose: "Explains which credentials, profile, and region values the CLI is actually using.",
-        useCase: "Use this when commands fail with missing region, expired credentials, or unexpected profile behavior.",
-        output: `      Name                    Value             Type    Location
-   profile                  prod-sre           manual  --profile
-    region              eu-central-1      config-file  ~/.aws/config`,
-        takeaway: "If the region or credential source is wrong here, every downstream API call will be misleading."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Query EC2 instances as a compact table",
-        command: "aws ec2 describe-instances --filters Name=tag:Role,Values=web --query 'Reservations[].Instances[].[InstanceId,State.Name,PrivateIpAddress,Placement.AvailabilityZone]' --output table",
-        purpose: "Finds instances that match a filter and formats the result for fast human review.",
-        useCase: "Use this when you need the current fleet state without paging through raw JSON.",
-        output: `---------------------------------------------
-|         DescribeInstances                |
-+----------------------+---------+----------+
-| i-0ab123456789cdef0 | running | 10.0.1.14 | eu-central-1a |`,
-        takeaway: "Queries turn noisy AWS output into incident-friendly tables you can scan quickly."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Low-risk",
-        title: "Open an SSM shell to an instance",
-        command: "aws ssm start-session --target i-0ab123456789cdef0",
-        purpose: "Starts a Session Manager shell without direct SSH exposure.",
-        useCase: "Use this when you need host access but inbound SSH is disabled or tightly controlled.",
-        output: `Starting session with SessionId: bob-0f9e7d6c5b4a3210
-sh-4.2$`,
-        takeaway: "SSM is often the safest path to a host because it avoids opening network access just for troubleshooting."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Tail CloudWatch log groups live",
-        command: "aws logs tail /aws/ecs/prod-api --since 15m --follow",
-        purpose: "Streams recent CloudWatch log events for a group or stream prefix.",
-        useCase: "Use this when ECS, Lambda, or a managed service is failing and you need fresh logs right now.",
-        output: `2026-03-29T10:28:42 START RequestId=8f7f...
-2026-03-29T10:28:42 ERROR upstream timeout contacting db.prod.internal`,
-        takeaway: "This is one of the fastest ways to move from symptom to root dependency."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Read CloudFormation stack event history",
-        command: "aws cloudformation describe-stack-events --stack-name prod-network",
-        purpose: "Returns the chronological event log for a stack create, update, or rollback.",
-        useCase: "Use this when an update is stuck, rolled back, or failed deep in one nested resource.",
-        output: `2026-03-29T10:31:11Z  AWS::EC2::NatGateway      nat-a   CREATE_FAILED  Elastic IP address not found
-2026-03-29T10:31:12Z  AWS::CloudFormation::Stack prod-network UPDATE_ROLLBACK_IN_PROGRESS`,
-        takeaway: "Stack events tell you which exact resource failed and in what order."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Check ALB target health",
-        command: "aws elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalancing:eu-central-1:123456789012:targetgroup/prod-api/abc123",
-        purpose: "Shows whether targets are healthy and the reason code behind unhealthy status.",
-        useCase: "Use this when the load balancer serves 5xx, returns zero healthy hosts, or traffic disappears after deployment.",
-        output: `{
-  "TargetHealthDescriptions": [
-    { "Target": { "Id": "i-0ab123" }, "TargetHealth": { "State": "unhealthy", "Reason": "Target.ResponseCodeMismatch" } }
-  ]
-}`,
-        takeaway: "Reason codes translate a vague 'unhealthy' status into something actionable."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Check ECS service rollout state",
-        command: "aws ecs describe-services --cluster prod --services api",
-        purpose: "Returns desired count, running count, deployment state, and service events.",
-        useCase: "Use this when ECS tasks churn, never become steady, or a deployment stalls behind health checks.",
-        output: `{
-  "services": [
-    { "status": "ACTIVE", "desiredCount": 4, "runningCount": 2, "deployments": [{ "rolloutState": "FAILED" }] }
-  ]
-}`,
-        takeaway: "Running count below desired plus failed rollout state tells you the scheduler is trying and not succeeding."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Beginner",
-        safety: "Low-risk",
-        title: "Refresh kubeconfig from EKS",
-        command: "aws eks update-kubeconfig --name prod-eks --region eu-central-1",
-        purpose: "Writes or updates the local kubeconfig entry for an EKS cluster.",
-        useCase: "Use this when kubectl cannot reach the cluster or your local config is stale after account switching.",
-        output: `Added new context arn:aws:eks:eu-central-1:123456789012:cluster/prod-eks to /Users/bob/.kube/config`,
-        takeaway: "This changes local config only, but it is still a stateful step on your workstation."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Senior",
-        safety: "Read-only",
-        title: "Simulate IAM policy decisions",
-        command: "aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::123456789012:role/AppRole --action-names s3:GetObject --resource-arns arn:aws:s3:::prod-bucket/*",
-        purpose: "Evaluates whether a principal should be allowed for a specific action and resource set.",
-        useCase: "Use this when the app says AccessDenied and you need an evidence-based answer before editing IAM.",
-        output: `{
-  "EvaluationResults": [
-    { "EvalActionName": "s3:GetObject", "EvalDecision": "explicitDeny" }
-  ]
-}`,
-        takeaway: "This is one of the best ways to debug IAM without trial-and-error policy edits."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Inspect Auto Scaling desired versus current capacity",
-        command: "aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names prod-web",
-        purpose: "Returns desired, min, max, and instance lifecycle details for an ASG.",
-        useCase: "Use this when capacity is too low, instances are recycling, or scaling activity does not match alarms.",
-        output: `{
-  "AutoScalingGroups": [
-    { "AutoScalingGroupName": "prod-web", "MinSize": 4, "DesiredCapacity": 6, "Instances": [{ "InstanceId": "i-0ab123", "LifecycleState": "InService" }] }
-  ]
-}`,
-        takeaway: "Desired capacity tells you what the group wants. Instance state tells you whether the fleet caught up."
-      },
-      {
-        stack: "AWS CLI",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Summarize S3 objects and total size",
-        command: "aws s3 ls s3://prod-logs --human-readable --summarize",
-        purpose: "Lists objects in a prefix and ends with a total object count and byte size.",
-        useCase: "Use this when verifying whether logs, backups, or build artifacts were actually written to S3.",
-        output: `2026-03-29 10:18:12   14.2 MiB app-2026-03-29.log.gz
-Total Objects: 34
-   Total Size: 1.7 GiB`,
-        takeaway: "If the object count or total size is flat, your upstream writer may be stalled."
-      },
-      {
-        stack: "Docker",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "List running and exited containers",
-        command: "docker ps -a",
-        purpose: "Shows container status, image, command, ports, and exit state in one table.",
-        useCase: "Use this first when someone says 'Docker is down' but you do not yet know whether the container exited, restarted, or never launched.",
-        output: `CONTAINER ID   IMAGE        STATUS                     NAMES
-f9b1c2d3e4f5   api:1.9.4    Exited (1) 14 seconds ago   api
-7a6b5c4d3e2f   redis:7      Up 3 hours                 cache`,
-        takeaway: "Exited status with a recent timestamp points you straight to logs and startup behavior."
-      },
-      {
-        stack: "Docker",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Read recent container logs",
-        command: "docker logs api --tail 100",
-        purpose: "Prints the latest stdout and stderr from one container.",
-        useCase: "Use this when a container exits immediately, health checks fail, or you suspect bad configuration on startup.",
-        output: `2026-03-29T10:33:18Z ERROR failed to load config: missing REDIS_URL
-2026-03-29T10:33:18Z FATAL exiting`,
-        takeaway: "Startup logs usually reveal missing env vars, bad mounts, and fatal dependency failures."
-      },
-      {
-        stack: "Docker",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Inspect full container metadata",
-        command: "docker inspect api",
-        purpose: "Returns the full JSON definition for a container including env vars, mounts, networks, and restart policy.",
-        useCase: "Use this when container behavior does not match compose files or you need to prove what was really launched.",
-        output: `[
-  {
-    "Name": "/api",
-    "RestartCount": 5,
-    "HostConfig": { "RestartPolicy": { "Name": "always" } }
-  }
-]`,
-        takeaway: "Inspect is the source of truth for how Docker currently sees that container."
-      },
-      {
-        stack: "Docker",
-        level: "Advanced",
-        safety: "Low-risk",
-        title: "Open a shell inside a running container",
-        command: "docker exec -it api sh",
-        purpose: "Starts an interactive shell in the live container namespace.",
-        useCase: "Use this when you need to test DNS, env vars, file mounts, or localhost behavior from inside the container.",
-        output: `/app # printenv | grep REDIS_URL
-REDIS_URL=redis://cache:6379/0`,
-        takeaway: "Exec is extremely useful, but remember it shows the current live state, not the image build history."
-      },
-      {
-        stack: "Docker",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Watch live container CPU and memory",
-        command: "docker stats",
-        purpose: "Streams per-container CPU, memory, I/O, and network counters.",
-        useCase: "Use this when one container may be starving others or when you need quick evidence before tuning limits.",
-        output: `CONTAINER ID   NAME   CPU %   MEM USAGE / LIMIT
-f9b1c2d3e4f5   api    182.3%  1.4GiB / 2GiB`,
-        takeaway: "A container near its memory limit or using huge CPU is a likely source of instability."
-      },
-      {
-        stack: "Docker",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Check where Docker disk is going",
-        command: "docker system df",
-        purpose: "Summarizes space used by images, containers, local volumes, and build cache.",
-        useCase: "Use this after df shows disk pressure on a host that runs containers.",
-        output: `TYPE            TOTAL   ACTIVE   SIZE      RECLAIMABLE
-Images          24      6        13.1GB    9.4GB (71%)
-Local Volumes   8       5        5.2GB     1.1GB (21%)`,
-        takeaway: "This tells you whether image sprawl, dead containers, or volumes are the main disk consumer."
-      },
-      {
-        stack: "Docker",
-        level: "Advanced",
-        safety: "Read-only",
-        title: "Inspect Docker network wiring",
-        command: "docker network inspect bridge",
-        purpose: "Shows subnet, gateway, and connected containers for a Docker network.",
-        useCase: "Use this when containers cannot reach each other or you suspect an alias or bridge issue.",
-        output: `[
-  {
-    "Name": "bridge",
-    "IPAM": { "Config": [{ "Subnet": "172.17.0.0/16", "Gateway": "172.17.0.1" }] }
-  }
-]`,
-        takeaway: "Networking issues are much easier once you know which network and subnet the container actually joined."
-      },
-      {
-        stack: "Docker",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "See compose service state at a glance",
-        command: "docker compose ps",
-        purpose: "Shows the service-to-container mapping, current status, and exposed ports for a compose project.",
-        useCase: "Use this when one compose service is down but you need the full stack picture.",
-        output: `NAME          IMAGE       COMMAND       SERVICE   STATUS         PORTS
-project-api   api:1.9.4   "./start.sh"   api       Exit 1
-project-db    postgres:16 "docker-entry" db        Up 3 hours`,
-        takeaway: "This ties the higher-level compose service name to the underlying containers you need to inspect."
-      },
-      {
-        stack: "Docker",
-        level: "Beginner",
-        safety: "Read-only",
-        title: "Tail one compose service log stream",
-        command: "docker compose logs api --tail 100",
-        purpose: "Shows recent logs for a single service in a compose application.",
-        useCase: "Use this when compose is the control plane and container names are less obvious than service names.",
-        output: `api  | INFO starting migrations
-api  | ERROR dial tcp db:5432: connect: connection refused`,
-        takeaway: "Compose logs are often the fastest path from 'stack unhealthy' to the specific dependency that is missing."
-      },
-      {
-        stack: "Docker",
-        level: "Advanced",
-        safety: "Changes state",
-        title: "Restart one container deliberately",
-        command: "docker restart api",
-        purpose: "Stops and starts one container in place.",
-        useCase: "Use this only after gathering logs and state, or when you intentionally want to validate whether the issue is transient.",
-        output: `api`,
-        takeaway: "A restart can restore service, but it also destroys volatile evidence. Do not use it as your first diagnostic step."
+    const commands = [
+      {
+        "stack": "macOS",
+        "title": "Map network adapters",
+        "command": "networksetup -listallhardwareports",
+        "output": "Hardware Port: Wi-Fi\nDevice: en0\nEthernet Address: ac:de:48:00:11:22"
+      },
+      {
+        "stack": "macOS",
+        "title": "Dump the active DNS resolver chain",
+        "command": "scutil --dns",
+        "output": "resolver #1\n  search domain[0] : corp.example.com\n  nameserver[0] : 10.0.0.2\n  if_index : 14 (en0)"
+      },
+      {
+        "stack": "macOS",
+        "title": "See which process owns a listening TCP port",
+        "command": "lsof -iTCP -sTCP:LISTEN -n -P",
+        "output": "COMMAND   PID USER   FD   TYPE             NAME\nnode    48211 bob   22u  IPv6             TCP *:3000 (LISTEN)\nnginx    1245 root   6u  IPv4             TCP *:80 (LISTEN)"
+      },
+      {
+        "stack": "macOS",
+        "title": "Sort hot processes by CPU",
+        "command": "top -o cpu -stats pid,command,cpu,mem,time",
+        "output": "PID   COMMAND      CPU%   MEM     TIME\n611   Google Chrome  79.3  1824M  01:42:15\n48211 node           54.1   612M  00:18:04"
+      },
+      {
+        "stack": "macOS",
+        "title": "Inspect recent sshd log lines",
+        "command": "log show --style compact --last 15m --predicate 'process == \"sshd\"'",
+        "output": "Timestamp               Ty Process EventMessage\n2026-03-29 09:15:42.211 sshd   Accepted publickey for bob from 10.0.3.7 port 53314\n2026-03-29 09:17:01.992 sshd   Failed password for invalid user admin from 10.0.3.9"
+      },
+      {
+        "stack": "macOS",
+        "title": "Verify Apple Command Line Tools",
+        "command": "xcode-select -p",
+        "output": "/Library/Developer/CommandLineTools"
+      },
+      {
+        "stack": "macOS",
+        "title": "Audit Homebrew health",
+        "command": "brew doctor",
+        "output": "Your system is ready to brew.\nWarning: Unbrewed header files were found in /usr/local/include."
+      },
+      {
+        "stack": "macOS",
+        "title": "Resolve a hostname through the local cache",
+        "command": "dscacheutil -q host -a name github.com",
+        "output": "name: github.com\nip_address: 140.82.114.4"
+      },
+      {
+        "stack": "Linux",
+        "title": "Fingerprint the running kernel and OS",
+        "command": "uname -a",
+        "output": "Linux web-01 5.15.0-102-generic #112-Ubuntu SMP x86_64 GNU/Linux"
+      },
+      {
+        "stack": "Linux",
+        "title": "Check uptime and load averages",
+        "command": "uptime",
+        "output": "10:24:09 up 18 days,  3:11,  2 users,  load average: 7.42, 6.90, 4.11"
+      },
+      {
+        "stack": "Linux",
+        "title": "See memory pressure and swap usage",
+        "command": "free -h",
+        "output": "               total   used   free  shared  buff/cache  available\nMem:            31Gi   28Gi  1.1Gi   512Mi       2.3Gi       1.8Gi\nSwap:            8Gi  3.2Gi   4.8Gi"
+      },
+      {
+        "stack": "Linux",
+        "title": "Check filesystem usage",
+        "command": "df -h",
+        "output": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p1   80G   76G  1.2G  99% /"
+      },
+      {
+        "stack": "Linux",
+        "title": "Find large directories under /var",
+        "command": "du -xh /var --max-depth=1 | sort -h | tail",
+        "output": "1.1G  /var/cache\n12G   /var/lib\n18G   /var/log"
+      },
+      {
+        "stack": "Linux",
+        "title": "Show top CPU consumers with process details",
+        "command": "ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head",
+        "output": "  PID  PPID CMD                         %MEM %CPU\n18277 18210 java -jar api.jar             28.4 312\n  921     1 /usr/bin/containerd           11.2  48"
+      },
+      {
+        "stack": "Linux",
+        "title": "Show listening sockets and owning processes",
+        "command": "ss -tulpn",
+        "output": "Netid State  Local Address:Port  Process\ntcp   LISTEN 127.0.0.1:8080      users:((\"java\",pid=18277,fd=123))\ntcp   LISTEN   0.0.0.0:22        users:((\"sshd\",pid=812,fd=3))"
+      },
+      {
+        "stack": "Linux",
+        "title": "Read recent service logs",
+        "command": "journalctl -u nginx -n 100 --no-pager",
+        "output": "Mar 29 10:18:07 web-01 nginx[1442]: connect() failed (111: Connection refused) while connecting to upstream\nMar 29 10:18:07 web-01 systemd[1]: nginx.service: Succeeded."
+      },
+      {
+        "stack": "Linux",
+        "title": "Check systemd service state",
+        "command": "systemctl status nginx",
+        "output": "● nginx.service - A high performance web server\n   Active: failed (Result: exit-code) since Sat 2026-03-29 10:18:07 UTC\n   Main PID: 1442 (code=exited, status=1/FAILURE)"
+      },
+      {
+        "stack": "Linux",
+        "title": "Inspect recent kernel messages",
+        "command": "dmesg --ctime | tail -n 50",
+        "output": "[Sat Mar 29 10:19:22 2026] Out of memory: Killed process 18277 (java) total-vm:8052668kB\n[Sat Mar 29 10:20:11 2026] nvme0n1: I/O 981 QID 3 timeout, reset controller"
+      },
+      {
+        "stack": "Linux",
+        "title": "Probe a local TLS health endpoint",
+        "command": "curl -vk https://127.0.0.1/health",
+        "output": "* Connected to 127.0.0.1 (127.0.0.1) port 443\n> GET /health HTTP/1.1\n< HTTP/1.1 503 Service Unavailable"
+      },
+      {
+        "stack": "Linux",
+        "title": "Capture a short packet sample on port 443",
+        "command": "tcpdump -ni eth0 port 443 -c 20",
+        "output": "10:22:15.112233 IP 10.1.4.15.52544 > 10.1.2.20.443: Flags [S], seq 1742\n10:22:15.112260 IP 10.1.2.20.443 > 10.1.4.15.52544: Flags [S.], ack 1743"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Confirm the active kube context",
+        "command": "kubectl config current-context",
+        "output": "prod-eks-eu-central-1"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Get a cluster-wide pod view",
+        "command": "kubectl get pods -A -o wide",
+        "output": "NAMESPACE   NAME                         READY STATUS             NODE\nprod        api-7d8b9f69b6-j22ds         0/1   CrashLoopBackOff   ip-10-0-14-21\ningress     nginx-ingress-5d9488d4b6     1/1   Running            ip-10-0-10-11"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Describe a single troubled pod",
+        "command": "kubectl describe pod api-7d8b9f69b6-j22ds -n prod",
+        "output": "Events:\n  Warning  BackOff    2m12s  kubelet  Back-off restarting failed container\n  Warning  Unhealthy  48s    kubelet  Readiness probe failed: HTTP probe failed with statuscode: 500"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Tail deployment logs",
+        "command": "kubectl logs deploy/api -n prod --tail=100",
+        "output": "2026-03-29T10:14:08Z ERROR database connection failed: dial tcp 10.2.4.19:5432: i/o timeout\n2026-03-29T10:14:09Z INFO retrying in 5s"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Sort recent cluster events",
+        "command": "kubectl get events -A --sort-by=.metadata.creationTimestamp",
+        "output": "prod     Warning  FailedScheduling  pod/api-7d8b9f69b6-j22ds  0/6 nodes available: insufficient memory\nprod     Warning  BackOff           pod/api-7d8b9f69b6-j22ds  Back-off restarting failed container"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Check pod and container resource pressure",
+        "command": "kubectl top pod -A --containers",
+        "output": "NAMESPACE POD                    CONTAINER CPU(cores) MEMORY(bytes)\nprod      api-7d8b9f69b6-j22ds   api       920m       768Mi"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Map Services to endpoints",
+        "command": "kubectl get svc,endpoints -n prod",
+        "output": "NAME           TYPE        CLUSTER-IP    PORT(S)\nservice/api    ClusterIP   10.100.7.12   80/TCP\nendpoints/api  <none>"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Wait on rollout status",
+        "command": "kubectl rollout status deployment/api -n prod",
+        "output": "Waiting for deployment \"api\" rollout to finish: 1 out of 4 new replicas have been updated...\ndeployment \"api\" exceeded its progress deadline"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Test RBAC before blaming the API",
+        "command": "kubectl auth can-i get secrets -n prod",
+        "output": "no"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Open a shell in the running workload",
+        "command": "kubectl exec -it deploy/api -n prod -- sh",
+        "output": "/app # env | grep DATABASE_URL\nDATABASE_URL=postgres://api@db.prod.internal:5432/app"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Diff manifests before apply",
+        "command": "kubectl diff -f manifest.yaml",
+        "output": "@@ Deployment api @@\n- image: registry.example.com/api:1.9.4\n+ image: registry.example.com/api:1.9.5"
+      },
+      {
+        "stack": "Kubernetes",
+        "title": "Restart a deployment rollout",
+        "command": "kubectl rollout restart deployment/api -n prod",
+        "output": "deployment.apps/api restarted"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Enforce formatting before review",
+        "command": "terraform fmt -check -recursive",
+        "output": "modules/vpc/main.tf\nenvironments/prod/ecs.tf"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Initialize providers and modules",
+        "command": "terraform init -upgrade",
+        "output": "Initializing provider plugins...\n- Finding hashicorp/aws versions matching \"~> 5.0\"...\n- Installed hashicorp/aws v5.47.0"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Validate configuration shape",
+        "command": "terraform validate",
+        "output": "Success! The configuration is valid."
+      },
+      {
+        "stack": "Terraform",
+        "title": "Create a saved execution plan",
+        "command": "terraform plan -out=tfplan",
+        "output": "Plan: 2 to add, 1 to change, 0 to destroy.\nSaved the plan to: tfplan"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Read the saved plan in plain text",
+        "command": "terraform show tfplan",
+        "output": "# aws_db_instance.app must be replaced\n-/+ resource \"aws_db_instance\" \"app\" {\n    allocated_storage = 100 -> 200"
+      },
+      {
+        "stack": "Terraform",
+        "title": "List everything tracked in state",
+        "command": "terraform state list",
+        "output": "aws_vpc.main\naws_subnet.private[0]\nmodule.ecs.aws_ecs_service.api"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Inspect one resource exactly as state knows it",
+        "command": "terraform state show aws_instance.web",
+        "output": "# aws_instance.web:\nresource \"aws_instance\" \"web\" {\n  id = \"i-0a12bc34def567890\"\n  private_ip = \"10.0.12.44\"\n}"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Confirm provider dependency tree",
+        "command": "terraform providers",
+        "output": "Providers required by configuration:\n.\n├── provider[registry.terraform.io/hashicorp/aws] ~> 5.0\n└── module.eks\n    └── provider[registry.terraform.io/hashicorp/kubernetes] >= 2.25.0"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Evaluate expressions in terraform console",
+        "command": "terraform console",
+        "output": "> cidrsubnet(\"10.0.0.0/16\", 4, 3)\n\"10.0.48.0/20\""
+      },
+      {
+        "stack": "Terraform",
+        "title": "Clear a stuck remote state lock",
+        "command": "terraform force-unlock LOCK_ID",
+        "output": "Terraform state has been successfully unlocked!"
+      },
+      {
+        "stack": "Terraform",
+        "title": "Apply the reviewed plan file",
+        "command": "terraform apply tfplan",
+        "output": "aws_security_group.api: Modifying... [id=sg-0ab123]\nApply complete! Resources: 0 added, 1 changed, 0 destroyed."
+      },
+      {
+        "stack": "Ansible",
+        "title": "Visualize inventory layout",
+        "command": "ansible-inventory -i inventory.ini --graph",
+        "output": "@all:\n  |--@web:\n  |  |--web-01\n  |  |--web-02"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Test basic host reachability",
+        "command": "ansible all -i inventory.ini -m ping",
+        "output": "web-01 | SUCCESS => { \"ping\": \"pong\" }\ndb-01  | UNREACHABLE! => Failed to connect to the host via ssh"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Run a quick ad-hoc uptime command",
+        "command": "ansible all -i inventory.ini -a \"uptime\"",
+        "output": "web-01 | CHANGED | rc=0 >>\n 10:42:11 up 3 days,  4:12,  1 user,  load average: 0.51, 0.38, 0.27"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Syntax-check a playbook",
+        "command": "ansible-playbook site.yml --syntax-check",
+        "output": "playbook: site.yml"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Dry-run with check mode and diff",
+        "command": "ansible-playbook site.yml --check --diff",
+        "output": "TASK [nginx : template nginx.conf]\n--- before\n+++ after\n@@ server_name api.old.example.com -> api.example.com"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Run only the web tag on web hosts",
+        "command": "ansible-playbook site.yml --limit web --tags nginx",
+        "output": "PLAY [web]\nTASK [nginx : restart nginx] changed: [web-01]\nPLAY RECAP web-01 : ok=8 changed=1 failed=0"
+      },
+      {
+        "stack": "Ansible",
+        "title": "Inspect a service with privilege escalation",
+        "command": "ansible all -i inventory.ini -b -m shell -a \"systemctl status nginx --no-pager\"",
+        "output": "web-02 | CHANGED | rc=3 >>\nActive: failed (Result: exit-code) since Sat 2026-03-29 10:14:02 UTC"
+      },
+      {
+        "stack": "Ansible",
+        "title": "View vaulted secrets intentionally",
+        "command": "ansible-vault view group_vars/prod/vault.yml",
+        "output": "db_password: s3cr3t-redacted\nslack_webhook_url: https://hooks.slack.com/services/..."
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "See who AWS thinks you are",
+        "command": "aws sts get-caller-identity",
+        "output": "{\n  \"UserId\": \"AROA123EXAMPLE:bob\",\n  \"Account\": \"123456789012\",\n  \"Arn\": \"arn:aws:sts::123456789012:assumed-role/Admin/bob\"\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Show active CLI config sources",
+        "command": "aws configure list",
+        "output": "      Name                    Value             Type    Location\n   profile                prod-admin           manual  --profile\n    region              eu-central-1      config-file  ~/.aws/config"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Query EC2 instances as a compact table",
+        "command": "aws ec2 describe-instances --filters Name=tag:Role,Values=web --query 'Reservations[].Instances[].[InstanceId,State.Name,PrivateIpAddress,Placement.AvailabilityZone]' --output table",
+        "output": "---------------------------------------------\n|         DescribeInstances                |\n+----------------------+---------+----------+\n| i-0ab123456789cdef0 | running | 10.0.1.14 | eu-central-1a |"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Open an SSM shell to an instance",
+        "command": "aws ssm start-session --target i-0ab123456789cdef0",
+        "output": "Starting session with SessionId: bob-0f9e7d6c5b4a3210\nsh-4.2$"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Tail CloudWatch log groups live",
+        "command": "aws logs tail /aws/ecs/prod-api --since 15m --follow",
+        "output": "2026-03-29T10:28:42 START RequestId=8f7f...\n2026-03-29T10:28:42 ERROR upstream timeout contacting db.prod.internal"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Read CloudFormation stack event history",
+        "command": "aws cloudformation describe-stack-events --stack-name prod-network",
+        "output": "2026-03-29T10:31:11Z  AWS::EC2::NatGateway      nat-a   CREATE_FAILED  Elastic IP address not found\n2026-03-29T10:31:12Z  AWS::CloudFormation::Stack prod-network UPDATE_ROLLBACK_IN_PROGRESS"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Check ALB target health",
+        "command": "aws elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalancing:eu-central-1:123456789012:targetgroup/prod-api/abc123",
+        "output": "{\n  \"TargetHealthDescriptions\": [\n    { \"Target\": { \"Id\": \"i-0ab123\" }, \"TargetHealth\": { \"State\": \"unhealthy\", \"Reason\": \"Target.ResponseCodeMismatch\" } }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Check ECS service rollout state",
+        "command": "aws ecs describe-services --cluster prod --services api",
+        "output": "{\n  \"services\": [\n    { \"status\": \"ACTIVE\", \"desiredCount\": 4, \"runningCount\": 2, \"deployments\": [{ \"rolloutState\": \"FAILED\" }] }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Refresh kubeconfig from EKS",
+        "command": "aws eks update-kubeconfig --name prod-eks --region eu-central-1",
+        "output": "Added new context arn:aws:eks:eu-central-1:123456789012:cluster/prod-eks to /Users/bob/.kube/config"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Simulate IAM policy decisions",
+        "command": "aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::123456789012:role/AppRole --action-names s3:GetObject --resource-arns arn:aws:s3:::prod-bucket/*",
+        "output": "{\n  \"EvaluationResults\": [\n    { \"EvalActionName\": \"s3:GetObject\", \"EvalDecision\": \"explicitDeny\" }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Inspect Auto Scaling desired versus current capacity",
+        "command": "aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names prod-web",
+        "output": "{\n  \"AutoScalingGroups\": [\n    { \"AutoScalingGroupName\": \"prod-web\", \"MinSize\": 4, \"DesiredCapacity\": 6, \"Instances\": [{ \"InstanceId\": \"i-0ab123\", \"LifecycleState\": \"InService\" }] }\n  ]\n}"
+      },
+      {
+        "stack": "AWS CLI",
+        "title": "Summarize S3 objects and total size",
+        "command": "aws s3 ls s3://prod-logs --human-readable --summarize",
+        "output": "2026-03-29 10:18:12   14.2 MiB app-2026-03-29.log.gz\nTotal Objects: 34\n   Total Size: 1.7 GiB"
+      },
+      {
+        "stack": "Docker",
+        "title": "List running and exited containers",
+        "command": "docker ps -a",
+        "output": "CONTAINER ID   IMAGE        STATUS                     NAMES\nf9b1c2d3e4f5   api:1.9.4    Exited (1) 14 seconds ago   api\n7a6b5c4d3e2f   redis:7      Up 3 hours                 cache"
+      },
+      {
+        "stack": "Docker",
+        "title": "Read recent container logs",
+        "command": "docker logs api --tail 100",
+        "output": "2026-03-29T10:33:18Z ERROR failed to load config: missing REDIS_URL\n2026-03-29T10:33:18Z FATAL exiting"
+      },
+      {
+        "stack": "Docker",
+        "title": "Inspect full container metadata",
+        "command": "docker inspect api",
+        "output": "[\n  {\n    \"Name\": \"/api\",\n    \"RestartCount\": 5,\n    \"HostConfig\": { \"RestartPolicy\": { \"Name\": \"always\" } }\n  }\n]"
+      },
+      {
+        "stack": "Docker",
+        "title": "Open a shell inside a running container",
+        "command": "docker exec -it api sh",
+        "output": "/app # printenv | grep REDIS_URL\nREDIS_URL=redis://cache:6379/0"
+      },
+      {
+        "stack": "Docker",
+        "title": "Watch live container CPU and memory",
+        "command": "docker stats",
+        "output": "CONTAINER ID   NAME   CPU %   MEM USAGE / LIMIT\nf9b1c2d3e4f5   api    182.3%  1.4GiB / 2GiB"
+      },
+      {
+        "stack": "Docker",
+        "title": "Check where Docker disk is going",
+        "command": "docker system df",
+        "output": "TYPE            TOTAL   ACTIVE   SIZE      RECLAIMABLE\nImages          24      6        13.1GB    9.4GB (71%)\nLocal Volumes   8       5        5.2GB     1.1GB (21%)"
+      },
+      {
+        "stack": "Docker",
+        "title": "Inspect Docker network wiring",
+        "command": "docker network inspect bridge",
+        "output": "[\n  {\n    \"Name\": \"bridge\",\n    \"IPAM\": { \"Config\": [{ \"Subnet\": \"172.17.0.0/16\", \"Gateway\": \"172.17.0.1\" }] }\n  }\n]"
+      },
+      {
+        "stack": "Docker",
+        "title": "See compose service state at a glance",
+        "command": "docker compose ps",
+        "output": "NAME          IMAGE       COMMAND       SERVICE   STATUS         PORTS\nproject-api   api:1.9.4   \"./start.sh\"   api       Exit 1\nproject-db    postgres:16 \"docker-entry\" db        Up 3 hours"
+      },
+      {
+        "stack": "Docker",
+        "title": "Tail one compose service log stream",
+        "command": "docker compose logs api --tail 100",
+        "output": "api  | INFO starting migrations\napi  | ERROR dial tcp db:5432: connect: connection refused"
+      },
+      {
+        "stack": "Docker",
+        "title": "Restart one container deliberately",
+        "command": "docker restart api",
+        "output": "api"
       }
     ];
 
-    const playbooks = [
-      {
-        stack: "macOS",
-        severity: "Common",
-        title: "Mac DNS or VPN resolution is wrong",
-        summary: "The host resolves internal names incorrectly, works only off VPN, or switches answers between interfaces.",
-        checks: [
-          "Run networksetup -listallhardwareports to map the active interface name.",
-          "Run scutil --dns and verify the resolver order, search domain, and nameserver bound to that interface.",
-          "Run dscacheutil -q host -a name internal.example.com to compare cached answers against expected DNS.",
-          "If needed, compare results before and after reconnecting VPN."
-        ],
-        clues: [
-          "Wrong nameserver or stale VPN search domain usually explains split-DNS confusion.",
-          "Cached host answers that differ from resolver output point to stale local state.",
-          "If SSH or app traffic still fails, inspect unified logs for the affected daemon."
-        ],
-        nextMove: "Clear cache only after you capture the bad state. Otherwise you lose the proof of what the resolver was doing."
-      },
-      {
-        stack: "Linux",
-        severity: "High signal",
-        title: "Linux host is slow or timing out",
-        summary: "Users report latency, health checks flap, or the box 'feels stuck'.",
-        checks: [
-          "Run uptime for load averages and a fast pressure smell test.",
-          "Run free -h to see available memory and swap use.",
-          "Run ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head to identify hot processes.",
-          "Run journalctl -u <service> -n 100 --no-pager for the impacted service.",
-          "If kernel-level failure is suspected, run dmesg --ctime | tail -n 50."
-        ],
-        clues: [
-          "Load much higher than CPU core count suggests CPU wait or blocked work.",
-          "Low available memory with growing swap suggests thrash and possible OOM risk.",
-          "Kernel OOM messages explain mysterious application exits."
-        ],
-        nextMove: "Prefer isolating the hot process or dependency before restarting the entire host."
-      },
-      {
-        stack: "Linux",
-        severity: "Common",
-        title: "Disk is full on a Linux host",
-        summary: "Writes fail, services cannot start, package installs break, or container runtime errors appear.",
-        checks: [
-          "Run df -h to find the full filesystem.",
-          "Run du -xh /var --max-depth=1 | sort -h | tail to find the largest /var consumers.",
-          "If Docker is installed, run docker system df to see whether images or volumes are the culprit.",
-          "Read recent service logs because full disks often cause secondary application errors."
-        ],
-        clues: [
-          "A root filesystem at 95%+ can cascade into logging, temp-file, and package-manager failures.",
-          "Large /var/log suggests log rotation drift. Large /var/lib often points to containers or package caches.",
-          "Delete only what you understand. Random cleanup can remove state you still need."
-        ],
-        nextMove: "Free a small safe amount of space first, then let the host stabilize and collect a fuller inventory."
-      },
-      {
-        stack: "Kubernetes",
-        severity: "High signal",
-        title: "Pod is stuck in CrashLoopBackOff",
-        summary: "One or more replicas restart repeatedly and never become ready.",
-        checks: [
-          "Run kubectl get pods -A -o wide for the fleet picture.",
-          "Run kubectl describe pod <name> -n <ns> to inspect events, probe failures, and restart count.",
-          "Run kubectl logs deploy/<app> -n <ns> --tail=100 for application errors.",
-          "Run kubectl get events -A --sort-by=.metadata.creationTimestamp to build the failure timeline."
-        ],
-        clues: [
-          "BackOff plus failing readiness often means the app starts but never stabilizes.",
-          "Image pull errors, missing secrets, and bad probes show up in describe events faster than in app logs.",
-          "If restarts cluster on one node, inspect node pressure and scheduling events."
-        ],
-        nextMove: "Do not restart blindly. Capture logs and describe output first because new pods can erase the original failure pattern."
-      },
-      {
-        stack: "Kubernetes",
-        severity: "Common",
-        title: "Service has no traffic or no endpoints",
-        summary: "Requests hit the cluster but never reach healthy application pods.",
-        checks: [
-          "Run kubectl get svc,endpoints -n <ns> and verify the endpoints object is populated.",
-          "Run kubectl get pods -n <ns> -o wide and confirm labels, readiness, and node placement.",
-          "Run kubectl rollout status deployment/<app> -n <ns> to see whether the rollout stalled.",
-          "If needed, use kubectl exec into one pod and validate downstream DNS or localhost behavior."
-        ],
-        clues: [
-          "An empty endpoints list usually means selectors do not match or pods are not Ready.",
-          "A rollout that exceeded progress deadline often leaves Services pointing at unstable pods.",
-          "If endpoints exist but traffic still fails, inspect ingress or load balancer health next."
-        ],
-        nextMove: "Fix selectors, readiness, or rollout state before chasing networking ghosts."
-      },
-      {
-        stack: "Terraform",
-        severity: "High signal",
-        title: "Terraform plan wants unexpected replacement or destroy",
-        summary: "A safe-looking change suddenly wants to replace expensive infrastructure or destroy resources.",
-        checks: [
-          "Run terraform plan -out=tfplan and save the result for review.",
-          "Run terraform show tfplan to inspect the exact field causing replacement.",
-          "Run terraform state show <address> to compare the stored attributes against code.",
-          "Run terraform providers if provider inheritance or version drift looks suspicious."
-        ],
-        clues: [
-          "Replacement often comes from immutable attributes, force_new semantics, or drift outside Terraform.",
-          "Provider version changes can alter defaults and create surprising plans.",
-          "If the state does not match reality, import or refresh strategy may be needed before apply."
-        ],
-        nextMove: "Do not apply until you understand the replacement trigger and blast radius."
-      },
-      {
-        stack: "Terraform",
-        severity: "Common",
-        title: "Terraform is locked or auth looks broken",
-        summary: "Plan or apply fails because the state is locked, credentials expired, or provider access changed.",
-        checks: [
-          "Run terraform init -upgrade to confirm provider installation and backend reachability.",
-          "Run aws sts get-caller-identity or the equivalent cloud identity command to verify current auth.",
-          "Run terraform force-unlock LOCK_ID only after proving no active run still owns the lock.",
-          "Re-run plan only after auth and lock state are clearly resolved."
-        ],
-        clues: [
-          "A stale lock after a crashed CI job is common, but unlocking an active run is dangerous.",
-          "Wrong account or expired session tokens frequently masquerade as Terraform bugs.",
-          "Provider init failures often explain later plan noise."
-        ],
-        nextMove: "Treat force-unlock as a surgical recovery step, not a routine shortcut."
-      },
-      {
-        stack: "Ansible",
-        severity: "Common",
-        title: "Ansible host is unreachable or sudo fails",
-        summary: "The playbook fails before tasks meaningfully run.",
-        checks: [
-          "Run ansible-inventory -i inventory.ini --graph to confirm the host is in the expected group.",
-          "Run ansible all -i inventory.ini -m ping to test SSH and Python.",
-          "Run ansible all -i inventory.ini -b -m shell -a \"systemctl status nginx --no-pager\" to validate privilege escalation.",
-          "Use ansible-playbook site.yml --syntax-check before editing logic."
-        ],
-        clues: [
-          "UNREACHABLE usually means SSH path, SSH keys, bastion logic, or missing Python.",
-          "Permission denied under become points to sudoers or privilege model problems, not YAML shape.",
-          "If only one group fails, inventory targeting is often wrong."
-        ],
-        nextMove: "Fix transport and privilege first, then return to playbook behavior."
-      },
-      {
-        stack: "AWS CLI",
-        severity: "High signal",
-        title: "AWS CLI says AccessDenied or you hit the wrong account",
-        summary: "Commands fail with auth errors, resources look missing, or prod and non-prod contexts get mixed.",
-        checks: [
-          "Run aws sts get-caller-identity to see the active IAM principal and account.",
-          "Run aws configure list to confirm region and credential source.",
-          "If the denial is specific, run aws iam simulate-principal-policy against the action and resource.",
-          "For EKS issues, refresh local context with aws eks update-kubeconfig only after identity is correct."
-        ],
-        clues: [
-          "The wrong account is often indistinguishable from missing resources until you check STS.",
-          "Explicit deny in a policy simulation is stronger evidence than guessing from error messages.",
-          "Region mismatches make healthy resources appear invisible."
-        ],
-        nextMove: "Correct identity and region before you change policy or infrastructure."
-      },
-      {
-        stack: "Docker",
-        severity: "Common",
-        title: "Container exits immediately or the port is already used",
-        summary: "The service will not stay up, or startup fails because another process owns the port.",
-        checks: [
-          "Run docker ps -a to confirm whether the container exited or is looping.",
-          "Run docker logs <name> --tail 100 for startup errors.",
-          "Run docker inspect <name> to confirm env vars, restart policy, and mounts.",
-          "If the host port looks busy, use lsof or ss on the host to find the conflicting listener."
-        ],
-        clues: [
-          "Exit code 1 plus a config error in logs usually means bad env or missing dependencies.",
-          "A high restart count in inspect shows repeated instability even if the container is currently running.",
-          "Port conflicts are usually obvious once you identify the real listener."
-        ],
-        nextMove: "Restart only after you know whether the root cause is config, dependency, or host port collision."
-      }
-    ];
+    const stacks = [...new Set(commands.map((item) => item.stack))];
+    let activeStack = stacks[0];
+    let activeCommandIndex = 0;
 
-    const filters = {
-      stack: "All",
-      level: "All",
-      safety: "All",
-      search: ""
-    };
-
-    const stackOrder = ["All", "macOS", "Linux", "Kubernetes", "Terraform", "Ansible", "AWS CLI", "Docker"];
-    const levelOrder = ["All", "Beginner", "Advanced", "Senior"];
-    const safetyOrder = ["All", "Read-only", "Low-risk", "Changes state"];
-
-    function slugify(value) {
-      return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    function getVisibleCommands() {
+      return commands.filter((item) => item.stack === activeStack);
     }
 
-    function escapeHtml(value) {
-      return value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function renderStats() {
-      const readOnlyCount = commandCatalog.filter((item) => item.safety === "Read-only").length;
-      const stateChangeCount = commandCatalog.filter((item) => item.safety === "Changes state").length;
-      const seniorCount = commandCatalog.filter((item) => item.level === "Senior").length;
-      const stats = [
-        { value: String(commandCatalog.length), label: "Commands in the atlas" },
-        { value: String(Object.keys(stackAccent).length), label: "Technology lanes" },
-        { value: String(playbooks.length), label: "Incident cheat sheets" },
-        { value: String(readOnlyCount), label: "Read-only first commands" },
-        { value: String(seniorCount), label: "Senior triage patterns" },
-        { value: String(stateChangeCount), label: "State-changing commands, clearly labeled" }
-      ];
-
-      document.getElementById("statsGrid").innerHTML = stats
-        .map((stat) => `
-          <article class="stat-card">
-            <span class="stat-value">${escapeHtml(stat.value)}</span>
-            <span class="stat-label">${escapeHtml(stat.label)}</span>
-          </article>
+    function renderTabs() {
+      document.getElementById("techTabs").innerHTML = stacks
+        .map((stack) => `
+          <button class="tech-tab ${stack === activeStack ? "active" : ""}" type="button" data-stack="${stack}">
+            ${stack}
+          </button>
         `)
         .join("");
     }
 
-    function renderFilterGroup(targetId, values, activeValue, groupName) {
-      document.getElementById(targetId).innerHTML = values
-        .map((value) => `
-          <button
-            class="filter-chip ${value === activeValue ? "active" : ""}"
-            type="button"
-            data-group="${escapeHtml(groupName)}"
-            data-value="${escapeHtml(value)}"
-          >${escapeHtml(value)}</button>
+    function renderCommandList() {
+      const visible = getVisibleCommands();
+      document.getElementById("listTitle").textContent = activeStack;
+      document.getElementById("listCount").textContent = `${visible.length} commands`;
+      document.getElementById("commandList").innerHTML = visible
+        .map((item, index) => `
+          <button class="command-item ${index === activeCommandIndex ? "active" : ""}" type="button" data-index="${index}">
+            <span class="command-title">${item.title}</span>
+            <span class="command-code">${item.command}</span>
+          </button>
         `)
         .join("");
     }
 
-    function matchesFilters(item) {
-      const searchTarget = [
-        item.stack,
-        item.level,
-        item.safety,
-        item.title,
-        item.purpose,
-        item.useCase,
-        item.command,
-        item.takeaway
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      const stackMatch = filters.stack === "All" || item.stack === filters.stack;
-      const levelMatch = filters.level === "All" || item.level === filters.level;
-      const safetyMatch = filters.safety === "All" || item.safety === filters.safety;
-      const searchMatch = !filters.search || searchTarget.includes(filters.search.toLowerCase());
-
-      return stackMatch && levelMatch && safetyMatch && searchMatch;
-    }
-
-    function renderCommands() {
-      const matchingCommands = commandCatalog.filter(matchesFilters);
-      document.getElementById("resultsCount").textContent = `${matchingCommands.length} command cards shown`;
-
-      if (!matchingCommands.length) {
-        document.getElementById("commandGrid").innerHTML = `
-          <div class="empty-state">
-            No commands match the current filters. Try clearing one filter or searching for a broader term.
-          </div>
-        `;
+    function renderOutput() {
+      const selected = getVisibleCommands()[activeCommandIndex];
+      if (!selected) {
+        document.getElementById("selectedTitle").textContent = "";
+        document.getElementById("selectedCommand").textContent = "";
+        document.getElementById("selectedOutput").textContent = "";
         return;
       }
 
-      document.getElementById("commandGrid").innerHTML = matchingCommands
-        .map((item) => `
-          <article class="command-card" style="--stack-color: ${stackAccent[item.stack] || "var(--accent-primary)"};">
-            <div class="card-top">
-              <div class="badge-row">
-                <span class="badge">${escapeHtml(item.stack)}</span>
-                <span class="badge level-${slugify(item.level)}">${escapeHtml(item.level)}</span>
-                <span class="badge safety-${slugify(item.safety)}">${escapeHtml(item.safety)}</span>
-              </div>
-              <button class="copy-btn" type="button" data-command="${encodeURIComponent(item.command)}">Copy command</button>
-            </div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p>${escapeHtml(item.purpose)}</p>
-            <div class="meta-stack">
-              <div class="meta-item">
-                <strong>When to use it</strong>
-                <span>${escapeHtml(item.useCase)}</span>
-              </div>
-            </div>
-            <div class="terminal-block command-view">
-              <div class="terminal-label">Command</div>
-              <pre>${escapeHtml(item.command)}</pre>
-            </div>
-            <div class="terminal-block">
-              <div class="terminal-label">Simulated output</div>
-              <pre>${escapeHtml(item.output)}</pre>
-            </div>
-            <p class="takeaway"><strong>Interpretation:</strong> ${escapeHtml(item.takeaway)}</p>
-          </article>
-        `)
-        .join("");
-    }
-
-    function renderPlaybooks() {
-      const visiblePlaybooks = playbooks.filter((item) => {
-        const stackMatch = filters.stack === "All" || item.stack === filters.stack;
-        const searchTarget = [item.stack, item.title, item.summary, item.checks.join(" "), item.clues.join(" "), item.nextMove]
-          .join(" ")
-          .toLowerCase();
-        const searchMatch = !filters.search || searchTarget.includes(filters.search.toLowerCase());
-        return stackMatch && searchMatch;
-      });
-
-      if (!visiblePlaybooks.length) {
-        document.getElementById("playbookGrid").innerHTML = `
-          <div class="empty-state">
-            No playbooks match that search. Try filtering by a technology only.
-          </div>
-        `;
-        return;
-      }
-
-      document.getElementById("playbookGrid").innerHTML = visiblePlaybooks
-        .map((item) => `
-          <details class="playbook-card">
-            <summary>
-              <div class="badge-row">
-                <span class="badge">${escapeHtml(item.stack)}</span>
-                <span class="badge">${escapeHtml(item.severity)}</span>
-              </div>
-              <h3>${escapeHtml(item.title)}</h3>
-              <p>${escapeHtml(item.summary)}</p>
-            </summary>
-            <div class="playbook-body">
-              <section class="playbook-section">
-                <h4>First checks</h4>
-                <ul class="playbook-list">
-                  ${item.checks.map((check) => `<li>${escapeHtml(check)}</li>`).join("")}
-                </ul>
-              </section>
-              <section class="playbook-section">
-                <h4>What the clues mean</h4>
-                <ul class="playbook-list">
-                  ${item.clues.map((clue) => `<li>${escapeHtml(clue)}</li>`).join("")}
-                </ul>
-              </section>
-              <section class="playbook-section">
-                <h4>Safe next move</h4>
-                <p>${escapeHtml(item.nextMove)}</p>
-              </section>
-            </div>
-          </details>
-        `)
-        .join("");
-    }
-
-    function renderFilters() {
-      renderFilterGroup("stackFilters", stackOrder, filters.stack, "stack");
-      renderFilterGroup("levelFilters", levelOrder, filters.level, "level");
-      renderFilterGroup("safetyFilters", safetyOrder, filters.safety, "safety");
+      document.getElementById("selectedTitle").textContent = selected.title;
+      document.getElementById("selectedCommand").textContent = selected.command;
+      document.getElementById("selectedOutput").textContent = selected.output;
     }
 
     function renderAll() {
-      renderStats();
-      renderFilters();
-      renderCommands();
-      renderPlaybooks();
+      renderTabs();
+      renderCommandList();
+      renderOutput();
     }
 
-    document.addEventListener("click", async (event) => {
-      const chip = event.target.closest(".filter-chip");
-      if (chip) {
-        filters[chip.dataset.group] = chip.dataset.value;
+    document.addEventListener("click", (event) => {
+      const tab = event.target.closest(".tech-tab");
+      if (tab) {
+        activeStack = tab.dataset.stack;
+        activeCommandIndex = 0;
         renderAll();
         return;
       }
 
-      const copyButton = event.target.closest(".copy-btn");
-      if (copyButton) {
-        const command = decodeURIComponent(copyButton.dataset.command);
-        const originalLabel = copyButton.textContent;
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(command);
-            copyButton.textContent = "Copied";
-          } else {
-            copyButton.textContent = "Copy unavailable";
-          }
-        } catch (error) {
-          copyButton.textContent = "Copy failed";
-        }
-        window.setTimeout(() => {
-          copyButton.textContent = originalLabel;
-        }, 1200);
+      const commandItem = event.target.closest(".command-item");
+      if (commandItem) {
+        activeCommandIndex = Number(commandItem.dataset.index);
+        renderCommandList();
+        renderOutput();
       }
-    });
-
-    document.getElementById("searchInput").addEventListener("input", (event) => {
-      filters.search = event.target.value.trim();
-      renderCommands();
-      renderPlaybooks();
     });
 
     renderAll();
