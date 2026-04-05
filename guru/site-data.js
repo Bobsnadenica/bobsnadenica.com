@@ -6,6 +6,11 @@ window.__GURU_PROFILES__ = [
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
     "description": "Алекс Чикийката ви учи на айсберг модела. Млада, успяла жена на 16-17 години нз на колко е ама е богат и иска да го сподели с вас!",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "Facebook",
       "Instagram",
@@ -37,6 +42,11 @@ window.__GURU_PROFILES__ = [
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
     "description": "Московската машина, толкова е богат, че не знае какво да си прави парите и иска да ви даде и на вас!",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "Facebook",
       "Уебсайт",
@@ -82,6 +92,11 @@ window.__GURU_PROFILES__ = [
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
     "description": "Инвестираш при мен и правим 3 милиона посетители на година!!!! Невероятна възвращаемост! За КЛЕТА МАЙКА БЪЛГАРИЯ!",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "Facebook"
     ],
@@ -99,6 +114,11 @@ window.__GURU_PROFILES__ = [
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
     "description": "Йорданката е сертифициран от държавата! Издава сертификати, ще те научи как да си успешен щот има добро сърце, прави го заради вас! Той пари има",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "YouTube",
       "Facebook",
@@ -125,14 +145,24 @@ window.__GURU_PROFILES__ = [
     "alt": "Профилно изображение за Мария Боева",
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
-    "description": "",
+    "description": "Ето я госпожа Московска, женската версия на Боян Москов, тя стартира и подарява милионни бизнеси за няма и 1 ден. Парите са нейната страст, а дупето - начин да ги придобиеш.",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
-      "Facebook"
+      "Facebook",
+      "Уебсайт"
     ],
     "links": [
       {
         "label": "Facebook",
         "url": "https://www.facebook.com/mariya.boeva.digitalmarketer"
+      },
+      {
+        "label": "Уебсайт",
+        "url": "https://masterclass.bg/2026"
       }
     ]
   },
@@ -143,6 +173,11 @@ window.__GURU_PROFILES__ = [
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
     "description": "Windows Vista е якия предприемач - Вили, Бали, Трактори - той ще ви научи на всичко",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "Уебсайт",
       "Facebook"
@@ -164,7 +199,12 @@ window.__GURU_PROFILES__ = [
     "alt": "Профилно изображение за Цветан Радушев",
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
-    "description": "",
+    "description": "Ко да кажа за Цуцката, толкова е успешен че не знае какво да си прави парите и иска да ги сподели с вас!",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "Уебсайт"
     ],
@@ -182,6 +222,11 @@ window.__GURU_PROFILES__ = [
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
     "description": "Бащата! Началникът! Човекът мотиватор! От него започват всички скам...аааа успешни гуруто. Може да те мотивира да му дадеш пари както никой друг!",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
     "channels": [
       "Facebook",
       "Instagram",

@@ -55,6 +55,11 @@ function getSearchableText(profile) {
     [
       profile.name,
       profile.description,
+      profile.kicker,
+      profile.summary,
+      profile.aura,
+      profile.funnel,
+      profile.insight,
       profile.channels?.join(" "),
       profile.links?.map((link) => `${link.label} ${link.url}`).join(" "),
     ].join(" "),
@@ -84,7 +89,14 @@ function renderProfiles(profiles, options = {}) {
 
   profileList.innerHTML = profiles
     .map((profile, index) => {
-      const hook = profileHooks[index % profileHooks.length];
+      const fallbackHook = profileHooks[index % profileHooks.length];
+      const hook = {
+        kicker: profile.kicker || fallbackHook.kicker,
+        summary: profile.summary || fallbackHook.summary,
+        aura: profile.aura || fallbackHook.aura,
+        funnel: profile.funnel || fallbackHook.funnel,
+        insight: profile.insight || fallbackHook.insight,
+      };
       const descriptionBlock = profile.description
         ? `
             <div class="profile-description">

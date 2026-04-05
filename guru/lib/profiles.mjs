@@ -48,6 +48,29 @@ const labelAliases = new Map([
   ["website", "Уебсайт"],
   ["links", "Уебсайт"],
 ]);
+const textFieldAliases = new Map([
+  ["description", "description"],
+  ["описание", "description"],
+  ["kicker", "kicker"],
+  ["надзаглавие", "kicker"],
+  ["summary", "summary"],
+  ["резюме", "summary"],
+  ["subtitle", "summary"],
+  ["vibe", "aura"],
+  ["aura", "aura"],
+  ["вайб", "aura"],
+  ["обещан вайб", "aura"],
+  ["reading", "funnel"],
+  ["прочит", "funnel"],
+  ["insight", "insight"],
+  ["наблюдение", "insight"],
+  ["коментар", "insight"],
+  ["image note", "imageNote"],
+  ["image note text", "imageNote"],
+  ["бележка върху снимката", "imageNote"],
+  ["бележка на снимката", "imageNote"],
+  ["текст върху снимката", "imageNote"],
+]);
 
 function toTitleCase(value) {
   return value
@@ -80,6 +103,15 @@ function normaliseLabel(value) {
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ");
   return labelAliases.get(lowered) || toTitleCase(value);
+}
+
+function normaliseKey(value) {
+  return value
+    .trim()
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ");
 }
 
 function labelFromUrl(value) {
@@ -157,7 +189,15 @@ function parseLinks(rawText) {
   const links = [];
   const channels = new Set();
   const labelCounts = new Map();
-  let description = "";
+  const textFields = {
+    description: "",
+    kicker: "",
+    summary: "",
+    aura: "",
+    funnel: "",
+    insight: "",
+    imageNote: "",
+  };
 
   for (const rawLine of rawText.split(/\r?\n/)) {
     const line = rawLine.trim();
@@ -166,16 +206,21 @@ function parseLinks(rawText) {
       continue;
     }
 
-    if (/^description\s*:/i.test(line)) {
-      description = line.replace(/^description\s*:/i, "").trim();
-      continue;
-    }
-
     const isFullUrl = /^https?:\/\//i.test(line);
     const colonIndex = isFullUrl ? -1 : line.indexOf(":");
     const hasLabel = colonIndex > -1;
     const label = hasLabel ? line.slice(0, colonIndex).trim() : "";
     const value = hasLabel ? line.slice(colonIndex + 1).trim() : line;
+
+    if (hasLabel) {
+      const mappedField = textFieldAliases.get(normaliseKey(label));
+
+      if (mappedField) {
+        textFields[mappedField] = value;
+        continue;
+      }
+    }
+
     const parsed = normaliseUrl(label, value);
 
     if (!parsed) {
@@ -194,7 +239,7 @@ function parseLinks(rawText) {
   }
 
   return {
-    description,
+    ...textFields,
     links,
     channels: Array.from(channels),
   };
@@ -245,7 +290,8 @@ export async function readProfiles(rootDir = process.cwd()) {
 
     const imagePath = path.join(folderPath, imageFile.name);
     const rawText = await fs.readFile(path.join(folderPath, textFile.name), "utf8");
-    const { description, links, channels } = parseLinks(rawText);
+    const { description, kicker, summary, aura, funnel, insight, imageNote, links, channels } =
+      parseLinks(rawText);
     const orientation = await detectOrientation(imagePath);
 
     profiles.push({
@@ -253,11 +299,17 @@ export async function readProfiles(rootDir = process.cwd()) {
       image: path.posix.join("assets", folder.name, imageFile.name),
       alt: `Профилно изображение за ${displayName}`,
       imageNote:
-        orientation === "landscape"
+        imageNote ||
+        (orientation === "landscape"
           ? "Широкоформатна промо енергия с уверен фронтален поглед."
-          : "Портретен режим с повишена гравитация на личния бранд.",
+          : "Портретен режим с повишена гравитация на личния бранд."),
       orientation,
       description,
+      kicker,
+      summary,
+      aura,
+      funnel,
+      insight,
       channels,
       links,
     });
