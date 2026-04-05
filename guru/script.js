@@ -63,7 +63,6 @@ function renderProfiles() {
   profileList.innerHTML = profiles
     .map((profile, index) => {
       const hook = profileHooks[index % profileHooks.length];
-      const linkCount = profile.links.length;
       const descriptionBlock = profile.description
         ? `
             <div class="profile-description">
@@ -96,10 +95,6 @@ function renderProfiles() {
               <div>
                 <dt>Канали</dt>
                 <dd class="channel-links">${channelLinks}</dd>
-              </div>
-              <div>
-                <dt>Брой линкове</dt>
-                <dd>${escapeHtml(String(linkCount))} публични входа</dd>
               </div>
               <div>
                 <dt>Обещан вайб</dt>
