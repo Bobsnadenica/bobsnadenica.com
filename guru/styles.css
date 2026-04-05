@@ -654,10 +654,10 @@ code {
 }
 
 .profile-video-wrap {
-  grid-column: 1 / -1;
   display: grid;
   gap: 0.8rem;
-  padding-top: 0.2rem;
+  width: min(100%, 34rem);
+  padding-top: 0.35rem;
 }
 
 .profile-video-label {
@@ -669,7 +669,10 @@ code {
 }
 
 .profile-video-frame {
+  display: grid;
+  place-items: center;
   overflow: hidden;
+  padding: 0.65rem;
   border-radius: calc(var(--radius) - 6px);
   border: 1px solid rgba(16, 20, 17, 0.08);
   background:
@@ -680,8 +683,11 @@ code {
 
 .profile-video-frame video {
   display: block;
-  width: 100%;
-  max-height: min(70vh, 720px);
+  width: auto;
+  max-width: 100%;
+  max-height: min(60vh, 540px);
+  border-radius: calc(var(--radius) - 14px);
+  object-fit: contain;
   background: #101411;
 }
 

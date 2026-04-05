@@ -202,9 +202,8 @@ function renderProfiles(profiles, options = {}) {
             </dl>
 
             <p>${escapeHtml(hook.insight)}</p>
+            ${profileVideo}
           </div>
-
-          ${profileVideo}
         </article>
       `;
     })
