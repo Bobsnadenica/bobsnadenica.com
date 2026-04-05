@@ -3,7 +3,7 @@ window.__GURU_PROFILES__ = [
     "name": "Александър Чилингиров",
     "image": "site-assets/aleksandar-chilingirov.jpg",
     "alt": "Профилно изображение за Александър Чилингиров",
-    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "imageNote": "Портрет, подготвен да внушава увереност още преди първия линк.",
     "orientation": "portrait",
     "description": "Алекс Чикийката ви учи на айсберг модела. Млада, успяла жена на 16-17 години нз на колко е ама е богат и иска да го сподели с вас!",
     "kicker": "",
@@ -39,7 +39,7 @@ window.__GURU_PROFILES__ = [
     "name": "Боян Москов",
     "image": "site-assets/boyan-moskov.jpg",
     "alt": "Профилно изображение за Боян Москов",
-    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "imageNote": "Кадър с внимателно дозирана сериозност и достатъчно обещание за следващо ниво.",
     "orientation": "portrait",
     "description": "Московската машина, толкова е богат, че не знае какво да си прави парите и иска да ви даде и на вас!",
     "kicker": "",
@@ -86,10 +86,42 @@ window.__GURU_PROFILES__ = [
     ]
   },
   {
+    "name": "Георги Захариев",
+    "image": "site-assets/georgi-zahariev.jpg",
+    "alt": "Профилно изображение за Георги Захариев",
+    "imageNote": "Фронтална самоувереност с усещане, че успехът вече е резервиран.",
+    "orientation": "portrait",
+    "description": "Гошето е радикален хомосексуалист, измамник и лъжец....ааааааа исках да кажа че е успешен бизнесмен и ще ви научи как да правите пари!",
+    "kicker": "",
+    "summary": "",
+    "aura": "",
+    "funnel": "",
+    "insight": "",
+    "channels": [
+      "Уебсайт",
+      "Facebook",
+      "Instagram"
+    ],
+    "links": [
+      {
+        "label": "Уебсайт",
+        "url": "https://financeacademy.bg/application?utm_source=fb&utm_medium=organic&utm_campaign=youtube-reels-descriptions&fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR74JwSgEFWyBOu2gJ9utqvL9KiXZYxQ4NPHoHaPaw8h20miqC9rhlUF5a9prw_aem_5H23b2emQkNbTKUTValyIw"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/george.zaharieff/"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/george_zahariev?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR7ib77FzTQHcufkN5JvFE84AyVhk5vDqftAXKNpJ9lCBMS5j3Jq0FtDjBk3vw_aem_sttnsnA-TxjGXG11Fzfp_g"
+      }
+    ]
+  },
+  {
     "name": "Ивелин Михайлов",
     "image": "site-assets/ivelin-mihaylov.jpg",
     "alt": "Профилно изображение за Ивелин Михайлов",
-    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "imageNote": "Широк кадър с достатъчно въздух за визия, растеж и още една покана за включване.",
     "orientation": "landscape",
     "description": "Инвестираш при мен и правим 3 милиона посетители на година!!!! Невероятна възвращаемост! За КЛЕТА МАЙКА БЪЛГАРИЯ!",
     "kicker": "",
@@ -111,7 +143,7 @@ window.__GURU_PROFILES__ = [
     "name": "Йордан Йончев",
     "image": "site-assets/yordan-yonchev.jpg",
     "alt": "Профилно изображение за Йордан Йончев",
-    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "imageNote": "Пейзажен формат с увереност, че големите резултати са точно зад следващия бутон.",
     "orientation": "landscape",
     "description": "Йорданката е сертифициран от държавата! Издава сертификати, ще те научи как да си успешен щот има добро сърце, прави го заради вас! Той пари има",
     "kicker": "",
@@ -143,7 +175,7 @@ window.__GURU_PROFILES__ = [
     "name": "Мария Боева",
     "image": "site-assets/mariya-boeva.jpg",
     "alt": "Профилно изображение за Мария Боева",
-    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "imageNote": "Снимка, която носи енергия на частен урок, премиум пакет и леко присвити очи.",
     "orientation": "portrait",
     "description": "Ето я госпожа Московска, женската версия на Боян Москов, тя стартира и подарява милионни бизнеси за няма и 1 ден. Парите са нейната страст, а дупето - начин да ги придобиеш.",
     "kicker": "",
@@ -170,7 +202,7 @@ window.__GURU_PROFILES__ = [
     "name": "Румен Виста",
     "image": "site-assets/rumen-vista.jpg",
     "alt": "Профилно изображение за Румен Виста",
-    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "imageNote": "Личен бранд в портретен формат с отчетлива готовност за ново просветление.",
     "orientation": "portrait",
     "description": "Windows Vista е якия предприемач - Вили, Бали, Трактори - той ще ви научи на всичко",
     "kicker": "",
@@ -197,7 +229,7 @@ window.__GURU_PROFILES__ = [
     "name": "Цветан Радушев",
     "image": "site-assets/tsvetan-radushev.webp",
     "alt": "Профилно изображение за Цветан Радушев",
-    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "imageNote": "Кадър с промо мащаб и ясно усещане за внимателно режисиран успех.",
     "orientation": "landscape",
     "description": "Ко да кажа за Цуцката, толкова е успешен че не знае какво да си прави парите и иска да ги сподели с вас!",
     "kicker": "",
@@ -219,7 +251,7 @@ window.__GURU_PROFILES__ = [
     "name": "Юли Тонкин",
     "image": "site-assets/yuli-tonkin.jpg",
     "alt": "Профилно изображение за Юли Тонкин",
-    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "imageNote": "Широкоформатно присъствие, подготвено да побере обещание, авторитет и плавен ъпсел.",
     "orientation": "landscape",
     "description": "Бащата! Началникът! Човекът мотиватор! От него започват всички скам...аааа успешни гуруто. Може да те мотивира да му дадеш пари както никой друг!",
     "kicker": "",

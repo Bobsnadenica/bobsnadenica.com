@@ -71,6 +71,22 @@ const textFieldAliases = new Map([
   ["бележка на снимката", "imageNote"],
   ["текст върху снимката", "imageNote"],
 ]);
+const portraitImageNotes = [
+  "Портрет, подготвен да внушава увереност още преди първия линк.",
+  "Кадър с внимателно дозирана сериозност и достатъчно обещание за следващо ниво.",
+  "Фронтална самоувереност с усещане, че успехът вече е резервиран.",
+  "Снимка, която носи енергия на частен урок, премиум пакет и леко присвити очи.",
+  "Личен бранд в портретен формат с отчетлива готовност за ново просветление.",
+  "Поглед, изчислен да вдъхва доверие, мащаб и още едно записване.",
+];
+const landscapeImageNotes = [
+  "Широк кадър с достатъчно въздух за визия, растеж и още една покана за включване.",
+  "Пейзажен формат с увереност, че големите резултати са точно зад следващия бутон.",
+  "Кадър с промо мащаб и ясно усещане за внимателно режисиран успех.",
+  "Широкоформатно присъствие, подготвено да побере обещание, авторитет и плавен ъпсел.",
+  "Сцена с достатъчно пространство за амбиция, статус и едно добре осветено послание.",
+  "Визуален размах, който говори за хоризонти, програми и следващо ниво на достъп.",
+];
 
 function toTitleCase(value) {
   return value
@@ -112,6 +128,12 @@ function normaliseKey(value) {
     .toLowerCase()
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ");
+}
+
+function getDefaultImageNote(orientation, sequence = 0) {
+  const options = orientation === "landscape" ? landscapeImageNotes : portraitImageNotes;
+  const index = sequence % options.length;
+  return options[index];
 }
 
 function labelFromUrl(value) {
@@ -276,6 +298,10 @@ export async function readProfiles(rootDir = process.cwd()) {
     .sort((left, right) => left.name.localeCompare(right.name));
 
   const profiles = [];
+  const noteUsage = {
+    portrait: 0,
+    landscape: 0,
+  };
 
   for (const folder of folders) {
     const folderPath = path.join(assetsDir, folder.name);
@@ -293,16 +319,17 @@ export async function readProfiles(rootDir = process.cwd()) {
     const { description, kicker, summary, aura, funnel, insight, imageNote, links, channels } =
       parseLinks(rawText);
     const orientation = await detectOrientation(imagePath);
+    const defaultImageNote = imageNote || getDefaultImageNote(orientation, noteUsage[orientation]);
+
+    if (!imageNote) {
+      noteUsage[orientation] += 1;
+    }
 
     profiles.push({
       name: displayName,
       image: path.posix.join("assets", folder.name, imageFile.name),
       alt: `Профилно изображение за ${displayName}`,
-      imageNote:
-        imageNote ||
-        (orientation === "landscape"
-          ? "Широкоформатна промо енергия с уверен фронтален поглед."
-          : "Портретен режим с повишена гравитация на личния бранд."),
+      imageNote: defaultImageNote,
       orientation,
       description,
       kicker,
