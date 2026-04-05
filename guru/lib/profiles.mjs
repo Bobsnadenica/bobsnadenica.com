@@ -186,6 +186,7 @@ export async function readProfiles(rootDir = process.cwd()) {
 
   for (const folder of folders) {
     const folderPath = path.join(assetsDir, folder.name);
+    const displayName = folder.name.normalize("NFC");
     const files = await fs.readdir(folderPath, { withFileTypes: true });
     const imageFile = files.find((entry) => imageExtensions.has(path.extname(entry.name).toLowerCase()));
     const textFile = files.find((entry) => path.extname(entry.name).toLowerCase() === ".txt");
@@ -200,9 +201,9 @@ export async function readProfiles(rootDir = process.cwd()) {
     const orientation = await detectOrientation(imagePath);
 
     profiles.push({
-      name: folder.name,
+      name: displayName,
       image: path.posix.join("assets", folder.name, imageFile.name),
-      alt: `Профилно изображение за ${folder.name}`,
+      alt: `Профилно изображение за ${displayName}`,
       imageNote:
         orientation === "landscape"
           ? "Широкоформатна промо енергия с уверен фронтален поглед."

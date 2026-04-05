@@ -148,5 +148,22 @@ window.__GURU_PROFILES__ = [
         "url": "https://www.tiktok.com/@boyan_moskov?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4vysgCV1G6Mh3Q5uNGEbD4ZxRt_4BbT1ms21RdGxVA1HMWfUeqMwcZcspxGQ_aem_ypehF011nCk9e5Vzhw91Ow"
       }
     ]
+  },
+  {
+    "name": "Ивелин Михайлов",
+    "image": "assets/Ивелин Михайлов/Ивелин_Михайлов.jpg",
+    "alt": "Профилно изображение за Ивелин Михайлов",
+    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "orientation": "landscape",
+    "description": "Инвестираш при мен и правим 3 милиона посетители на година!!!! Невероятна възвращаемост! За КЛЕТА МАЙКА БЪЛГАРИЯ!",
+    "channels": [
+      "Facebook"
+    ],
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/ivelin.mihaylov"
+      }
+    ]
   }
 ];
