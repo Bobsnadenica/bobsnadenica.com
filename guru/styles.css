@@ -326,6 +326,53 @@ code {
   margin-bottom: 3rem;
 }
 
+.directory-tools {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.search-field {
+  display: grid;
+  gap: 0.65rem;
+  width: min(100%, 620px);
+}
+
+.search-field span {
+  color: var(--accent-deep);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+}
+
+.search-field input {
+  width: 100%;
+  min-height: 56px;
+  padding: 0.95rem 1.15rem;
+  border: 1px solid rgba(16, 20, 17, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font: inherit;
+  box-shadow: 0 16px 36px rgba(16, 20, 17, 0.05);
+}
+
+.search-field input:focus {
+  outline: 2px solid rgba(184, 132, 69, 0.42);
+  outline-offset: 2px;
+  border-color: rgba(133, 81, 31, 0.24);
+}
+
+.search-field input::placeholder {
+  color: rgba(16, 20, 17, 0.42);
+}
+
+.search-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .profile-list {
   display: grid;
   gap: clamp(2.2rem, 4vw, 3rem);
@@ -343,6 +390,10 @@ code {
     linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34)),
     linear-gradient(135deg, rgba(184, 132, 69, 0.08), rgba(32, 55, 47, 0.08));
   box-shadow: var(--shadow);
+}
+
+.profile-card.is-empty {
+  grid-template-columns: 1fr;
 }
 
 .profile-card:nth-child(even) {

@@ -29,6 +29,8 @@ const profileHooks = [
 ];
 
 const profileList = document.querySelector("#profile-list");
+const searchInput = document.querySelector("#guru-search");
+const searchStatus = document.querySelector("#search-status");
 const fallbackProfiles = Array.isArray(window.__GURU_PROFILES__) ? window.__GURU_PROFILES__ : [];
 
 function escapeHtml(value) {
@@ -40,20 +42,40 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function renderProfiles(profiles) {
+function normalizeForSearch(value) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
+function getSearchableText(profile) {
+  return normalizeForSearch(
+    [
+      profile.name,
+      profile.description,
+      profile.channels?.join(" "),
+      profile.links?.map((link) => `${link.label} ${link.url}`).join(" "),
+    ].join(" "),
+  );
+}
+
+function renderProfiles(profiles, options = {}) {
   if (!profileList) {
     return;
   }
 
+  const emptyTitle = options.emptyTitle || "Каталогът е празен";
+  const emptyBody =
+    options.emptyBody || "Провери отново по-късно за нови попълнения, линкове и блестящи обещания.";
+
   if (!profiles.length) {
     profileList.innerHTML = `
-      <article class="profile-card reveal">
+      <article class="profile-card reveal is-empty">
         <div class="profile-copy">
-          <p class="profile-kicker">Каталогът е празен</p>
-          <h3>В момента няма активни профили в този раздел.</h3>
-          <p class="profile-summary">
-            Провери отново по-късно за нови попълнения, линкове и блестящи обещания.
-          </p>
+          <p class="profile-kicker">${escapeHtml(emptyTitle)}</p>
+          <h3>${escapeHtml(emptyBody)}</h3>
         </div>
       </article>
     `;
@@ -112,6 +134,55 @@ function renderProfiles(profiles) {
       `;
     })
     .join("");
+}
+
+function updateSearchStatus(filteredCount, totalCount, query) {
+  if (!searchStatus) {
+    return;
+  }
+
+  if (!totalCount) {
+    searchStatus.textContent = "";
+    return;
+  }
+
+  if (!query) {
+    searchStatus.textContent = `${totalCount} профила в каталога.`;
+    return;
+  }
+
+  searchStatus.textContent = `Показани ${filteredCount} от ${totalCount} резултата за "${query}".`;
+}
+
+function attachSearch(allProfiles) {
+  if (!searchInput) {
+    return;
+  }
+
+  const applyFilter = () => {
+    const rawQuery = searchInput.value.trim();
+    const query = normalizeForSearch(rawQuery);
+    const filteredProfiles = query
+      ? allProfiles.filter((profile) => getSearchableText(profile).includes(query))
+      : allProfiles;
+
+    if (!filteredProfiles.length) {
+      renderProfiles([], {
+        emptyTitle: "Няма съвпадения",
+        emptyBody: `Нищо не беше намерено за "${rawQuery}".`,
+      });
+      setupReveals();
+      updateSearchStatus(0, allProfiles.length, rawQuery);
+      return;
+    }
+
+    renderProfiles(filteredProfiles);
+    setupReveals();
+    updateSearchStatus(filteredProfiles.length, allProfiles.length, rawQuery);
+  };
+
+  searchInput.addEventListener("input", applyFilter);
+  applyFilter();
 }
 
 async function loadProfiles() {
@@ -178,6 +249,7 @@ async function initPage() {
   const profiles = await loadProfiles();
   renderProfiles(profiles);
   setupReveals();
+  attachSearch(profiles);
 }
 
 initPage();

@@ -1,8 +1,8 @@
 window.__GURU_PROFILES__ = [
   {
-    "name": "Alexander Chilingirov",
-    "image": "assets/Alexander Chilingirov/Alexandar Chilingirov.jpg",
-    "alt": "Профилно изображение за Alexander Chilingirov",
+    "name": "Александър Чилингиров",
+    "image": "assets/Александър Чилингиров/Alexandar Chilingirov.jpg",
+    "alt": "Профилно изображение за Александър Чилингиров",
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
     "description": "Алекс Чикийката ви учи на айсберг модела. Млада, успяла жена на 16-17 години нз на колко е ама е богат и иска да го сподели с вас!",
@@ -27,80 +27,6 @@ window.__GURU_PROFILES__ = [
       {
         "label": "Уебсайт",
         "url": "https://chilladvertising.com"
-      }
-    ]
-  },
-  {
-    "name": "Yordan Yonchev",
-    "image": "assets/Yordan Yonchev/yordan_yonchev.jpg",
-    "alt": "Профилно изображение за Yordan Yonchev",
-    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
-    "orientation": "landscape",
-    "description": "Йорданката е сертифициран от държавата! Издава сертификати, ще те научи как да си успешен щот има добро сърце, прави го заради вас! Той пари има",
-    "channels": [
-      "YouTube",
-      "Facebook",
-      "Уебсайт"
-    ],
-    "links": [
-      {
-        "label": "YouTube",
-        "url": "https://www.youtube.com/watch?v=wLnmbXWxqDU"
-      },
-      {
-        "label": "Facebook",
-        "url": "https://www.facebook.com/y.yonchev"
-      },
-      {
-        "label": "Уебсайт",
-        "url": "https://api.leadconnectorhq.com/widget/booking/2gQWMrOC4fmDbywp13mm"
-      }
-    ]
-  },
-  {
-    "name": "Yuli Tonkin",
-    "image": "assets/Yuli Tonkin/467253592_1147420500083872_1025604249568635073_n.jpg",
-    "alt": "Профилно изображение за Yuli Tonkin",
-    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
-    "orientation": "landscape",
-    "description": "Бащата! Началникът! Човекът мотиватор! От него започват всички скам...аааа успешни гуруто. Може да те мотивира да му дадеш пари както никой друг!",
-    "channels": [
-      "Facebook",
-      "Instagram",
-      "YouTube",
-      "TikTok",
-      "Уебсайт",
-      "Viber",
-      "LinkedIn"
-    ],
-    "links": [
-      {
-        "label": "Facebook",
-        "url": "https://www.facebook.com/yulitonkinofficial"
-      },
-      {
-        "label": "Instagram",
-        "url": "https://www.instagram.com/yulitonkin?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR5ZGIOPGB4w2dsV-uwHB5bNwODcHNgirgUKydxyRm5ZKJmDgO_770ncSByHCQ_aem_kfN8sNxlOSwLUyqX7kPsEg"
-      },
-      {
-        "label": "YouTube",
-        "url": "https://www.youtube.com/@yulitonkin"
-      },
-      {
-        "label": "TikTok",
-        "url": "https://www.tiktok.com/@yulitonkin?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR5ZGIOPGB4w2dsV-uwHB5bNwODcHNgirgUKydxyRm5ZKJmDgO_770ncSByHCQ_aem_kfN8sNxlOSwLUyqX7kPsEg"
-      },
-      {
-        "label": "Уебсайт",
-        "url": "https://tonkin.bg"
-      },
-      {
-        "label": "Viber",
-        "url": "https://invite.viber.com/?g2=AQBYPesH%2BsgYF1AwkJAV2AnPn%2FrY%2F85a47Z9sti3h2BarGnd1RMc13RCHC3HH9GL&fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR7F2hHk3JhVNUiEUYFVyMGqq8YkBQfSfDdLQ1uHx5V7ByRtfIHkBxSWqSRGdA_aem_PPttwbP-vwnwOAIQplydng&lang=en"
-      },
-      {
-        "label": "LinkedIn",
-        "url": "https://www.linkedin.com/in/yuli-tonkin/"
       }
     ]
   },
@@ -163,6 +89,119 @@ window.__GURU_PROFILES__ = [
       {
         "label": "Facebook",
         "url": "https://www.facebook.com/ivelin.mihaylov"
+      }
+    ]
+  },
+  {
+    "name": "Йордан Йончев",
+    "image": "assets/Йордан Йончев/yordan_yonchev.jpg",
+    "alt": "Профилно изображение за Йордан Йончев",
+    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "orientation": "landscape",
+    "description": "Йорданката е сертифициран от държавата! Издава сертификати, ще те научи как да си успешен щот има добро сърце, прави го заради вас! Той пари има",
+    "channels": [
+      "YouTube",
+      "Facebook",
+      "Уебсайт"
+    ],
+    "links": [
+      {
+        "label": "YouTube",
+        "url": "https://www.youtube.com/watch?v=wLnmbXWxqDU"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/y.yonchev"
+      },
+      {
+        "label": "Уебсайт",
+        "url": "https://api.leadconnectorhq.com/widget/booking/2gQWMrOC4fmDbywp13mm"
+      }
+    ]
+  },
+  {
+    "name": "Румен Виста",
+    "image": "assets/Румен Виста/Румен_виста.jpg",
+    "alt": "Профилно изображение за Румен Виста",
+    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "orientation": "portrait",
+    "description": "Windows Vista е якия предприемач - Вили, Бали, Трактори - той ще ви научи на всичко",
+    "channels": [
+      "Уебсайт",
+      "Facebook"
+    ],
+    "links": [
+      {
+        "label": "Уебсайт",
+        "url": "https://www.rumenvista.com"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/RumenVista/?locale=bg_BG"
+      }
+    ]
+  },
+  {
+    "name": "Цветан Радушев",
+    "image": "assets/Цветан Радушев/Tsvetan_Radushev_S_Kniga_Ot_0_Do_Uspeshen_Biznes.webp",
+    "alt": "Профилно изображение за Цветан Радушев",
+    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "orientation": "landscape",
+    "description": "",
+    "channels": [
+      "Уебсайт"
+    ],
+    "links": [
+      {
+        "label": "Уебсайт",
+        "url": "https://tsvetanradushev.bg/contact/"
+      }
+    ]
+  },
+  {
+    "name": "Юли Тонкин",
+    "image": "assets/Юли Тонкин/467253592_1147420500083872_1025604249568635073_n.jpg",
+    "alt": "Профилно изображение за Юли Тонкин",
+    "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
+    "orientation": "landscape",
+    "description": "Бащата! Началникът! Човекът мотиватор! От него започват всички скам...аааа успешни гуруто. Може да те мотивира да му дадеш пари както никой друг!",
+    "channels": [
+      "Facebook",
+      "Instagram",
+      "YouTube",
+      "TikTok",
+      "Уебсайт",
+      "Viber",
+      "LinkedIn"
+    ],
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/yulitonkinofficial"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/yulitonkin?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR5ZGIOPGB4w2dsV-uwHB5bNwODcHNgirgUKydxyRm5ZKJmDgO_770ncSByHCQ_aem_kfN8sNxlOSwLUyqX7kPsEg"
+      },
+      {
+        "label": "YouTube",
+        "url": "https://www.youtube.com/@yulitonkin"
+      },
+      {
+        "label": "TikTok",
+        "url": "https://www.tiktok.com/@yulitonkin?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR5ZGIOPGB4w2dsV-uwHB5bNwODcHNgirgUKydxyRm5ZKJmDgO_770ncSByHCQ_aem_kfN8sNxlOSwLUyqX7kPsEg"
+      },
+      {
+        "label": "Уебсайт",
+        "url": "https://tonkin.bg"
+      },
+      {
+        "label": "Viber",
+        "url": "https://invite.viber.com/?g2=AQBYPesH%2BsgYF1AwkJAV2AnPn%2FrY%2F85a47Z9sti3h2BarGnd1RMc13RCHC3HH9GL&fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR7F2hHk3JhVNUiEUYFVyMGqq8YkBQfSfDdLQ1uHx5V7ByRtfIHkBxSWqSRGdA_aem_PPttwbP-vwnwOAIQplydng&lang=en"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/yuli-tonkin/"
       }
     ]
   }
