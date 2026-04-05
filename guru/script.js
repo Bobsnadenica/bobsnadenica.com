@@ -43,6 +43,24 @@ function getSearchableText(profile) {
   );
 }
 
+function getVideoMimeType(videoPath) {
+  const lowered = String(videoPath || "").toLowerCase();
+
+  if (lowered.endsWith(".webm")) {
+    return "video/webm";
+  }
+
+  if (lowered.endsWith(".mov")) {
+    return "video/quicktime";
+  }
+
+  if (lowered.endsWith(".m4v")) {
+    return "video/x-m4v";
+  }
+
+  return "video/mp4";
+}
+
 function pickHeroProfile(profiles) {
   const heroProfiles = profiles.filter((profile) => profile?.image);
 
@@ -160,14 +178,27 @@ function renderProfiles(profiles, options = {}) {
 
       const signalGrid = `<dl class="signal-grid">${signalItems.join("")}</dl>`;
       const insightBlock = hook.insight ? `<p>${escapeHtml(hook.insight)}</p>` : "";
-      const profileVideo = profile.video
+      const profileVideos = Array.isArray(profile.videos)
+        ? profile.videos
+        : profile.video
+          ? [profile.video]
+          : [];
+      const profileVideo = profileVideos.length
         ? `
             <div class="profile-video-wrap">
-              <p class="profile-video-label">Видео</p>
-              <div class="profile-video-frame">
-                <video controls playsinline preload="metadata" poster="${encodeURI(profile.image)}">
-                  <source src="${encodeURI(profile.video)}" type="video/mp4" />
-                </video>
+              <p class="profile-video-label">${profileVideos.length > 1 ? "Видеа" : "Видео"}</p>
+              <div class="profile-video-grid">
+                ${profileVideos
+                  .map(
+                    (videoPath) => `
+                      <div class="profile-video-frame">
+                        <video controls playsinline preload="metadata" poster="${encodeURI(profile.image)}">
+                          <source src="${encodeURI(videoPath)}" type="${getVideoMimeType(videoPath)}" />
+                        </video>
+                      </div>
+                    `,
+                  )
+                  .join("")}
               </div>
             </div>
           `

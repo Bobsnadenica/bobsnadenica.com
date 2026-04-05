@@ -5,7 +5,7 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
-const videoExtensions = new Set([".mp4"]);
+const videoExtensions = new Set([".mp4", ".mov", ".m4v", ".webm"]);
 const cyrillicMap = new Map([
   ["а", "a"],
   ["б", "b"],
@@ -309,7 +309,9 @@ export async function readProfiles(rootDir = process.cwd()) {
     const displayName = folder.name.normalize("NFC");
     const files = await fs.readdir(folderPath, { withFileTypes: true });
     const imageFile = files.find((entry) => imageExtensions.has(path.extname(entry.name).toLowerCase()));
-    const videoFile = files.find((entry) => videoExtensions.has(path.extname(entry.name).toLowerCase()));
+    const videoFiles = files
+      .filter((entry) => videoExtensions.has(path.extname(entry.name).toLowerCase()))
+      .sort((left, right) => left.name.localeCompare(right.name));
     const textFile = files.find((entry) => path.extname(entry.name).toLowerCase() === ".txt");
 
     if (!imageFile || !textFile) {
@@ -332,7 +334,7 @@ export async function readProfiles(rootDir = process.cwd()) {
       image: path.posix.join("assets", folder.name, imageFile.name),
       alt: `Профилно изображение за ${displayName}`,
       imageNote: defaultImageNote,
-      video: videoFile ? path.posix.join("assets", folder.name, videoFile.name) : undefined,
+      videos: videoFiles.map((entry) => path.posix.join("assets", folder.name, entry.name)),
       orientation,
       description,
       kicker,
@@ -370,22 +372,23 @@ export async function writeSiteData(rootDir = process.cwd()) {
 
     await fs.copyFile(sourceImagePath, targetImagePath);
 
-    let staticVideoPath;
+    const staticVideoPaths = [];
 
-    if (profile.video) {
-      const videoExtension = path.extname(profile.video).toLowerCase();
-      const targetVideoFileName = `${fileSlug}-video${videoExtension}`;
-      const sourceVideoPath = path.join(rootDir, profile.video);
+    for (const [index, videoPath] of (profile.videos || []).entries()) {
+      const videoExtension = path.extname(videoPath).toLowerCase();
+      const targetVideoFileName =
+        index === 0 ? `${fileSlug}-video${videoExtension}` : `${fileSlug}-video-${index + 1}${videoExtension}`;
+      const sourceVideoPath = path.join(rootDir, videoPath);
       const targetVideoPath = path.join(staticAssetsDir, targetVideoFileName);
 
       await fs.copyFile(sourceVideoPath, targetVideoPath);
-      staticVideoPath = path.posix.join("site-assets", targetVideoFileName);
+      staticVideoPaths.push(path.posix.join("site-assets", targetVideoFileName));
     }
 
     staticProfiles.push({
       ...profile,
       image: path.posix.join("site-assets", targetFileName),
-      video: staticVideoPath,
+      videos: staticVideoPaths,
     });
   }
 
