@@ -49,11 +49,10 @@ function renderProfiles() {
     profileList.innerHTML = `
       <article class="profile-card reveal">
         <div class="profile-copy">
-          <p class="profile-kicker">Все още няма заредени профили</p>
-          <h3>Добави папки в <code>assets/</code> и генерирай данните отново.</h3>
+          <p class="profile-kicker">Каталогът е празен</p>
+          <h3>В момента няма активни профили в този раздел.</h3>
           <p class="profile-summary">
-            Страницата е готова, но очаква папки с изображение и текстов файл,
-            в който има публични линкове и ред <code>Description:</code>.
+            Провери отново по-късно за нови попълнения, линкове и блестящи обещания.
           </p>
         </div>
       </article>
@@ -65,7 +64,6 @@ function renderProfiles() {
     .map((profile, index) => {
       const hook = profileHooks[index % profileHooks.length];
       const linkCount = profile.links.length;
-      const channelList = profile.channels.join(", ") || "Неуточнена дигитална екосистема";
       const descriptionBlock = profile.description
         ? `
             <div class="profile-description">
@@ -74,13 +72,7 @@ function renderProfiles() {
             </div>
           `
         : "";
-      const rawLinks = profile.links
-        .map(
-          (link) =>
-            `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a></li>`,
-        )
-        .join("");
-      const actionLinks = profile.links
+      const channelLinks = profile.links
         .map(
           (link) =>
             `<a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`,
@@ -103,7 +95,7 @@ function renderProfiles() {
             <dl class="signal-grid">
               <div>
                 <dt>Канали</dt>
-                <dd>${escapeHtml(channelList)}</dd>
+                <dd class="channel-links">${channelLinks}</dd>
               </div>
               <div>
                 <dt>Брой линкове</dt>
@@ -120,14 +112,6 @@ function renderProfiles() {
             </dl>
 
             <p>${escapeHtml(hook.insight)}</p>
-
-            <div class="profile-links">
-              ${actionLinks}
-            </div>
-
-            <ul class="link-stack">
-              ${rawLinks}
-            </ul>
           </div>
         </article>
       `;

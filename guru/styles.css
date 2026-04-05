@@ -127,8 +127,7 @@ code {
 .section-heading p,
 .manifesto-grid p,
 .profile-copy p,
-.closing p,
-.link-stack li {
+.closing p {
   color: var(--muted);
   line-height: 1.6;
 }
@@ -146,8 +145,7 @@ code {
   margin-top: 2rem;
 }
 
-.button,
-.profile-links a {
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -461,32 +459,35 @@ code {
   line-height: 1.45;
 }
 
-.profile-links {
+.channel-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
 }
 
-.profile-links a {
+.channel-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.7rem 1.05rem;
+  border-radius: 999px;
+  text-decoration: none;
   border: 1px solid rgba(16, 20, 17, 0.12);
   background: rgba(255, 255, 255, 0.62);
   color: var(--ink);
+  transition:
+    transform 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease;
 }
 
-.profile-links a:hover,
-.profile-links a:focus-visible {
+.channel-links a:hover,
+.channel-links a:focus-visible {
   transform: translateY(-2px);
   border-color: rgba(16, 20, 17, 0.28);
   background: #fffaf3;
-}
-
-.link-stack {
-  margin: 0;
-  padding-left: 1rem;
-}
-
-.link-stack li + li {
-  margin-top: 0.35rem;
 }
 
 .closing {
@@ -618,7 +619,7 @@ code {
   }
 
   .hero-actions,
-  .profile-links {
+  .channel-links {
     flex-direction: column;
     align-items: stretch;
   }
@@ -654,7 +655,7 @@ code {
   }
 
   .button,
-  .profile-links a {
+  .channel-links a {
     transition: none;
   }
 }
