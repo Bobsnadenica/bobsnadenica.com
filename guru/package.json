@@ -1,8 +1,0 @@
-{
-  "name": "guru-prestige-society",
-  "private": true,
-  "scripts": {
-    "build:data": "node scripts/build-profiles.mjs",
-    "start": "node server.mjs"
-  }
-}
