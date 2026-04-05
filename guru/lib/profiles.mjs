@@ -5,6 +5,38 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+const cyrillicMap = new Map([
+  ["а", "a"],
+  ["б", "b"],
+  ["в", "v"],
+  ["г", "g"],
+  ["д", "d"],
+  ["е", "e"],
+  ["ж", "zh"],
+  ["з", "z"],
+  ["и", "i"],
+  ["й", "y"],
+  ["к", "k"],
+  ["л", "l"],
+  ["м", "m"],
+  ["н", "n"],
+  ["о", "o"],
+  ["п", "p"],
+  ["р", "r"],
+  ["с", "s"],
+  ["т", "t"],
+  ["у", "u"],
+  ["ф", "f"],
+  ["х", "h"],
+  ["ц", "ts"],
+  ["ч", "ch"],
+  ["ш", "sh"],
+  ["щ", "sht"],
+  ["ъ", "a"],
+  ["ь", "y"],
+  ["ю", "yu"],
+  ["я", "ya"],
+]);
 const labelAliases = new Map([
   ["youtube", "YouTube"],
   ["facebook", "Facebook"],
@@ -23,6 +55,22 @@ function toTitleCase(value) {
     .replace(/\s+/g, " ")
     .trim()
     .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function toSlug(value) {
+  const transliterated = value
+    .normalize("NFC")
+    .toLowerCase()
+    .split("")
+    .map((char) => cyrillicMap.get(char) || char)
+    .join("");
+
+  return transliterated
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
 }
 
 function normaliseLabel(value) {
@@ -220,10 +268,35 @@ export async function readProfiles(rootDir = process.cwd()) {
 
 export async function writeSiteData(rootDir = process.cwd()) {
   const profiles = await readProfiles(rootDir);
+  const staticAssetsDir = path.join(rootDir, "site-assets");
   const outputFile = path.join(rootDir, "site-data.js");
-  const fileContent = `window.__GURU_PROFILES__ = ${JSON.stringify(profiles, null, 2)};\n`;
+
+  await fs.mkdir(staticAssetsDir, { recursive: true });
+
+  const seenSlugs = new Map();
+  const staticProfiles = [];
+
+  for (const profile of profiles) {
+    const extension = path.extname(profile.image).toLowerCase();
+    const baseSlug = toSlug(profile.name) || "guru";
+    const slugCount = (seenSlugs.get(baseSlug) || 0) + 1;
+    seenSlugs.set(baseSlug, slugCount);
+    const fileSlug = slugCount === 1 ? baseSlug : `${baseSlug}-${slugCount}`;
+    const targetFileName = `${fileSlug}${extension}`;
+    const sourceImagePath = path.join(rootDir, profile.image);
+    const targetImagePath = path.join(staticAssetsDir, targetFileName);
+
+    await fs.copyFile(sourceImagePath, targetImagePath);
+
+    staticProfiles.push({
+      ...profile,
+      image: path.posix.join("site-assets", targetFileName),
+    });
+  }
+
+  const fileContent = `window.__GURU_PROFILES__ = ${JSON.stringify(staticProfiles, null, 2)};\n`;
 
   await fs.writeFile(outputFile, fileContent, "utf8");
 
-  return profiles;
+  return staticProfiles;
 }

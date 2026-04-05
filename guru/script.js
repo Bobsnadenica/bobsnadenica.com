@@ -186,7 +186,11 @@ function attachSearch(allProfiles) {
 }
 
 async function loadProfiles() {
-  if (typeof window.fetch !== "function") {
+  const isLocalRuntime =
+    typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+  if (typeof window.fetch !== "function" || !isLocalRuntime) {
     return fallbackProfiles;
   }
 

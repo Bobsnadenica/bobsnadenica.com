@@ -1,7 +1,7 @@
 window.__GURU_PROFILES__ = [
   {
     "name": "Александър Чилингиров",
-    "image": "assets/Александър Чилингиров/Alexandar Chilingirov.jpg",
+    "image": "site-assets/aleksandar-chilingirov.jpg",
     "alt": "Профилно изображение за Александър Чилингиров",
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
@@ -32,7 +32,7 @@ window.__GURU_PROFILES__ = [
   },
   {
     "name": "Боян Москов",
-    "image": "assets/Боян Москов/528005119_1075330254785328_2276364423626797839_n.jpg",
+    "image": "site-assets/boyan-moskov.jpg",
     "alt": "Профилно изображение за Боян Москов",
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
@@ -77,7 +77,7 @@ window.__GURU_PROFILES__ = [
   },
   {
     "name": "Ивелин Михайлов",
-    "image": "assets/Ивелин Михайлов/Ивелин_Михайлов.jpg",
+    "image": "site-assets/ivelin-mihaylov.jpg",
     "alt": "Профилно изображение за Ивелин Михайлов",
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
@@ -94,7 +94,7 @@ window.__GURU_PROFILES__ = [
   },
   {
     "name": "Йордан Йончев",
-    "image": "assets/Йордан Йончев/yordan_yonchev.jpg",
+    "image": "site-assets/yordan-yonchev.jpg",
     "alt": "Профилно изображение за Йордан Йончев",
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
@@ -120,8 +120,25 @@ window.__GURU_PROFILES__ = [
     ]
   },
   {
+    "name": "Мария Боева",
+    "image": "site-assets/mariya-boeva.jpg",
+    "alt": "Профилно изображение за Мария Боева",
+    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "orientation": "portrait",
+    "description": "",
+    "channels": [
+      "Facebook"
+    ],
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/mariya.boeva.digitalmarketer"
+      }
+    ]
+  },
+  {
     "name": "Румен Виста",
-    "image": "assets/Румен Виста/Румен_виста.jpg",
+    "image": "site-assets/rumen-vista.jpg",
     "alt": "Профилно изображение за Румен Виста",
     "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
     "orientation": "portrait",
@@ -143,7 +160,7 @@ window.__GURU_PROFILES__ = [
   },
   {
     "name": "Цветан Радушев",
-    "image": "assets/Цветан Радушев/Tsvetan_Radushev_S_Kniga_Ot_0_Do_Uspeshen_Biznes.webp",
+    "image": "site-assets/tsvetan-radushev.webp",
     "alt": "Профилно изображение за Цветан Радушев",
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
@@ -160,7 +177,7 @@ window.__GURU_PROFILES__ = [
   },
   {
     "name": "Юли Тонкин",
-    "image": "assets/Юли Тонкин/467253592_1147420500083872_1025604249568635073_n.jpg",
+    "image": "site-assets/yuli-tonkin.jpg",
     "alt": "Профилно изображение за Юли Тонкин",
     "imageNote": "Широкоформатна промо енергия с уверен фронтален поглед.",
     "orientation": "landscape",
