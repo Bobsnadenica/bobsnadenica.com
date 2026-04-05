@@ -31,7 +31,14 @@ const profileHooks = [
 const profileList = document.querySelector("#profile-list");
 const searchInput = document.querySelector("#guru-search");
 const searchStatus = document.querySelector("#search-status");
+const heroImage = document.querySelector("#hero-image");
+const heroQuoteLabel = document.querySelector("#hero-quote-label");
+const heroQuoteText = document.querySelector("#hero-quote-text");
 const fallbackProfiles = Array.isArray(window.__GURU_PROFILES__) ? window.__GURU_PROFILES__ : [];
+const heroStorageKey = "guruHeroIndex";
+const defaultHeroLabel = heroQuoteLabel?.textContent?.trim() || "Полево наблюдение";
+const defaultHeroText =
+  heroQuoteText?.textContent?.trim() || "Силно кафе. Още по-силна енергия за наставничество.";
 
 function escapeHtml(value) {
   return String(value)
@@ -64,6 +71,48 @@ function getSearchableText(profile) {
       profile.links?.map((link) => `${link.label} ${link.url}`).join(" "),
     ].join(" "),
   );
+}
+
+function pickHeroProfile(profiles) {
+  const heroProfiles = profiles.filter((profile) => profile?.image);
+
+  if (!heroProfiles.length) {
+    return null;
+  }
+
+  try {
+    const previousIndex = Number.parseInt(window.localStorage.getItem(heroStorageKey) || "", 10);
+    const nextIndex = (Number.isInteger(previousIndex) ? previousIndex + 1 : 0) % heroProfiles.length;
+    window.localStorage.setItem(heroStorageKey, String(nextIndex));
+    return heroProfiles[nextIndex];
+  } catch {
+    return heroProfiles[0];
+  }
+}
+
+function updateHeroVisual(profiles) {
+  if (!heroImage) {
+    return;
+  }
+
+  const heroProfile = pickHeroProfile(profiles);
+
+  if (!heroProfile) {
+    return;
+  }
+
+  heroImage.src = encodeURI(heroProfile.image);
+  heroImage.alt = heroProfile.alt || "";
+  heroImage.style.objectPosition = heroProfile.orientation === "landscape" ? "center center" : "center 32%";
+
+  if (heroQuoteLabel) {
+    heroQuoteLabel.textContent = heroProfile.name || defaultHeroLabel;
+  }
+
+  if (heroQuoteText) {
+    heroQuoteText.textContent =
+      heroProfile.imageNote || heroProfile.kicker || heroProfile.summary || defaultHeroText;
+  }
 }
 
 function renderProfiles(profiles, options = {}) {
@@ -263,6 +312,7 @@ function setupReveals() {
 
 async function initPage() {
   const profiles = await loadProfiles();
+  updateHeroVisual(profiles);
   renderProfiles(profiles);
   setupReveals();
   attachSearch(profiles);
