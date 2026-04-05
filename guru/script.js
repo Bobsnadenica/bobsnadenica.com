@@ -29,7 +29,7 @@ const profileHooks = [
 ];
 
 const profileList = document.querySelector("#profile-list");
-const profiles = Array.isArray(window.__GURU_PROFILES__) ? window.__GURU_PROFILES__ : [];
+const fallbackProfiles = Array.isArray(window.__GURU_PROFILES__) ? window.__GURU_PROFILES__ : [];
 
 function escapeHtml(value) {
   return String(value)
@@ -40,7 +40,7 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function renderProfiles() {
+function renderProfiles(profiles) {
   if (!profileList) {
     return;
   }
@@ -114,6 +114,38 @@ function renderProfiles() {
     .join("");
 }
 
+async function loadProfiles() {
+  if (typeof window.fetch !== "function") {
+    return fallbackProfiles;
+  }
+
+  try {
+    const response = await fetch("/api/profiles", {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const payload = await response.json();
+
+    if (Array.isArray(payload?.profiles)) {
+      return payload.profiles;
+    }
+
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+
+    return fallbackProfiles;
+  } catch {
+    return fallbackProfiles;
+  }
+}
+
 function setupReveals() {
   const revealNodes = Array.from(document.querySelectorAll(".reveal"));
 
@@ -142,5 +174,10 @@ function setupReveals() {
   revealNodes.forEach((node) => observer.observe(node));
 }
 
-renderProfiles();
-setupReveals();
+async function initPage() {
+  const profiles = await loadProfiles();
+  renderProfiles(profiles);
+  setupReveals();
+}
+
+initPage();

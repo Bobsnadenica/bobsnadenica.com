@@ -103,5 +103,50 @@ window.__GURU_PROFILES__ = [
         "url": "https://www.linkedin.com/in/yuli-tonkin/"
       }
     ]
+  },
+  {
+    "name": "Боян Москов",
+    "image": "assets/Боян Москов/528005119_1075330254785328_2276364423626797839_n.jpg",
+    "alt": "Профилно изображение за Боян Москов",
+    "imageNote": "Портретен режим с повишена гравитация на личния бранд.",
+    "orientation": "portrait",
+    "description": "Московската машина, толкова е богат, че не знае какво да си прави парите и иска да ви даде и на вас!",
+    "channels": [
+      "Facebook",
+      "Уебсайт",
+      "Instagram",
+      "YouTube",
+      "TikTok"
+    ],
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/bobbymoss.me"
+      },
+      {
+        "label": "Уебсайт",
+        "url": "https://masterclass.bg/2026"
+      },
+      {
+        "label": "Уебсайт 2",
+        "url": "https://convertbuilder.com/?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR71xizd-l071lnbbpccTPi1agWCJyYCHiR0op9uNUBwfZaCb3irdg83mYvYkA_aem_rljtz66QsGzdWb39Usgq6A"
+      },
+      {
+        "label": "Уебсайт 3",
+        "url": "https://interactiveorb.com/?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4u5J5nPpaJxn2MX7MCFiV4pMctj1Ekk4DMB3UF8-_Vvmd1iVPyPTA9EhDavA_aem_tYyhHvfuM2h8Dph5oSbTWw"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/boyanmoskov?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR5paT_bSnqm-D5zJXVwcKefG7Xr-p3cosiKCPmSH6Cvcuv2Cn5gC_z-ltDhQw_aem_eDem688IhdzGrrX4B0dEzA"
+      },
+      {
+        "label": "YouTube",
+        "url": "https://www.youtube.com/@onlinebusinessmb"
+      },
+      {
+        "label": "TikTok",
+        "url": "https://www.tiktok.com/@boyan_moskov?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBEwalhNVGp2cTlBb0cxa3VKTXNydGMGYXBwX2lkEDIyMjAzOTE3ODgyMDA4OTIAAR4vysgCV1G6Mh3Q5uNGEbD4ZxRt_4BbT1ms21RdGxVA1HMWfUeqMwcZcspxGQ_aem_ypehF011nCk9e5Vzhw91Ow"
+      }
+    ]
   }
 ];
