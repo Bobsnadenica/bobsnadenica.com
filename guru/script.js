@@ -160,6 +160,18 @@ function renderProfiles(profiles, options = {}) {
             `<a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`,
         )
         .join("");
+      const profileVideo = profile.video
+        ? `
+            <div class="profile-video-wrap">
+              <p class="profile-video-label">Видео</p>
+              <div class="profile-video-frame">
+                <video controls playsinline preload="metadata" poster="${encodeURI(profile.image)}">
+                  <source src="${encodeURI(profile.video)}" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          `
+        : "";
 
       return `
         <article class="profile-card reveal" data-orientation="${escapeHtml(profile.orientation)}">
@@ -191,6 +203,8 @@ function renderProfiles(profiles, options = {}) {
 
             <p>${escapeHtml(hook.insight)}</p>
           </div>
+
+          ${profileVideo}
         </article>
       `;
     })

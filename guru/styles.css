@@ -653,6 +653,38 @@ code {
   line-height: 1.45;
 }
 
+.profile-video-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.8rem;
+  padding-top: 0.2rem;
+}
+
+.profile-video-label {
+  margin: 0;
+  color: var(--accent-deep);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+}
+
+.profile-video-frame {
+  overflow: hidden;
+  border-radius: calc(var(--radius) - 6px);
+  border: 1px solid rgba(16, 20, 17, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.18)),
+    #101411;
+  box-shadow: 0 20px 46px rgba(16, 20, 17, 0.12);
+}
+
+.profile-video-frame video {
+  display: block;
+  width: 100%;
+  max-height: min(70vh, 720px);
+  background: #101411;
+}
+
 .profile-copy {
   display: grid;
   align-content: center;
