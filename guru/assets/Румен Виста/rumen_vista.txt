@@ -3,4 +3,4 @@ website: https://www.rumenvista.com
 Facebook: https://www.facebook.com/RumenVista/?locale=bg_BG
 
 
-Description: Windows Vista е якия предприемач - Вили, Бали, Трактори - той ще ви научи на всичко
+Description: Windows Vista е якия предприемач - Вили, Бали, Трактори - той ще ви научи на всичко, само да не го питаш кой е Жечев
