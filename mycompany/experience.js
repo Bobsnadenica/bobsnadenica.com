@@ -1,4 +1,6 @@
 const heroVisual = document.querySelector(".hero-visual");
+const heroSection = document.querySelector(".hero");
+const heroScene = document.querySelector(".hero-scene");
 const motionPanels = document.querySelectorAll(".visual-shell, .showcase-panel, .offer-line, .contact-panel");
 const depthPanels = document.querySelectorAll(".showcase-panel, .offer-line, .contact-panel");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -7,6 +9,10 @@ if (heroVisual && !reduceMotion.matches) {
   const updateHeroDepth = () => {
     const scrollOffset = window.scrollY * 0.05;
     heroVisual.style.transform = `translateY(${scrollOffset}px)`;
+
+    if (heroScene) {
+      heroScene.style.setProperty("--scene-shift-y", `${scrollOffset * 0.4}px`);
+    }
   };
 
   updateHeroDepth();
@@ -14,6 +20,24 @@ if (heroVisual && !reduceMotion.matches) {
 }
 
 if (!reduceMotion.matches) {
+  if (heroSection && heroScene) {
+    heroSection.addEventListener("pointermove", (event) => {
+      const rect = heroSection.getBoundingClientRect();
+      const relativeX = (event.clientX - rect.left) / rect.width - 0.5;
+      const relativeY = (event.clientY - rect.top) / rect.height - 0.5;
+
+      heroScene.style.setProperty("--scene-rotate-y", `${relativeX * 9}deg`);
+      heroScene.style.setProperty("--scene-rotate-x", `${relativeY * -7}deg`);
+      heroScene.style.setProperty("--scene-shift-x", `${relativeX * 18}px`);
+    });
+
+    heroSection.addEventListener("pointerleave", () => {
+      heroScene.style.removeProperty("--scene-rotate-y");
+      heroScene.style.removeProperty("--scene-rotate-x");
+      heroScene.style.removeProperty("--scene-shift-x");
+    });
+  }
+
   const updatePanelDepth = () => {
     const viewportHeight = window.innerHeight || 1;
 

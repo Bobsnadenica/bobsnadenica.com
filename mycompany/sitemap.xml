@@ -21,4 +21,76 @@
     <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/" />
   </url>
+  <url>
+    <loc>https://mycompany.com/showcase/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/showcase/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/showcase/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/showcase/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/bg/showcase/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/showcase/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/showcase/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/showcase/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/contact/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/contact/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/contact/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/contact/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/bg/contact/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/contact/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/contact/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/contact/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/faq/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/faq/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/faq/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/faq/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/bg/faq/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/faq/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/faq/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/faq/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/privacy/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/privacy/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/privacy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/privacy/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/bg/privacy/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/privacy/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/privacy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/privacy/" />
+  </url>
 </urlset>
