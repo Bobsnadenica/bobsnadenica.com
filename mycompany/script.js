@@ -6,6 +6,7 @@ const navLinks = document.querySelectorAll(".site-nav a");
 const languageLinks = document.querySelectorAll("[data-language]");
 const revealElements = document.querySelectorAll(".reveal");
 const heroVisual = document.querySelector(".hero-visual");
+const glowPanels = document.querySelectorAll(".showcase-panel, .build-card, .contact-panel, .visual-stage-card");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const safeStorage = {
   get(key) {
@@ -78,4 +79,19 @@ if (heroVisual && !reduceMotion.matches) {
 
   updateHeroDepth();
   window.addEventListener("scroll", updateHeroDepth, { passive: true });
+}
+
+if (!reduceMotion.matches) {
+  glowPanels.forEach((panel) => {
+    panel.addEventListener("pointermove", (event) => {
+      const rect = panel.getBoundingClientRect();
+      panel.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+      panel.style.setProperty("--my", `${event.clientY - rect.top}px`);
+    });
+
+    panel.addEventListener("pointerleave", () => {
+      panel.style.removeProperty("--mx");
+      panel.style.removeProperty("--my");
+    });
+  });
 }
