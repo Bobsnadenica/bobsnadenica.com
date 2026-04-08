@@ -51,6 +51,7 @@
         <div class="header-panel" id="site-nav-panel">
           <nav class="site-nav" aria-label="Primary">
             <a href="#showcase">Showcase</a>
+            <a href="#interactive">Demo</a>
             <a href="#capabilities">Build</a>
             <a href="#flow">Flow</a>
             <a href="#contact">Contact</a>
@@ -321,6 +322,159 @@
         </div>
       </section>
 
+      <section class="section section-interactive" id="interactive">
+        <div class="section-shell">
+          <div class="section-intro reveal">
+            <p class="eyebrow">Interactive</p>
+            <h2>Drag the system forward.</h2>
+          </div>
+
+          <div class="interactive-demo" data-slider-demo data-slider-state="1">
+            <div class="interactive-copy interactive-panel reveal">
+              <div class="interactive-stage-selector" role="group" aria-label="Delivery states">
+                <button class="interactive-step" type="button" data-slider-step="0">Manual</button>
+                <button class="interactive-step is-active" type="button" data-slider-step="1">Structured</button>
+                <button class="interactive-step" type="button" data-slider-step="2">Integrated</button>
+                <button class="interactive-step" type="button" data-slider-step="3">Automated</button>
+              </div>
+
+              <div class="interactive-copy-body">
+                <p class="interactive-kicker">Move the slider</p>
+                <h3 class="interactive-live-title" data-slider-title>Structured workflow</h3>
+                <p class="interactive-live-copy" data-slider-description>
+                  Forms, approvals, and reporting get one operating rhythm.
+                </p>
+              </div>
+
+              <div class="interactive-slider-wrap">
+                <label class="sr-only" for="operating-model-slider-en">Operating model slider</label>
+                <div class="interactive-slider-meta" aria-hidden="true">
+                  <span>Manual</span>
+                  <span>Automated</span>
+                </div>
+                <input
+                  class="interactive-slider"
+                  id="operating-model-slider-en"
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="1"
+                  value="1"
+                >
+              </div>
+
+              <script class="interactive-demo-data" type="application/json">
+                [
+                  {
+                    "title": "Manual handoffs",
+                    "description": "Requests move by inbox, spreadsheet, and follow-up.",
+                    "pressure": "High friction",
+                    "manual": "84%",
+                    "visibility": "18%",
+                    "automation": "6%",
+                    "routeFill": "14%",
+                    "signal": "10%",
+                    "nodes": [1, 0.58, 0.24, 0.1]
+                  },
+                  {
+                    "title": "Structured workflow",
+                    "description": "Forms, approvals, and reporting get one operating rhythm.",
+                    "pressure": "Ordered flow",
+                    "manual": "56%",
+                    "visibility": "42%",
+                    "automation": "24%",
+                    "routeFill": "42%",
+                    "signal": "32%",
+                    "nodes": [1, 1, 0.54, 0.28]
+                  },
+                  {
+                    "title": "Integrated stack",
+                    "description": "Core systems exchange data and status without manual chasing.",
+                    "pressure": "Connected stack",
+                    "manual": "31%",
+                    "visibility": "74%",
+                    "automation": "52%",
+                    "routeFill": "73%",
+                    "signal": "61%",
+                    "nodes": [1, 1, 1, 0.56]
+                  },
+                  {
+                    "title": "Automated operating model",
+                    "description": "The stack routes work automatically and leaves humans at the right checkpoints.",
+                    "pressure": "Production-ready",
+                    "manual": "12%",
+                    "visibility": "93%",
+                    "automation": "82%",
+                    "routeFill": "100%",
+                    "signal": "91%",
+                    "nodes": [1, 1, 1, 1]
+                  }
+                ]
+              </script>
+            </div>
+
+            <div class="interactive-stage-shell interactive-panel reveal">
+              <div class="interactive-stage-head">
+                <p class="interactive-kicker">Live operating surface</p>
+                <strong data-slider-pressure>Ordered flow</strong>
+              </div>
+
+              <div class="interactive-route">
+                <article class="interactive-node interactive-node-1">
+                  <span>Brief</span>
+                  <small>Intake</small>
+                </article>
+                <article class="interactive-node interactive-node-2">
+                  <span>Ops</span>
+                  <small>Workflow</small>
+                </article>
+                <article class="interactive-node interactive-node-3">
+                  <span>Systems</span>
+                  <small>CRM + ERP</small>
+                </article>
+                <article class="interactive-node interactive-node-4">
+                  <span>Client</span>
+                  <small>Portal + reports</small>
+                </article>
+                <span class="interactive-signal" aria-hidden="true"></span>
+              </div>
+
+              <div class="interactive-dashboard">
+                <article class="interactive-meter">
+                  <div class="interactive-meter-head">
+                    <span>Manual work</span>
+                    <strong data-slider-metric="manual">56%</strong>
+                  </div>
+                  <div class="interactive-meter-track">
+                    <span class="interactive-meter-fill interactive-meter-fill-manual"></span>
+                  </div>
+                </article>
+
+                <article class="interactive-meter">
+                  <div class="interactive-meter-head">
+                    <span>Visibility</span>
+                    <strong data-slider-metric="visibility">42%</strong>
+                  </div>
+                  <div class="interactive-meter-track">
+                    <span class="interactive-meter-fill interactive-meter-fill-visibility"></span>
+                  </div>
+                </article>
+
+                <article class="interactive-meter">
+                  <div class="interactive-meter-head">
+                    <span>Automation</span>
+                    <strong data-slider-metric="automation">24%</strong>
+                  </div>
+                  <div class="interactive-meter-track">
+                    <span class="interactive-meter-fill interactive-meter-fill-automation"></span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section section-accent" id="capabilities">
         <div class="section-shell">
           <div class="section-intro reveal">
@@ -450,6 +604,7 @@
         </div>
         <div class="footer-links" aria-label="Footer navigation">
           <a href="#showcase">Showcase</a>
+          <a href="#interactive">Demo</a>
           <a href="#capabilities">Build</a>
           <a href="#flow">Flow</a>
           <a href="bg/" data-language="bg">Български</a>

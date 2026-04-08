@@ -51,6 +51,7 @@
         <div class="header-panel" id="site-nav-panel">
           <nav class="site-nav" aria-label="Основна навигация">
             <a href="#showcase">Портфолио</a>
+            <a href="#interactive">Демо</a>
             <a href="#capabilities">Какво правим</a>
             <a href="#flow">Процес</a>
             <a href="#contact">Контакт</a>
@@ -321,6 +322,159 @@
         </div>
       </section>
 
+      <section class="section section-interactive" id="interactive">
+        <div class="section-shell">
+          <div class="section-intro reveal">
+            <p class="eyebrow">Интерактивно</p>
+            <h2>Плъзнете системата напред.</h2>
+          </div>
+
+          <div class="interactive-demo" data-slider-demo data-slider-state="1">
+            <div class="interactive-copy interactive-panel reveal">
+              <div class="interactive-stage-selector" role="group" aria-label="Етапи на изпълнение">
+                <button class="interactive-step" type="button" data-slider-step="0">Ръчно</button>
+                <button class="interactive-step is-active" type="button" data-slider-step="1">Подредено</button>
+                <button class="interactive-step" type="button" data-slider-step="2">Свързано</button>
+                <button class="interactive-step" type="button" data-slider-step="3">Автоматизирано</button>
+              </div>
+
+              <div class="interactive-copy-body">
+                <p class="interactive-kicker">Плъзнете плъзгача</p>
+                <h3 class="interactive-live-title" data-slider-title>Подреден процес</h3>
+                <p class="interactive-live-copy" data-slider-description>
+                  Формите, одобренията и отчетността вече имат един ритъм.
+                </p>
+              </div>
+
+              <div class="interactive-slider-wrap">
+                <label class="sr-only" for="operating-model-slider-bg">Плъзгач за модела на изпълнение</label>
+                <div class="interactive-slider-meta" aria-hidden="true">
+                  <span>Ръчно</span>
+                  <span>Автоматизирано</span>
+                </div>
+                <input
+                  class="interactive-slider"
+                  id="operating-model-slider-bg"
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="1"
+                  value="1"
+                >
+              </div>
+
+              <script class="interactive-demo-data" type="application/json">
+                [
+                  {
+                    "title": "Ръчни предавания",
+                    "description": "Заявките минават през имейл, таблици и последващи напомняния.",
+                    "pressure": "Високо триене",
+                    "manual": "84%",
+                    "visibility": "18%",
+                    "automation": "6%",
+                    "routeFill": "14%",
+                    "signal": "10%",
+                    "nodes": [1, 0.58, 0.24, 0.1]
+                  },
+                  {
+                    "title": "Подреден процес",
+                    "description": "Формите, одобренията и отчетността вече имат един ритъм.",
+                    "pressure": "Подреден поток",
+                    "manual": "56%",
+                    "visibility": "42%",
+                    "automation": "24%",
+                    "routeFill": "42%",
+                    "signal": "32%",
+                    "nodes": [1, 1, 0.54, 0.28]
+                  },
+                  {
+                    "title": "Свързан стек",
+                    "description": "Ключовите системи обменят данни и статус без ръчно гонене.",
+                    "pressure": "Свързан стек",
+                    "manual": "31%",
+                    "visibility": "74%",
+                    "automation": "52%",
+                    "routeFill": "73%",
+                    "signal": "61%",
+                    "nodes": [1, 1, 1, 0.56]
+                  },
+                  {
+                    "title": "Автоматизиран модел",
+                    "description": "Стекът насочва работата автоматично и оставя човека на точните контролни точки.",
+                    "pressure": "Готово за продукция",
+                    "manual": "12%",
+                    "visibility": "93%",
+                    "automation": "82%",
+                    "routeFill": "100%",
+                    "signal": "91%",
+                    "nodes": [1, 1, 1, 1]
+                  }
+                ]
+              </script>
+            </div>
+
+            <div class="interactive-stage-shell interactive-panel reveal">
+              <div class="interactive-stage-head">
+                <p class="interactive-kicker">Жива оперативна картина</p>
+                <strong data-slider-pressure>Подреден поток</strong>
+              </div>
+
+              <div class="interactive-route">
+                <article class="interactive-node interactive-node-1">
+                  <span>Заявка</span>
+                  <small>Вход</small>
+                </article>
+                <article class="interactive-node interactive-node-2">
+                  <span>Операции</span>
+                  <small>Процес</small>
+                </article>
+                <article class="interactive-node interactive-node-3">
+                  <span>Системи</span>
+                  <small>CRM + ERP</small>
+                </article>
+                <article class="interactive-node interactive-node-4">
+                  <span>Клиент</span>
+                  <small>Портал + отчетност</small>
+                </article>
+                <span class="interactive-signal" aria-hidden="true"></span>
+              </div>
+
+              <div class="interactive-dashboard">
+                <article class="interactive-meter">
+                  <div class="interactive-meter-head">
+                    <span>Ръчна работа</span>
+                    <strong data-slider-metric="manual">56%</strong>
+                  </div>
+                  <div class="interactive-meter-track">
+                    <span class="interactive-meter-fill interactive-meter-fill-manual"></span>
+                  </div>
+                </article>
+
+                <article class="interactive-meter">
+                  <div class="interactive-meter-head">
+                    <span>Видимост</span>
+                    <strong data-slider-metric="visibility">42%</strong>
+                  </div>
+                  <div class="interactive-meter-track">
+                    <span class="interactive-meter-fill interactive-meter-fill-visibility"></span>
+                  </div>
+                </article>
+
+                <article class="interactive-meter">
+                  <div class="interactive-meter-head">
+                    <span>Автоматизация</span>
+                    <strong data-slider-metric="automation">24%</strong>
+                  </div>
+                  <div class="interactive-meter-track">
+                    <span class="interactive-meter-fill interactive-meter-fill-automation"></span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section section-accent" id="capabilities">
         <div class="section-shell">
           <div class="section-intro reveal">
@@ -450,6 +604,7 @@
         </div>
         <div class="footer-links" aria-label="Навигация във футъра">
           <a href="#showcase">Портфолио</a>
+          <a href="#interactive">Демо</a>
           <a href="#capabilities">Какво правим</a>
           <a href="#flow">Процес</a>
           <a href="../" data-language="en">English</a>
