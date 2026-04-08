@@ -552,14 +552,10 @@
 .architecture-board {
   position: relative;
   z-index: 2;
-  display: inline-grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(18rem, 20rem);
-  gap: 1.05rem;
-  align-items: start;
-  width: max-content;
-  min-width: 80rem;
-  min-height: 42rem;
+  display: block;
+  width: 100%;
+  min-width: 96rem;
+  min-height: 46rem;
 }
 
 .architecture-placeholder {
@@ -591,156 +587,233 @@
   line-height: 1.65;
 }
 
-.architecture-lane {
+.architecture-diagram {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 44rem;
+}
+
+.architecture-actors-zone,
+.architecture-region-shell,
+.architecture-zone-panel,
+.architecture-managed-zone,
+.architecture-external-zone,
+.architecture-module {
+  position: relative;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(10, 12, 15, 0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 44px rgba(0, 0, 0, 0.16);
+}
+
+.architecture-actors-zone,
+.architecture-region-shell,
+.architecture-zone-panel,
+.architecture-managed-zone,
+.architecture-external-zone {
+  padding: 1rem;
+}
+
+.architecture-region-shell {
   display: grid;
   gap: 1rem;
-  padding: 1rem 1rem 1.05rem;
-  align-content: start;
-  min-height: calc(100% - 2.4rem);
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)),
-    rgba(13, 15, 18, 0.36);
 }
 
-.architecture-lane[data-lane-id="channels"] {
-  background:
-    linear-gradient(180deg, rgba(255, 216, 170, 0.07), rgba(255, 255, 255, 0.02)),
-    rgba(13, 15, 18, 0.36);
-}
-
-.architecture-lane[data-lane-id="network"],
-.architecture-lane[data-lane-id="services"],
-.architecture-lane[data-lane-id="data"] {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.02)),
-    rgba(11, 13, 16, 0.42);
-}
-
-.architecture-lane[data-lane-id="operations"] {
-  background:
-    linear-gradient(180deg, rgba(255, 216, 170, 0.1), rgba(255, 255, 255, 0.02)),
-    rgba(13, 15, 18, 0.42);
-}
-
-.architecture-lane-head {
-  position: relative;
-  z-index: 2;
+.architecture-zone-head,
+.architecture-region-head,
+.architecture-boundary-head,
+.architecture-module-head {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
 }
 
-.architecture-lane-title {
-  margin: 0;
-  font-size: 1.02rem;
+.architecture-zone-kicker,
+.architecture-module-kicker {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
-.architecture-lane-note {
-  margin: 0.28rem 0 0;
-  color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.55;
+.architecture-zone-title,
+.architecture-region-title {
+  margin: 0.26rem 0 0;
+  font-size: 1.12rem;
+  line-height: 1.14;
 }
 
-.architecture-lane-count {
-  min-width: 2.1rem;
-  min-height: 2.1rem;
-  padding: 0.2rem 0.55rem;
+.architecture-zone-note,
+.architecture-module-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.architecture-region-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.architecture-region-pill,
+.architecture-az-chip,
+.architecture-module-count {
+  min-height: 1.95rem;
+  padding: 0.2rem 0.6rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--muted-strong);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.architecture-clusters {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.architecture-cluster {
-  position: relative;
-  display: grid;
-  gap: 0.75rem;
-  padding: 0.82rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
-    rgba(8, 10, 12, 0.42);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.architecture-cluster::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 0.2rem;
-  border-radius: 18px 0 0 18px;
-  background: linear-gradient(180deg, rgba(255, 216, 170, 0.8), rgba(240, 138, 93, 0.18));
-}
-
-.architecture-cluster-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
-  align-items: center;
-}
-
-.architecture-cluster-title {
-  margin: 0;
-  color: var(--muted-strong);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.architecture-cluster-count {
-  min-width: 1.95rem;
-  min-height: 1.95rem;
-  padding: 0.2rem 0.45rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   color: var(--muted-strong);
   font-size: 0.72rem;
   font-weight: 800;
 }
 
-.architecture-nodes {
+.architecture-diagram-grid {
   display: grid;
-  gap: 0.85rem;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1rem;
+  align-items: start;
+}
+
+.architecture-vpc-shell {
+  padding: 1rem;
+  border-radius: 26px;
+  border: 1px dashed rgba(120, 175, 255, 0.56);
+  background:
+    linear-gradient(180deg, rgba(120, 175, 255, 0.09), rgba(255, 255, 255, 0.02)),
+    rgba(8, 10, 14, 0.42);
+  box-shadow: inset 0 0 0 1px rgba(120, 175, 255, 0.08);
+}
+
+.architecture-diagram[data-provider="aws"] .architecture-vpc-shell {
+  border-color: rgba(120, 175, 255, 0.58);
+}
+
+.architecture-diagram[data-provider="azure"] .architecture-vpc-shell {
+  border-color: rgba(102, 205, 255, 0.54);
+}
+
+.architecture-diagram[data-provider="google_cloud"] .architecture-vpc-shell,
+.architecture-diagram[data-provider="gcp"] .architecture-vpc-shell {
+  border-color: rgba(123, 201, 255, 0.5);
+}
+
+.architecture-az-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.architecture-vpc-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.architecture-private-zone {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.architecture-managed-zone {
+  min-height: 100%;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(10, 12, 15, 0.46);
+}
+
+.architecture-external-zone {
+  border-style: dashed;
+  border-color: rgba(120, 175, 255, 0.42);
+  background:
+    linear-gradient(180deg, rgba(120, 175, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(9, 11, 13, 0.42);
+}
+
+.architecture-zone-panel-access {
+  background:
+    linear-gradient(180deg, rgba(166, 211, 255, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(9, 11, 13, 0.42);
+}
+
+.architecture-node-stack {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.architecture-node-stack-horizontal {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.architecture-node-stack-empty {
+  min-height: 6rem;
+  place-items: center;
+}
+
+.architecture-module {
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.architecture-module[data-tone="compute"] {
+  border-color: rgba(255, 216, 170, 0.18);
+}
+
+.architecture-module[data-tone="data"],
+.architecture-module[data-tone="regional"] {
+  border-color: rgba(169, 207, 255, 0.18);
+}
+
+.architecture-module[data-tone="identity"] {
+  border-color: rgba(255, 197, 144, 0.2);
+}
+
+.architecture-module[data-tone="async"] {
+  border-color: rgba(255, 233, 190, 0.18);
+}
+
+.architecture-module-empty {
+  min-height: 10rem;
+  align-content: center;
 }
 
 .architecture-node {
   position: relative;
   z-index: 2;
-  min-height: 9.8rem;
-  padding: 1rem;
+  min-height: 7.9rem;
+  padding: 0.85rem 0.9rem 0.85rem 1rem;
   display: grid;
-  gap: 0.6rem;
+  gap: 0.5rem;
   align-content: start;
-  border-radius: 22px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.03)),
-    rgba(14, 16, 18, 0.56);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03)),
+    rgba(13, 16, 19, 0.68);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 18px 44px rgba(0, 0, 0, 0.18);
+    0 12px 28px rgba(0, 0, 0, 0.14);
   color: var(--text);
   text-align: left;
   cursor: pointer;
@@ -770,7 +843,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   width: 0.35rem;
-  border-radius: 22px 0 0 22px;
+  border-radius: 18px 0 0 18px;
   background: linear-gradient(180deg, rgba(255, 216, 170, 0.9), rgba(240, 138, 93, 0.3));
 }
 
@@ -793,21 +866,64 @@
 }
 
 .architecture-node-head {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
   gap: 0.7rem;
   align-items: flex-start;
 }
 
+.architecture-node-glyph {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.28), rgba(240, 138, 93, 0.08)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.architecture-node[data-kind="security"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(255, 206, 135, 0.34), rgba(201, 114, 61, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node[data-kind="compute"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.36), rgba(240, 138, 93, 0.12)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node[data-kind="data"] .architecture-node-glyph,
+.architecture-node[data-kind="integration"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(169, 207, 255, 0.32), rgba(120, 175, 255, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node[data-kind="ops"] .architecture-node-glyph,
+.architecture-node[data-kind="enablement"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(215, 209, 255, 0.3), rgba(152, 138, 240, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node-title-wrap {
+  display: grid;
+  gap: 0.34rem;
+}
+
 .architecture-node-title {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.2;
+  font-size: 0.96rem;
+  line-height: 1.18;
 }
 
 .architecture-node-chip {
-  min-height: 1.65rem;
-  padding: 0.2rem 0.55rem;
+  width: max-content;
+  min-height: 1.45rem;
+  padding: 0.16rem 0.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -823,17 +939,21 @@
 .architecture-node-meta {
   margin: 0;
   color: var(--accent-strong);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .architecture-node-note {
   margin: 0;
   color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.52;
+  font-size: 0.82rem;
+  line-height: 1.42;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .architecture-node-footer {
@@ -875,9 +995,7 @@
 }
 
 .architecture-board-preview,
-.architecture-board-preview .architecture-node,
-.architecture-board-preview .architecture-lane,
-.architecture-board-preview .architecture-cluster {
+.architecture-board-preview * {
   pointer-events: none;
 }
 
@@ -1067,6 +1185,68 @@ body.architecture-modal-open {
   display: block;
 }
 
+.tf-line {
+  display: block;
+  white-space: pre;
+}
+
+.tf-line-empty {
+  min-height: 1.3rem;
+}
+
+.tf-keyword {
+  color: #ffcf8e;
+}
+
+.tf-key {
+  color: #9dd7ff;
+}
+
+.tf-operator,
+.tf-punctuation {
+  color: rgba(245, 240, 230, 0.78);
+}
+
+.tf-string {
+  color: #d5f2bb;
+}
+
+.tf-reference {
+  color: #ffdfb1;
+}
+
+.tf-boolean {
+  color: #ffb6a0;
+}
+
+.tf-number {
+  color: #b3d4ff;
+}
+
+.tf-comment {
+  color: rgba(187, 195, 210, 0.72);
+}
+
+.tf-comment-title {
+  color: #ffd49e;
+}
+
+.tf-comment-section {
+  color: #c7d7f8;
+}
+
+.tf-comment-inline {
+  color: #f1b48a;
+}
+
+.tf-comment-inventory {
+  color: #a9d7ff;
+}
+
+.tf-comment-todo {
+  color: #ffb98b;
+}
+
 .editor-card {
   padding: 1.2rem;
   display: grid;
@@ -1081,33 +1261,131 @@ body.architecture-modal-open {
 
 .inventory-list {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.9rem;
+}
+
+.inventory-group {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.82rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    rgba(8, 10, 12, 0.34);
+}
+
+.inventory-group-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.inventory-group-head strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.inventory-group-head em {
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.inventory-group-count {
+  min-width: 1.9rem;
+  min-height: 1.9rem;
+  padding: 0.16rem 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.inventory-group-list {
+  display: grid;
+  gap: 0.65rem;
 }
 
 .inventory-item {
   width: 100%;
-  padding: 0.8rem 0.95rem;
+  position: relative;
+  padding: 0.9rem 0.95rem 0.9rem 1rem;
   display: grid;
-  gap: 0.22rem;
+  gap: 0.35rem;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(12, 14, 17, 0.54);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.12);
   color: var(--text);
   text-align: left;
   cursor: pointer;
   transition:
     transform 180ms ease,
-    border-color 180ms ease;
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.inventory-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.28rem;
+  border-radius: 18px 0 0 18px;
+  background: linear-gradient(180deg, rgba(255, 216, 170, 0.88), rgba(240, 138, 93, 0.28));
+}
+
+.inventory-item[data-kind="security"]::before {
+  background: linear-gradient(180deg, rgba(255, 206, 135, 0.94), rgba(201, 114, 61, 0.28));
+}
+
+.inventory-item[data-kind="data"]::before,
+.inventory-item[data-kind="integration"]::before {
+  background: linear-gradient(180deg, rgba(169, 207, 255, 0.92), rgba(120, 175, 255, 0.24));
+}
+
+.inventory-item[data-kind="ops"]::before,
+.inventory-item[data-kind="enablement"]::before {
+  background: linear-gradient(180deg, rgba(214, 209, 255, 0.92), rgba(152, 138, 240, 0.24));
 }
 
 .inventory-item:hover,
 .inventory-item:focus-visible {
   transform: translateY(-2px);
   border-color: rgba(255, 216, 170, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 18px 34px rgba(0, 0, 0, 0.16);
 }
 
 .inventory-item.is-selected {
   border-color: rgba(255, 216, 170, 0.56);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(255, 216, 170, 0.18),
+    0 20px 42px rgba(0, 0, 0, 0.2);
+}
+
+.inventory-item-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  align-items: flex-start;
 }
 
 .inventory-item strong {
@@ -1115,19 +1393,44 @@ body.architecture-modal-open {
   line-height: 1.25;
 }
 
-.inventory-item span {
-  color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.45;
-}
-
-.inventory-item em {
-  color: var(--accent-strong);
-  font-size: 0.72rem;
-  font-style: normal;
+.inventory-item-state {
+  color: var(--muted-strong);
+  font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.inventory-item-meta {
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.inventory-item-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.46;
+}
+
+.inventory-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.inventory-item-tags span {
+  padding: 0.26rem 0.52rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .builder-dual-cta {
@@ -1192,6 +1495,21 @@ body.architecture-modal-open {
   .architecture-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .architecture-diagram {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-diagram-grid,
+  .architecture-vpc-grid,
+  .architecture-private-zone {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-region-pills,
+  .architecture-az-strip {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 860px) {
@@ -1217,6 +1535,14 @@ body.architecture-modal-open {
   .architecture-preview-note {
     max-width: none;
     text-align: left;
+  }
+
+  .architecture-zone-head,
+  .architecture-region-head,
+  .architecture-boundary-head,
+  .architecture-module-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .terraform-panel-head {
@@ -1252,7 +1578,7 @@ body.architecture-modal-open {
   }
 
   .architecture-board {
-    grid-auto-columns: minmax(16rem, 18rem);
+    min-width: 74rem;
     min-height: 34rem;
   }
 
@@ -1288,7 +1614,7 @@ body.architecture-modal-open {
     padding: 0.7rem;
   }
 
-  .architecture-lane {
-    padding: 0.85rem;
+  .architecture-node-stack-horizontal {
+    grid-template-columns: 1fr;
   }
 }

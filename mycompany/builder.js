@@ -2189,6 +2189,109 @@ if (architectureForm) {
       .join("");
   };
 
+  const highlightTerraformCode = (source) => {
+    const placeholders = [];
+
+    const protectTokens = (line) =>
+      line.replace(/&quot;.*?&quot;/g, (match) => {
+        const token = `__TF_PLACEHOLDER_${placeholders.length}__`;
+        placeholders.push(`<span class="tf-string">${match}</span>`);
+        return token;
+      });
+
+    const restoreTokens = (line) =>
+      line.replace(/__TF_PLACEHOLDER_(\d+)__/g, (_, index) => placeholders[Number.parseInt(index, 10)] || "");
+
+    const splitComment = (line) => {
+      let inString = false;
+
+      for (let index = 0; index < line.length; index += 1) {
+        const char = line[index];
+        const previous = line[index - 1];
+
+        if (char === '"' && previous !== "\\") {
+          inString = !inString;
+        }
+
+        if (char === "#" && !inString) {
+          return {
+            code: line.slice(0, index),
+            comment: line.slice(index),
+          };
+        }
+      }
+
+      return { code: line, comment: "" };
+    };
+
+    const formatComment = (comment, inline = false) => {
+      if (!comment) {
+        return "";
+      }
+
+      const escaped = escapeHtml(comment);
+      const lower = comment.toLowerCase();
+      let className = "tf-comment";
+
+      if (inline) {
+        className += " tf-comment-inline";
+      } else if (lower.includes("generated component inventory")) {
+        className += " tf-comment-title";
+      } else if (comment.startsWith("# - ")) {
+        className += " tf-comment-inventory";
+      } else if (lower.includes("todo") || lower.includes("replace")) {
+        className += " tf-comment-todo";
+      } else {
+        className += " tf-comment-section";
+      }
+
+      return `<span class="${className}">${escaped}</span>`;
+    };
+
+    const formatCode = (code) => {
+      if (!code.trim()) {
+        return "";
+      }
+
+      let escaped = escapeHtml(code);
+      escaped = protectTokens(escaped);
+      escaped = escaped.replace(
+        /^(\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*=)/,
+        (_, indent, key, equals) =>
+          `${indent}<span class="tf-key">${key}</span><span class="tf-operator">${equals}</span>`
+      );
+      escaped = escaped.replace(
+        /\b(terraform|required_providers|provider|variable|locals|module|output|resource|data|features|value|default|description)\b/g,
+        '<span class="tf-keyword">$1</span>'
+      );
+      escaped = escaped.replace(
+        /\b(local|var|module)\.[A-Za-z0-9_.-]+/g,
+        '<span class="tf-reference">$&</span>'
+      );
+      escaped = escaped.replace(/\b(true|false)\b/g, '<span class="tf-boolean">$1</span>');
+      escaped = escaped.replace(/\b\d+(?:\.\d+)?\b/g, '<span class="tf-number">$&</span>');
+      escaped = escaped.replace(/(\{|\}|\[|\]|\(|\))/g, '<span class="tf-punctuation">$1</span>');
+      return restoreTokens(escaped);
+    };
+
+    return source
+      .split("\n")
+      .map((line) => {
+        const { code, comment } = splitComment(line);
+        const hasCode = Boolean(code.trim());
+        const hasComment = Boolean(comment.trim());
+
+        if (!hasCode && !hasComment) {
+          return '<span class="tf-line tf-line-empty">&nbsp;</span>';
+        }
+
+        const codeHtml = formatCode(code);
+        const commentHtml = formatComment(comment, hasCode);
+        return `<span class="tf-line">${codeHtml}${codeHtml && commentHtml ? " " : ""}${commentHtml}</span>`;
+      })
+      .join("");
+  };
+
   const renderInventory = (model) => {
     if (!inventoryTarget) {
       return;
@@ -2199,15 +2302,49 @@ if (architectureForm) {
       return;
     }
 
-    inventoryTarget.innerHTML = model.nodes
-      .map(
-        (node) => `
-          <button class="inventory-item${node.id === selectedNodeId ? " is-selected" : ""}" type="button" data-node-select="${escapeHtml(node.id)}">
-            <em>${escapeHtml(strings.lanes[node.lane].label)} • ${escapeHtml(node.generated ? strings.generated : strings.custom)}</em>
-            <strong>${escapeHtml(node.title)}</strong>
-            <span>${escapeHtml(node.meta || node.note || strings.pending)}</span>
-          </button>
-        `
+    inventoryTarget.innerHTML = model.lanes
+      .map((lane) =>
+        lane.groups
+          .filter((group) => group.nodes.length)
+          .map(
+            (group) => `
+              <section class="inventory-group">
+                <div class="inventory-group-head">
+                  <div>
+                    <em>${escapeHtml(lane.label)}</em>
+                    <strong>${escapeHtml(group.label)}</strong>
+                  </div>
+                  <span class="inventory-group-count">${group.nodes.length}</span>
+                </div>
+                <div class="inventory-group-list">
+                  ${group.nodes
+                    .map(
+                      (node) => `
+                        <button
+                          class="inventory-item${node.id === selectedNodeId ? " is-selected" : ""}"
+                          type="button"
+                          data-node-select="${escapeHtml(node.id)}"
+                          data-kind="${escapeHtml(node.kind)}"
+                        >
+                          <div class="inventory-item-head">
+                            <strong>${escapeHtml(node.title)}</strong>
+                            <span class="inventory-item-state">${escapeHtml(node.generated ? strings.generated : strings.custom)}</span>
+                          </div>
+                          <span class="inventory-item-meta">${escapeHtml(node.meta || strings.pending)}</span>
+                          <p class="inventory-item-note">${escapeHtml(clipText(node.note || node.meta, 120))}</p>
+                          <div class="inventory-item-tags">
+                            <span>${escapeHtml(strings.labels.chip[node.lane] || lane.label)}</span>
+                            ${node.tags.slice(0, 3).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+                          </div>
+                        </button>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </section>
+            `
+          )
+          .join("")
       )
       .join("");
 
@@ -2224,7 +2361,7 @@ if (architectureForm) {
     }
 
     const terraform = buildTerraformConfig(model);
-    terraformOutput.textContent = terraform;
+    terraformOutput.innerHTML = highlightTerraformCode(terraform);
     terraformStatus.textContent = model?.nodes?.length ? strings.terraform.statusReady : strings.terraform.statusEmpty;
 
     if (copyTerraformButton) {
@@ -2326,12 +2463,12 @@ if (architectureForm) {
 
   const buildConnectorPath = ({ startX, startY, endX, endY, sameLane }) => {
     if (sameLane) {
-      const midY = startY + Math.max(24, (endY - startY) / 2);
+      const midY = startY + (endY - startY) / 2;
       return `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`;
     }
 
-    const elbow = startX + Math.max(40, Math.min(110, (endX - startX) * 0.4));
-    return `M ${startX} ${startY} L ${elbow} ${startY} L ${elbow} ${endY} L ${endX} ${endY}`;
+    const midX = startX + (endX - startX) / 2;
+    return `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
   };
 
   const drawConnectionsForContext = (context) => {
@@ -2378,22 +2515,32 @@ if (architectureForm) {
 
         const targetRect = target.getBoundingClientRect();
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        const startX =
-          node.lane === targetNode.lane
-            ? sourceRect.left - canvasRect.left + sourceRect.width / 2
-            : sourceRect.right - canvasRect.left;
-        const startY =
-          node.lane === targetNode.lane
+        const sourceCenterX = sourceRect.left - canvasRect.left + sourceRect.width / 2;
+        const sourceCenterY = sourceRect.top - canvasRect.top + sourceRect.height / 2;
+        const targetCenterX = targetRect.left - canvasRect.left + targetRect.width / 2;
+        const targetCenterY = targetRect.top - canvasRect.top + targetRect.height / 2;
+        const horizontalPrimary = Math.abs(targetCenterX - sourceCenterX) >= Math.abs(targetCenterY - sourceCenterY);
+
+        const startX = horizontalPrimary
+          ? targetCenterX >= sourceCenterX
+            ? sourceRect.right - canvasRect.left
+            : sourceRect.left - canvasRect.left
+          : sourceCenterX;
+        const startY = horizontalPrimary
+          ? sourceCenterY
+          : targetCenterY >= sourceCenterY
             ? sourceRect.bottom - canvasRect.top
-            : sourceRect.top - canvasRect.top + sourceRect.height / 2;
-        const endX =
-          node.lane === targetNode.lane
-            ? targetRect.left - canvasRect.left + targetRect.width / 2
-            : targetRect.left - canvasRect.left;
-        const endY =
-          node.lane === targetNode.lane
+            : sourceRect.top - canvasRect.top;
+        const endX = horizontalPrimary
+          ? targetCenterX >= sourceCenterX
+            ? targetRect.left - canvasRect.left
+            : targetRect.right - canvasRect.left
+          : targetCenterX;
+        const endY = horizontalPrimary
+          ? targetCenterY
+          : targetCenterY >= sourceCenterY
             ? targetRect.top - canvasRect.top
-            : targetRect.top - canvasRect.top + targetRect.height / 2;
+            : targetRect.bottom - canvasRect.top;
 
         path.setAttribute(
           "d",
@@ -2402,7 +2549,7 @@ if (architectureForm) {
             startY,
             endX,
             endY,
-            sameLane: node.lane === targetNode.lane,
+            sameLane: !horizontalPrimary,
           })
         );
         path.setAttribute("marker-end", `url(#architecture-arrow-${context.key})`);
@@ -2419,11 +2566,21 @@ if (architectureForm) {
     }
   };
 
+  const clipText = (value, limit = 108) => {
+    const text = String(value || "").trim();
+    if (!text) {
+      return strings.pending;
+    }
+
+    return text.length > limit ? `${text.slice(0, limit - 1).trim()}...` : text;
+  };
+
   const buildNodeMarkup = (node, interactive) => {
     const tagName = interactive ? "button" : "article";
     const actionAttributes = interactive ? `type="button" data-node-id="${escapeHtml(node.id)}"` : `data-node-id="${escapeHtml(node.id)}"`;
     const stateLabel = node.generated ? strings.generated : strings.custom;
     const groupLabel = strings.labels.groups[classifyNodeGroup(node)] || strings.labels.chip[node.lane] || node.lane;
+    const noteText = clipText(node.note || node.meta);
 
     return `
       <${tagName}
@@ -2432,11 +2589,14 @@ if (architectureForm) {
         data-kind="${escapeHtml(node.kind)}"
       >
         <div class="architecture-node-head">
-          <h4 class="architecture-node-title">${escapeHtml(node.title)}</h4>
-          <span class="architecture-node-chip">${escapeHtml(strings.labels.chip[node.lane] || node.lane)}</span>
+          <span class="architecture-node-glyph" aria-hidden="true"></span>
+          <div class="architecture-node-title-wrap">
+            <h4 class="architecture-node-title">${escapeHtml(node.title)}</h4>
+            <span class="architecture-node-chip">${escapeHtml(strings.labels.chip[node.lane] || node.lane)}</span>
+          </div>
         </div>
         <p class="architecture-node-meta">${escapeHtml(node.meta || strings.pending)}</p>
-        <p class="architecture-node-note">${escapeHtml(node.note || strings.pending)}</p>
+        <p class="architecture-node-note">${escapeHtml(noteText)}</p>
         ${
           node.tags.length
             ? `<div class="architecture-node-tags">${node.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>`
@@ -2450,39 +2610,231 @@ if (architectureForm) {
     `;
   };
 
-  const buildBoardMarkup = (model, interactive) =>
-    model.lanes
-      .map(
-        (lane) => `
-          <section class="architecture-lane" data-lane-id="${escapeHtml(lane.id)}">
-            <div class="architecture-lane-head">
-              <div>
-                <h3 class="architecture-lane-title">${escapeHtml(lane.label)}</h3>
-                <p class="architecture-lane-note">${escapeHtml(lane.note)}</p>
+  const buildNodeStackMarkup = (nodes, interactive, extraClass = "") =>
+    nodes.length
+      ? `<div class="architecture-node-stack${extraClass ? ` ${extraClass}` : ""}">${nodes
+          .map((node) => buildNodeMarkup(node, interactive))
+          .join("")}</div>`
+      : `<div class="architecture-node-stack architecture-node-stack-empty"><p class="summary-note">${escapeHtml(strings.none)}</p></div>`;
+
+  const buildModuleMarkup = ({ title, note, nodes, interactive, tone = "default" }) => {
+    if (!nodes.length) {
+      return "";
+    }
+
+    return `
+      <article class="architecture-module" data-tone="${escapeHtml(tone)}">
+        <div class="architecture-module-head">
+          <div>
+            <span class="architecture-module-kicker">${escapeHtml(title)}</span>
+            <p class="architecture-module-note">${escapeHtml(note)}</p>
+          </div>
+          <span class="architecture-module-count">${nodes.length}</span>
+        </div>
+        ${buildNodeStackMarkup(nodes, interactive)}
+      </article>
+    `;
+  };
+
+  const buildBoardMarkup = (model, interactive) => {
+    const region = firstRegion(model.answers);
+    const providerLabel =
+      model.answers.deploymentModel === "on-prem"
+        ? pageLanguage === "bg"
+          ? "Частна среда"
+          : "Private estate"
+        : `${labelFor("primary_cloud", model.answers.primaryCloud) || "Cloud"} ${pageLanguage === "bg" ? "регион" : "region"}`;
+    const boundaryLabel =
+      model.answers.deploymentModel === "on-prem"
+        ? pageLanguage === "bg"
+          ? "Частна мрежова граница"
+          : "Private network boundary"
+        : pageLanguage === "bg"
+          ? "VPC / мрежова граница"
+          : "VPC / network boundary";
+    const regionMeta = [
+      labelFor("deployment_model", model.answers.deploymentModel),
+      labelFor("network_topology", model.answers.networkTopology),
+      labelFor("subnet_pattern", model.answers.subnetPattern),
+    ]
+      .filter(Boolean)
+      .join(" • ");
+    const hostingLabel = joinLabels(labelsFor("hosting", model.answers.hosting));
+    const azChips = Array.from({ length: Math.max(model.answers.azCount || 0, 0) }, (_, index) => {
+      const label =
+        pageLanguage === "bg" ? `AZ ${index + 1}` : `AZ ${index + 1}`;
+      return `<span class="architecture-az-chip">${escapeHtml(label)}</span>`;
+    }).join("");
+
+    const channels = model.nodes.filter((node) => node.lane === "channels");
+    const edgeNodes = model.nodes.filter((node) => node.lane === "edge");
+    const networkCoreNodes = model.nodes.filter(
+      (node) => node.lane === "network" && classifyNodeGroup(node) === "networkCore"
+    );
+    const hybridNodes = model.nodes.filter(
+      (node) => node.lane === "network" && classifyNodeGroup(node) === "hybridAccess"
+    );
+    const identityNodes = model.nodes.filter(
+      (node) => node.lane === "operations" && classifyNodeGroup(node) === "securityIdentity"
+    );
+    const appNodes = model.nodes.filter(
+      (node) => node.lane === "services" && ["appTier", "platformRuntime"].includes(classifyNodeGroup(node))
+    );
+    const asyncNodes = model.nodes.filter(
+      (node) => node.lane === "services" && classifyNodeGroup(node) === "asyncWorkloads"
+    );
+    const privateDataNodes = model.nodes.filter((node) => {
+      if (node.lane !== "data") {
+        return false;
+      }
+
+      const text = `${node.title} ${node.meta}`.toLowerCase();
+      return classifyNodeGroup(node) === "transactionalData" && !/storage|bucket|search|warehouse|vector/.test(text);
+    });
+    const regionalServiceNodes = model.nodes.filter((node) => {
+      if (node.lane === "operations" && ["observability", "deliveryRecovery", "aiEnablement"].includes(classifyNodeGroup(node))) {
+        return true;
+      }
+
+      if (node.lane !== "data") {
+        return false;
+      }
+
+      const text = `${node.title} ${node.meta}`.toLowerCase();
+      return ["asyncData", "analyticsAi"].includes(classifyNodeGroup(node)) || /storage|bucket|search|warehouse|vector/.test(text);
+    });
+    const externalNodes = model.nodes.filter(
+      (node) =>
+        (node.lane === "data" && classifyNodeGroup(node) === "externalSystems") ||
+        (node.lane === "network" && classifyNodeGroup(node) === "hybridAccess")
+    );
+    const regionalMarkup =
+      buildModuleMarkup({
+        title: pageLanguage === "bg" ? "Regional services" : "Regional services",
+        note: pageLanguage === "bg" ? "Managed messaging, storage, analytics, monitoring и recovery контроли." : "Managed messaging, storage, analytics, monitoring, and recovery controls.",
+        nodes: regionalServiceNodes,
+        interactive,
+        tone: "regional",
+      }) ||
+      `
+        <article class="architecture-module architecture-module-empty">
+          <div class="architecture-module-head">
+            <div>
+              <span class="architecture-module-kicker">${escapeHtml(pageLanguage === "bg" ? "Regional services" : "Regional services")}</span>
+              <p class="architecture-module-note">${escapeHtml(pageLanguage === "bg" ? "Тук ще се появят managed services слоевете, след като изберете storage, messaging, analytics или ops контроли." : "Managed services will appear here after you select storage, messaging, analytics, or operations controls.")}</p>
+            </div>
+          </div>
+        </article>
+      `;
+
+    return `
+      <div class="architecture-diagram" data-provider="${escapeHtml(slugify(model.answers.primaryCloud || "generic-cloud"))}">
+        <aside class="architecture-actors-zone">
+          <div class="architecture-zone-head">
+            <div>
+              <span class="architecture-zone-kicker">${escapeHtml(pageLanguage === "bg" ? "Канали" : "Channels")}</span>
+              <h3 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "Потребители и входни точки" : "Users and entry points")}</h3>
+            </div>
+            <p class="architecture-zone-note">${escapeHtml(pageLanguage === "bg" ? "Откъде трафикът, екипите и интеграциите влизат в системата." : "Where traffic, teams, and integrations enter the platform.")}</p>
+          </div>
+          ${buildNodeStackMarkup(channels, interactive)}
+        </aside>
+
+        <section class="architecture-region-shell">
+          <div class="architecture-region-head">
+            <div>
+              <span class="architecture-zone-kicker">${escapeHtml(providerLabel)}</span>
+              <h3 class="architecture-region-title">${escapeHtml(region ? `${region} • ${model.answers.systemName || strings.systemFallback}` : model.answers.systemName || strings.systemFallback)}</h3>
+              <p class="architecture-zone-note">${escapeHtml(regionMeta || strings.pending)}</p>
+            </div>
+
+            <div class="architecture-region-pills">
+              <span class="architecture-region-pill">${escapeHtml(labelFor("business_goal", model.answers.businessGoal) || strings.pending)}</span>
+              <span class="architecture-region-pill">${escapeHtml(labelFor("autoscaling", model.answers.autoscaling) || strings.pending)}</span>
+              <span class="architecture-region-pill">${escapeHtml(hostingLabel || strings.pending)}</span>
+            </div>
+          </div>
+
+          <div class="architecture-diagram-grid">
+            <section class="architecture-vpc-shell">
+              <div class="architecture-boundary-head">
+                <div>
+                  <span class="architecture-zone-kicker">${escapeHtml(boundaryLabel)}</span>
+                  <h3 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "Приложна и data среда" : "Application and data estate")}</h3>
+                </div>
+                <div class="architecture-az-strip">${azChips || `<span class="architecture-az-chip">${escapeHtml(pageLanguage === "bg" ? "Сегментирана среда" : "Segmented estate")}</span>`}</div>
               </div>
-              <span class="architecture-lane-count">${lane.nodes.length}</span>
-            </div>
-            <div class="architecture-clusters">
-              ${lane.groups
-                .map(
-                  (group) => `
-                    <section class="architecture-cluster" data-group-id="${escapeHtml(group.id)}">
-                      <div class="architecture-cluster-head">
-                        <h4 class="architecture-cluster-title">${escapeHtml(group.label)}</h4>
-                        <span class="architecture-cluster-count">${group.nodes.length}</span>
-                      </div>
-                      <div class="architecture-nodes">
-                        ${group.nodes.map((node) => buildNodeMarkup(node, interactive)).join("")}
-                      </div>
-                    </section>
-                  `
-                )
-                .join("")}
-            </div>
-          </section>
-        `
-      )
-      .join("");
+
+              <div class="architecture-vpc-grid">
+                <section class="architecture-zone-panel architecture-zone-panel-access">
+                  <div class="architecture-zone-head">
+                    <div>
+                      <span class="architecture-zone-kicker">${escapeHtml(pageLanguage === "bg" ? "Достъп" : "Access zone")}</span>
+                      <h4 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "Публичен и защитен вход" : "Public and protected ingress")}</h4>
+                    </div>
+                    <p class="architecture-zone-note">${escapeHtml(pageLanguage === "bg" ? "Load balancer-и, API вход, VPN и мрежова основа." : "Load balancers, API entry, VPN, and network foundation.")}</p>
+                  </div>
+                  ${buildNodeStackMarkup([...edgeNodes, ...networkCoreNodes], interactive)}
+                </section>
+
+                <div class="architecture-private-zone">
+                  ${buildModuleMarkup({
+                    title: pageLanguage === "bg" ? "Идентичност и контрол" : "Identity and control plane",
+                    note: pageLanguage === "bg" ? "SSO, IAM, secrets и достъп до критичните слоеве." : "SSO, IAM, secrets, and controlled access into critical layers.",
+                    nodes: identityNodes,
+                    interactive,
+                    tone: "identity",
+                  })}
+                  ${buildModuleMarkup({
+                    title: pageLanguage === "bg" ? "Приложен слой" : "Application services",
+                    note: pageLanguage === "bg" ? "Основни уеб, API, container или Kubernetes workloads." : "Primary web, API, container, or Kubernetes workloads.",
+                    nodes: appNodes,
+                    interactive,
+                    tone: "compute",
+                  })}
+                  ${buildModuleMarkup({
+                    title: pageLanguage === "bg" ? "Async и jobs" : "Async and background workloads",
+                    note: pageLanguage === "bg" ? "Workers, schedulers и асинхронни потоци." : "Workers, schedulers, and asynchronous processing flows.",
+                    nodes: asyncNodes,
+                    interactive,
+                    tone: "async",
+                  })}
+                  ${buildModuleMarkup({
+                    title: pageLanguage === "bg" ? "Частни data слоеве" : "Private data services",
+                    note: pageLanguage === "bg" ? "Транзакционни бази, cache и вътрешни data зависимости." : "Transactional databases, cache, and internal data dependencies.",
+                    nodes: privateDataNodes,
+                    interactive,
+                    tone: "data",
+                  })}
+                </div>
+              </div>
+            </section>
+
+            <aside class="architecture-managed-zone">
+              ${regionalMarkup}
+            </aside>
+          </div>
+
+          ${
+            externalNodes.length
+              ? `
+                <section class="architecture-external-zone">
+                  <div class="architecture-zone-head">
+                    <div>
+                      <span class="architecture-zone-kicker">${escapeHtml(pageLanguage === "bg" ? "Външни зависимости" : "External resources")}</span>
+                      <h3 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "On-prem и свързани системи" : "On-prem and connected systems")}</h3>
+                    </div>
+                    <p class="architecture-zone-note">${escapeHtml(pageLanguage === "bg" ? "Хибридни връзки, customer-managed ресурси и бизнес системи." : "Hybrid links, customer-managed resources, and business systems.")}</p>
+                  </div>
+                  ${buildNodeStackMarkup(externalNodes, interactive, "architecture-node-stack-horizontal")}
+                </section>
+              `
+              : ""
+          }
+        </section>
+      </div>
+    `;
+  };
 
   const renderBoard = (model) => {
     if (model?.nodes) {
