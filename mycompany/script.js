@@ -1,3 +1,5 @@
+document.documentElement.classList.add("js");
+
 const root = document.documentElement;
 const siteHeader = document.querySelector(".site-header");
 const menuToggle = document.querySelector(".menu-toggle");
@@ -75,6 +77,9 @@ document.querySelectorAll(autoMaterializeSelector).forEach((element) => {
 });
 
 const revealElements = document.querySelectorAll(".reveal");
+const heroRevealElements = document.querySelectorAll(".hero .reveal");
+
+heroRevealElements.forEach((element) => element.classList.add("is-visible"));
 
 if ("IntersectionObserver" in window) {
   const revealObserver = new IntersectionObserver(

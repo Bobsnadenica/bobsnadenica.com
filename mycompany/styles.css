@@ -306,6 +306,8 @@ button {
   grid-template-columns: minmax(0, 500px) minmax(0, 1fr);
   align-items: center;
   gap: clamp(2rem, 5vw, 5rem);
+  position: relative;
+  z-index: 2;
 }
 
 .eyebrow {
@@ -370,8 +372,14 @@ button {
   text-transform: uppercase;
 }
 
+.hero-copy {
+  position: relative;
+  z-index: 3;
+}
+
 .hero-visual {
   position: relative;
+  z-index: 2;
 }
 
 .visual-shell {
@@ -2389,8 +2397,8 @@ button {
 }
 
 .reveal {
-  opacity: 0;
-  transform: translateY(26px);
+  opacity: 1;
+  transform: none;
   filter: none;
   transition:
     opacity 700ms ease,
@@ -2399,7 +2407,13 @@ button {
   transition-delay: var(--delay, 0ms);
 }
 
-.reveal.is-visible {
+.js .reveal {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+.reveal.is-visible,
+.js .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -2407,14 +2421,14 @@ button {
 .materialize {
   position: relative;
   isolation: isolate;
-  overflow: clip;
+  overflow: visible;
 }
 
-.materialize.reveal {
+.js .materialize.reveal {
   filter: blur(10px) saturate(0.78);
 }
 
-.materialize.reveal.is-visible {
+.js .materialize.reveal.is-visible {
   filter: blur(0) saturate(1);
 }
 

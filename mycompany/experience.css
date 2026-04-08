@@ -2,12 +2,13 @@
 
 .hero {
   position: relative;
-  overflow: clip;
+  overflow: visible;
 }
 
 .hero-scene {
   position: absolute;
   inset: 8% 4% 10% 48%;
+  z-index: 0;
   pointer-events: none;
   perspective: 1600px;
   transform-style: preserve-3d;
