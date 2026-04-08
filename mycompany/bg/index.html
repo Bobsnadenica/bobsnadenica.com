@@ -41,6 +41,7 @@
     rel="stylesheet"
   >
   <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../experience.css">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -295,9 +296,18 @@
                       </div>
                     </div>
                     <div class="preview-stat-row">
-                      <span class="preview-stat"></span>
-                      <span class="preview-stat"></span>
-                      <span class="preview-stat"></span>
+                      <div class="preview-stat">
+                        <span class="preview-stat-label">Скорост</span>
+                        <strong>97</strong>
+                      </div>
+                      <div class="preview-stat">
+                        <span class="preview-stat-label">Запитвания</span>
+                        <strong>312</strong>
+                      </div>
+                      <div class="preview-stat">
+                        <span class="preview-stat-label">SEO</span>
+                        <strong>91</strong>
+                      </div>
                     </div>
                     <div class="preview-chart">
                       <span class="preview-bar bar-1"></span>
@@ -309,13 +319,19 @@
                     </div>
                   </div>
                   <div class="preview-float preview-float-seo">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span class="preview-float-kicker">SEO</span>
+                    <strong class="preview-float-value">Core Web Vitals</strong>
+                    <span class="preview-float-meta">Schema и индексация</span>
                   </div>
                   <div class="preview-float preview-float-metrics">
-                    <span></span>
-                    <span></span>
+                    <div class="preview-metric-card">
+                      <span>Посещения</span>
+                      <strong>24k</strong>
+                    </div>
+                    <div class="preview-metric-card">
+                      <span>Запитвания</span>
+                      <strong>312</strong>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -334,8 +350,14 @@
                 </div>
 
                 <div class="preview-window preview-mobile">
-                  <div class="mobile-float mobile-float-a"></div>
-                  <div class="mobile-float mobile-float-b"></div>
+                  <div class="mobile-float mobile-float-a">
+                    <span class="mobile-float-label">Пускане</span>
+                    <strong>2.4 live</strong>
+                  </div>
+                  <div class="mobile-float mobile-float-b">
+                    <span class="mobile-float-label">Рейтинг</span>
+                    <strong>4.9</strong>
+                  </div>
                   <div class="mobile-device">
                     <span class="mobile-notch"></span>
                     <div class="mobile-screen">
@@ -381,15 +403,18 @@
                     <span class="cloud-line cloud-line-b"></span>
                     <span class="cloud-line cloud-line-c"></span>
                     <div class="cloud-monitor">
-                      <span></span>
-                      <span></span>
-                      <span></span>
+                      <span class="cloud-monitor-kicker">Наличност</span>
+                      <strong>99.98%</strong>
+                      <span class="cloud-monitor-meta">Latency 138 ms</span>
                     </div>
                     <div class="cloud-observability">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                      <span></span>
+                      <span class="cloud-observability-label">Трафик</span>
+                      <div class="cloud-observability-bars">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -564,5 +589,6 @@
   </div>
 
   <script src="../script.js"></script>
+  <script src="../experience.js"></script>
 </body>
 </html>

@@ -7,7 +7,9 @@ Bilingual static company website for a senior-led IT solutions business.
 - `index.html` is the English homepage.
 - `bg/index.html` is the Bulgarian homepage.
 - `styles.css` contains the shared visual system and responsive layout.
-- `script.js` adds mobile navigation, reveal-on-scroll behavior, language preference storage, and subtle hero motion.
+- `experience.css` contains the contextual preview scenes, depth effects, and animation-specific styling.
+- `script.js` contains the general site behavior such as navigation, reveals, and language preference storage.
+- `experience.js` contains the hero depth and pointer-based experience motion.
 - `robots.txt` and `sitemap.xml` support search engine discovery.
 
 ## GitHub Pages
