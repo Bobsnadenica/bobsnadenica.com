@@ -951,6 +951,7 @@
 .offer-monitor-mini,
 .offer-integration-mini {
   position: absolute;
+  transition: transform 320ms ease, opacity 320ms ease;
 }
 
 .offer-browser-mini {
@@ -1105,17 +1106,41 @@
 
 .offer-mobile-mini {
   left: 50%;
-  top: 0.7rem;
-  width: 88px;
-  height: 116px;
+  top: 0.6rem;
+  width: 92px;
+  height: 122px;
   padding: 0.55rem;
-  border-radius: 28px;
+  border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
     rgba(8, 9, 10, 0.92);
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(-2deg);
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.2);
+}
+
+.offer-mobile-mini::before {
+  content: "";
+  position: absolute;
+  inset: 0.55rem;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0)),
+    radial-gradient(circle at top right, rgba(255, 216, 170, 0.12), transparent 58%);
+  opacity: 0.74;
+  pointer-events: none;
+}
+
+.offer-mobile-mini::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0.38rem;
+  width: 1.9rem;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(-50%);
 }
 
 .offer-visual-mobile .offer-mobile-mini span {
@@ -1147,11 +1172,21 @@
   transform: translateX(-50%);
 }
 
+.offer-mobile-status {
+  left: 0.8rem;
+  right: 2rem;
+  top: 1rem;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 216, 170, 0.82), rgba(255, 255, 255, 0.08));
+  animation: analysisSweep 4.6s ease-in-out infinite;
+}
+
 .offer-mobile-hero {
   left: 0.7rem;
   right: 0.7rem;
-  top: 1.3rem;
-  height: 1.55rem;
+  top: 1.45rem;
+  height: 1.72rem;
   border-radius: 12px;
   background:
     linear-gradient(135deg, rgba(240, 138, 93, 0.34), rgba(255, 216, 170, 0.16)),
@@ -1160,22 +1195,33 @@
 
 .offer-mobile-row {
   left: 0.7rem;
-  right: 1.5rem;
-  top: 3.35rem;
-  height: 0.46rem;
+  height: 0.42rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
+}
+
+.offer-mobile-row-primary {
+  right: 1.35rem;
+  top: 3.7rem;
+}
+
+.offer-mobile-row-secondary {
+  right: 2.1rem;
+  top: 4.45rem;
+  opacity: 0.72;
 }
 
 .offer-mobile-chart {
   left: 0.7rem;
   right: 0.7rem;
-  bottom: 0.75rem;
-  height: 2.1rem;
+  bottom: 1.35rem;
+  height: 1.9rem;
   border-radius: 12px;
   background:
+    linear-gradient(90deg, transparent 0 23%, rgba(255, 255, 255, 0.06) 23% 24%, transparent 24% 50%, rgba(255, 255, 255, 0.06) 50% 51%, transparent 51% 77%, rgba(255, 255, 255, 0.06) 77% 78%, transparent 78% 100%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
     rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .offer-mobile-chart::before,
@@ -1191,18 +1237,133 @@
 }
 
 .offer-mobile-chart::before {
-  left: 0.7rem;
-  height: 44%;
+  left: 0.72rem;
+  height: 42%;
+  box-shadow: 0.9rem 0 0 rgba(255, 207, 150, 0.72);
 }
 
 .offer-mobile-chart::after {
-  left: 1.5rem;
+  left: 2.5rem;
   height: 72%;
   animation-delay: 220ms;
 }
 
+.offer-mobile-tab {
+  bottom: 0.78rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.offer-mobile-tab-a {
+  left: 1rem;
+}
+
+.offer-mobile-tab-b {
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(255, 216, 170, 0.94), rgba(240, 138, 93, 0.28));
+  box-shadow: 0 0 14px rgba(255, 216, 170, 0.26);
+}
+
+.offer-mobile-tab-c {
+  right: 1rem;
+}
+
+.offer-mobile-float,
+.offer-cloud-float,
+.offer-analysis-float {
+  position: absolute;
+  z-index: 3;
+  padding: 0.55rem 0.62rem 0.62rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03)),
+    rgba(10, 11, 11, 0.76);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(12px);
+  transition: transform 320ms ease, opacity 320ms ease;
+}
+
+.offer-mobile-float::after,
+.offer-cloud-float::after,
+.offer-analysis-float::after {
+  content: "";
+  position: absolute;
+  left: 0.62rem;
+  right: 0.62rem;
+  bottom: 0.46rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 216, 170, 0.88), rgba(255, 255, 255, 0));
+  opacity: 0.72;
+}
+
+.offer-mobile-float {
+  left: 0.78rem;
+  top: 1.55rem;
+  width: 98px;
+}
+
+.offer-mobile-platforms,
+.offer-cloud-environments {
+  display: flex;
+  gap: 0.28rem;
+  margin-bottom: 0.42rem;
+}
+
+.offer-mobile-platforms div,
+.offer-cloud-environments div {
+  flex: 1 1 0;
+  padding: 0.18rem 0.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-strong);
+  font-size: 0.38rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.offer-mobile-float strong,
+.offer-cloud-float strong,
+.offer-analysis-float strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .offer-cloud-mini {
-  inset: 1.1rem 0.9rem 0.9rem;
+  inset: 1rem 0.85rem 0.9rem;
+}
+
+.offer-cloud-mini::before {
+  content: "";
+  position: absolute;
+  inset: 0.2rem 16% 0.35rem;
+  border-radius: 22px;
+  background: radial-gradient(circle at top, rgba(255, 216, 170, 0.18), transparent 62%);
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+.offer-cloud-mini::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 0.32rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
 }
 
 .offer-cloud-node {
@@ -1223,22 +1384,32 @@
 
 .offer-cloud-node-edge {
   left: 0;
-  top: 1.45rem;
+  top: 1.65rem;
 }
 
 .offer-cloud-node-api {
-  left: 36%;
-  top: 0.25rem;
+  left: 35%;
+  top: 0.15rem;
+}
+
+.offer-cloud-node-workers {
+  right: 6%;
+  top: 0.7rem;
 }
 
 .offer-cloud-node-apps {
   right: 0;
-  top: 1.45rem;
+  top: 2.15rem;
 }
 
 .offer-cloud-node-data {
-  left: 38%;
+  left: 39%;
   bottom: 0;
+}
+
+.offer-cloud-node-ops {
+  left: 10%;
+  bottom: 0.28rem;
 }
 
 .offer-cloud-link {
@@ -1249,29 +1420,63 @@
 }
 
 .offer-cloud-link-a {
-  left: 20%;
-  top: 2.05rem;
-  width: 22%;
-  transform: rotate(-18deg);
+  left: 17%;
+  top: 2rem;
+  width: 21%;
+  transform: rotate(-22deg);
 }
 
 .offer-cloud-link-b {
-  left: 49%;
-  top: 1.2rem;
-  width: 23%;
-  transform: rotate(18deg);
+  left: 50%;
+  top: 0.95rem;
+  width: 16%;
+  transform: rotate(7deg);
 }
 
 .offer-cloud-link-c {
-  left: 46%;
-  top: 2.95rem;
-  width: 0.9rem;
+  left: 77%;
+  top: 1.6rem;
+  width: 1rem;
+  transform: rotate(75deg);
+}
+
+.offer-cloud-link-d {
+  left: 48%;
+  top: 1.05rem;
+  width: 1.7rem;
   transform: rotate(90deg);
+}
+
+.offer-cloud-link-e {
+  left: 25%;
+  top: 3.05rem;
+  width: 27%;
+  transform: rotate(-12deg);
+}
+
+.offer-cloud-pulse {
+  position: absolute;
+  left: 16%;
+  top: 1.86rem;
+  width: 0.54rem;
+  height: 0.54rem;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  box-shadow: 0 0 18px rgba(255, 216, 170, 0.34);
+  animation: cloudPulseTravel 4.2s ease-in-out infinite;
+}
+
+.offer-cloud-float {
+  left: 0.76rem;
+  top: 0.76rem;
+  width: 108px;
 }
 
 .offer-cloud-link-a,
 .offer-cloud-link-b,
 .offer-cloud-link-c,
+.offer-cloud-link-d,
+.offer-cloud-link-e,
 .offer-analysis-link,
 .offer-integration-line {
   animation: railSweep 6.6s linear infinite;
@@ -1286,41 +1491,84 @@
   inset: 1rem 0.9rem 0.9rem;
 }
 
+.offer-analysis-mini::before {
+  content: "";
+  position: absolute;
+  inset: 0.08rem 0;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)),
+    repeating-linear-gradient(90deg, transparent 0 32%, rgba(255, 255, 255, 0.04) 32% 33%, transparent 33% 66%, rgba(255, 255, 255, 0.04) 66% 67%, transparent 67% 100%);
+  opacity: 0.72;
+}
+
+.offer-analysis-lane {
+  position: absolute;
+  top: 0;
+  padding: 0.22rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-strong);
+  font-size: 0.42rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.offer-analysis-lane-now {
+  left: 0;
+}
+
+.offer-analysis-lane-target {
+  left: 37%;
+}
+
+.offer-analysis-lane-metrics {
+  right: 0;
+}
+
 .offer-analysis-card {
   position: absolute;
-  padding: 0.44rem 0.6rem;
+  padding: 0.4rem 0.54rem;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
     rgba(10, 11, 11, 0.74);
   color: var(--muted-strong);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+  white-space: nowrap;
 }
 
-.offer-analysis-card-scope {
+.offer-analysis-card-ops {
   left: 0;
-  top: 0.3rem;
+  top: 1.05rem;
 }
 
 .offer-analysis-card-users {
-  right: 0;
-  top: 0.55rem;
+  left: 0.35rem;
+  bottom: 0.15rem;
 }
 
 .offer-analysis-card-flow {
-  left: 22%;
-  bottom: 0.95rem;
+  left: 36%;
+  top: 2rem;
 }
 
 .offer-analysis-card-kpis {
-  right: 10%;
+  right: 0.5rem;
   bottom: 0;
+}
+
+.offer-analysis-card-backlog {
+  right: 0;
+  top: 1.2rem;
 }
 
 .offer-analysis-link {
@@ -1330,24 +1578,60 @@
 }
 
 .offer-analysis-link-a {
-  left: 18%;
-  top: 1.15rem;
-  width: 34%;
-  transform: rotate(10deg);
+  left: 17%;
+  top: 1.7rem;
+  width: 23%;
+  transform: rotate(18deg);
 }
 
 .offer-analysis-link-b {
-  left: 29%;
-  top: 2.2rem;
-  width: 16%;
-  transform: rotate(62deg);
+  left: 18%;
+  top: 3.1rem;
+  width: 21%;
+  transform: rotate(-12deg);
 }
 
 .offer-analysis-link-c {
-  left: 54%;
-  top: 2.95rem;
-  width: 18%;
-  transform: rotate(-32deg);
+  left: 55%;
+  top: 2.4rem;
+  width: 17%;
+  transform: rotate(-22deg);
+}
+
+.offer-analysis-link-d {
+  left: 55%;
+  top: 2rem;
+  width: 14%;
+  transform: rotate(16deg);
+}
+
+.offer-analysis-pulse {
+  position: absolute;
+  left: 35%;
+  top: 2.35rem;
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  box-shadow: 0 0 18px rgba(255, 216, 170, 0.28);
+  animation: analysisPulseTravel 4.4s ease-in-out infinite;
+}
+
+.offer-analysis-float {
+  right: 0.76rem;
+  top: 0.82rem;
+  width: 92px;
+  padding-bottom: 0.58rem;
+}
+
+.offer-analysis-stage {
+  margin-bottom: 0.34rem;
+  color: var(--muted-strong);
+  font-size: 0.4rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .offer-monitor-mini {
@@ -1496,11 +1780,20 @@
 
 .offer-line:hover .offer-browser-mini,
 .offer-line:hover .offer-search-mini,
-.offer-line:hover .offer-mobile-mini,
 .offer-line:hover .offer-cloud-mini,
 .offer-line:hover .offer-analysis-mini,
 .offer-line:hover .offer-monitor-mini,
 .offer-line:hover .offer-integration-mini {
+  transform: translateY(-2px);
+}
+
+.offer-line:hover .offer-mobile-mini {
+  transform: translateX(-50%) translateY(-2px) rotate(0deg);
+}
+
+.offer-line:hover .offer-mobile-float,
+.offer-line:hover .offer-cloud-float,
+.offer-line:hover .offer-analysis-float {
   transform: translateY(-2px);
 }
 
@@ -1628,6 +1921,46 @@
     height: 108px;
   }
 
+  .offer-mobile-float {
+    left: 0.56rem;
+    top: 1.38rem;
+    width: 82px;
+    padding: 0.46rem 0.5rem 0.54rem;
+  }
+
+  .offer-cloud-float {
+    left: 0.56rem;
+    top: 0.58rem;
+    width: 90px;
+    padding: 0.46rem 0.5rem 0.54rem;
+  }
+
+  .offer-analysis-float {
+    right: 0.56rem;
+    top: 0.58rem;
+    width: 82px;
+    padding: 0.42rem 0.48rem 0.52rem;
+  }
+
+  .offer-mobile-platforms div,
+  .offer-cloud-environments div {
+    font-size: 0.34rem;
+  }
+
+  .offer-analysis-stage {
+    font-size: 0.34rem;
+  }
+
+  .offer-mobile-float strong,
+  .offer-cloud-float strong,
+  .offer-analysis-float strong {
+    font-size: 0.44rem;
+  }
+
+  .offer-analysis-lane {
+    font-size: 0.36rem;
+  }
+
   .offer-cloud-node,
   .offer-analysis-card,
   .offer-integration-node {
@@ -1710,6 +2043,52 @@
 
   50% {
     transform: scaleY(1.08);
+  }
+}
+
+@keyframes cloudPulseTravel {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.9);
+    opacity: 0.8;
+  }
+
+  26% {
+    transform: translate3d(56px, -22px, 0) scale(1);
+    opacity: 1;
+  }
+
+  52% {
+    transform: translate3d(102px, -12px, 0) scale(0.96);
+    opacity: 0.96;
+  }
+
+  78% {
+    transform: translate3d(76px, 36px, 0) scale(0.92);
+    opacity: 0.84;
+  }
+}
+
+@keyframes analysisPulseTravel {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.9);
+    opacity: 0.8;
+  }
+
+  28% {
+    transform: translate3d(-36px, -28px, 0) scale(1);
+    opacity: 1;
+  }
+
+  54% {
+    transform: translate3d(44px, -12px, 0) scale(0.96);
+    opacity: 0.96;
+  }
+
+  80% {
+    transform: translate3d(42px, 28px, 0) scale(0.92);
+    opacity: 0.84;
   }
 }
 
