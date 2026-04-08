@@ -6,7 +6,8 @@ const navLinks = document.querySelectorAll(".site-nav a");
 const languageLinks = document.querySelectorAll("[data-language]");
 const revealElements = document.querySelectorAll(".reveal");
 const heroVisual = document.querySelector(".hero-visual");
-const motionPanels = document.querySelectorAll(".showcase-panel, .contact-panel, .visual-stage-card, .offer-line");
+const motionPanels = document.querySelectorAll(".visual-shell, .showcase-panel, .offer-line, .contact-panel");
+const depthPanels = document.querySelectorAll(".showcase-panel, .offer-line, .contact-panel");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const safeStorage = {
   get(key) {
@@ -82,6 +83,21 @@ if (heroVisual && !reduceMotion.matches) {
 }
 
 if (!reduceMotion.matches) {
+  const updatePanelDepth = () => {
+    const viewportHeight = window.innerHeight || 1;
+
+    depthPanels.forEach((panel) => {
+      const rect = panel.getBoundingClientRect();
+      const panelCenter = rect.top + rect.height / 2;
+      const distance = (panelCenter - viewportHeight / 2) / viewportHeight;
+      panel.style.setProperty("--panel-shift", `${distance * -14}px`);
+    });
+  };
+
+  updatePanelDepth();
+  window.addEventListener("scroll", updatePanelDepth, { passive: true });
+  window.addEventListener("resize", updatePanelDepth);
+
   motionPanels.forEach((panel) => {
     panel.addEventListener("pointermove", (event) => {
       const rect = panel.getBoundingClientRect();
