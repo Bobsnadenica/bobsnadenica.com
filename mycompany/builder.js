@@ -57,7 +57,7 @@ if (architectureForm) {
           "Answer the questions a senior architect would normally ask, then press Build. You can edit names, notes, and add more components after generation.",
       },
       stageStatus:
-        "Scroll the canvas to follow the system end to end. The generated view stays high level on purpose: strong enough for planning, scoping, workshops, and stakeholder conversations.",
+        "Build the architecture to generate a live preview. Open the full diagram to inspect zones, dependencies, and platform layers in detail.",
       actions: {
         editAnswers: "Edit answers",
         copyBrief: "Copy brief",
@@ -215,6 +215,26 @@ if (architectureForm) {
           data: "Data",
           operations: "Ops",
         },
+        groups: {
+          customerChannels: "Customer touchpoints",
+          internalChannels: "Internal and partner access",
+          programmaticChannels: "Programmatic entry",
+          publicIngress: "Ingress and delivery",
+          protectedAccess: "Protected access",
+          networkCore: "Core network zone",
+          hybridAccess: "Hybrid and private links",
+          appTier: "Application tier",
+          asyncWorkloads: "Jobs and async workloads",
+          platformRuntime: "Platform runtime",
+          transactionalData: "Transactional data",
+          asyncData: "Messaging and flow",
+          externalSystems: "External systems",
+          analyticsAi: "Analytics and AI data",
+          securityIdentity: "Security and identity",
+          observability: "Observability",
+          deliveryRecovery: "Delivery and resilience",
+          aiEnablement: "AI enablement",
+        },
       },
       brief: {
         title: "High-level architecture brief",
@@ -292,7 +312,7 @@ if (architectureForm) {
           "Отговорете на въпросите, които senior архитект би задал, после натиснете Build. След това можете да редактирате имена, бележки и да добавяте нови компоненти.",
       },
       stageStatus:
-        "Скролирайте през canvas-а, за да проследите системата от край до край. Изгледът е high level по замисъл: достатъчно силен за планиране, scoping, workshops и разговори със stakeholders.",
+        "Изградете архитектурата, за да генерирате live preview. Отворете пълната диаграма, за да разгледате зоните, зависимостите и платформените слоеве в детайл.",
       actions: {
         editAnswers: "Редактирайте отговорите",
         copyBrief: "Копирайте резюмето",
@@ -450,6 +470,26 @@ if (architectureForm) {
           data: "Данни",
           operations: "Ops",
         },
+        groups: {
+          customerChannels: "Клиентски точки на достъп",
+          internalChannels: "Вътрешен и партньорски достъп",
+          programmaticChannels: "Програмен вход",
+          publicIngress: "Вход и доставка",
+          protectedAccess: "Защитен достъп",
+          networkCore: "Основна мрежова зона",
+          hybridAccess: "Хибридни и частни връзки",
+          appTier: "Приложен слой",
+          asyncWorkloads: "Jobs и async слоеве",
+          platformRuntime: "Платформен runtime",
+          transactionalData: "Транзакционни данни",
+          asyncData: "Messaging и потоци",
+          externalSystems: "Външни системи",
+          analyticsAi: "Аналитични и AI данни",
+          securityIdentity: "Сигурност и идентичност",
+          observability: "Наблюдаемост",
+          deliveryRecovery: "Delivery и устойчивост",
+          aiEnablement: "AI enablement",
+        },
       },
       brief: {
         title: "High-level архитектурно резюме",
@@ -486,11 +526,34 @@ if (architectureForm) {
     ai: document.querySelector("[data-architecture-summary='ai']"),
   };
   const summaryGrid = document.querySelector("[data-architecture-summary-grid]");
-  const architectureBoard = document.querySelector("[data-architecture-board]");
-  const architectureLinks = document.querySelector("[data-architecture-links]");
-  const architectureViewport = document.querySelector("[data-architecture-viewport]");
-  const architectureCanvas = document.querySelector("[data-architecture-canvas]");
   const architectureStatus = document.querySelector("[data-architecture-status]");
+  const architectureModal = document.querySelector("[data-architecture-modal]");
+  const openDiagramTargets = Array.from(document.querySelectorAll("[data-open-architecture-modal]"));
+  const closeDiagramTargets = Array.from(document.querySelectorAll("[data-close-architecture-modal]"));
+  const zoomInButton = document.querySelector("[data-zoom-in]");
+  const zoomOutButton = document.querySelector("[data-zoom-out]");
+  const zoomFitButton = document.querySelector("[data-zoom-fit]");
+  const zoomReadout = document.querySelector("[data-zoom-readout]");
+  const diagramContexts = [
+    {
+      key: "preview",
+      interactive: false,
+      board: document.querySelector("[data-architecture-preview-board]"),
+      links: document.querySelector("[data-architecture-preview-links]"),
+      viewport: document.querySelector("[data-architecture-preview-viewport]"),
+      canvas: document.querySelector("[data-architecture-preview-canvas]"),
+      scaleWrap: document.querySelector("[data-architecture-preview-scale]"),
+    },
+    {
+      key: "modal",
+      interactive: true,
+      board: document.querySelector("[data-architecture-modal-board]"),
+      links: document.querySelector("[data-architecture-modal-links]"),
+      viewport: document.querySelector("[data-architecture-modal-viewport]"),
+      canvas: document.querySelector("[data-architecture-modal-canvas]"),
+      scaleWrap: document.querySelector("[data-architecture-modal-scale]"),
+    },
+  ].filter((context) => context.board && context.links && context.viewport && context.canvas && context.scaleWrap);
   const inventoryTarget = document.querySelector("[data-node-list]");
   const nodeTitleTarget = document.querySelector("[data-node-title]");
   const nodeEmptyTarget = document.querySelector("[data-node-empty]");
@@ -508,6 +571,8 @@ if (architectureForm) {
   let selectedNodeId = null;
   let nodeCounter = 0;
   let customCounter = 0;
+  let modalScale = 1;
+  let previousActiveElement = null;
 
   const safeStorage = {
     get(key) {
@@ -580,6 +645,111 @@ if (architectureForm) {
     generated,
     connections: [],
   });
+
+  const laneGroupOrder = {
+    channels: ["customerChannels", "internalChannels", "programmaticChannels"],
+    edge: ["publicIngress", "protectedAccess"],
+    network: ["networkCore", "hybridAccess"],
+    services: ["appTier", "platformRuntime", "asyncWorkloads"],
+    data: ["transactionalData", "asyncData", "analyticsAi", "externalSystems"],
+    operations: ["securityIdentity", "observability", "deliveryRecovery", "aiEnablement"],
+  };
+
+  const classifyNodeGroup = (node) => {
+    const haystack = `${node.title} ${node.meta} ${node.note} ${node.tags.join(" ")}`.toLowerCase();
+
+    if (node.lane === "channels") {
+      if (/api|assistant/.test(haystack)) {
+        return "programmaticChannels";
+      }
+
+      if (/internal|partner|team|admin|office/.test(haystack)) {
+        return "internalChannels";
+      }
+
+      return "customerChannels";
+    }
+
+    if (node.lane === "edge") {
+      return /vpn|bastion|private|protect|secure/.test(haystack) || node.kind === "security"
+        ? "protectedAccess"
+        : "publicIngress";
+    }
+
+    if (node.lane === "network") {
+      return /hybrid|private link|site-to-site|vpn|on-prem/.test(haystack) ? "hybridAccess" : "networkCore";
+    }
+
+    if (node.lane === "services") {
+      if (/worker|job|async|scheduler/.test(haystack)) {
+        return "asyncWorkloads";
+      }
+
+      if (/kubernetes|container|runtime|serverless|cluster|platform/.test(haystack)) {
+        return "platformRuntime";
+      }
+
+      return "appTier";
+    }
+
+    if (node.lane === "data") {
+      if (node.kind === "integration" || /external/.test(haystack)) {
+        return "externalSystems";
+      }
+
+      if (/queue|event|stream|async/.test(haystack)) {
+        return "asyncData";
+      }
+
+      if (/search|warehouse|bi|vector|retrieval|analytics|ai/.test(haystack)) {
+        return "analyticsAi";
+      }
+
+      return "transactionalData";
+    }
+
+    if (node.lane === "operations") {
+      if (node.kind === "enablement" || /ai|training|assistant|guardrail|governance/.test(haystack)) {
+        return "aiEnablement";
+      }
+
+      if (/monitor|logging|tracing|siem|observ/.test(haystack)) {
+        return "observability";
+      }
+
+      if (/backup|recovery|cicd|delivery|disaster|failover/.test(haystack)) {
+        return "deliveryRecovery";
+      }
+
+      return "securityIdentity";
+    }
+
+    return "appTier";
+  };
+
+  const buildLaneGroups = (laneId, nodes) => {
+    const grouped = new Map();
+
+    nodes.forEach((node) => {
+      const groupId = classifyNodeGroup(node);
+      if (!grouped.has(groupId)) {
+        grouped.set(groupId, []);
+      }
+      grouped.get(groupId).push(node);
+    });
+
+    const preferredOrder = laneGroupOrder[laneId] || [];
+    const orderedKeys = [
+      ...preferredOrder.filter((groupId) => grouped.has(groupId)),
+      ...Array.from(grouped.keys()).filter((groupId) => !preferredOrder.includes(groupId)),
+    ];
+
+    return orderedKeys.map((groupId) => ({
+      id: groupId,
+      label: strings.labels.groups[groupId] || groupId,
+      nodes: grouped.get(groupId),
+    }));
+  };
 
   const readAnswers = () => ({
     systemName: getText("system_name"),
@@ -721,6 +891,7 @@ if (architectureForm) {
           label: strings.lanes[laneId].label,
           note: strings.lanes[laneId].note,
           nodes,
+          groups: buildLaneGroups(laneId, nodes),
         };
       })
       .filter(Boolean);
@@ -734,17 +905,29 @@ if (architectureForm) {
     });
   };
 
-  const connectGroups = (fromNodes, toNodes) => {
+  const connectNodes = (source, targets) => {
+    if (!source) {
+      return;
+    }
+
+    targets.filter(Boolean).forEach((target) => {
+      if (!source.connections.includes(target.id)) {
+        source.connections.push(target.id);
+      }
+    });
+  };
+
+  const connectChains = (fromNodes, toNodes, limit = 2) => {
     if (!fromNodes.length || !toNodes.length) {
       return;
     }
 
-    const sources = fromNodes.slice(0, Math.min(3, fromNodes.length));
-    toNodes.forEach((target, index) => {
-      const source = sources[index % sources.length];
-      if (source && !source.connections.includes(target.id)) {
-        source.connections.push(target.id);
-      }
+    const sources = fromNodes.slice(0, Math.max(1, Math.min(limit, fromNodes.length)));
+    const targets = toNodes.slice(0, Math.max(1, Math.min(limit + 1, toNodes.length)));
+
+    sources.forEach((source, index) => {
+      const target = targets[Math.min(index, targets.length - 1)];
+      connectNodes(source, [target]);
     });
   };
 
@@ -1336,7 +1519,9 @@ if (architectureForm) {
     }
 
     laneOrder.forEach((laneId) => {
-      addSequentialConnections(nodes.filter((node) => node.lane === laneId));
+      buildLaneGroups(laneId, nodes.filter((node) => node.lane === laneId)).forEach((group) => {
+        addSequentialConnections(group.nodes);
+      });
     });
 
     const channels = nodes.filter((node) => node.lane === "channels");
@@ -1346,12 +1531,49 @@ if (architectureForm) {
     const data = nodes.filter((node) => node.lane === "data");
     const operations = nodes.filter((node) => node.lane === "operations");
 
-    connectGroups(channels, edge.length ? edge : network);
-    connectGroups(edge, network.length ? network : services);
-    connectGroups(network.length ? network : edge, services);
-    connectGroups(services, data);
-    connectGroups(services.slice(0, Math.min(3, services.length)), operations);
-    connectGroups(data.slice(0, Math.min(2, data.length)), operations);
+    const publicIngress = edge.find((node) => classifyNodeGroup(node) === "publicIngress");
+    const protectedAccess = edge.find((node) => classifyNodeGroup(node) === "protectedAccess");
+    const networkCore = network.find((node) => classifyNodeGroup(node) === "networkCore") || network[0];
+    const hybridLink = network.find((node) => classifyNodeGroup(node) === "hybridAccess");
+    const appTier = services.find((node) => classifyNodeGroup(node) === "appTier") || services[0];
+    const platformRuntime = services.find((node) => classifyNodeGroup(node) === "platformRuntime");
+    const asyncWorkloads = services.filter((node) => classifyNodeGroup(node) === "asyncWorkloads");
+    const transactionalData = data.filter((node) => classifyNodeGroup(node) === "transactionalData");
+    const asyncData = data.filter((node) => classifyNodeGroup(node) === "asyncData");
+    const analyticsAi = data.filter((node) => classifyNodeGroup(node) === "analyticsAi");
+    const externalSystems = data.filter((node) => classifyNodeGroup(node) === "externalSystems");
+    const securityIdentity = operations.filter((node) => classifyNodeGroup(node) === "securityIdentity");
+    const observability = operations.filter((node) => classifyNodeGroup(node) === "observability");
+    const deliveryRecovery = operations.filter((node) => classifyNodeGroup(node) === "deliveryRecovery");
+    const aiEnablement = operations.filter((node) => classifyNodeGroup(node) === "aiEnablement");
+
+    channels.forEach((node) => {
+      const groupId = classifyNodeGroup(node);
+      if (groupId === "programmaticChannels") {
+        connectNodes(node, [edge.find((item) => /api gateway/i.test(item.title)) || publicIngress || networkCore || appTier]);
+        return;
+      }
+
+      if (groupId === "internalChannels") {
+        connectNodes(node, [protectedAccess || publicIngress || networkCore || appTier]);
+        return;
+      }
+
+      connectNodes(node, [publicIngress || protectedAccess || networkCore || appTier]);
+    });
+
+    connectChains(edge, network.length ? network : services, 2);
+    connectNodes(networkCore || hybridLink || edge[0], [platformRuntime || appTier].filter(Boolean));
+    connectNodes(platformRuntime || appTier, [appTier].filter(Boolean));
+    connectChains(services.filter((node) => classifyNodeGroup(node) === "appTier"), transactionalData, 2);
+    connectChains(services.filter((node) => classifyNodeGroup(node) === "appTier"), asyncData, 2);
+    connectChains(asyncWorkloads, asyncData, 2);
+    connectChains(asyncWorkloads.length ? asyncWorkloads : services.slice(0, 2), externalSystems, 2);
+    connectChains(transactionalData, analyticsAi, 2);
+    connectChains(services.slice(0, 2), observability, 2);
+    connectChains([publicIngress, protectedAccess, networkCore].filter(Boolean), securityIdentity, 2);
+    connectChains([appTier, platformRuntime, ...transactionalData.slice(0, 1)].filter(Boolean), deliveryRecovery, 2);
+    connectChains([appTier, ...analyticsAi.slice(0, 1)].filter(Boolean), aiEnablement, 2);
 
     const summaryCards = [
       {
@@ -2011,31 +2233,134 @@ if (architectureForm) {
     }
   };
 
-  const drawConnections = () => {
-    if (!architectureBoard || !architectureLinks || !architectureCanvas || !currentModel) {
+  const getContext = (key) => diagramContexts.find((context) => context.key === key);
+
+  const updateOpenDiagramTargets = (enabled) => {
+    openDiagramTargets.forEach((target) => {
+      if ("disabled" in target) {
+        target.disabled = !enabled;
+      }
+
+      target.setAttribute("aria-disabled", enabled ? "false" : "true");
+
+      if (target.hasAttribute("tabindex")) {
+        target.tabIndex = enabled ? 0 : -1;
+      }
+    });
+  };
+
+  const applyDiagramScale = (context, scale) => {
+    if (!context?.canvas || !context.scaleWrap) {
       return;
     }
 
-    const canvasWidth = Math.max(architectureBoard.scrollWidth + 24, architectureViewport?.clientWidth || 0);
-    const canvasHeight = Math.max(architectureBoard.scrollHeight + 24, 640);
-    architectureCanvas.style.width = `${canvasWidth}px`;
-    architectureCanvas.style.minHeight = `${canvasHeight}px`;
-    architectureLinks.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
-    architectureLinks.setAttribute("width", String(canvasWidth));
-    architectureLinks.setAttribute("height", String(canvasHeight));
-    architectureLinks.innerHTML = `
+    const naturalWidth = context.naturalWidth || context.canvas.scrollWidth || 0;
+    const naturalHeight = context.naturalHeight || context.canvas.scrollHeight || 0;
+    const safeScale = Math.max(0.18, Math.min(scale, 2));
+
+    context.scale = safeScale;
+    context.scaledWidth = naturalWidth * safeScale;
+    context.scaledHeight = naturalHeight * safeScale;
+    context.scaleWrap.style.width = `${context.scaledWidth}px`;
+    context.scaleWrap.style.height = `${context.scaledHeight}px`;
+    context.canvas.style.transform = `scale(${safeScale})`;
+
+    if (context.key === "modal" && zoomReadout) {
+      zoomReadout.textContent = `${Math.round(safeScale * 100)}%`;
+    }
+  };
+
+  const fitPreviewDiagram = () => {
+    const context = getContext("preview");
+    if (!context?.viewport || !context.naturalWidth || !context.naturalHeight) {
+      return;
+    }
+
+    const viewportWidth = Math.max(context.viewport.clientWidth - 8, 0);
+    const viewportHeight = Math.max(context.viewport.clientHeight - 8, 0);
+    const scale = Math.min(1, viewportWidth / context.naturalWidth, viewportHeight / context.naturalHeight);
+    applyDiagramScale(context, scale || 1);
+  };
+
+  const fitModalDiagram = ({ preserveCenter = false } = {}) => {
+    const context = getContext("modal");
+    if (!context?.viewport || !context.naturalWidth || !context.naturalHeight) {
+      return;
+    }
+
+    const viewportWidth = Math.max(context.viewport.clientWidth - 40, 0);
+    const viewportHeight = Math.max(context.viewport.clientHeight - 40, 0);
+    const nextScale = Math.min(1, viewportWidth / context.naturalWidth, viewportHeight / context.naturalHeight);
+    const boundedScale = Math.max(0.38, nextScale || 1);
+
+    if (preserveCenter) {
+      setModalScale(boundedScale, { preserveCenter: true });
+      return;
+    }
+
+    modalScale = boundedScale;
+    applyDiagramScale(context, modalScale);
+    context.viewport.scrollLeft = Math.max(0, (context.scaledWidth - context.viewport.clientWidth) / 2);
+    context.viewport.scrollTop = 0;
+  };
+
+  const setModalScale = (nextScale, { preserveCenter = true } = {}) => {
+    const context = getContext("modal");
+    if (!context?.viewport || !context.naturalWidth || !context.naturalHeight) {
+      return;
+    }
+
+    const previousWidth = context.scaledWidth || context.viewport.clientWidth;
+    const previousHeight = context.scaledHeight || context.viewport.clientHeight;
+    const centerX = preserveCenter ? (context.viewport.scrollLeft + context.viewport.clientWidth / 2) / previousWidth : 0.5;
+    const centerY = preserveCenter ? (context.viewport.scrollTop + context.viewport.clientHeight / 2) / previousHeight : 0.18;
+
+    modalScale = Math.max(0.38, Math.min(nextScale, 1.85));
+    applyDiagramScale(context, modalScale);
+
+    if (preserveCenter) {
+      context.viewport.scrollLeft = Math.max(0, centerX * context.scaledWidth - context.viewport.clientWidth / 2);
+      context.viewport.scrollTop = Math.max(0, centerY * context.scaledHeight - context.viewport.clientHeight / 2);
+    }
+  };
+
+  const buildConnectorPath = ({ startX, startY, endX, endY, sameLane }) => {
+    if (sameLane) {
+      const midY = startY + Math.max(24, (endY - startY) / 2);
+      return `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`;
+    }
+
+    const elbow = startX + Math.max(40, Math.min(110, (endX - startX) * 0.4));
+    return `M ${startX} ${startY} L ${elbow} ${startY} L ${elbow} ${endY} L ${endX} ${endY}`;
+  };
+
+  const drawConnectionsForContext = (context) => {
+    if (!context?.board || !context.links || !context.canvas || !currentModel) {
+      return;
+    }
+
+    const canvasWidth = Math.max(context.board.scrollWidth + 36, 1320);
+    const canvasHeight = Math.max(context.board.scrollHeight + 36, 680);
+    context.naturalWidth = canvasWidth;
+    context.naturalHeight = canvasHeight;
+    context.canvas.style.width = `${canvasWidth}px`;
+    context.canvas.style.minHeight = `${canvasHeight}px`;
+    context.links.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
+    context.links.setAttribute("width", String(canvasWidth));
+    context.links.setAttribute("height", String(canvasHeight));
+    context.links.innerHTML = `
       <defs>
-        <marker id="architecture-arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+        <marker id="architecture-arrow-${context.key}" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
           <path d="M 0 0 L 14 7 L 0 14 z" fill="rgba(255, 216, 170, 0.85)"></path>
         </marker>
       </defs>
     `;
 
-    const canvasRect = architectureCanvas.getBoundingClientRect();
+    const canvasRect = context.canvas.getBoundingClientRect();
     const nodeLookup = new Map(currentModel.nodes.map((node) => [node.id, node]));
 
     currentModel.nodes.forEach((node) => {
-      const source = architectureBoard.querySelector(`[data-node-id="${node.id}"]`);
+      const source = context.board.querySelector(`[data-node-id="${node.id}"]`);
 
       if (!source) {
         return;
@@ -2044,7 +2369,7 @@ if (architectureForm) {
       const sourceRect = source.getBoundingClientRect();
 
       node.connections.forEach((targetId) => {
-        const target = architectureBoard.querySelector(`[data-node-id="${targetId}"]`);
+        const target = context.board.querySelector(`[data-node-id="${targetId}"]`);
         const targetNode = nodeLookup.get(targetId);
 
         if (!target || !targetNode) {
@@ -2053,27 +2378,158 @@ if (architectureForm) {
 
         const targetRect = target.getBoundingClientRect();
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        let d = "";
+        const startX =
+          node.lane === targetNode.lane
+            ? sourceRect.left - canvasRect.left + sourceRect.width / 2
+            : sourceRect.right - canvasRect.left;
+        const startY =
+          node.lane === targetNode.lane
+            ? sourceRect.bottom - canvasRect.top
+            : sourceRect.top - canvasRect.top + sourceRect.height / 2;
+        const endX =
+          node.lane === targetNode.lane
+            ? targetRect.left - canvasRect.left + targetRect.width / 2
+            : targetRect.left - canvasRect.left;
+        const endY =
+          node.lane === targetNode.lane
+            ? targetRect.top - canvasRect.top
+            : targetRect.top - canvasRect.top + targetRect.height / 2;
 
-        if (node.lane === targetNode.lane) {
-          const startX = sourceRect.left - canvasRect.left + sourceRect.width / 2;
-          const startY = sourceRect.bottom - canvasRect.top;
-          const endX = targetRect.left - canvasRect.left + targetRect.width / 2;
-          const endY = targetRect.top - canvasRect.top;
-          const curve = Math.max(36, Math.abs(endY - startY) * 0.34);
-          d = `M ${startX} ${startY} C ${startX} ${startY + curve}, ${endX} ${endY - curve}, ${endX} ${endY}`;
-        } else {
-          const startX = sourceRect.right - canvasRect.left;
-          const startY = sourceRect.top - canvasRect.top + sourceRect.height / 2;
-          const endX = targetRect.left - canvasRect.left;
-          const endY = targetRect.top - canvasRect.top + targetRect.height / 2;
-          const curve = Math.max(56, Math.abs(endX - startX) * 0.42);
-          d = `M ${startX} ${startY} C ${startX + curve} ${startY}, ${endX - curve} ${endY}, ${endX} ${endY}`;
+        path.setAttribute(
+          "d",
+          buildConnectorPath({
+            startX,
+            startY,
+            endX,
+            endY,
+            sameLane: node.lane === targetNode.lane,
+          })
+        );
+        path.setAttribute("marker-end", `url(#architecture-arrow-${context.key})`);
+        context.links.appendChild(path);
+      });
+    });
+
+    if (context.key === "preview") {
+      fitPreviewDiagram();
+    } else if (!architectureModal?.hidden) {
+      fitModalDiagram({ preserveCenter: true });
+    } else {
+      applyDiagramScale(context, modalScale);
+    }
+  };
+
+  const buildNodeMarkup = (node, interactive) => {
+    const tagName = interactive ? "button" : "article";
+    const actionAttributes = interactive ? `type="button" data-node-id="${escapeHtml(node.id)}"` : `data-node-id="${escapeHtml(node.id)}"`;
+    const stateLabel = node.generated ? strings.generated : strings.custom;
+    const groupLabel = strings.labels.groups[classifyNodeGroup(node)] || strings.labels.chip[node.lane] || node.lane;
+
+    return `
+      <${tagName}
+        class="architecture-node${node.id === selectedNodeId ? " is-selected" : ""}"
+        ${actionAttributes}
+        data-kind="${escapeHtml(node.kind)}"
+      >
+        <div class="architecture-node-head">
+          <h4 class="architecture-node-title">${escapeHtml(node.title)}</h4>
+          <span class="architecture-node-chip">${escapeHtml(strings.labels.chip[node.lane] || node.lane)}</span>
+        </div>
+        <p class="architecture-node-meta">${escapeHtml(node.meta || strings.pending)}</p>
+        <p class="architecture-node-note">${escapeHtml(node.note || strings.pending)}</p>
+        ${
+          node.tags.length
+            ? `<div class="architecture-node-tags">${node.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>`
+            : ""
         }
+        <div class="architecture-node-footer">
+          <span class="architecture-node-group">${escapeHtml(groupLabel)}</span>
+          <span class="architecture-node-state">${escapeHtml(stateLabel)}</span>
+        </div>
+      </${tagName}>
+    `;
+  };
 
-        path.setAttribute("d", d);
-        path.setAttribute("marker-end", "url(#architecture-arrow)");
-        architectureLinks.appendChild(path);
+  const buildBoardMarkup = (model, interactive) =>
+    model.lanes
+      .map(
+        (lane) => `
+          <section class="architecture-lane" data-lane-id="${escapeHtml(lane.id)}">
+            <div class="architecture-lane-head">
+              <div>
+                <h3 class="architecture-lane-title">${escapeHtml(lane.label)}</h3>
+                <p class="architecture-lane-note">${escapeHtml(lane.note)}</p>
+              </div>
+              <span class="architecture-lane-count">${lane.nodes.length}</span>
+            </div>
+            <div class="architecture-clusters">
+              ${lane.groups
+                .map(
+                  (group) => `
+                    <section class="architecture-cluster" data-group-id="${escapeHtml(group.id)}">
+                      <div class="architecture-cluster-head">
+                        <h4 class="architecture-cluster-title">${escapeHtml(group.label)}</h4>
+                        <span class="architecture-cluster-count">${group.nodes.length}</span>
+                      </div>
+                      <div class="architecture-nodes">
+                        ${group.nodes.map((node) => buildNodeMarkup(node, interactive)).join("")}
+                      </div>
+                    </section>
+                  `
+                )
+                .join("")}
+            </div>
+          </section>
+        `
+      )
+      .join("");
+
+  const renderBoard = (model) => {
+    if (model?.nodes) {
+      syncLanes(model);
+    }
+
+    diagramContexts.forEach((context) => {
+      if (!model.lanes.length) {
+        context.board.innerHTML = `
+          <div class="architecture-placeholder">
+            <div class="architecture-placeholder-inner">
+              <h3>${escapeHtml(strings.placeholder.title)}</h3>
+              <p>${escapeHtml(strings.placeholder.body)}</p>
+            </div>
+          </div>
+        `;
+        context.links.innerHTML = "";
+        context.naturalWidth = context.viewport.clientWidth || 0;
+        context.naturalHeight = context.viewport.clientHeight || 0;
+        applyDiagramScale(context, 1);
+        return;
+      }
+
+      context.board.innerHTML = buildBoardMarkup(model, context.interactive);
+
+      if (context.interactive) {
+        context.board.querySelectorAll("[data-node-id]").forEach((button) => {
+          button.addEventListener("click", () => {
+            selectNode(button.dataset.nodeId);
+          });
+        });
+      }
+    });
+
+    renderInventory(model);
+    renderTerraform(model);
+    updateInspector();
+    updateAddNodeOptions();
+    updateOpenDiagramTargets(Boolean(model.nodes.length));
+
+    if (!model.nodes.length) {
+      closeArchitectureModal();
+    }
+
+    window.requestAnimationFrame(() => {
+      diagramContexts.forEach((context) => {
+        drawConnectionsForContext(context);
       });
     });
   };
@@ -2130,86 +2586,6 @@ if (architectureForm) {
     ].join("");
   };
 
-  const renderBoard = (model) => {
-    if (!architectureBoard) {
-      return;
-    }
-
-    if (!model.lanes.length) {
-      architectureBoard.innerHTML = `
-        <div class="architecture-placeholder">
-          <div class="architecture-placeholder-inner">
-            <h3>${escapeHtml(strings.placeholder.title)}</h3>
-            <p>${escapeHtml(strings.placeholder.body)}</p>
-          </div>
-        </div>
-      `;
-
-      if (architectureLinks) {
-        architectureLinks.innerHTML = "";
-      }
-
-      renderInventory(model);
-      renderTerraform(model);
-      updateInspector();
-      return;
-    }
-
-    architectureBoard.innerHTML = model.lanes
-      .map(
-        (lane) => `
-          <section class="architecture-lane" data-lane-id="${escapeHtml(lane.id)}">
-            <div class="architecture-lane-head">
-              <div>
-                <h3 class="architecture-lane-title">${escapeHtml(lane.label)}</h3>
-                <p class="architecture-lane-note">${escapeHtml(lane.note)}</p>
-              </div>
-              <span class="architecture-lane-count">${lane.nodes.length}</span>
-            </div>
-            <div class="architecture-nodes">
-              ${lane.nodes
-                .map(
-                  (node) => `
-                    <button
-                      class="architecture-node${node.id === selectedNodeId ? " is-selected" : ""}"
-                      type="button"
-                      data-node-id="${escapeHtml(node.id)}"
-                      data-kind="${escapeHtml(node.kind)}"
-                    >
-                      <div class="architecture-node-head">
-                        <h4 class="architecture-node-title">${escapeHtml(node.title)}</h4>
-                        <span class="architecture-node-chip">${escapeHtml(strings.labels.chip[node.lane] || node.lane)}</span>
-                      </div>
-                      <p class="architecture-node-meta">${escapeHtml(node.meta || strings.pending)}</p>
-                      <p class="architecture-node-note">${escapeHtml(node.note || strings.pending)}</p>
-                      ${
-                        node.tags.length
-                          ? `<div class="architecture-node-tags">${node.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>`
-                          : ""
-                      }
-                    </button>
-                  `
-                )
-                .join("")}
-            </div>
-          </section>
-        `
-      )
-      .join("");
-
-    architectureBoard.querySelectorAll("[data-node-id]").forEach((button) => {
-      button.addEventListener("click", () => {
-        selectNode(button.dataset.nodeId);
-      });
-    });
-
-    renderInventory(model);
-    renderTerraform(model);
-    updateInspector();
-    updateAddNodeOptions();
-    window.requestAnimationFrame(drawConnections);
-  };
-
   const renderModel = (model) => {
     syncLanes(model);
     renderSummaryGrid(model);
@@ -2253,6 +2629,36 @@ if (architectureForm) {
     if (scroll && outputSection) {
       outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  };
+
+  const closeArchitectureModal = () => {
+    if (!architectureModal || architectureModal.hidden) {
+      return;
+    }
+
+    architectureModal.hidden = true;
+    document.documentElement.classList.remove("architecture-modal-open");
+    document.body.classList.remove("architecture-modal-open");
+
+    if (previousActiveElement instanceof HTMLElement) {
+      previousActiveElement.focus({ preventScroll: true });
+    }
+  };
+
+  const openArchitectureModal = () => {
+    if (!architectureModal || !currentModel?.nodes?.length) {
+      return;
+    }
+
+    previousActiveElement = document.activeElement;
+    architectureModal.hidden = false;
+    document.documentElement.classList.add("architecture-modal-open");
+    document.body.classList.add("architecture-modal-open");
+
+    window.requestAnimationFrame(() => {
+      fitModalDiagram();
+      getContext("modal")?.viewport?.focus({ preventScroll: true });
+    });
   };
 
   const restoreState = () => {
@@ -2422,8 +2828,58 @@ if (architectureForm) {
     architectureForm.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
+  openDiagramTargets.forEach((target) => {
+    const triggerOpen = (event) => {
+      if (target.getAttribute("aria-disabled") === "true" || target.disabled) {
+        return;
+      }
+
+      event.preventDefault();
+      openArchitectureModal();
+    };
+
+    target.addEventListener("click", triggerOpen);
+
+    if (target.hasAttribute("tabindex")) {
+      target.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          triggerOpen(event);
+        }
+      });
+    }
+  });
+
+  closeDiagramTargets.forEach((target) => {
+    target.addEventListener("click", (event) => {
+      event.preventDefault();
+      closeArchitectureModal();
+    });
+  });
+
+  zoomInButton?.addEventListener("click", () => {
+    setModalScale(modalScale + 0.12);
+  });
+
+  zoomOutButton?.addEventListener("click", () => {
+    setModalScale(modalScale - 0.12);
+  });
+
+  zoomFitButton?.addEventListener("click", () => {
+    fitModalDiagram();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeArchitectureModal();
+    }
+  });
+
   window.addEventListener("resize", () => {
-    window.requestAnimationFrame(drawConnections);
+    window.requestAnimationFrame(() => {
+      diagramContexts.forEach((context) => {
+        drawConnectionsForContext(context);
+      });
+    });
   });
 
   restoreState();

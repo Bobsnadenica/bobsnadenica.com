@@ -705,20 +705,46 @@
                   <div>
                     <p class="page-kicker">High-level diagram</p>
                     <h3 class="architecture-stage-title">Editable architecture view</h3>
-                    <p class="summary-note architecture-stage-copy" data-architecture-status>Build the diagram, then scroll across the canvas to follow the system end to end.</p>
+                    <p class="summary-note architecture-stage-copy" data-architecture-status>Build the architecture to generate a live preview. Open the full diagram to inspect zones, dependencies, and platform layers in detail.</p>
                   </div>
 
                   <div class="architecture-stage-actions">
+                    <button class="button button-primary" type="button" data-open-architecture-modal disabled>Open full diagram</button>
                     <button class="button button-secondary" type="button" data-scroll-form>Edit answers</button>
                     <button class="button button-secondary" type="button" data-copy-brief disabled>Copy brief</button>
                   </div>
                 </div>
 
-                <div class="architecture-board-wrap">
-                  <div class="architecture-board-viewport" data-architecture-viewport>
-                    <div class="architecture-board-canvas" data-architecture-canvas>
-                      <svg class="architecture-links" data-architecture-links aria-hidden="true"></svg>
-                      <div class="architecture-board" data-architecture-board></div>
+                <div
+                  class="architecture-preview-shell"
+                  data-open-architecture-modal
+                  role="button"
+                  tabindex="0"
+                  aria-disabled="true"
+                  aria-haspopup="dialog"
+                  aria-label="Open the full architecture diagram"
+                >
+                  <div class="architecture-preview-head">
+                    <div>
+                      <span class="architecture-preview-label">Live preview</span>
+                      <strong>Architecture canvas</strong>
+                    </div>
+                    <span class="architecture-preview-note">Zoom, pan, and trace the full system.</span>
+                  </div>
+
+                  <div class="architecture-board-wrap architecture-board-wrap-preview">
+                    <div class="architecture-preview-viewport" data-architecture-preview-viewport>
+                      <div class="architecture-diagram-scale" data-architecture-preview-scale>
+                        <div class="architecture-board-canvas architecture-board-canvas-preview" data-architecture-preview-canvas>
+                          <svg class="architecture-links" data-architecture-preview-links aria-hidden="true"></svg>
+                          <div class="architecture-board architecture-board-preview" data-architecture-preview-board></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="architecture-preview-overlay" aria-hidden="true">
+                      <span class="architecture-preview-overlay-title">Inspect full diagram</span>
+                      <span class="architecture-preview-overlay-copy">Zoom • pan • trace dependencies</span>
                     </div>
                   </div>
                 </div>
@@ -813,6 +839,44 @@
                   <pre class="terraform-code"><code data-terraform-output># Build the architecture to generate Terraform.</code></pre>
                 </section>
               </div>
+            </div>
+
+            <div class="architecture-modal" data-architecture-modal hidden>
+              <div class="architecture-modal-backdrop" data-close-architecture-modal></div>
+              <section
+                class="architecture-modal-dialog"
+                data-architecture-modal-dialog
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="architecture-modal-title"
+              >
+                <div class="architecture-modal-head">
+                  <div>
+                    <p class="page-kicker">Architecture viewer</p>
+                    <h3 class="architecture-modal-title" id="architecture-modal-title">Full architecture diagram</h3>
+                    <p class="summary-note architecture-modal-copy">Use the viewer for the real workshop view: zoom in, pan across the estate, and inspect how traffic, workloads, data, and operations connect.</p>
+                  </div>
+
+                  <div class="architecture-modal-controls">
+                    <button class="button button-secondary" type="button" data-zoom-fit>Fit</button>
+                    <button class="button button-secondary" type="button" data-zoom-out aria-label="Zoom out">-</button>
+                    <span class="architecture-zoom-readout" data-zoom-readout>100%</span>
+                    <button class="button button-secondary" type="button" data-zoom-in aria-label="Zoom in">+</button>
+                    <button class="button button-secondary" type="button" data-close-architecture-modal>Close</button>
+                  </div>
+                </div>
+
+                <div class="architecture-modal-body">
+                  <div class="architecture-modal-viewport" data-architecture-modal-viewport tabindex="0">
+                    <div class="architecture-diagram-scale" data-architecture-modal-scale>
+                      <div class="architecture-board-canvas architecture-board-canvas-modal" data-architecture-modal-canvas>
+                        <svg class="architecture-links" data-architecture-modal-links aria-hidden="true"></svg>
+                        <div class="architecture-board architecture-board-modal" data-architecture-modal-board></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </div>

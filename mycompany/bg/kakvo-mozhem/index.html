@@ -705,20 +705,46 @@
                   <div>
                     <p class="page-kicker">High-level диаграма</p>
                     <h3 class="architecture-stage-title">Редактируем архитектурен изглед</h3>
-                    <p class="summary-note architecture-stage-copy" data-architecture-status>Изградете диаграмата, после скролирайте през canvas-а, за да проследите системата от край до край.</p>
+                    <p class="summary-note architecture-stage-copy" data-architecture-status>Изградете архитектурата, за да генерирате live preview. Отворете пълната диаграма, за да разгледате зоните, зависимостите и платформените слоеве в детайл.</p>
                   </div>
 
                   <div class="architecture-stage-actions">
+                    <button class="button button-primary" type="button" data-open-architecture-modal disabled>Отворете диаграмата</button>
                     <button class="button button-secondary" type="button" data-scroll-form>Редактирайте отговорите</button>
                     <button class="button button-secondary" type="button" data-copy-brief disabled>Копирайте резюмето</button>
                   </div>
                 </div>
 
-                <div class="architecture-board-wrap">
-                  <div class="architecture-board-viewport" data-architecture-viewport>
-                    <div class="architecture-board-canvas" data-architecture-canvas>
-                      <svg class="architecture-links" data-architecture-links aria-hidden="true"></svg>
-                      <div class="architecture-board" data-architecture-board></div>
+                <div
+                  class="architecture-preview-shell"
+                  data-open-architecture-modal
+                  role="button"
+                  tabindex="0"
+                  aria-disabled="true"
+                  aria-haspopup="dialog"
+                  aria-label="Отворете пълната архитектурна диаграма"
+                >
+                  <div class="architecture-preview-head">
+                    <div>
+                      <span class="architecture-preview-label">Преглед</span>
+                      <strong>Архитектурен canvas</strong>
+                    </div>
+                    <span class="architecture-preview-note">Zoom, pan и преглед на цялата система.</span>
+                  </div>
+
+                  <div class="architecture-board-wrap architecture-board-wrap-preview">
+                    <div class="architecture-preview-viewport" data-architecture-preview-viewport>
+                      <div class="architecture-diagram-scale" data-architecture-preview-scale>
+                        <div class="architecture-board-canvas architecture-board-canvas-preview" data-architecture-preview-canvas>
+                          <svg class="architecture-links" data-architecture-preview-links aria-hidden="true"></svg>
+                          <div class="architecture-board architecture-board-preview" data-architecture-preview-board></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="architecture-preview-overlay" aria-hidden="true">
+                      <span class="architecture-preview-overlay-title">Отворете пълната диаграма</span>
+                      <span class="architecture-preview-overlay-copy">Zoom • pan • зависимости</span>
                     </div>
                   </div>
                 </div>
@@ -813,6 +839,44 @@
                   <pre class="terraform-code"><code data-terraform-output># Изградете архитектурата, за да генерирате Terraform.</code></pre>
                 </section>
               </div>
+            </div>
+
+            <div class="architecture-modal" data-architecture-modal hidden>
+              <div class="architecture-modal-backdrop" data-close-architecture-modal></div>
+              <section
+                class="architecture-modal-dialog"
+                data-architecture-modal-dialog
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="architecture-modal-title"
+              >
+                <div class="architecture-modal-head">
+                  <div>
+                    <p class="page-kicker">Преглед на архитектурата</p>
+                    <h3 class="architecture-modal-title" id="architecture-modal-title">Пълна архитектурна диаграма</h3>
+                    <p class="summary-note architecture-modal-copy">Това е истинският workshop изглед: увеличавайте, движете се през средата и вижте как трафикът, workloads, данните и operations контролите се свързват.</p>
+                  </div>
+
+                  <div class="architecture-modal-controls">
+                    <button class="button button-secondary" type="button" data-zoom-fit>Побери</button>
+                    <button class="button button-secondary" type="button" data-zoom-out aria-label="Намалете">-</button>
+                    <span class="architecture-zoom-readout" data-zoom-readout>100%</span>
+                    <button class="button button-secondary" type="button" data-zoom-in aria-label="Увеличете">+</button>
+                    <button class="button button-secondary" type="button" data-close-architecture-modal>Затворете</button>
+                  </div>
+                </div>
+
+                <div class="architecture-modal-body">
+                  <div class="architecture-modal-viewport" data-architecture-modal-viewport tabindex="0">
+                    <div class="architecture-diagram-scale" data-architecture-modal-scale>
+                      <div class="architecture-board-canvas architecture-board-canvas-modal" data-architecture-modal-canvas>
+                        <svg class="architecture-links" data-architecture-modal-links aria-hidden="true"></svg>
+                        <div class="architecture-board architecture-board-modal" data-architecture-modal-board></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </div>
