@@ -4,7 +4,26 @@ const menuToggle = document.querySelector(".menu-toggle");
 const headerPanel = document.querySelector(".header-panel");
 const navLinks = document.querySelectorAll(".site-nav a");
 const languageLinks = document.querySelectorAll("[data-language]");
-const revealElements = document.querySelectorAll(".reveal");
+const autoMaterializeSelector = [
+  ".flow-step",
+  ".page-hero-grid > *",
+  ".page-section-title",
+  ".page-section-copy",
+  ".page-visual",
+  ".line-list li",
+  ".form-block",
+  ".summary-card",
+  ".faq-nav",
+  ".policy-nav",
+  ".faq-group",
+  ".policy-prose section",
+  ".showcase-stage",
+  ".showcase-cosmos",
+  ".story-step",
+  ".folio-case",
+  ".cta-band-inner",
+  ".footer-inner",
+].join(", ");
 const safeStorage = {
   get(key) {
     try {
@@ -46,6 +65,16 @@ const savedLanguage = safeStorage.get("mycompany-language");
 if (savedLanguage) {
   root.dataset.preferredLanguage = savedLanguage;
 }
+
+document.querySelectorAll(".reveal").forEach((element) => {
+  element.classList.add("materialize");
+});
+
+document.querySelectorAll(autoMaterializeSelector).forEach((element) => {
+  element.classList.add("reveal", "materialize");
+});
+
+const revealElements = document.querySelectorAll(".reveal");
 
 if ("IntersectionObserver" in window) {
   const revealObserver = new IntersectionObserver(
