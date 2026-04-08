@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Level 15: Helm | Tech Knowledge Hub</title>
+  <style>
+    :root {
+      --bg-body: #0a0d12;
+      --bg-surface: #161b22;
+      --bg-card: #0d1117;
+      --border-subtle: rgba(240, 246, 252, 0.1);
+      --border-hover: rgba(56, 139, 253, 0.4);
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      
+      --accent-helm: #0f2594;    /* Official Helm Blue-ish */
+      --accent-light: #2c59d4;   /* Lighter for contrast */
+      --accent-success: #2ea043;
+      --accent-rollback: #d29922;
+      --accent-values: #ff7b72;  /* Red for YAML values */
+      
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-body);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(15, 37, 148, 0.1), transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(44, 89, 212, 0.05), transparent 25%);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding-bottom: 4rem;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* LAYOUT */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* HEADER */
+    header { padding: 3rem 0; border-bottom: 1px solid var(--border-subtle); margin-bottom: 3rem; }
+    .breadcrumb { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+    .breadcrumb a:hover { color: var(--accent-light); }
+    
+    h1 {
+      font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem;
+      background: linear-gradient(90deg, #fff, var(--accent-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    
+    .intro { font-size: 1.25rem; color: var(--text-secondary); max-width: 700px; }
+
+    /* CARDS */
+    .section-title { 
+      font-size: 1.75rem; margin: 4rem 0 1.5rem; color: var(--text-primary); 
+      display: flex; align-items: center; gap: 12px;
+      border-left: 4px solid var(--accent-light);
+      padding-left: 1rem;
+    }
+
+    .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: 12px; padding: 1.5rem;
+      transition: transform 0.2s; position: relative; overflow: hidden;
+    }
+    .card:hover { border-color: var(--accent-light); transform: translateY(-2px); }
+    .card h3 { color: var(--accent-light); margin-bottom: 0.5rem; font-size: 1.1rem; }
+    .card p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    /* GAMIFICATION: HELM SIMULATOR */
+    .helm-console {
+      background: #0d1117; border: 1px solid #30363d; border-radius: 12px;
+      padding: 2rem; margin: 2rem 0; overflow: hidden;
+      display: grid; grid-template-columns: 350px 1fr; gap: 2rem;
+    }
+    @media (max-width: 900px) { .helm-console { grid-template-columns: 1fr; } }
+
+    /* LEFT: VALUES.YAML EDITOR */
+    .editor-pane {
+      background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .pane-header {
+      background: #21262d; padding: 8px 12px; font-size: 0.8rem; font-weight: bold; color: #8b949e;
+      border-bottom: 1px solid #30363d; display: flex; justify-content: space-between;
+    }
+    .yaml-content {
+      padding: 1rem; font-family: var(--font-mono); font-size: 0.9rem; color: #e6edf3;
+      flex-grow: 1; display: flex; flex-direction: column; gap: 10px;
+    }
+    
+    /* Interactive YAML Lines */
+    .yaml-row { display: flex; align-items: center; gap: 10px; }
+    .yaml-key { color: var(--accent-light); width: 100px; }
+    .yaml-input { 
+      background: #0d1117; border: 1px solid #30363d; color: var(--accent-values); 
+      padding: 4px 8px; border-radius: 4px; font-family: var(--font-mono); width: 100%;
+    }
+
+    .btn-group { padding: 1rem; border-top: 1px solid #30363d; display: flex; gap: 10px; flex-direction: column; }
+    .btn {
+      padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer;
+      font-family: var(--font-mono); font-size: 0.9rem; transition: all 0.2s; color: #fff; text-align: center;
+    }
+    .btn-install { background: var(--accent-success); }
+    .btn-upgrade { background: var(--accent-light); }
+    .btn-rollback { background: var(--accent-rollback); color: #000; }
+    .btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+
+    /* RIGHT: RELEASE VISUALIZER */
+    .visual-pane {
+      display: flex; flex-direction: column; gap: 1rem; position: relative;
+    }
+    
+    .ship-wheel {
+      position: absolute; top: -10px; right: 0; font-size: 5rem; opacity: 0.1;
+      animation: spin 20s linear infinite; pointer-events: none;
+    }
+
+    .release-history {
+      flex-grow: 1; border: 2px dashed #30363d; border-radius: 8px; padding: 1rem;
+      display: flex; flex-direction: column-reverse; gap: 10px; /* Newest at bottom visually, flex-reverse puts newest at top logic */
+      min-height: 300px; background: #010409;
+    }
+    
+    .revision-card {
+      background: #161b22; border: 1px solid #30363d; padding: 1rem; border-radius: 6px;
+      display: flex; justify-content: space-between; align-items: center;
+      animation: slideIn 0.3s ease-out; opacity: 0.5; filter: grayscale(0.8);
+    }
+    .revision-card.active {
+      border-color: var(--accent-success); opacity: 1; filter: grayscale(0);
+      box-shadow: 0 0 15px rgba(46, 160, 67, 0.1);
+    }
+    .rev-badge {
+      background: #30363d; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; color: #fff;
+    }
+    .active .rev-badge { background: var(--accent-success); }
+    
+    .rev-details { font-size: 0.85rem; color: #8b949e; margin-top: 5px; font-family: var(--font-mono); }
+    .rev-status { font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); } }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="breadcrumb"><a href="index.html">← Back to Hub</a> / Cloud & Infrastructure</div>
+      <h1>Helm</h1>
+      <p class="intro">
+        The Package Manager for Kubernetes. Stop copy-pasting raw YAML files. 
+        Package your app into a <span style="color:var(--accent-light)">Chart</span>, configure it with <span style="color:var(--accent-values)">Values</span>, and deploy it as a Release.
+      </p>
+    </header>
+
+    <h2 class="section-title">📦 Core Concepts</h2>
+    <div class="concept-grid">
+      <div class="card">
+        <h3>🗺️ The Chart</h3>
+        <p>The Package. A folder containing templates (<code>deployment.yaml</code>, <code>service.yaml</code>). Think of it like a "Recipe" or an ".exe" installer.</p>
+      </div>
+      <div class="card">
+        <h3>⚙️ The Values</h3>
+        <p>The Configuration. A simple file (<code>values.yaml</code>) where you tweak settings (e.g., <code>color: blue</code>, <code>replicas: 5</code>) without touching the complex code.</p>
+      </div>
+      <div class="card">
+        <h3>🚀 The Release</h3>
+        <p>The Instance. When you install a Chart, it creates a "Release". You can install the same chart 5 times to get 5 different Releases.</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">🕹️ Helm Simulator</h2>
+    <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+      <strong>Mission:</strong> Install the "MyApp" chart. Then, change the version and upgrade. Finally, realize you made a mistake and rollback.
+    </p>
+
+    <div class="helm-console">
+      
+      <div class="editor-pane">
+        <div class="pane-header">
+          <span>values.yaml</span>
+          <span>(User Config)</span>
+        </div>
+        
+        <div class="yaml-content">
+          <div class="yaml-row">
+            <span class="yaml-key">app_name:</span>
+            <input type="text" class="yaml-input" value="my-website" disabled>
+          </div>
+          <div class="yaml-row">
+            <span class="yaml-key">version:</span>
+            <select id="valVersion" class="yaml-input" onchange="enableUpgrade()">
+              <option value="1.0.0">1.0.0 (Stable)</option>
+              <option value="2.0.0">2.0.0 (New)</option>
+              <option value="3.0.0">3.0.0 (Broken)</option>
+            </select>
+          </div>
+          <div class="yaml-row">
+            <span class="yaml-key">replicas:</span>
+            <input type="number" id="valReplicas" class="yaml-input" value="1" min="1" max="5" onchange="enableUpgrade()">
+          </div>
+          <div class="yaml-row">
+            <span class="yaml-key">env:</span>
+            <select id="valEnv" class="yaml-input" onchange="enableUpgrade()">
+              <option value="prod">production</option>
+              <option value="dev">development</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button id="btnInstall" class="btn btn-install" onclick="helmInstall()">helm install my-app ./chart</button>
+          <button id="btnUpgrade" class="btn btn-upgrade" onclick="helmUpgrade()" disabled>helm upgrade my-app ./chart</button>
+          <button id="btnRollback" class="btn btn-rollback" onclick="helmRollback()" disabled>helm rollback my-app 1</button>
+        </div>
+      </div>
+
+      <div class="visual-pane">
+        <div class="ship-wheel">☸️</div>
+        <h3 style="margin:0; color:#8b949e;">Release History (Revisions)</h3>
+        
+        <div class="release-history" id="historyLog">
+          <div style="text-align:center; color:#30363d; margin-top:auto;">No release installed.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <h2 class="section-title">💻 Essential Commands</h2>
+    <div class="concept-grid">
+      <div class="card">
+        <h3>install</h3>
+        <p style="font-family:var(--font-mono); color:var(--accent-light);">helm install [name] [chart]</p>
+        <p>Deploys the application for the first time.</p>
+      </div>
+      <div class="card">
+        <h3>upgrade</h3>
+        <p style="font-family:var(--font-mono); color:var(--accent-light);">helm upgrade [name] [chart]</p>
+        <p>Applies changes from values.yaml. Creates a new Revision.</p>
+      </div>
+      <div class="card">
+        <h3>rollback</h3>
+        <p style="font-family:var(--font-mono); color:var(--accent-light);">helm rollback [name] [rev]</p>
+        <p>Undo! Reverts to a previous revision instantly if the new one breaks.</p>
+      </div>
+      <div class="card">
+        <h3>list</h3>
+        <p style="font-family:var(--font-mono); color:var(--accent-light);">helm list</p>
+        <p>Shows all running releases in the current namespace.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const historyLog = document.getElementById('historyLog');
+    const btnInstall = document.getElementById('btnInstall');
+    const btnUpgrade = document.getElementById('btnUpgrade');
+    const btnRollback = document.getElementById('btnRollback');
+    
+    // Inputs
+    const valVersion = document.getElementById('valVersion');
+    const valReplicas = document.getElementById('valReplicas');
+    const valEnv = document.getElementById('valEnv');
+
+    let revisionCount = 0;
+    let isInstalled = false;
+
+    function createRevisionCard(revId, version, replicas, env, isRollback = false) {
+      // Deactivate old cards
+      document.querySelectorAll('.revision-card').forEach(c => c.classList.remove('active'));
+
+      const div = document.createElement('div');
+      div.className = 'revision-card active';
+      
+      const statusColor = version === '3.0.0' ? '#ff7b72' : '#2ea043'; // 3.0.0 is "Broken"
+      const statusText = version === '3.0.0' ? 'CRASHLOOP' : 'DEPLOYED';
+
+      div.innerHTML = `
+        <div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span class="rev-badge">REV ${revId}</span>
+            <span style="font-weight:bold; color:#fff;">my-app</span>
+          </div>
+          <div class="rev-details">
+            Img: <strong>v${version}</strong> | Replicas: <strong>${replicas}</strong> | Env: <strong>${env}</strong>
+          </div>
+        </div>
+        <div class="rev-status" style="color:${statusColor}">
+          ${statusText} ${isRollback ? '↺' : ''}
+        </div>
+      `;
+
+      // Insert at TOP (flex-direction is column-reverse visually, but logical order is top-down in DOM)
+      // Actually with flex-direction: column-reverse, we appendChild to put it at the "top" visually.
+      historyLog.appendChild(div);
+      historyLog.scrollTop = historyLog.scrollHeight;
+
+      if (version === '3.0.0') {
+        btnRollback.disabled = false;
+        btnRollback.style.animation = "pulse 1s infinite";
+      } else {
+        btnRollback.disabled = true;
+        btnRollback.style.animation = "none";
+      }
+    }
+
+    function helmInstall() {
+      if (isInstalled) return;
+      isInstalled = true;
+      revisionCount++;
+
+      // Clear placeholder text
+      historyLog.innerHTML = '';
+      
+      const v = valVersion.value;
+      const r = valReplicas.value;
+      const e = valEnv.value;
+
+      createRevisionCard(revisionCount, v, r, e);
+      
+      btnInstall.disabled = true;
+      btnInstall.innerText = "Installed";
+      btnUpgrade.disabled = true; // Wait for change
+    }
+
+    function enableUpgrade() {
+      if (!isInstalled) return;
+      btnUpgrade.disabled = false;
+      btnUpgrade.innerText = "helm upgrade my-app ./chart";
+    }
+
+    function helmUpgrade() {
+      revisionCount++;
+      const v = valVersion.value;
+      const r = valReplicas.value;
+      const e = valEnv.value;
+
+      createRevisionCard(revisionCount, v, r, e);
+      btnUpgrade.disabled = true;
+      btnUpgrade.innerText = "Up to date";
+    }
+
+    function helmRollback() {
+      revisionCount++;
+      // Rollback logic: hardcoded to go back to Rev 1 settings for simplicity of demo
+      // or just back to the 'stable' 1.0.0
+      
+      valVersion.value = "1.0.0";
+      valReplicas.value = "1";
+      valEnv.value = "prod";
+
+      createRevisionCard(revisionCount, "1.0.0", "1", "prod", true);
+      
+      btnRollback.disabled = true;
+      btnUpgrade.disabled = false;
+    }
+  </script>
+
+  <style>
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  </style>
+
+</body>
+</html>

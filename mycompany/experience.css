@@ -32,19 +32,24 @@
   inset: 6% 4%;
   border-radius: 34px;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
   background-size: 52px 52px;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96), transparent 88%);
+  filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.18));
   transform: rotateX(74deg) translateZ(-60px);
 }
 
 .hero-scene-plane {
   inset: 17% 10%;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 32px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.01));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.02)),
+    rgba(18, 20, 21, 0.24);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 18px 38px rgba(0, 0, 0, 0.1);
 }
 
 .hero-scene-plane-back {
@@ -107,15 +112,16 @@
 .hero-scene-node {
   min-width: 7.6rem;
   padding: 0.62rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(10, 11, 11, 0.82);
-  backdrop-filter: blur(14px);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+    rgba(16, 18, 19, 0.42);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 18px 44px rgba(0, 0, 0, 0.24);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 18px 44px rgba(0, 0, 0, 0.2);
   color: var(--text);
   font-size: 0.7rem;
   font-weight: 800;
@@ -133,6 +139,16 @@
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 216, 170, 0.6), rgba(240, 138, 93, 0.14));
   opacity: 0.86;
+}
+
+.hero-scene-node::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.14), transparent 38%, transparent 72%, rgba(255, 255, 255, 0.04));
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .hero-scene-node-analysis {
@@ -1279,12 +1295,15 @@
   z-index: 3;
   padding: 0.55rem 0.62rem 0.62rem;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03)),
-    rgba(10, 11, 11, 0.76);
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.16);
-  backdrop-filter: blur(12px);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+    rgba(18, 20, 22, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 20px 38px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
   transition: transform 320ms ease, opacity 320ms ease;
 }
 
@@ -1843,14 +1862,14 @@
 
 @media (max-width: 760px) {
   .hero-scene {
-    inset: auto -6% 4% -6%;
-    height: 300px;
-    opacity: 0.44;
+    inset: auto -4% 2% -4%;
+    height: 250px;
+    opacity: 0.6;
   }
 
   .hero-scene-node {
-    min-width: 6.2rem;
-    font-size: 0.58rem;
+    min-width: 5.8rem;
+    font-size: 0.54rem;
   }
 
   .hero-scene-node-web,
@@ -1903,7 +1922,7 @@
 
   .offer-visual-analysis,
   .offer-visual-monitoring {
-    min-height: 96px;
+    min-height: 110px;
   }
 
   .offer-visual-chip,
@@ -1925,21 +1944,21 @@
   .offer-mobile-float {
     left: 0.56rem;
     top: 1.38rem;
-    width: 82px;
+    width: 88px;
     padding: 0.46rem 0.5rem 0.54rem;
   }
 
   .offer-cloud-float {
     left: 0.56rem;
     top: 0.58rem;
-    width: 90px;
+    width: 94px;
     padding: 0.46rem 0.5rem 0.54rem;
   }
 
   .offer-analysis-float {
     right: 0.56rem;
     top: 0.58rem;
-    width: 82px;
+    width: 88px;
     padding: 0.42rem 0.48rem 0.52rem;
   }
 
@@ -2275,16 +2294,18 @@
 .offer-visual-monitoring,
 .offer-visual-integrations {
   min-height: 152px;
-  border-color: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.18);
   background:
-    radial-gradient(circle at 18% 18%, rgba(240, 138, 93, 0.16), transparent 24%),
-    radial-gradient(circle at 82% 16%, rgba(255, 216, 170, 0.12), transparent 20%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.05), transparent 34%),
-    linear-gradient(180deg, rgba(16, 18, 19, 0.9), rgba(7, 8, 9, 0.98));
+    radial-gradient(circle at 18% 18%, rgba(240, 138, 93, 0.18), transparent 24%),
+    radial-gradient(circle at 82% 16%, rgba(255, 216, 170, 0.16), transparent 20%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(26, 28, 30, 0.44), rgba(10, 11, 12, 0.68));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset 0 -36px 56px rgba(0, 0, 0, 0.34),
-    0 24px 64px rgba(0, 0, 0, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -30px 52px rgba(0, 0, 0, 0.24),
+    0 24px 64px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
   isolation: isolate;
 }
 
@@ -2346,11 +2367,15 @@
 
 .offer-visual-chip,
 .offer-visual-panel {
-  border-color: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.16);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    rgba(9, 10, 11, 0.68);
-  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.14);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
+    rgba(18, 20, 22, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 14px 30px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
 }
 
 .offer-visual-platform::before {
@@ -2368,11 +2393,13 @@
   transform: perspective(880px) rotateY(-12deg) rotateX(8deg);
   transform-style: preserve-3d;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    rgba(9, 10, 11, 0.86);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
+    rgba(16, 18, 19, 0.42);
   box-shadow:
-    0 22px 40px rgba(0, 0, 0, 0.22),
-    18px 16px 36px rgba(0, 0, 0, 0.1);
+    0 22px 40px rgba(0, 0, 0, 0.24),
+    18px 16px 36px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
 }
 
 .offer-browser-mini::before {
@@ -2415,11 +2442,13 @@
   transform: perspective(880px) rotateY(12deg) rotateX(8deg);
   transform-style: preserve-3d;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-    rgba(10, 11, 11, 0.84);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
+    rgba(16, 18, 19, 0.4);
   box-shadow:
-    0 22px 40px rgba(0, 0, 0, 0.22),
-    -16px 18px 34px rgba(0, 0, 0, 0.1);
+    0 22px 40px rgba(0, 0, 0, 0.24),
+    -16px 18px 34px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
 }
 
 .offer-search-mini::before {
@@ -2499,6 +2528,8 @@
   box-shadow:
     0 24px 44px rgba(0, 0, 0, 0.24),
     20px 20px 34px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
 }
 
 .offer-mobile-float {
@@ -2528,6 +2559,10 @@
 }
 
 .offer-cloud-node {
+  border-color: rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(15, 17, 19, 0.38);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
 }
 
@@ -2561,6 +2596,10 @@
 }
 
 .offer-analysis-card {
+  border-color: rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(15, 17, 19, 0.36);
   box-shadow:
     0 16px 28px rgba(0, 0, 0, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -2621,6 +2660,11 @@
   width: 122px;
   height: 62px;
   transform: translateZ(10px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(16, 18, 20, 0.34);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
 }
 
 .offer-monitor-chart::before {
@@ -2688,6 +2732,13 @@
 .offer-integration-node-a {
   left: 0.1rem;
   top: 0.55rem;
+}
+
+.offer-integration-node {
+  border-color: rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(15, 17, 19, 0.36);
 }
 
 .offer-integration-node-b {
@@ -2778,7 +2829,7 @@
   .offer-visual-analysis,
   .offer-visual-monitoring,
   .offer-visual-integrations {
-    min-height: 118px;
+    min-height: 132px;
   }
 
   .offer-browser-mini {
