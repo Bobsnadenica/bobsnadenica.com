@@ -693,7 +693,7 @@
           <div class="reveal">
             <p class="page-kicker">Workbench</p>
             <h2 class="page-section-title">Прегледайте, редактирайте и разширете архитектурата.</h2>
-            <p class="page-section-copy">Генерираната диаграма е направена за преглед. Преименувайте нодове, уточнете какво прави всеки EC2 или VM, добавете custom компоненти и използвайте резюмето като чиста отправна точка за разговора.</p>
+            <p class="page-section-copy">Генерираната диаграма е направена за преглед. Преименувайте нодове, уточнете какво прави всеки EC2 или VM, добавете custom компоненти и използвайте както резюмето, така и Terraform starter-а като чист technical handoff.</p>
           </div>
 
           <div class="builder-output">
@@ -705,7 +705,7 @@
                   <div>
                     <p class="page-kicker">High-level диаграма</p>
                     <h3 class="architecture-stage-title">Редактируем архитектурен изглед</h3>
-                    <p class="summary-note architecture-stage-copy" data-architecture-status>Изградете диаграмата, за да генерирате high-level изглед на средата.</p>
+                    <p class="summary-note architecture-stage-copy" data-architecture-status>Изградете диаграмата, после скролирайте през canvas-а, за да проследите системата от край до край.</p>
                   </div>
 
                   <div class="architecture-stage-actions">
@@ -715,86 +715,104 @@
                 </div>
 
                 <div class="architecture-board-wrap">
-                  <svg class="architecture-links" data-architecture-links aria-hidden="true"></svg>
-                  <div class="architecture-board" data-architecture-board></div>
+                  <div class="architecture-board-viewport" data-architecture-viewport>
+                    <div class="architecture-board-canvas" data-architecture-canvas>
+                      <svg class="architecture-links" data-architecture-links aria-hidden="true"></svg>
+                      <div class="architecture-board" data-architecture-board></div>
+                    </div>
+                  </div>
                 </div>
               </section>
 
-              <aside class="architecture-inspector reveal">
-                <section class="editor-card">
-                  <p class="page-kicker">Избран компонент</p>
-                  <h3 class="inspector-title" data-node-title>Изберете компонент</h3>
-                  <p class="summary-note" data-node-empty>Изградете архитектурата и после натиснете върху компонент, за да промените името му, да опишете какво прави или да добавите контекст за stakeholders.</p>
+              <div class="architecture-tools">
+                <aside class="architecture-inspector reveal">
+                  <section class="editor-card">
+                    <p class="page-kicker">Избран компонент</p>
+                    <h3 class="inspector-title" data-node-title>Изберете компонент</h3>
+                    <p class="summary-note" data-node-empty>Изградете архитектурата и после натиснете върху компонент, за да промените името му, да опишете какво прави или да добавите контекст за stakeholders.</p>
 
-                  <form class="node-editor-form" data-node-form hidden>
-                    <div class="field">
-                      <label for="node-title">Име на компонента</label>
-                      <input id="node-title" name="node_title" type="text" placeholder="payments-api-01">
-                    </div>
-                    <div class="field">
-                      <label for="node-meta">Роля или слой</label>
-                      <input id="node-meta" name="node_meta" type="text" placeholder="Application tier">
-                    </div>
-                    <div class="field">
-                      <label for="node-note">Какво прави този компонент?</label>
-                      <textarea id="node-note" name="node_note" placeholder="Опишете за какво отговаря този EC2, VM, service или integration."></textarea>
-                    </div>
-                    <div class="field">
-                      <label for="node-tags">Тагове</label>
-                      <input id="node-tags" name="node_tags" type="text" placeholder="prod, private, HA">
-                      <p class="field-hint">Разделяйте таговете със запетаи.</p>
-                    </div>
-                    <div class="submit-row">
-                      <button class="button button-secondary" type="button" data-remove-node hidden>Премахнете компонента</button>
-                    </div>
-                  </form>
-                </section>
+                    <form class="node-editor-form" data-node-form hidden>
+                      <div class="field">
+                        <label for="node-title">Име на компонента</label>
+                        <input id="node-title" name="node_title" type="text" placeholder="payments-api-01">
+                      </div>
+                      <div class="field">
+                        <label for="node-meta">Роля или слой</label>
+                        <input id="node-meta" name="node_meta" type="text" placeholder="Application tier">
+                      </div>
+                      <div class="field">
+                        <label for="node-note">Какво прави този компонент?</label>
+                        <textarea id="node-note" name="node_note" placeholder="Опишете за какво отговаря този EC2, VM, service или integration."></textarea>
+                      </div>
+                      <div class="field">
+                        <label for="node-tags">Тагове</label>
+                        <input id="node-tags" name="node_tags" type="text" placeholder="prod, private, HA">
+                        <p class="field-hint">Разделяйте таговете със запетаи.</p>
+                      </div>
+                      <div class="submit-row">
+                        <button class="button button-secondary" type="button" data-remove-node hidden>Премахнете компонента</button>
+                      </div>
+                    </form>
+                  </section>
 
-                <section class="editor-card">
-                  <p class="page-kicker">Добавете компонент</p>
-                  <h3 class="inspector-title">Разширете диаграмата.</h3>
-                  <form class="node-add-form" data-add-node-form>
-                    <div class="field">
-                      <label for="add-lane">Поставете го в</label>
-                      <select id="add-lane" name="add_lane">
-                        <option value="channels">Канали</option>
-                        <option value="edge">Достъп и защита</option>
-                        <option value="network">Мрежа</option>
-                        <option value="services" selected>Услуги</option>
-                        <option value="data">Данни и интеграции</option>
-                        <option value="operations">Операции и управление</option>
-                      </select>
-                    </div>
-                    <div class="field">
-                      <label for="add-title">Име на компонента</label>
-                      <input id="add-title" name="add_title" type="text" placeholder="payments-service" required>
-                    </div>
-                    <div class="field">
-                      <label for="add-meta">Роля</label>
-                      <input id="add-meta" name="add_meta" type="text" placeholder="Application tier">
-                    </div>
-                    <div class="field">
-                      <label for="add-note">Контекст или бележка</label>
-                      <textarea id="add-note" name="add_note" placeholder="Защо е тук и какво трябва да знаят stakeholders?"></textarea>
-                    </div>
-                    <div class="field">
-                      <label for="add-connect">Свържете от</label>
-                      <select id="add-connect" name="add_connect">
-                        <option value="">Все още не е избрано</option>
-                      </select>
-                    </div>
-                    <div class="submit-row">
-                      <button class="button button-primary" type="submit">Добавете компонент</button>
-                    </div>
-                  </form>
-                </section>
+                  <section class="editor-card">
+                    <p class="page-kicker">Добавете компонент</p>
+                    <h3 class="inspector-title">Разширете диаграмата.</h3>
+                    <form class="node-add-form" data-add-node-form>
+                      <div class="field">
+                        <label for="add-lane">Поставете го в</label>
+                        <select id="add-lane" name="add_lane">
+                          <option value="channels">Канали</option>
+                          <option value="edge">Достъп и защита</option>
+                          <option value="network">Мрежа</option>
+                          <option value="services" selected>Услуги</option>
+                          <option value="data">Данни и интеграции</option>
+                          <option value="operations">Операции и управление</option>
+                        </select>
+                      </div>
+                      <div class="field">
+                        <label for="add-title">Име на компонента</label>
+                        <input id="add-title" name="add_title" type="text" placeholder="payments-service" required>
+                      </div>
+                      <div class="field">
+                        <label for="add-meta">Роля</label>
+                        <input id="add-meta" name="add_meta" type="text" placeholder="Application tier">
+                      </div>
+                      <div class="field">
+                        <label for="add-note">Контекст или бележка</label>
+                        <textarea id="add-note" name="add_note" placeholder="Защо е тук и какво трябва да знаят stakeholders?"></textarea>
+                      </div>
+                      <div class="field">
+                        <label for="add-connect">Свържете от</label>
+                        <select id="add-connect" name="add_connect">
+                          <option value="">Все още не е избрано</option>
+                        </select>
+                      </div>
+                      <div class="submit-row">
+                        <button class="button button-primary" type="submit">Добавете компонент</button>
+                      </div>
+                    </form>
+                  </section>
 
-                <section class="editor-card">
-                  <p class="page-kicker">Inventory</p>
-                  <h3 class="inspector-title">Генерирани компоненти</h3>
-                  <div class="inventory-list" data-node-list></div>
+                  <section class="editor-card">
+                    <p class="page-kicker">Inventory</p>
+                    <h3 class="inspector-title">Генерирани компоненти</h3>
+                    <div class="inventory-list" data-node-list></div>
+                  </section>
+                </aside>
+
+                <section class="terraform-panel reveal">
+                  <div class="terraform-panel-head">
+                    <div>
+                      <p class="page-kicker">Terraform starter</p>
+                      <h3 class="inspector-title">Примерна инфраструктурна конфигурация</h3>
+                      <p class="summary-note" data-terraform-status>Изградете архитектурата, за да генерирате примерен Terraform starter.</p>
+                    </div>
+                    <button class="button button-secondary" type="button" data-copy-terraform disabled>Копирайте Terraform</button>
+                  </div>
+                  <pre class="terraform-code"><code data-terraform-output># Изградете архитектурата, за да генерирате Terraform.</code></pre>
                 </section>
-              </aside>
+              </div>
             </div>
           </div>
         </div>

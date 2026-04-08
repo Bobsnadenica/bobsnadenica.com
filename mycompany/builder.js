@@ -57,7 +57,7 @@ if (architectureForm) {
           "Answer the questions a senior architect would normally ask, then press Build. You can edit names, notes, and add more components after generation.",
       },
       stageStatus:
-        "The generated view stays high level on purpose: strong enough for planning, scoping, workshops, and stakeholder conversations.",
+        "Scroll the canvas to follow the system end to end. The generated view stays high level on purpose: strong enough for planning, scoping, workshops, and stakeholder conversations.",
       actions: {
         editAnswers: "Edit answers",
         copyBrief: "Copy brief",
@@ -230,6 +230,13 @@ if (architectureForm) {
         constraints: "Constraints",
         context: "Business context",
       },
+      terraform: {
+        statusEmpty: "Build the architecture to generate an example Terraform starter.",
+        statusReady: "Example Terraform starter generated from the current answers and component inventory.",
+        copy: "Copy Terraform",
+        copied: "Terraform copied.",
+        placeholder: "# Build the architecture to generate Terraform.\n",
+      },
     },
     bg: {
       pending: "Ще се уточни",
@@ -285,7 +292,7 @@ if (architectureForm) {
           "Отговорете на въпросите, които senior архитект би задал, после натиснете Build. След това можете да редактирате имена, бележки и да добавяте нови компоненти.",
       },
       stageStatus:
-        "Изгледът е high level по замисъл: достатъчно силен за планиране, scoping, workshops и разговори със stakeholders.",
+        "Скролирайте през canvas-а, за да проследите системата от край до край. Изгледът е high level по замисъл: достатъчно силен за планиране, scoping, workshops и разговори със stakeholders.",
       actions: {
         editAnswers: "Редактирайте отговорите",
         copyBrief: "Копирайте резюмето",
@@ -458,6 +465,13 @@ if (architectureForm) {
         constraints: "Ограничения",
         context: "Бизнес контекст",
       },
+      terraform: {
+        statusEmpty: "Изградете архитектурата, за да генерирате примерен Terraform starter.",
+        statusReady: "Примерният Terraform starter е генериран от текущите отговори и component inventory-то.",
+        copy: "Копирайте Terraform",
+        copied: "Terraform е копиран.",
+        placeholder: "# Изградете архитектурата, за да генерирате Terraform.\n",
+      },
     },
   }[pageLanguage];
 
@@ -474,6 +488,8 @@ if (architectureForm) {
   const summaryGrid = document.querySelector("[data-architecture-summary-grid]");
   const architectureBoard = document.querySelector("[data-architecture-board]");
   const architectureLinks = document.querySelector("[data-architecture-links]");
+  const architectureViewport = document.querySelector("[data-architecture-viewport]");
+  const architectureCanvas = document.querySelector("[data-architecture-canvas]");
   const architectureStatus = document.querySelector("[data-architecture-status]");
   const inventoryTarget = document.querySelector("[data-node-list]");
   const nodeTitleTarget = document.querySelector("[data-node-title]");
@@ -481,8 +497,11 @@ if (architectureForm) {
   const nodeForm = document.querySelector("[data-node-form]");
   const addNodeForm = document.querySelector("[data-add-node-form]");
   const copyBriefButton = document.querySelector("[data-copy-brief]");
+  const copyTerraformButton = document.querySelector("[data-copy-terraform]");
   const scrollFormButton = document.querySelector("[data-scroll-form]");
   const removeNodeButton = document.querySelector("[data-remove-node]");
+  const terraformOutput = document.querySelector("[data-terraform-output]");
+  const terraformStatus = document.querySelector("[data-terraform-status]");
   const outputSection = document.querySelector("#architecture-output");
 
   let currentModel = null;
@@ -536,6 +555,15 @@ if (architectureForm) {
   const labelFor = (group, value) => strings.options[group]?.[value] || value;
   const labelsFor = (group, values) => values.map((value) => labelFor(group, value));
   const joinLabels = (labels) => labels.filter(Boolean).join(" • ");
+  const hclString = (value) => JSON.stringify(String(value ?? ""));
+  const slugify = (value, fallback = "mycompany_stack") =>
+    String(value || fallback)
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/g, "_")
+      .replaceAll(/^_+|_+$/g, "")
+      .replaceAll(/_{2,}/g, "_") || fallback;
+  const quoteList = (items) => `[${items.map((item) => hclString(item)).join(", ")}]`;
+  const firstRegion = (answers) => parseList(answers.regions)[0] || (pageLanguage === "bg" ? "eu-central-1" : "eu-central-1");
   const createId = (prefix = "node") => {
     nodeCounter += 1;
     return `${prefix}-${nodeCounter}`;
@@ -1399,6 +1427,528 @@ if (architectureForm) {
     return model;
   };
 
+  const buildTerraformConfig = (model) => {
+    if (!model?.nodes?.length) {
+      return strings.terraform.placeholder;
+    }
+
+    const { answers } = model;
+    const environments = answers.environments.length ? answers.environments : ["prod"];
+    const projectSlug = slugify(answers.systemName || strings.systemFallback, "mycompany_stack");
+    const systemName = answers.systemName || strings.systemFallback;
+    const region = firstRegion(answers);
+    const usesCloud = ["cloud", "hybrid", "saas-heavy"].includes(answers.deploymentModel);
+    const usesOnPrem = ["on-prem", "hybrid"].includes(answers.deploymentModel);
+    const cloudProvider = usesCloud ? answers.primaryCloud || "aws" : "none";
+
+    const inventoryComments = [
+      "",
+      "# Generated component inventory",
+      ...model.lanes.flatMap((lane) => [
+        `# ${lane.label}`,
+        ...lane.nodes.map((node) => {
+          const parts = [node.title, node.meta, node.note].filter(Boolean);
+          return `# - ${parts.join(" | ")}`;
+        }),
+      ]),
+    ];
+
+    const commonHeader = [
+      "# Example Terraform starter generated by MyCompany",
+      "# Replace placeholder CIDRs, image IDs, module sources, and secrets before apply.",
+      "",
+    ];
+
+    const commonLocals = [
+      "locals {",
+      `  project_name      = ${hclString(projectSlug)}`,
+      `  system_name       = ${hclString(systemName)}`,
+      `  deployment_model  = ${hclString(answers.deploymentModel || "cloud")}`,
+      `  environment_names = ${quoteList(environments)}`,
+      `  az_count          = ${answers.azCount}`,
+      `  tags = {`,
+      `    Project   = ${hclString(systemName)}`,
+      `    ManagedBy = "terraform"`,
+      `    Service   = "mycompany-architecture-builder"`,
+      "  }",
+      "}",
+      "",
+    ];
+
+    const dataServices = answers.dataServices;
+    const messaging = answers.messaging;
+
+    if (cloudProvider === "aws") {
+      return [
+        ...commonHeader,
+        "terraform {",
+        '  required_version = ">= 1.6.0"',
+        "  required_providers {",
+        "    aws = {",
+        '      source  = "hashicorp/aws"',
+        '      version = "~> 5.0"',
+        "    }",
+        "  }",
+        "}",
+        "",
+        'provider "aws" {',
+        "  region = var.aws_region",
+        "}",
+        "",
+        'variable "aws_region" {',
+        '  description = "Primary AWS region"',
+        `  default     = ${hclString(region)}`,
+        "}",
+        "",
+        ...commonLocals,
+        "# Network foundation",
+        'module "network" {',
+        '  source         = "./modules/aws-network"',
+        "  project_name   = local.project_name",
+        '  vpc_cidr       = "10.10.0.0/16" # TODO: replace with approved CIDR',
+        `  topology       = ${hclString(answers.networkTopology || "single-vpc")}`,
+        `  subnet_pattern = ${hclString(answers.subnetPattern || "public-private")}`,
+        "  az_count       = local.az_count",
+        "  environment_names = local.environment_names",
+        "  tags           = local.tags",
+        "}",
+        "",
+        ...(answers.ingress.length
+          ? [
+              "# Edge, ingress, and access",
+              'module "edge" {',
+              '  source            = "./modules/aws-edge"',
+              "  project_name      = local.project_name",
+              "  vpc_id            = module.network.vpc_id",
+              "  public_subnet_ids = module.network.public_subnet_ids",
+              `  enable_cdn        = ${answers.ingress.includes("cdn")}`,
+              `  enable_waf        = ${answers.ingress.includes("waf")}`,
+              `  enable_alb        = ${answers.ingress.includes("load-balancer")}`,
+              `  enable_api_gw     = ${answers.ingress.includes("api-gateway")}`,
+              `  enable_vpn        = ${answers.ingress.includes("vpn")}`,
+              `  enable_bastion    = ${answers.ingress.includes("bastion")}`,
+              "  tags              = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("vm")
+          ? [
+              "# EC2 application tiers",
+              'module "app_compute" {',
+              '  source            = "./modules/aws-ec2-app"',
+              "  project_name      = local.project_name",
+              "  private_subnet_ids = module.network.app_subnet_ids",
+              `  app_instance_count = ${Math.max(answers.appNodeCount, 1)}`,
+              `  worker_count       = ${answers.workerNodeCount}`,
+              `  utility_count      = ${answers.utilityNodeCount}`,
+              `  autoscaling_mode   = ${hclString(answers.autoscaling || "auto")}`,
+              `  compute_note       = ${hclString(answers.computeNotes || "Refine roles per node before implementation")}`,
+              "  tags               = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("containers")
+          ? [
+              'module "ecs_services" {',
+              '  source             = "./modules/aws-ecs-services"',
+              "  project_name       = local.project_name",
+              "  private_subnet_ids = module.network.app_subnet_ids",
+              "  tags               = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("kubernetes")
+          ? [
+              'module "eks" {',
+              '  source             = "./modules/aws-eks"',
+              "  project_name       = local.project_name",
+              "  private_subnet_ids = module.network.app_subnet_ids",
+              "  tags               = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("serverless")
+          ? [
+              'module "lambda_services" {',
+              '  source       = "./modules/aws-lambda-services"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("managed-runtime")
+          ? [
+              'module "managed_runtime" {',
+              '  source       = "./modules/aws-managed-runtime"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.relationalDb !== "none"
+          ? [
+              "# Transactional data tier",
+              'module "database" {',
+              '  source             = "./modules/aws-rds"',
+              "  project_name       = local.project_name",
+              `  engine             = ${hclString(answers.relationalDb)}`,
+              `  instance_count     = ${Math.max(answers.relationalDbCount, 1)}`,
+              "  data_subnet_ids    = module.network.data_subnet_ids",
+              "  tags               = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.cacheLayer !== "none"
+          ? [
+              'module "cache" {',
+              '  source          = "./modules/aws-elasticache"',
+              "  project_name    = local.project_name",
+              `  engine          = ${hclString(answers.cacheLayer)}`,
+              "  data_subnet_ids = module.network.data_subnet_ids",
+              "  tags            = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.objectStorage === "yes"
+          ? [
+              'module "object_storage" {',
+              '  source       = "./modules/aws-s3"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...messaging.flatMap((entry) => [
+          `module "${slugify(entry)}" {`,
+          `  source       = "./modules/aws-${slugify(entry)}"`,
+          "  project_name = local.project_name",
+          "  tags         = local.tags",
+          "}",
+          "",
+        ]),
+        ...dataServices.flatMap((entry) => [
+          `module "${slugify(entry)}" {`,
+          `  source       = "./modules/aws-${slugify(entry)}"`,
+          "  project_name = local.project_name",
+          "  tags         = local.tags",
+          "}",
+          "",
+        ]),
+        ...(answers.aiFocus.includes("rag")
+          ? [
+              'module "vector_store" {',
+              '  source       = "./modules/aws-vector-store"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        "# Operations, resilience, and controls",
+        'module "operations" {',
+        '  source            = "./modules/aws-operations"',
+        "  project_name      = local.project_name",
+        `  enable_monitoring = ${answers.ops.includes("monitoring")}`,
+        `  enable_logging    = ${answers.ops.includes("logging")}`,
+        `  enable_tracing    = ${answers.ops.includes("tracing")}`,
+        `  enable_siem       = ${answers.ops.includes("siem")}`,
+        `  enable_backup     = ${answers.ops.includes("backup")}`,
+        `  enable_cicd       = ${answers.ops.includes("cicd")}`,
+        `  recovery_tier     = ${hclString(answers.recoveryTier || "standard")}`,
+        `  compliance_note   = ${hclString(answers.compliance || "Define policy set with stakeholders")}`,
+        "  tags              = local.tags",
+        "}",
+        "",
+        ...(usesOnPrem
+          ? [
+              'module "onprem_connectivity" {',
+              '  source          = "./modules/hybrid-link"',
+              "  project_name    = local.project_name",
+              `  connectivity_note = ${hclString(answers.vpcNotes || "Define VPN / Direct Connect / MPLS details")}`,
+              "}",
+              "",
+            ]
+          : []),
+        'output "architecture_summary" {',
+        "  value = {",
+        "    system_name  = local.system_name",
+        "    provider     = \"aws\"",
+        "    environments = local.environment_names",
+        `    channels     = ${quoteList(labelsFor("channels", answers.channels.length ? answers.channels : ["public-site"]))}`,
+        "  }",
+        "}",
+        ...inventoryComments,
+      ].join("\n");
+    }
+
+    if (cloudProvider === "azure") {
+      return [
+        ...commonHeader,
+        "terraform {",
+        '  required_version = ">= 1.6.0"',
+        "  required_providers {",
+        "    azurerm = {",
+        '      source  = "hashicorp/azurerm"',
+        '      version = "~> 4.0"',
+        "    }",
+        "  }",
+        "}",
+        "",
+        'provider "azurerm" {',
+        "  features {}",
+        "}",
+        "",
+        ...commonLocals,
+        'module "network" {',
+        '  source            = "./modules/azure-network"',
+        "  project_name      = local.project_name",
+        `  topology          = ${hclString(answers.networkTopology || "single-vpc")}`,
+        `  subnet_pattern    = ${hclString(answers.subnetPattern || "public-private")}`,
+        `  primary_region    = ${hclString(region)}`,
+        "  environment_names = local.environment_names",
+        "  tags              = local.tags",
+        "}",
+        "",
+        ...(answers.hosting.includes("vm")
+          ? [
+              'module "vm_scale_sets" {',
+              '  source          = "./modules/azure-vmss"',
+              "  project_name    = local.project_name",
+              `  app_count       = ${Math.max(answers.appNodeCount, 1)}`,
+              `  worker_count    = ${answers.workerNodeCount}`,
+              `  utility_count   = ${answers.utilityNodeCount}`,
+              `  scaling_mode    = ${hclString(answers.autoscaling || "auto")}`,
+              "  subnet_ids      = module.network.app_subnet_ids",
+              "  tags            = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("containers")
+          ? [
+              'module "container_apps" {',
+              '  source          = "./modules/azure-container-apps"',
+              "  project_name    = local.project_name",
+              "  subnet_ids      = module.network.app_subnet_ids",
+              "  tags            = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("kubernetes")
+          ? [
+              'module "aks" {',
+              '  source          = "./modules/azure-aks"',
+              "  project_name    = local.project_name",
+              "  subnet_ids      = module.network.app_subnet_ids",
+              "  tags            = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("serverless")
+          ? [
+              'module "functions" {',
+              '  source       = "./modules/azure-functions"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.relationalDb !== "none"
+          ? [
+              'module "database" {',
+              '  source       = "./modules/azure-database"',
+              "  project_name = local.project_name",
+              `  engine       = ${hclString(answers.relationalDb)}`,
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.cacheLayer !== "none"
+          ? [
+              'module "cache" {',
+              '  source       = "./modules/azure-redis"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        'module "operations" {',
+        '  source            = "./modules/azure-operations"',
+        "  project_name      = local.project_name",
+        `  enable_monitoring = ${answers.ops.includes("monitoring")}`,
+        `  enable_logging    = ${answers.ops.includes("logging")}`,
+        `  enable_backup     = ${answers.ops.includes("backup")}`,
+        `  enable_cicd       = ${answers.ops.includes("cicd")}`,
+        "  tags              = local.tags",
+        "}",
+        ...inventoryComments,
+      ].join("\n");
+    }
+
+    if (cloudProvider === "gcp") {
+      return [
+        ...commonHeader,
+        "terraform {",
+        '  required_version = ">= 1.6.0"',
+        "  required_providers {",
+        "    google = {",
+        '      source  = "hashicorp/google"',
+        '      version = "~> 6.0"',
+        "    }",
+        "  }",
+        "}",
+        "",
+        'provider "google" {',
+        "  project = var.project_id",
+        "  region  = var.region",
+        "}",
+        "",
+        'variable "project_id" {',
+        '  description = "GCP project id"',
+        '  default     = "replace-me"',
+        "}",
+        "",
+        'variable "region" {',
+        `  default = ${hclString(region)}`,
+        "}",
+        "",
+        ...commonLocals,
+        'module "network" {',
+        '  source            = "./modules/gcp-network"',
+        "  project_name      = local.project_name",
+        `  subnet_pattern    = ${hclString(answers.subnetPattern || "public-private")}`,
+        "  environment_names = local.environment_names",
+        "  tags              = local.tags",
+        "}",
+        "",
+        ...(answers.hosting.includes("vm")
+          ? [
+              'module "mig" {',
+              '  source          = "./modules/gcp-mig"',
+              "  project_name    = local.project_name",
+              `  app_count       = ${Math.max(answers.appNodeCount, 1)}`,
+              `  worker_count    = ${answers.workerNodeCount}`,
+              "  subnet_ids      = module.network.app_subnet_ids",
+              "  tags            = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("kubernetes")
+          ? [
+              'module "gke" {',
+              '  source          = "./modules/gcp-gke"',
+              "  project_name    = local.project_name",
+              "  subnet_ids      = module.network.app_subnet_ids",
+              "  tags            = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.hosting.includes("serverless")
+          ? [
+              'module "cloud_run" {',
+              '  source       = "./modules/gcp-cloud-run"',
+              "  project_name = local.project_name",
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        ...(answers.relationalDb !== "none"
+          ? [
+              'module "sql" {',
+              '  source       = "./modules/gcp-cloud-sql"',
+              "  project_name = local.project_name",
+              `  engine       = ${hclString(answers.relationalDb)}`,
+              "  tags         = local.tags",
+              "}",
+              "",
+            ]
+          : []),
+        'module "operations" {',
+        '  source            = "./modules/gcp-operations"',
+        "  project_name      = local.project_name",
+        `  enable_monitoring = ${answers.ops.includes("monitoring")}`,
+        `  enable_logging    = ${answers.ops.includes("logging")}`,
+        `  enable_backup     = ${answers.ops.includes("backup")}`,
+        `  enable_cicd       = ${answers.ops.includes("cicd")}`,
+        "  tags              = local.tags",
+        "}",
+        ...inventoryComments,
+      ].join("\n");
+    }
+
+    return [
+      ...commonHeader,
+      "terraform {",
+      '  required_version = ">= 1.6.0"',
+      "}",
+      "",
+      ...commonLocals,
+      "# Provider choice is still open for this estate.",
+      "# Replace the module sources below with the virtualization or private-cloud provider you use.",
+      "",
+      'module "network_segments" {',
+      '  source            = "./modules/private-network"',
+      "  project_name      = local.project_name",
+      `  topology          = ${hclString(answers.networkTopology || "private-core")}`,
+      `  subnet_pattern    = ${hclString(answers.subnetPattern || "custom")}`,
+      "  environment_names = local.environment_names",
+      "}",
+      "",
+      'module "vm_estate" {',
+      '  source         = "./modules/private-vm-estate"',
+      "  project_name   = local.project_name",
+      `  app_count      = ${Math.max(answers.appNodeCount, 1)}`,
+      `  worker_count   = ${answers.workerNodeCount}`,
+      `  utility_count  = ${answers.utilityNodeCount}`,
+      `  scaling_mode   = ${hclString(answers.autoscaling || "manual")}`,
+      "}",
+      "",
+      ...(answers.relationalDb !== "none"
+        ? [
+            'module "database_cluster" {',
+            '  source       = "./modules/private-database"',
+            "  project_name = local.project_name",
+            `  engine       = ${hclString(answers.relationalDb)}`,
+            "}",
+            "",
+          ]
+        : []),
+      'module "operations" {',
+      '  source            = "./modules/private-operations"',
+      "  project_name      = local.project_name",
+      `  enable_monitoring = ${answers.ops.includes("monitoring")}`,
+      `  enable_logging    = ${answers.ops.includes("logging")}`,
+      `  enable_backup     = ${answers.ops.includes("backup")}`,
+      `  recovery_tier     = ${hclString(answers.recoveryTier || "standard")}`,
+      "}",
+      "",
+      ...(usesCloud && answers.deploymentModel === "hybrid"
+        ? [
+            "# This estate is hybrid. Add a provider-specific connectivity module for cloud edge services.",
+            "",
+          ]
+        : []),
+      ...inventoryComments,
+    ].join("\n");
+  };
+
   const renderSummaryGrid = (model) => {
     if (!summaryGrid) {
       return;
@@ -1446,14 +1996,43 @@ if (architectureForm) {
     });
   };
 
-  const drawConnections = () => {
-    if (!architectureBoard || !architectureLinks || !currentModel) {
+  const renderTerraform = (model) => {
+    if (!terraformOutput || !terraformStatus) {
       return;
     }
 
-    const wrapRect = architectureBoard.getBoundingClientRect();
-    architectureLinks.setAttribute("viewBox", `0 0 ${wrapRect.width} ${wrapRect.height}`);
-    architectureLinks.innerHTML = "";
+    const terraform = buildTerraformConfig(model);
+    terraformOutput.textContent = terraform;
+    terraformStatus.textContent = model?.nodes?.length ? strings.terraform.statusReady : strings.terraform.statusEmpty;
+
+    if (copyTerraformButton) {
+      copyTerraformButton.disabled = !model?.nodes?.length;
+      copyTerraformButton.textContent = strings.terraform.copy;
+    }
+  };
+
+  const drawConnections = () => {
+    if (!architectureBoard || !architectureLinks || !architectureCanvas || !currentModel) {
+      return;
+    }
+
+    const canvasWidth = Math.max(architectureBoard.scrollWidth + 24, architectureViewport?.clientWidth || 0);
+    const canvasHeight = Math.max(architectureBoard.scrollHeight + 24, 640);
+    architectureCanvas.style.width = `${canvasWidth}px`;
+    architectureCanvas.style.minHeight = `${canvasHeight}px`;
+    architectureLinks.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
+    architectureLinks.setAttribute("width", String(canvasWidth));
+    architectureLinks.setAttribute("height", String(canvasHeight));
+    architectureLinks.innerHTML = `
+      <defs>
+        <marker id="architecture-arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+          <path d="M 0 0 L 14 7 L 0 14 z" fill="rgba(255, 216, 170, 0.85)"></path>
+        </marker>
+      </defs>
+    `;
+
+    const canvasRect = architectureCanvas.getBoundingClientRect();
+    const nodeLookup = new Map(currentModel.nodes.map((node) => [node.id, node]));
 
     currentModel.nodes.forEach((node) => {
       const source = architectureBoard.querySelector(`[data-node-id="${node.id}"]`);
@@ -1463,25 +2042,37 @@ if (architectureForm) {
       }
 
       const sourceRect = source.getBoundingClientRect();
-      const startX = sourceRect.right - wrapRect.left;
-      const startY = sourceRect.top - wrapRect.top + sourceRect.height / 2;
 
       node.connections.forEach((targetId) => {
         const target = architectureBoard.querySelector(`[data-node-id="${targetId}"]`);
+        const targetNode = nodeLookup.get(targetId);
 
-        if (!target) {
+        if (!target || !targetNode) {
           return;
         }
 
         const targetRect = target.getBoundingClientRect();
-        const endX = targetRect.left - wrapRect.left;
-        const endY = targetRect.top - wrapRect.top + targetRect.height / 2;
-        const curve = Math.max(48, Math.abs(endX - startX) * 0.42);
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute(
-          "d",
-          `M ${startX} ${startY} C ${startX + curve} ${startY}, ${endX - curve} ${endY}, ${endX} ${endY}`
-        );
+        let d = "";
+
+        if (node.lane === targetNode.lane) {
+          const startX = sourceRect.left - canvasRect.left + sourceRect.width / 2;
+          const startY = sourceRect.bottom - canvasRect.top;
+          const endX = targetRect.left - canvasRect.left + targetRect.width / 2;
+          const endY = targetRect.top - canvasRect.top;
+          const curve = Math.max(36, Math.abs(endY - startY) * 0.34);
+          d = `M ${startX} ${startY} C ${startX} ${startY + curve}, ${endX} ${endY - curve}, ${endX} ${endY}`;
+        } else {
+          const startX = sourceRect.right - canvasRect.left;
+          const startY = sourceRect.top - canvasRect.top + sourceRect.height / 2;
+          const endX = targetRect.left - canvasRect.left;
+          const endY = targetRect.top - canvasRect.top + targetRect.height / 2;
+          const curve = Math.max(56, Math.abs(endX - startX) * 0.42);
+          d = `M ${startX} ${startY} C ${startX + curve} ${startY}, ${endX - curve} ${endY}, ${endX} ${endY}`;
+        }
+
+        path.setAttribute("d", d);
+        path.setAttribute("marker-end", "url(#architecture-arrow)");
         architectureLinks.appendChild(path);
       });
     });
@@ -1559,6 +2150,7 @@ if (architectureForm) {
       }
 
       renderInventory(model);
+      renderTerraform(model);
       updateInspector();
       return;
     }
@@ -1566,7 +2158,7 @@ if (architectureForm) {
     architectureBoard.innerHTML = model.lanes
       .map(
         (lane) => `
-          <section class="architecture-lane">
+          <section class="architecture-lane" data-lane-id="${escapeHtml(lane.id)}">
             <div class="architecture-lane-head">
               <div>
                 <h3 class="architecture-lane-title">${escapeHtml(lane.label)}</h3>
@@ -1612,6 +2204,7 @@ if (architectureForm) {
     });
 
     renderInventory(model);
+    renderTerraform(model);
     updateInspector();
     updateAddNodeOptions();
     window.requestAnimationFrame(drawConnections);
@@ -1806,6 +2399,22 @@ if (architectureForm) {
       }, 1600);
     } catch {
       copyBriefButton.textContent = strings.actions.copyBrief;
+    }
+  });
+
+  copyTerraformButton?.addEventListener("click", async () => {
+    if (!currentModel?.nodes?.length || !navigator.clipboard) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(buildTerraformConfig(currentModel));
+      copyTerraformButton.textContent = strings.terraform.copied;
+      window.setTimeout(() => {
+        copyTerraformButton.textContent = strings.terraform.copy;
+      }, 1600);
+    } catch {
+      copyTerraformButton.textContent = strings.terraform.copy;
     }
   });
 

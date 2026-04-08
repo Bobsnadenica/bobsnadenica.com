@@ -693,7 +693,7 @@
           <div class="reveal">
             <p class="page-kicker">Workbench</p>
             <h2 class="page-section-title">Review, edit, and extend the architecture.</h2>
-            <p class="page-section-copy">The generated diagram is meant to be refined. Rename nodes, clarify what each EC2 or VM does, add custom components, and use the brief as a clean discussion starting point.</p>
+            <p class="page-section-copy">The generated diagram is meant to be refined. Rename nodes, clarify what each EC2 or VM does, add custom components, and use both the brief and the Terraform starter as a clean technical handoff.</p>
           </div>
 
           <div class="builder-output">
@@ -705,7 +705,7 @@
                   <div>
                     <p class="page-kicker">High-level diagram</p>
                     <h3 class="architecture-stage-title">Editable architecture view</h3>
-                    <p class="summary-note architecture-stage-copy" data-architecture-status>Build the diagram to generate a high-level view of the estate.</p>
+                    <p class="summary-note architecture-stage-copy" data-architecture-status>Build the diagram, then scroll across the canvas to follow the system end to end.</p>
                   </div>
 
                   <div class="architecture-stage-actions">
@@ -715,86 +715,104 @@
                 </div>
 
                 <div class="architecture-board-wrap">
-                  <svg class="architecture-links" data-architecture-links aria-hidden="true"></svg>
-                  <div class="architecture-board" data-architecture-board></div>
+                  <div class="architecture-board-viewport" data-architecture-viewport>
+                    <div class="architecture-board-canvas" data-architecture-canvas>
+                      <svg class="architecture-links" data-architecture-links aria-hidden="true"></svg>
+                      <div class="architecture-board" data-architecture-board></div>
+                    </div>
+                  </div>
                 </div>
               </section>
 
-              <aside class="architecture-inspector reveal">
-                <section class="editor-card">
-                  <p class="page-kicker">Selected component</p>
-                  <h3 class="inspector-title" data-node-title>Select a component</h3>
-                  <p class="summary-note" data-node-empty>Build the architecture, then click any component to rename it, explain what it does, or add more context for stakeholders.</p>
+              <div class="architecture-tools">
+                <aside class="architecture-inspector reveal">
+                  <section class="editor-card">
+                    <p class="page-kicker">Selected component</p>
+                    <h3 class="inspector-title" data-node-title>Select a component</h3>
+                    <p class="summary-note" data-node-empty>Build the architecture, then click any component to rename it, explain what it does, or add more context for stakeholders.</p>
 
-                  <form class="node-editor-form" data-node-form hidden>
-                    <div class="field">
-                      <label for="node-title">Component name</label>
-                      <input id="node-title" name="node_title" type="text" placeholder="payments-api-01">
-                    </div>
-                    <div class="field">
-                      <label for="node-meta">Role or layer</label>
-                      <input id="node-meta" name="node_meta" type="text" placeholder="Application tier">
-                    </div>
-                    <div class="field">
-                      <label for="node-note">What does this component do?</label>
-                      <textarea id="node-note" name="node_note" placeholder="Explain what this EC2, VM, service, or integration is responsible for."></textarea>
-                    </div>
-                    <div class="field">
-                      <label for="node-tags">Tags</label>
-                      <input id="node-tags" name="node_tags" type="text" placeholder="prod, private, HA">
-                      <p class="field-hint">Separate tags with commas.</p>
-                    </div>
-                    <div class="submit-row">
-                      <button class="button button-secondary" type="button" data-remove-node hidden>Remove component</button>
-                    </div>
-                  </form>
-                </section>
+                    <form class="node-editor-form" data-node-form hidden>
+                      <div class="field">
+                        <label for="node-title">Component name</label>
+                        <input id="node-title" name="node_title" type="text" placeholder="payments-api-01">
+                      </div>
+                      <div class="field">
+                        <label for="node-meta">Role or layer</label>
+                        <input id="node-meta" name="node_meta" type="text" placeholder="Application tier">
+                      </div>
+                      <div class="field">
+                        <label for="node-note">What does this component do?</label>
+                        <textarea id="node-note" name="node_note" placeholder="Explain what this EC2, VM, service, or integration is responsible for."></textarea>
+                      </div>
+                      <div class="field">
+                        <label for="node-tags">Tags</label>
+                        <input id="node-tags" name="node_tags" type="text" placeholder="prod, private, HA">
+                        <p class="field-hint">Separate tags with commas.</p>
+                      </div>
+                      <div class="submit-row">
+                        <button class="button button-secondary" type="button" data-remove-node hidden>Remove component</button>
+                      </div>
+                    </form>
+                  </section>
 
-                <section class="editor-card">
-                  <p class="page-kicker">Add component</p>
-                  <h3 class="inspector-title">Extend the diagram.</h3>
-                  <form class="node-add-form" data-add-node-form>
-                    <div class="field">
-                      <label for="add-lane">Place it in</label>
-                      <select id="add-lane" name="add_lane">
-                        <option value="channels">Channels</option>
-                        <option value="edge">Edge and access</option>
-                        <option value="network">Network</option>
-                        <option value="services" selected>Services</option>
-                        <option value="data">Data and integrations</option>
-                        <option value="operations">Operations and governance</option>
-                      </select>
-                    </div>
-                    <div class="field">
-                      <label for="add-title">Component name</label>
-                      <input id="add-title" name="add_title" type="text" placeholder="payments-service" required>
-                    </div>
-                    <div class="field">
-                      <label for="add-meta">Role</label>
-                      <input id="add-meta" name="add_meta" type="text" placeholder="Application tier">
-                    </div>
-                    <div class="field">
-                      <label for="add-note">Context or note</label>
-                      <textarea id="add-note" name="add_note" placeholder="Why is it here, and what should stakeholders know?"></textarea>
-                    </div>
-                    <div class="field">
-                      <label for="add-connect">Connect from</label>
-                      <select id="add-connect" name="add_connect">
-                        <option value="">Not selected yet</option>
-                      </select>
-                    </div>
-                    <div class="submit-row">
-                      <button class="button button-primary" type="submit">Add component</button>
-                    </div>
-                  </form>
-                </section>
+                  <section class="editor-card">
+                    <p class="page-kicker">Add component</p>
+                    <h3 class="inspector-title">Extend the diagram.</h3>
+                    <form class="node-add-form" data-add-node-form>
+                      <div class="field">
+                        <label for="add-lane">Place it in</label>
+                        <select id="add-lane" name="add_lane">
+                          <option value="channels">Channels</option>
+                          <option value="edge">Edge and access</option>
+                          <option value="network">Network</option>
+                          <option value="services" selected>Services</option>
+                          <option value="data">Data and integrations</option>
+                          <option value="operations">Operations and governance</option>
+                        </select>
+                      </div>
+                      <div class="field">
+                        <label for="add-title">Component name</label>
+                        <input id="add-title" name="add_title" type="text" placeholder="payments-service" required>
+                      </div>
+                      <div class="field">
+                        <label for="add-meta">Role</label>
+                        <input id="add-meta" name="add_meta" type="text" placeholder="Application tier">
+                      </div>
+                      <div class="field">
+                        <label for="add-note">Context or note</label>
+                        <textarea id="add-note" name="add_note" placeholder="Why is it here, and what should stakeholders know?"></textarea>
+                      </div>
+                      <div class="field">
+                        <label for="add-connect">Connect from</label>
+                        <select id="add-connect" name="add_connect">
+                          <option value="">Not selected yet</option>
+                        </select>
+                      </div>
+                      <div class="submit-row">
+                        <button class="button button-primary" type="submit">Add component</button>
+                      </div>
+                    </form>
+                  </section>
 
-                <section class="editor-card">
-                  <p class="page-kicker">Inventory</p>
-                  <h3 class="inspector-title">Generated components</h3>
-                  <div class="inventory-list" data-node-list></div>
+                  <section class="editor-card">
+                    <p class="page-kicker">Inventory</p>
+                    <h3 class="inspector-title">Generated components</h3>
+                    <div class="inventory-list" data-node-list></div>
+                  </section>
+                </aside>
+
+                <section class="terraform-panel reveal">
+                  <div class="terraform-panel-head">
+                    <div>
+                      <p class="page-kicker">Terraform starter</p>
+                      <h3 class="inspector-title">Example infrastructure configuration</h3>
+                      <p class="summary-note" data-terraform-status>Build the architecture to generate an example Terraform starter.</p>
+                    </div>
+                    <button class="button button-secondary" type="button" data-copy-terraform disabled>Copy Terraform</button>
+                  </div>
+                  <pre class="terraform-code"><code data-terraform-output># Build the architecture to generate Terraform.</code></pre>
                 </section>
-              </aside>
+              </div>
             </div>
           </div>
         </div>
