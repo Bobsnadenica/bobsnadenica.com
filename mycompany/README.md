@@ -8,6 +8,7 @@ Bilingual static company website for a senior-led IT solutions business.
 - `bg/index.html` is the Bulgarian homepage.
 - `styles.css` contains the shared visual system and responsive layout.
 - `script.js` adds mobile navigation, reveal-on-scroll behavior, language preference storage, and subtle hero motion.
+- `robots.txt` and `sitemap.xml` support search engine discovery.
 
 ## GitHub Pages
 
@@ -19,4 +20,5 @@ Bilingual static company website for a senior-led IT solutions business.
 ## Before publishing
 
 - Replace `hello@mycompany.com` with the real contact address you want to use.
-- If you later connect a custom domain, update any SEO or social metadata you want to keep absolute.
+- This version assumes the production domain is `https://mycompany.com/` for canonical and sitemap URLs.
+- If you publish under a different GitHub Pages or custom domain, update canonical URLs, `robots.txt`, `sitemap.xml`, and structured data.
