@@ -175,6 +175,296 @@
   animation-delay: 1040ms;
 }
 
+.visual-shell {
+  isolation: isolate;
+}
+
+.materialization-overlay,
+.materialization-streams,
+.materialization-wireframe,
+.materialization-frame,
+.materialization-scan,
+.materialization-glow {
+  position: absolute;
+}
+
+.materialization-overlay {
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.materialization-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(240, 138, 93, 0.22), transparent 26%),
+    radial-gradient(circle at 78% 18%, rgba(255, 216, 170, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(7, 9, 9, 0.9), rgba(7, 9, 9, 0.68) 54%, rgba(7, 9, 9, 0.3));
+}
+
+.materialization-streams {
+  inset: -6% 6%;
+}
+
+.materialization-stream {
+  position: absolute;
+  top: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: 0.18em;
+  color: rgba(255, 216, 170, 0.78);
+  text-shadow: 0 0 14px rgba(255, 216, 170, 0.22);
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  opacity: 0;
+  transform: translate3d(0, -18%, 0) scale(0.84);
+}
+
+.stream-a {
+  left: 7%;
+  --stream-delay: 0ms;
+}
+
+.stream-b {
+  left: 20%;
+  --stream-delay: 100ms;
+}
+
+.stream-c {
+  left: 35%;
+  --stream-delay: 200ms;
+}
+
+.stream-d {
+  left: 52%;
+  --stream-delay: 280ms;
+}
+
+.stream-e {
+  left: 69%;
+  --stream-delay: 380ms;
+}
+
+.stream-f {
+  left: 83%;
+  --stream-delay: 480ms;
+}
+
+.materialization-wireframe {
+  inset: 0;
+}
+
+.materialization-frame {
+  border: 1px solid rgba(255, 216, 170, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    rgba(255, 255, 255, 0.015);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 24px rgba(255, 216, 170, 0.06);
+  opacity: 0;
+  transform: translateY(24px) scale(0.9);
+}
+
+.materialization-frame-browser {
+  inset: 9% 8% 8%;
+  border-radius: 28px;
+  --frame-delay: 120ms;
+}
+
+.materialization-frame-header {
+  left: 11%;
+  right: 11%;
+  top: 14%;
+  height: 10%;
+  border-radius: 999px;
+  --frame-delay: 220ms;
+}
+
+.materialization-frame-rail {
+  left: 16%;
+  right: 16%;
+  top: 38%;
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, rgba(255, 216, 170, 0), rgba(255, 216, 170, 0.94), rgba(255, 216, 170, 0));
+  box-shadow: 0 0 22px rgba(255, 216, 170, 0.16);
+  --frame-delay: 480ms;
+}
+
+.materialization-frame-card-a,
+.materialization-frame-card-b,
+.materialization-frame-card-c,
+.materialization-frame-card-d {
+  top: 46%;
+  width: 18%;
+  height: 21%;
+  border-radius: 22px;
+}
+
+.materialization-frame-card-a {
+  left: 10%;
+  --frame-delay: 460ms;
+}
+
+.materialization-frame-card-b {
+  left: 30.66%;
+  --frame-delay: 560ms;
+}
+
+.materialization-frame-card-c {
+  left: 51.33%;
+  --frame-delay: 660ms;
+}
+
+.materialization-frame-card-d {
+  right: 10%;
+  --frame-delay: 760ms;
+}
+
+.materialization-frame-summary-a,
+.materialization-frame-summary-b,
+.materialization-frame-summary-c {
+  bottom: 12%;
+  width: 25.33%;
+  height: 11%;
+  border-radius: 18px;
+}
+
+.materialization-frame-summary-a {
+  left: 10%;
+  --frame-delay: 860ms;
+}
+
+.materialization-frame-summary-b {
+  left: 37.33%;
+  --frame-delay: 940ms;
+}
+
+.materialization-frame-summary-c {
+  right: 10%;
+  --frame-delay: 1020ms;
+}
+
+.materialization-scan {
+  top: -28%;
+  left: -18%;
+  width: 44%;
+  height: 155%;
+  background: linear-gradient(180deg, transparent, rgba(255, 216, 170, 0.62), rgba(255, 255, 255, 0.16), transparent);
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: rotate(9deg);
+}
+
+.materialization-glow {
+  inset: 16% 18% auto;
+  height: 46%;
+  background: radial-gradient(circle, rgba(255, 216, 170, 0.28), transparent 64%);
+  filter: blur(12px);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-visual .materialization-overlay {
+    opacity: 1;
+    animation: materializationOverlayExit 2.35s ease forwards;
+  }
+
+  .hero-visual .materialization-stream {
+    animation: binaryRain 1.7s linear var(--stream-delay) forwards;
+  }
+
+  .hero-visual .materialization-frame {
+    animation: wireframeBuild 1.08s cubic-bezier(0.16, 1, 0.3, 1) var(--frame-delay) forwards;
+  }
+
+  .hero-visual .materialization-scan {
+    animation: signalScan 1.4s cubic-bezier(0.22, 1, 0.36, 1) 180ms forwards;
+  }
+
+  .hero-visual .materialization-glow {
+    animation: signalGlow 1.3s ease 120ms forwards;
+  }
+
+  .hero-visual .visual-grid {
+    opacity: 0;
+    transform: scale(1.06);
+    animation: heroGridResolve 0.9s cubic-bezier(0.16, 1, 0.3, 1) 880ms forwards;
+  }
+
+  .hero-visual .visual-head {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(20px) scale(0.975);
+    animation: heroSectionResolve 0.95s cubic-bezier(0.16, 1, 0.3, 1) 980ms forwards;
+  }
+
+  .hero-visual .visual-body::after {
+    opacity: 0;
+    transform-origin: center;
+    animation:
+      heroRailReveal 0.82s cubic-bezier(0.16, 1, 0.3, 1) 1180ms forwards,
+      railSweep 8s linear 1.8s infinite;
+  }
+
+  .hero-visual .visual-stage-card {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(30px) scale(0.94);
+    animation:
+      heroCardResolve 0.84s cubic-bezier(0.16, 1, 0.3, 1) var(--card-delay) forwards,
+      floatCard 6s ease-in-out var(--float-delay) infinite;
+  }
+
+  .hero-visual .visual-stage-card:nth-child(1) {
+    --card-delay: 1120ms;
+    --float-delay: 2s;
+  }
+
+  .hero-visual .visual-stage-card:nth-child(2) {
+    --card-delay: 1220ms;
+    --float-delay: 2.2s;
+  }
+
+  .hero-visual .visual-stage-card:nth-child(3) {
+    --card-delay: 1320ms;
+    --float-delay: 2.4s;
+  }
+
+  .hero-visual .visual-stage-card:nth-child(4) {
+    --card-delay: 1420ms;
+    --float-delay: 2.6s;
+  }
+
+  .hero-visual .visual-summary-item {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(18px) scale(0.97);
+    animation: heroSummaryResolve 0.82s cubic-bezier(0.16, 1, 0.3, 1) var(--summary-delay) forwards;
+  }
+
+  .hero-visual .visual-summary-item:nth-child(1) {
+    --summary-delay: 1440ms;
+  }
+
+  .hero-visual .visual-summary-item:nth-child(2) {
+    --summary-delay: 1540ms;
+  }
+
+  .hero-visual .visual-summary-item:nth-child(3) {
+    --summary-delay: 1640ms;
+  }
+}
+
 .preview-portal-body::before {
   content: "";
   position: absolute;
@@ -588,6 +878,17 @@
     inset: 10% 2% 6% 48%;
   }
 
+  .materialization-stream {
+    font-size: 0.66rem;
+  }
+
+  .materialization-frame-card-a,
+  .materialization-frame-card-b,
+  .materialization-frame-card-c,
+  .materialization-frame-card-d {
+    height: 19%;
+  }
+
   .preview-float-seo {
     width: 124px;
   }
@@ -620,6 +921,49 @@
   .hero-scene-node-web,
   .hero-scene-node-monitoring {
     display: none;
+  }
+
+  .materialization-stream {
+    font-size: 0.54rem;
+  }
+
+  .stream-e,
+  .stream-f {
+    display: none;
+  }
+
+  .materialization-frame-browser {
+    inset: 12% 7% 10%;
+  }
+
+  .materialization-frame-header {
+    left: 12%;
+    right: 12%;
+    height: 8%;
+  }
+
+  .materialization-frame-card-a,
+  .materialization-frame-card-b,
+  .materialization-frame-card-c,
+  .materialization-frame-card-d {
+    width: 20%;
+    height: 17%;
+    top: 49%;
+  }
+
+  .materialization-frame-card-b {
+    left: 31%;
+  }
+
+  .materialization-frame-card-c {
+    left: 52%;
+  }
+
+  .materialization-frame-summary-a,
+  .materialization-frame-summary-b,
+  .materialization-frame-summary-c {
+    height: 9%;
+    bottom: 13%;
   }
 
   .offer-visual-analysis,
@@ -703,5 +1047,160 @@
 
   50% {
     transform: scaleY(1.08);
+  }
+}
+
+@keyframes materializationOverlayExit {
+  0%,
+  72% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes binaryRain {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -18%, 0) scale(0.84);
+  }
+
+  12% {
+    opacity: 0.86;
+  }
+
+  68% {
+    opacity: 0.54;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 24%, 0) scale(1.04);
+    filter: blur(1.2px);
+  }
+}
+
+@keyframes wireframeBuild {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.9);
+  }
+
+  28% {
+    opacity: 0.92;
+  }
+
+  74% {
+    opacity: 0.46;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes signalScan {
+  0% {
+    opacity: 0;
+    transform: translate3d(-10%, -34%, 0) rotate(9deg);
+  }
+
+  12% {
+    opacity: 0.96;
+  }
+
+  78% {
+    opacity: 0.56;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(132%, 78%, 0) rotate(9deg);
+  }
+}
+
+@keyframes signalGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+
+  24% {
+    opacity: 0.76;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes heroGridResolve {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes heroSectionResolve {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(20px) scale(0.975);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroRailReveal {
+  from {
+    opacity: 0;
+    transform: scaleX(0.24);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes heroCardResolve {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(30px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroSummaryResolve {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(18px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
   }
 }
