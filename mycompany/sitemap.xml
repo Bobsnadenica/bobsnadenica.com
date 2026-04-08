@@ -22,6 +22,24 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/" />
   </url>
   <url>
+    <loc>https://mycompany.com/what-we-can/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/what-we-can/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/kakvo-mozhem/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/what-we-can/" />
+  </url>
+  <url>
+    <loc>https://mycompany.com/bg/kakvo-mozhem/</loc>
+    <lastmod>2026-04-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mycompany.com/what-we-can/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/kakvo-mozhem/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://mycompany.com/what-we-can/" />
+  </url>
+  <url>
     <loc>https://mycompany.com/showcase/</loc>
     <lastmod>2026-04-08</lastmod>
     <changefreq>weekly</changefreq>

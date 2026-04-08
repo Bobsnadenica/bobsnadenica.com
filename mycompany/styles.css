@@ -192,6 +192,29 @@ button {
   position: relative;
 }
 
+.site-nav a.nav-signal {
+  padding: 0.56rem 0.92rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 216, 170, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(255, 216, 170, 0.08);
+  color: var(--text);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 12px 26px rgba(0, 0, 0, 0.16);
+}
+
+.site-nav a.nav-signal::after {
+  display: none;
+}
+
+.site-nav a.nav-signal:hover,
+.site-nav a.nav-signal:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 216, 170, 0.42);
+}
+
 .site-nav a::after,
 .footer-links a::after {
   content: "";
