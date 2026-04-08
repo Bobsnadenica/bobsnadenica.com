@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAQ | MyCompany IT услуги</title>
+  <title>Често задавани въпроси | MyCompany IT услуги</title>
   <meta
     name="description"
-    content="Често задавани въпроси за услугите на MyCompany: уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг, бизнес анализ и senior IT delivery."
+    content="Често задавани въпроси за услугите на MyCompany: уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг, бизнес анализ и senior IT изпълнение."
   >
   <meta
     name="robots"
@@ -14,23 +14,33 @@
   >
   <meta name="author" content="MyCompany">
   <meta name="theme-color" content="#101312">
+  <link rel="icon" href="../../assets/seo/mycompany-mark.svg" type="image/svg+xml">
+  <link rel="icon" href="../../assets/seo/mycompany-mark.png" sizes="512x512" type="image/png">
+  <link rel="apple-touch-icon" href="../../assets/seo/mycompany-mark.png">
   <link rel="canonical" href="https://mycompany.com/bg/faq/">
-  <meta property="og:title" content="FAQ | MyCompany IT услуги">
+  <meta property="og:title" content="Често задавани въпроси | MyCompany IT услуги">
   <meta
     property="og:description"
-    content="Отговори за проектен fit, delivery модел, SEO, мобилни приложения, cloud архитектура, мониторинг и поддръжка."
+    content="Отговори за проектна рамка, модел на работа, SEO, мобилни приложения, облачна архитектура, мониторинг и поддръжка."
   >
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mycompany.com/bg/faq/">
   <meta property="og:site_name" content="MyCompany">
   <meta property="og:locale" content="bg_BG">
   <meta property="og:locale:alternate" content="en_US">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="FAQ | MyCompany IT услуги">
+  <meta property="og:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MyCompany IT услуги за уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг и бизнес анализ.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Често задавани въпроси | MyCompany IT услуги">
   <meta
     name="twitter:description"
     content="Често задавани въпроси за уебсайтове, приложения, SEO, мониторинг и senior IT изпълнение."
   >
+  <meta name="twitter:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta name="twitter:image:alt" content="MyCompany IT услуги за уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг и бизнес анализ.">
   <link rel="alternate" hreflang="en" href="https://mycompany.com/faq/">
   <link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/faq/">
   <link rel="alternate" hreflang="x-default" href="https://mycompany.com/faq/">
@@ -47,16 +57,28 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "ProfessionalService",
+          "@type": "Organization",
           "@id": "https://mycompany.com/#organization",
           "name": "MyCompany",
+          "alternateName": "MyCompany IT",
           "url": "https://mycompany.com/",
-          "description": "Уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг, бизнес анализ и senior IT delivery.",
+          "logo": "https://mycompany.com/assets/seo/mycompany-mark.png",
+          "image": "https://mycompany.com/assets/seo/mycompany-share.png",
+          "description": "Уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг, бизнес анализ и senior IT изпълнение.",
           "email": "hello@mycompany.com"
         },
         {
           "@type": "FAQPage",
           "@id": "https://mycompany.com/bg/faq/#faq-page",
+          "url": "https://mycompany.com/bg/faq/",
+          "name": "Често задавани въпроси на MyCompany",
+          "inLanguage": "bg",
+          "breadcrumb": {
+            "@id": "https://mycompany.com/bg/faq/#breadcrumbs"
+          },
+          "about": {
+            "@id": "https://mycompany.com/#organization"
+          },
           "mainEntity": [
             {
               "@type": "Question",
@@ -81,6 +103,24 @@
                 "@type": "Answer",
                 "text": "Да. Един проект може да включва бизнес анализ, уебсайт, SEO, мобилно приложение, cloud архитектура, интеграции и мониторинг, ако резултатът изисква цялостен подход."
               }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://mycompany.com/bg/faq/#breadcrumbs",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Начало",
+              "item": "https://mycompany.com/bg/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Често задавани въпроси",
+              "item": "https://mycompany.com/bg/faq/"
             }
           ]
         }

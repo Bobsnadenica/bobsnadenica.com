@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyCompany | Websites, Apps, SEO, Cloud &amp; Monitoring</title>
+  <title>MyCompany | Website Development, Mobile Apps, SEO &amp; Cloud Architecture</title>
   <meta
     name="description"
-    content="MyCompany delivers websites, iOS and Android apps, SEO services, cloud architecture, monitoring, business analysis, and senior IT systems delivery."
+    content="MyCompany delivers website development, iOS and Android apps, SEO services, cloud architecture, monitoring, business analysis, and senior IT delivery."
   >
   <meta
     name="robots"
@@ -14,23 +14,33 @@
   >
   <meta name="author" content="MyCompany">
   <meta name="theme-color" content="#101312">
+  <link rel="icon" href="assets/seo/mycompany-mark.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/seo/mycompany-mark.png" sizes="512x512" type="image/png">
+  <link rel="apple-touch-icon" href="assets/seo/mycompany-mark.png">
   <link rel="canonical" href="https://mycompany.com/">
-  <meta property="og:title" content="MyCompany | Websites, Apps, SEO, Cloud &amp; Monitoring">
+  <meta property="og:title" content="MyCompany | Website Development, Mobile Apps, SEO &amp; Cloud Architecture">
   <meta
     property="og:description"
-    content="Websites, iOS and Android apps, SEO services, cloud architecture, monitoring, business analysis, and senior IT delivery. English and Bulgarian service."
+    content="Website development, iOS and Android apps, SEO services, cloud architecture, monitoring, business analysis, and senior IT delivery in English and Bulgarian."
   >
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mycompany.com/">
   <meta property="og:site_name" content="MyCompany">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="bg_BG">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="MyCompany | Websites, Apps, SEO, Cloud &amp; Monitoring">
+  <meta property="og:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MyCompany IT services for websites, mobile apps, SEO, cloud architecture, monitoring, and business analysis.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MyCompany | Website Development, Mobile Apps, SEO &amp; Cloud Architecture">
   <meta
     name="twitter:description"
-    content="Websites, iOS and Android apps, SEO services, cloud architecture, monitoring, business analysis, and IT delivery."
+    content="Website development, mobile apps, SEO services, cloud architecture, monitoring, business analysis, and senior IT delivery."
   >
+  <meta name="twitter:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta name="twitter:image:alt" content="MyCompany IT services for websites, mobile apps, SEO, cloud architecture, monitoring, and business analysis.">
   <link rel="alternate" hreflang="en" href="https://mycompany.com/">
   <link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/">
   <link rel="alternate" hreflang="x-default" href="https://mycompany.com/">
@@ -47,15 +57,36 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "ProfessionalService",
+          "@type": "Organization",
           "@id": "https://mycompany.com/#organization",
           "name": "MyCompany",
+          "alternateName": "MyCompany IT",
           "url": "https://mycompany.com/",
-          "description": "Professional website development, iOS and Android app build, SEO services, cloud architecture, monitoring, business analysis, and systems integration.",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://mycompany.com/assets/seo/mycompany-mark.png",
+            "width": 512,
+            "height": 512
+          },
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://mycompany.com/assets/seo/mycompany-share.png",
+            "width": 1200,
+            "height": 630
+          },
+          "description": "Website development, mobile apps, SEO services, cloud architecture, monitoring, business analysis, and senior IT delivery.",
           "email": "hello@mycompany.com",
           "areaServed": "Worldwide",
           "availableLanguage": ["English", "Bulgarian"],
-          "serviceType": [
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "contactType": "sales",
+              "email": "hello@mycompany.com",
+              "availableLanguage": ["English", "Bulgarian"]
+            }
+          ],
+          "knowsAbout": [
             "Website development",
             "SEO services",
             "iOS app development",
@@ -73,7 +104,8 @@
           "@id": "https://mycompany.com/#website",
           "url": "https://mycompany.com/",
           "name": "MyCompany",
-          "inLanguage": "en",
+          "alternateName": "MyCompany IT",
+          "inLanguage": ["en", "bg"],
           "publisher": {
             "@id": "https://mycompany.com/#organization"
           }

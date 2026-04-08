@@ -14,6 +14,9 @@
   >
   <meta name="author" content="MyCompany">
   <meta name="theme-color" content="#101312">
+  <link rel="icon" href="../../assets/seo/mycompany-mark.svg" type="image/svg+xml">
+  <link rel="icon" href="../../assets/seo/mycompany-mark.png" sizes="512x512" type="image/png">
+  <link rel="apple-touch-icon" href="../../assets/seo/mycompany-mark.png">
   <link rel="canonical" href="https://mycompany.com/bg/privacy/">
   <meta property="og:title" content="Политика за поверителност | MyCompany">
   <meta
@@ -25,12 +28,19 @@
   <meta property="og:site_name" content="MyCompany">
   <meta property="og:locale" content="bg_BG">
   <meta property="og:locale:alternate" content="en_US">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MyCompany IT услуги за уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг и бизнес анализ.">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Политика за поверителност | MyCompany">
   <meta
     name="twitter:description"
     content="Информация за поверителност за сайта на MyCompany и проектния контакт поток."
   >
+  <meta name="twitter:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta name="twitter:image:alt" content="MyCompany IT услуги за уебсайтове, мобилни приложения, SEO, облачна архитектура, мониторинг и бизнес анализ.">
   <link rel="alternate" hreflang="en" href="https://mycompany.com/privacy/">
   <link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/privacy/">
   <link rel="alternate" hreflang="x-default" href="https://mycompany.com/privacy/">
@@ -47,10 +57,13 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "ProfessionalService",
+          "@type": "Organization",
           "@id": "https://mycompany.com/#organization",
           "name": "MyCompany",
           "url": "https://mycompany.com/",
+          "alternateName": "MyCompany IT",
+          "logo": "https://mycompany.com/assets/seo/mycompany-mark.png",
+          "image": "https://mycompany.com/assets/seo/mycompany-share.png",
           "email": "hello@mycompany.com"
         },
         {
@@ -59,9 +72,30 @@
           "url": "https://mycompany.com/bg/privacy/",
           "name": "Политика за поверителност на MyCompany",
           "inLanguage": "bg",
+          "breadcrumb": {
+            "@id": "https://mycompany.com/bg/privacy/#breadcrumbs"
+          },
           "about": {
             "@id": "https://mycompany.com/#organization"
           }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://mycompany.com/bg/privacy/#breadcrumbs",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Начало",
+              "item": "https://mycompany.com/bg/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Политика за поверителност",
+              "item": "https://mycompany.com/bg/privacy/"
+            }
+          ]
         }
       ]
     }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Showcase | MyCompany Websites, Apps, SEO and Cloud Delivery</title>
+  <title>Showcase | Website, App, SEO &amp; Cloud Delivery | MyCompany</title>
   <meta
     name="description"
     content="Explore the MyCompany showcase: extraordinary website, mobile app, SEO, cloud architecture, monitoring, and business analysis directions presented through contextual product scenes."
@@ -14,8 +14,11 @@
   >
   <meta name="author" content="MyCompany">
   <meta name="theme-color" content="#101312">
+  <link rel="icon" href="../assets/seo/mycompany-mark.svg" type="image/svg+xml">
+  <link rel="icon" href="../assets/seo/mycompany-mark.png" sizes="512x512" type="image/png">
+  <link rel="apple-touch-icon" href="../assets/seo/mycompany-mark.png">
   <link rel="canonical" href="https://mycompany.com/showcase/">
-  <meta property="og:title" content="Showcase | MyCompany Websites, Apps, SEO and Cloud Delivery">
+  <meta property="og:title" content="Showcase | Website, App, SEO &amp; Cloud Delivery | MyCompany">
   <meta
     property="og:description"
     content="Contextual showcase work for websites, apps, SEO, cloud delivery, business analysis, and monitoring."
@@ -25,12 +28,19 @@
   <meta property="og:site_name" content="MyCompany">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="bg_BG">
+  <meta property="og:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MyCompany IT services for websites, mobile apps, SEO, cloud architecture, monitoring, and business analysis.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Showcase | MyCompany Websites, Apps, SEO and Cloud Delivery">
+  <meta name="twitter:title" content="Showcase | Website, App, SEO &amp; Cloud Delivery | MyCompany">
   <meta
     name="twitter:description"
     content="A richer showcase of MyCompany delivery across websites, mobile apps, SEO, cloud architecture, and monitoring."
   >
+  <meta name="twitter:image" content="https://mycompany.com/assets/seo/mycompany-share.png">
+  <meta name="twitter:image:alt" content="MyCompany IT services for websites, mobile apps, SEO, cloud architecture, monitoring, and business analysis.">
   <link rel="alternate" hreflang="en" href="https://mycompany.com/showcase/">
   <link rel="alternate" hreflang="bg" href="https://mycompany.com/bg/showcase/">
   <link rel="alternate" hreflang="x-default" href="https://mycompany.com/showcase/">
@@ -48,10 +58,13 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "ProfessionalService",
+          "@type": "Organization",
           "@id": "https://mycompany.com/#organization",
           "name": "MyCompany",
           "url": "https://mycompany.com/",
+          "alternateName": "MyCompany IT",
+          "logo": "https://mycompany.com/assets/seo/mycompany-mark.png",
+          "image": "https://mycompany.com/assets/seo/mycompany-share.png",
           "description": "Website development, mobile apps, SEO, cloud architecture, monitoring, business analysis, and senior IT delivery.",
           "email": "hello@mycompany.com"
         },
@@ -61,9 +74,30 @@
           "url": "https://mycompany.com/showcase/",
           "name": "MyCompany Showcase",
           "inLanguage": "en",
+          "breadcrumb": {
+            "@id": "https://mycompany.com/showcase/#breadcrumbs"
+          },
           "about": {
             "@id": "https://mycompany.com/#organization"
           }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://mycompany.com/showcase/#breadcrumbs",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://mycompany.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Showcase",
+              "item": "https://mycompany.com/showcase/"
+            }
+          ]
         }
       ]
     }
