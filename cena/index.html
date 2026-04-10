@@ -9,15 +9,18 @@
   <meta property="og:description" content="Find the cheapest grocery store near you. Compare Kaufland, Lidl, Billa, Fantastico & more."/>
   <meta property="og:type" content="website"/>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>"/>
-  <link rel="manifest" href="manifest.json"/>
+  <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#C4704B"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
   <meta name="apple-mobile-web-app-title" content="Spesti"/>
-  <link rel="apple-touch-icon" href="icons/icon-192.svg"/>
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&family=Noto+Serif+JP:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     #root{min-height:100vh}
@@ -70,6 +73,16 @@ function distKm(lat1,lon1,lat2,lon2){
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
+const findNearestStore = (lat, lon, locations) => {
+  let nearest = null, minDist = Infinity;
+  for (const loc of locations) {
+    if (!loc.lat || !loc.lon) continue;
+    const d = Math.sqrt(Math.pow((lat-loc.lat)*111320, 2) + Math.pow((lon-loc.lon)*111320*Math.cos(lat*Math.PI/180), 2));
+    if (d < minDist) { minDist = d; nearest = { ...loc, distance: d }; }
+  }
+  return minDist < 150 ? nearest : null;
+};
+
 // ─── ALL BULGARIAN CHAINS ─────────────────────────────────────────────────────
 // status: "live" = in app now, "soon" = coming soon
 const ALL_CHAINS = [
@@ -88,6 +101,16 @@ const ALL_CHAINS = [
   { id:"auchan",     name:"Auchan",     color:"#E2231A", country:"FR", stores:0,   status:"future",desc:"French hypermarket · potential BG expansion" },
   { id:"carrefour",  name:"Carrefour",  color:"#005BBB", country:"FR", stores:13,  status:"future",desc:"French chain · limited BG presence" },
 ];
+
+const CHAIN_CARD_INFO = {
+  kaufland:   { name: "Kaufland Card",    type: "barcode", format: "CODE128" },
+  lidl:       { name: "Lidl Plus",        type: "qr",      format: "QR"      },
+  billa:      { name: "Billa Card",       type: "barcode", format: "CODE128" },
+  fantastico: { name: "Fantastico Card",  type: "barcode", format: "CODE128" },
+  tmarket:    { name: "T Market Card",    type: "barcode", format: "CODE128" },
+  metro:      { name: "Metro Card",       type: "barcode", format: "CODE128" },
+  cba:        { name: "CBA Card",         type: "barcode", format: "CODE128" },
+};
 
 // ─── STORE LOCATIONS (representative coordinates per city) ──────────────────
 // Real approximate GPS for major store locations across Bulgaria
@@ -310,139 +333,57 @@ const P=(id,cat,en,bg,brand,sz,img,prices,sale={},fatPct=null)=>({id,category:ca
 let PRODUCTS = []; // Will be populated dynamically from products.json
 let TRENDS = {};   // v2.26: Price trends {id: {d: delta, p: prevPrice}}
 
-// ─── DATA BRIDGE: load products.json and remap store keys ─────────────────────
-// v2 pipeline outputs clean ASCII slugs, so we accept all stores.
-// Explicitly excluded stores (non-grocery) are set to null.
-const _STORE_KEY_MAP = {
-  // Legacy Cyrillic keys (backward compat with v1 data)
-  "лидл": "lidl",
-  "фантастико": "fantastico",
-  "метро": "metro",
-  "билла": "billa",
-  "кауфланд": "kaufland",
-  "cba": "cba",
-  "t_market": "tmarket",
-  // Excluded non-grocery stores
-  "mr_bricolage": null,
-  "duty_free": null,
-  "travel_free": null,
-};
-// All known grocery chain slugs from v2 pipeline — accept as-is
-["kaufland","lidl","billa","fantastico","tmarket","metro","cba","coop","penny",
- "fresh_market","ebag","bulmag","kam","sidi","edea","hot_market","parkmart",
- "avs_market","mai_market","maksmark","cheri_market",
- // Regional & smaller chains
- "absolyut","bogat_beden","sibies_market","supermarketi_leksi","magazini_dar",
- "nablizo","supermarket_24_7","trapeziko","patsoni","kome_sva","minimart",
- "targovska_veriga_zhanet","maks","anet_3","anet_4","magazini_bravo",
- "magazini_niven","starmarket_2014","rt_market","tomi","bratya_nedelevi",
- "magazin_345","sitimarket","zlatna_ribka","novomes","trista","life","bolero",
- "veriga_magazini_eko_asorti","merkanto","magazini_bilyana","zhivis","zhizel",
- "valdi","vis_vitalis","abritus_siti","yomi","klasiko","gochev","manolova",
- "stivi","supermarket_vireya","supermarket_makao","supermarket_mladost","dia_si",
- "supermarketi_slaveks","kilera","boycho_ognyanov_1_eood","mikrite","mag_italiya",
- "nolev","dn_shop","tv_burov","plamko","ays_market","fines","gigi",
- "green_deli","emag","vilton","mibo_82","eshrefoglu","arena",
- "dobrotitsa","avanti","magazin_omega","stomi","tarita","super_market_veros",
- "zh_logistik","angel_sarandiev_2010_eood","dimeks_ood","teramarket",
- "kulchevi","slanchevi_lachi","berozka","konsumativ","akvelon","akvilon",
- "helios","b_2006_eood","svima_ood","bakaliya","lozana","rits",
- "bianchi","alkohol_i_tabakoff","ds_home","lagarder",
-].forEach(id=>_STORE_KEY_MAP[id]=id);
+// ─── DATA BRIDGE: load compact products.json and decode ─────────────────────
+// v3 compact format: lookup tables + array-per-product for minimal file size
+// Store key mapping: K=kaufland, L=lidl, B=billa, F=fantastico, C=cba, T=tmarket, M=metro
+const _STORE_EXPAND = {K:"kaufland",L:"lidl",B:"billa",F:"fantastico",C:"cba",T:"tmarket",M:"metro"};
 
-function _remapProduct(raw) {
-  const prices = {};
-  const sale = {};
-  if (raw.prices) {
-    for (const [key, val] of Object.entries(raw.prices)) {
-      const mapped = _STORE_KEY_MAP[key];
-      if (mapped === null) continue;      // explicitly excluded
-      // v2 pipeline uses clean ASCII slugs, so pass through unknown keys
-      const storeId = mapped !== undefined ? mapped : key;
-      if (prices[storeId] == null || val < prices[storeId]) {
-        prices[storeId] = val; // keep cheapest if multiple entries map to same chain
-      }
-    }
-  }
-  if (raw.sale) {
-    for (const [key, val] of Object.entries(raw.sale)) {
-      const m = _STORE_KEY_MAP[key];
-      if (m === null) continue;
-      const sid = m !== undefined ? m : key;
-      if (val && typeof val === 'number') { if (sale[sid] == null || val < sale[sid]) sale[sid] = val; }
-      else if (val) sale[sid] = true;
-    }
-  }
-  // Category and nameEN now come from the v2.1 pipeline
-  let category = raw.category || "Pantry";
-  let nameEN = raw.nameEN || raw.name || "";
-  // Clean up double spaces in all names
-  nameEN = nameEN.replace(/\s{2,}/g, ' ').trim();
+function _expandPriceObj(compact) {
+  const out = {};
+  for (const [k,v] of Object.entries(compact)) { out[_STORE_EXPAND[k]||k] = v; }
+  return out;
+}
 
-  // v2.20: Remap unit prices (same store key mapping as prices)
-  const up = {};
-  if (raw.up) {
-    for (const [key, val] of Object.entries(raw.up)) {
-      const mapped = _STORE_KEY_MAP[key];
-      if (mapped === null) continue;
-      const storeId = mapped !== undefined ? mapped : key;
-      if (up[storeId] == null || val < up[storeId]) {
-        up[storeId] = val;
-      }
-    }
-  }
-
-  return {
-    id: raw.id || raw.name,
-    category,
-    nameEN,
-    nameBG: (raw.nameBG || raw.name || "").replace(/\s{2,}/g, ' ').trim(),
-    name: (raw.name || raw.nameEN || "").replace(/\s{2,}/g, ' ').trim(),
-    brand: raw.brand ? raw.brand.trim() : null,
-    size: raw.size || null,
-    fatPct: raw.fatPct || null,
-    img: null,
-    prices,
-    sale,
-    up: Object.keys(up).length > 0 ? up : null,
-    ut: raw.ut || null,
-    sc: raw.sc || null,
-    sc2: raw.sc2 || null,
-  };
+function _decodeCompact(data) {
+  const cats = data._c, brands = data._b, scs = data._s, sizes = data._z, units = data._u;
+  return data.d.map(r => {
+    const [id, name, catIdx, prices, opts] = r;
+    const o = opts || {};
+    const sale = {};
+    if (o.sl) { for (const [k,v] of Object.entries(o.sl)) { sale[_STORE_EXPAND[k]||k] = v; } }
+    const up = o.u ? _expandPriceObj(o.u) : null;
+    return {
+      id, name, nameBG: name, nameEN: o.e || name,
+      category: cats[catIdx],
+      brand: o.b != null ? brands[o.b] : null,
+      size: o.s != null ? sizes[o.s] : null,
+      fatPct: o.f || null,
+      img: null,
+      prices: _expandPriceObj(prices),
+      sale,
+      up: up && Object.keys(up).length > 0 ? up : null,
+      ut: o.ut != null ? (typeof o.ut === 'number' ? units[o.ut] : o.ut) : null,
+      sc: o.sc != null ? scs[o.sc] : null,
+      sc2: o.s2 || null,
+    };
+  });
 }
 
 let _dataReady = false;
 const _dataReadyCallbacks = [];
 function onDataReady(cb) { if (_dataReady) cb(); else _dataReadyCallbacks.push(cb); }
 
-fetch("products.json?v=20260321j")
+fetch("products.json?v=20260410")
   .then(r => r.json())
   .then(data => {
-    const mapped = data.filter(d => d.type === "grocery" || !d.type).map(_remapProduct);
-    // Merge products with the same ID (pipeline may output duplicates per store)
-    const byId = {};
-    mapped.forEach(p => {
-      if (Object.keys(p.prices).length === 0) return; // skip products with no tracked-chain prices
-      if (!byId[p.id]) { byId[p.id] = {...p, prices: {...p.prices}, sale: {...p.sale}, up: p.up ? {...p.up} : null}; return; }
-      const existing = byId[p.id];
-      // Merge prices: keep cheapest per chain
-      for (const [k,v] of Object.entries(p.prices)) {
-        if (existing.prices[k] == null || v < existing.prices[k]) existing.prices[k] = v;
-      }
-      // Merge sale prices (keep lowest sale price per chain)
-      for (const [k,v] of Object.entries(p.sale)) { if (v && (existing.sale[k] == null || (typeof v === 'number' && v < existing.sale[k]))) existing.sale[k] = v; }
-      // Merge unit prices
-      if (p.up) {
-        if (!existing.up) existing.up = {};
-        for (const [k,v] of Object.entries(p.up)) {
-          if (existing.up[k] == null || v < existing.up[k]) existing.up[k] = v;
-        }
-        if (!existing.ut && p.ut) existing.ut = p.ut;
-        if (!existing.sc && p.sc) existing.sc = p.sc;
-      }
-    });
-    PRODUCTS = Object.values(byId);
-    console.log(`[Spesti] Loaded ${PRODUCTS.length} unique products from products.json`);
+    // v3 compact format has _c (categories lookup table)
+    if (data._c) {
+      PRODUCTS = _decodeCompact(data);
+    } else {
+      // Legacy flat array fallback
+      PRODUCTS = data.filter(d => d.type === "grocery" || !d.type);
+    }
+    console.log(`[Spesti] Loaded ${PRODUCTS.length} products from products.json`);
     // v2.26: Fetch price trends
     fetch("trends.json").then(r=>r.json()).then(t=>{
       TRENDS=t;
@@ -879,8 +820,163 @@ function StoreBadge({chainId,size=18,showName=false}){
   );
 }
 
+// ─── CARD SCANNER COMPONENT ──────────────────────────────────────────────────
+function CardScanner({onScan, onClose, lang}){
+  const scanRegionRef = React.useRef(null);
+  const scannerRef = React.useRef(null);
+  const fileRef = React.useRef(null);
+  const [error, setError] = React.useState(null);
+  const [mode, setMode] = React.useState('choose'); // 'choose','camera','file'
+
+  const startCamera = ()=>{
+    setMode('camera');
+    setError(null);
+    setTimeout(()=>{
+      if(!scanRegionRef.current) return;
+      try {
+        const scanner = new Html5Qrcode("card-scan-region");
+        scannerRef.current = scanner;
+        scanner.start(
+          {facingMode:"environment"},
+          {fps:10, qrbox:{width:250,height:150}, aspectRatio:1.5},
+          (text)=>{ scanner.stop().catch(()=>{}); onScan(text); },
+          ()=>{}
+        ).catch(e=>{ setError(lang==='BG'?'Няма достъп до камерата':'Camera access denied'); setMode('choose'); });
+      } catch(e){ setError(lang==='BG'?'Грешка с камерата':'Camera error'); setMode('choose'); }
+    }, 100);
+  };
+
+  const handleFile = (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    setError(null);
+    try {
+      const scanner = new Html5Qrcode("card-scan-file");
+      scanner.scanFile(file, true)
+        .then(text=>{ onScan(text); })
+        .catch(()=>{ setError(lang==='BG'?'Не открихме баркод в снимката':'No barcode found in image'); });
+    } catch(e){ setError(lang==='BG'?'Грешка при четене':'Read error'); }
+  };
+
+  React.useEffect(()=>{
+    return ()=>{ if(scannerRef.current){ try{scannerRef.current.stop().catch(()=>{});}catch(e){} } };
+  },[]);
+
+  return <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:10000,background:'rgba(0,0,0,0.85)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:20}}>
+    <button onClick={()=>{if(scannerRef.current){try{scannerRef.current.stop().catch(()=>{});}catch(e){}}onClose();}} style={{position:'absolute',top:16,right:16,background:'none',border:'none',fontSize:28,cursor:'pointer',color:'#fff',zIndex:10}}>✕</button>
+
+    <div style={{textAlign:'center',color:'#fff',marginBottom:20}}>
+      <div style={{fontSize:18,fontWeight:800,fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==='BG'?'Сканирай картата':'Scan your card'}</div>
+    </div>
+
+    {mode==='choose'&&<div style={{display:'flex',flexDirection:'column',gap:12,width:'100%',maxWidth:300}}>
+      <button onClick={startCamera} style={{padding:'16px 20px',background:'var(--accent)',color:'#fff',border:'none',borderRadius:12,fontSize:15,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+        📷 {lang==='BG'?'Камера':'Camera'}
+      </button>
+      <button onClick={()=>fileRef.current?.click()} style={{padding:'16px 20px',background:'rgba(255,255,255,0.15)',color:'#fff',border:'1px solid rgba(255,255,255,0.3)',borderRadius:12,fontSize:15,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+        🖼 {lang==='BG'?'От снимка':'From photo'}
+      </button>
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} style={{display:'none'}}/>
+      <div id="card-scan-file" style={{display:'none'}}/>
+    </div>}
+
+    {mode==='camera'&&<div style={{width:'100%',maxWidth:340}}>
+      <div id="card-scan-region" ref={scanRegionRef} style={{borderRadius:12,overflow:'hidden'}}/>
+      <button onClick={()=>{if(scannerRef.current){try{scannerRef.current.stop().catch(()=>{});}catch(e){}}setMode('choose');}} style={{marginTop:12,width:'100%',padding:'10px',background:'rgba(255,255,255,0.15)',color:'#fff',border:'1px solid rgba(255,255,255,0.3)',borderRadius:10,fontSize:13,fontWeight:600,fontFamily:"'Inter',-apple-system,sans-serif",cursor:'pointer'}}>
+        {lang==='BG'?'← Назад':'← Back'}
+      </button>
+    </div>}
+
+    {error&&<div style={{marginTop:12,padding:'8px 16px',background:'rgba(224,80,80,0.2)',borderRadius:8,color:'#ff6b6b',fontSize:12,fontFamily:"'Inter',-apple-system,sans-serif",textAlign:'center'}}>{error}</div>}
+  </div>;
+}
+
+// ─── LOYALTY CARD MODAL ───────────────────────────────────────────────────────
+function LoyaltyCardModal({storeId, loyaltyCards, locations, onClose, lang, activeStores}){
+  const barcodeRef = React.useRef(null);
+  const qrRef = React.useRef(null);
+  const [detected, setDetected] = React.useState(storeId === 'auto' ? null : storeId);
+  const [detecting, setDetecting] = React.useState(storeId === 'auto');
+  const [nearStore, setNearStore] = React.useState(null);
+
+  React.useEffect(()=>{
+    if(storeId === 'auto'){
+      setDetecting(true);
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const near = findNearestStore(pos.coords.latitude, pos.coords.longitude, locations||[]);
+        if(near){
+          const chainMap = {kaufland:'kaufland',lidl:'lidl',billa:'billa',fantastico:'fantastico','t market':'tmarket','t-market':'tmarket',tmarket:'tmarket',metro:'metro',cba:'cba'};
+          const cid = chainMap[(near.chain||near.name||'').toLowerCase()] || null;
+          setDetected(cid);
+          setNearStore(near);
+        }
+        setDetecting(false);
+      }, ()=>setDetecting(false), {timeout:5000});
+    }
+  },[storeId]);
+
+  const activeId = detected;
+  const info = activeId ? CHAIN_CARD_INFO[activeId] : null;
+  const cardNum = activeId ? loyaltyCards[activeId] : null;
+
+  React.useEffect(()=>{
+    if(!cardNum || !info) return;
+    if(info.type==='barcode' && barcodeRef.current){
+      try{ JsBarcode(barcodeRef.current, cardNum, {format:info.format,width:2,height:100,displayValue:true,fontSize:16,margin:10}); }catch(e){}
+    }
+    if(info.type==='qr' && qrRef.current){
+      try{ QRCode.toCanvas(qrRef.current, cardNum, {width:200,margin:2}); }catch(e){}
+    }
+  },[cardNum,activeId]);
+
+  const chain = ALL_CHAINS.find(c=>c.id===activeId);
+  const savedCards = Object.entries(loyaltyCards).filter(([k,v])=>v && activeStores.has(k));
+
+  return <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:9999,background:'#fff',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:20}}>
+    <button onClick={onClose} style={{position:'absolute',top:16,right:16,background:'none',border:'none',fontSize:28,cursor:'pointer',color:'#333',zIndex:10}}>✕</button>
+
+    {detecting && <div style={{textAlign:'center'}}>
+      <div style={{fontSize:40,marginBottom:16}}>📍</div>
+      <div style={{fontSize:16,fontWeight:700,color:'#333',fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==='BG'?'Търсим магазин наблизо...':'Finding nearby store...'}</div>
+    </div>}
+
+    {!detecting && cardNum && info && <div style={{textAlign:'center',width:'100%',maxWidth:340}}>
+      {chain && <div style={{marginBottom:20}}>
+        <StoreBadge chainId={activeId} size={40} showName={false}/>
+        <div style={{fontSize:20,fontWeight:800,color:'#333',fontFamily:"'Inter',-apple-system,sans-serif",marginTop:8}}>{info.name}</div>
+        {nearStore && <div style={{fontSize:12,color:'#888',fontFamily:"'Inter',-apple-system,sans-serif",marginTop:4}}>📍 {Math.round(nearStore.distance)}м {lang==='BG'?'от теб':'away'}</div>}
+      </div>}
+      {info.type==='barcode' && <svg ref={barcodeRef} style={{maxWidth:'100%'}}/>}
+      {info.type==='qr' && <canvas ref={qrRef}/>}
+      <div style={{marginTop:12,fontSize:14,color:'#666',fontFamily:"'Inter',-apple-system,sans-serif",letterSpacing:2}}>{cardNum}</div>
+    </div>}
+
+    {!detecting && (!activeId || !cardNum) && <div style={{textAlign:'center',width:'100%',maxWidth:340}}>
+      <div style={{fontSize:40,marginBottom:12}}>🪪</div>
+      <div style={{fontSize:16,fontWeight:700,color:'#333',fontFamily:"'Inter',-apple-system,sans-serif",marginBottom:8}}>
+        {!activeId ? (lang==='BG'?'Не открихме магазин наблизо':'No store found nearby') : (lang==='BG'?'Няма запазена карта':'No card saved')}
+      </div>
+      <div style={{fontSize:12,color:'#888',fontFamily:"'Inter',-apple-system,sans-serif",marginBottom:20}}>
+        {lang==='BG'?'Избери магазин:':'Choose a store:'}
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+        {Array.from(activeStores).map(sid=>{
+          const hasCard = !!loyaltyCards[sid];
+          const c = ALL_CHAINS.find(ch=>ch.id===sid);
+          if(!c) return null;
+          return <button key={sid} onClick={()=>{if(hasCard){setDetected(sid);setDetecting(false);}}} disabled={!hasCard} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:hasCard?'#f5f5f0':'#fafafa',border:'1px solid '+(hasCard?'#ddd':'#eee'),borderRadius:10,cursor:hasCard?'pointer':'default',opacity:hasCard?1:0.4}}>
+            <StoreBadge chainId={sid} size={20} showName={true}/>
+            <span style={{flex:1}}/>
+            <span style={{fontSize:11,color:hasCard?'#4CAF50':'#999',fontFamily:"'Inter',-apple-system,sans-serif"}}>{hasCard?'✓ '+(lang==='BG'?'Запазена':'Saved'):(lang==='BG'?'Няма карта':'No card')}</span>
+          </button>;
+        })}
+      </div>
+    </div>}
+  </div>;
+}
+
 // ─── LOCATION + STORE SELECTOR ────────────────────────────────────────────────
-function NearbyStores({userLoc,activeStores,setActiveStores,onDone,lang="BG"}){
+function NearbyStores({userLoc,activeStores,setActiveStores,onDone,lang="BG",loyaltyCards,setLoyaltyCards,onScanCard}){
   const [locState,setLocState]   = useState(userLoc?"found":"idle"); // idle|loading|found|denied
   const [coords,setCoords]       = useState(userLoc);
   const [nearbyChains,setNearby] = useState([]);
@@ -1051,28 +1147,46 @@ function NearbyStores({userLoc,activeStores,setActiveStores,onDone,lang="BG"}){
         {allLive.map(chain=>{
           const nearby=nearbyChains.find(r=>r.chainId===chain.id);
           const isSel=activeStores.has(chain.id);
+          const sid=chain.id;
           return (
-            <button key={chain.id} className={"chain-card"+(isSel?" selected":"")}
-              style={{"--cc":chain.color,borderColor:isSel?chain.color:"var(--border)",background:isSel?chain.color+"20":"var(--bg-card)",padding:"12px 10px",textAlign:"left",width:"100%",border:`2px solid ${isSel?chain.color:"var(--border)"}`,borderRadius:12,cursor:"pointer",transition:"all 0.18s"}}
-              onClick={()=>{
-                const nx=new Set(activeStores);
-                if(isSel&&nx.size>1) nx.delete(chain.id);
-                else nx.add(chain.id);
-                setActiveStores(nx);
-              }}>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                <ChainLogo chainId={chain.id} size={28}/>
-                <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:14,color:isSel?chain.color:"var(--text)"}}>{chain.name}</div>
-                {isSel&&<span style={{marginLeft:"auto",fontSize:14,color:chain.color}}>✓</span>}
-              </div>
-              {nearby?<div style={{display:"flex",alignItems:"center",gap:5}}>
-                <div className="loc-pulse" style={{width:8,height:8,background:"var(--green)"}} />
-                <span style={{fontSize:10,color:"var(--green)",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700}}>{nearby.dist.toFixed(1)}км · {nearby.city}</span>
-              </div>:<div style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>
-                {lang==="BG"?`${chain.stores} магазина в България`:`${chain.stores} stores in Bulgaria`}
+            <div key={chain.id} style={{display:"flex",flexDirection:"column",gap:0}}>
+              <button className={"chain-card"+(isSel?" selected":"")}
+                style={{"--cc":chain.color,borderColor:isSel?chain.color:"var(--border)",background:isSel?chain.color+"20":"var(--bg-card)",padding:"12px 10px",textAlign:"left",width:"100%",border:`2px solid ${isSel?chain.color:"var(--border)"}`,borderRadius:isSel&&loyaltyCards&&CHAIN_CARD_INFO[sid]?"12px 12px 0 0":"12px",cursor:"pointer",transition:"all 0.18s"}}
+                onClick={()=>{
+                  const nx=new Set(activeStores);
+                  if(isSel&&nx.size>1) nx.delete(chain.id);
+                  else nx.add(chain.id);
+                  setActiveStores(nx);
+                }}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                  <ChainLogo chainId={chain.id} size={28}/>
+                  <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:14,color:isSel?chain.color:"var(--text)"}}>{chain.name}</div>
+                  {isSel&&<span style={{marginLeft:"auto",fontSize:14,color:chain.color}}>✓</span>}
+                </div>
+                {nearby?<div style={{display:"flex",alignItems:"center",gap:5}}>
+                  <div className="loc-pulse" style={{width:8,height:8,background:"var(--green)"}} />
+                  <span style={{fontSize:10,color:"var(--green)",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700}}>{nearby.dist.toFixed(1)}км · {nearby.city}</span>
+                </div>:<div style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>
+                  {lang==="BG"?`${chain.stores} магазина в България`:`${chain.stores} stores in Bulgaria`}
+                </div>}
+                <div style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",marginTop:3}}>{chain.desc.split("·").slice(1).join("·").trim()}</div>
+              </button>
+              {isSel && CHAIN_CARD_INFO[sid] && setLoyaltyCards && <div style={{borderTop:"1px solid var(--border)",padding:"8px 10px",background:"var(--bg-card)",border:`2px solid ${isSel?chain.color:"var(--border)"}`,borderTop:"1px solid var(--border)",borderRadius:"0 0 12px 12px"}}>
+                <div style={{fontSize:10,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",color:"var(--text-2)",marginBottom:4}}>🪪 {CHAIN_CARD_INFO[sid].name}</div>
+                {loyaltyCards[sid] ?
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <span style={{fontSize:11,fontFamily:"'Inter',-apple-system,sans-serif",color:"var(--text)",flex:1,letterSpacing:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{loyaltyCards[sid]}</span>
+                    <button onClick={(e)=>{e.stopPropagation();}} style={{background:"none",border:"1px solid rgba(224,80,80,0.3)",borderRadius:6,padding:"2px 7px",fontSize:10,color:"#E05050",cursor:"pointer",flexShrink:0}} onPointerDown={(e)=>{e.stopPropagation();setLoyaltyCards(prev=>{const nx={...prev};delete nx[sid];return nx;});}}>✕</button>
+                  </div>
+                  :
+                  <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                    <input placeholder={lang==="BG"?"Номер на карта...":"Card number..."} id={"card-input-"+sid} onClick={e=>e.stopPropagation()} style={{flex:1,padding:"4px 8px",border:"1px solid var(--border)",borderRadius:6,fontSize:11,fontFamily:"'Inter',-apple-system,sans-serif",background:"var(--bg-input)",color:"var(--text)",minWidth:80}}/>
+                    <button onPointerDown={(e)=>{e.stopPropagation();const inp=document.getElementById("card-input-"+sid);if(inp&&inp.value.trim()){setLoyaltyCards(prev=>({...prev,[sid]:inp.value.trim()}));}}} style={{background:"var(--green)",color:"#fff",border:"none",borderRadius:6,padding:"4px 8px",fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0}}>{lang==="BG"?"Запази":"Save"}</button>
+                    <button onClick={(e)=>{e.stopPropagation();e.preventDefault();if(onScanCard)onScanCard(sid);}} style={{background:"var(--accent)",color:"var(--accent-text)",border:"none",borderRadius:6,padding:"4px 8px",fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0}}>📷 {lang==="BG"?"Сканирай":"Scan"}</button>
+                  </div>
+                }
               </div>}
-              <div style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",marginTop:3}}>{chain.desc.split("·").slice(1).join("·").trim()}</div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -1503,14 +1617,13 @@ function WeeklyDeals({activeStores, weeklyList, toggleItem, lang, allStores}){
 }
 
 // ─── BEST VALUE HERO CARD ────────────────────────────────────────────────────
-function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr, weeklyList, addOneToCart, getQty, lang, expandedId, setExpId, displayName}){
+function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr, weeklyList, toggleItem, lang, expandedId, setExpId, displayName}){
   const bestUp = getBestUnitPrice(product, activeArr);
   const bestStoreId = getBestStore(product, activeArr);
   const bestPrice = getBestPrice(product, activeArr);
   const unitType = product.ut || "кг";
   const pctCheaper = avgUnitPrice > 0 ? Math.round((1 - bestUp / avgUnitPrice) * 100) : 0;
   const inList = weeklyList.has(product.id);
-  const qty = inList ? getQty(product.id) : 0;
   const catIcon = CAT_ICONS[category] || "";
   const isExp = expandedId === product.id;
 
@@ -1537,195 +1650,14 @@ function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr
       ),
       // Add to list button
       React.createElement("button", {
-        onClick:(e)=>{e.stopPropagation();addOneToCart(product.id);},
+        onClick:(e)=>{e.stopPropagation();toggleItem(product.id);},
         style:{width:"100%",background:inList?"transparent":"var(--accent)",color:inList?"var(--green)":"var(--accent-text)",border:inList?"1px solid var(--green)":"none",borderRadius:8,padding:"10px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:13,cursor:"pointer",marginTop:2}
-      }, inList ? (lang==="BG"?`+ Още 1 · ${qty} бр`:`+ Add One More · ${qty} in cart`) : (lang==="BG"?"🛒 В количката":"🛒 Add to Cart"))
+      }, inList ? (lang==="BG"?"✓ В количката":"✓ In Cart") : (lang==="BG"?"🛒 В количката":"🛒 Add to Cart"))
     ),
     // Expanded PriceBar
     isExp && React.createElement("div", {style:{borderTop:"1px solid var(--border)",background:"var(--bg-deep)",padding:"13px 12px"}},
       React.createElement(PriceBar, {prod:product, activeStores:activeStores, lang:lang})
     )
-  );
-}
-
-function getBarcodePayload(value){
-  return String(value||"")
-    .toUpperCase()
-    .replace(/\*/g,"")
-    .replace(/[^0-9A-Z\-\. \$\/\+%]/g,"")
-    .trim();
-}
-
-function LoyaltyBarcode({value, displayValue, size=86, compact=false, lang="EN"}){
-  const payload = getBarcodePayload(value);
-  if(!payload) return null;
-  const normalizedDisplay = String(displayValue||value||"").trim();
-  const wasNormalized = normalizedDisplay.toUpperCase() !== payload;
-  return (
-    <div style={{background:"#FFF",borderRadius:14,padding:compact?"12px 12px 10px":"16px 18px 14px",border:"1px solid rgba(0,0,0,0.08)",boxShadow:"inset 0 1px 0 rgba(255,255,255,0.5)"}}>
-      <div translate="no" style={{fontFamily:"'Libre Barcode 39', cursive",fontSize:size,lineHeight:0.9,color:"#121212",textAlign:"center",whiteSpace:"nowrap",letterSpacing:0,overflow:"hidden"}}>
-        {`*${payload}*`}
-      </div>
-      <div translate="no" style={{fontFamily:"ui-monospace,SFMono-Regular,Menlo,monospace",fontSize:compact?12:16,fontWeight:700,color:"#1A1A1A",textAlign:"center",letterSpacing:compact?"1px":"1.4px",marginTop:compact?6:8,wordBreak:"break-word"}}>
-        {normalizedDisplay}
-      </div>
-      {wasNormalized&&<div style={{fontSize:10,color:"#666",fontFamily:"'Inter',-apple-system,sans-serif",textAlign:"center",marginTop:6}}>
-        {lang==="BG"?"Баркодът ползва само поддържаните символи":"Barcode preview uses supported characters only"}
-      </div>}
-    </div>
-  );
-}
-
-// ─── BARCODE SCANNER SHEET ────────────────────────────────────────────────────
-function BarcodeScannerSheet({lang, onDetected, onClose}){
-  const videoRef = React.useRef(null);
-  const streamRef = React.useRef(null);
-  const timeoutRef = React.useRef(null);
-  const [status,setStatus] = React.useState("starting"); // starting|searching|unsupported|error
-  const [message,setMessage] = React.useState("");
-
-  useEffect(()=>{
-    let cancelled = false;
-    let detector = null;
-
-    const stopStream = ()=>{
-      if(timeoutRef.current){
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-      if(streamRef.current){
-        streamRef.current.getTracks().forEach(track=>track.stop());
-        streamRef.current = null;
-      }
-      if(videoRef.current) videoRef.current.srcObject = null;
-    };
-
-    const scanLoop = async ()=>{
-      if(cancelled) return;
-      const video = videoRef.current;
-      if(video && detector && video.readyState >= 2){
-        try{
-          const codes = await detector.detect(video);
-          const raw = codes.find(code=>code.rawValue)?.rawValue;
-          if(raw){
-            const cleaned = raw.replace(/\s+/g,"").trim();
-            if(cleaned){
-              onDetected(cleaned);
-              return;
-            }
-          }
-          setStatus("searching");
-        }catch(e){}
-      }
-      timeoutRef.current = setTimeout(scanLoop, 260);
-    };
-
-    const startScanner = async ()=>{
-      if(!navigator.mediaDevices?.getUserMedia){
-        setStatus("unsupported");
-        setMessage(lang==="BG"?"Този браузър не дава достъп до камерата за сканиране. Въведи номера ръчно.":"This browser cannot access the camera for scanning. Enter the card number manually.");
-        return;
-      }
-      if(typeof BarcodeDetector === "undefined"){
-        setStatus("unsupported");
-        setMessage(lang==="BG"?"Този браузър не поддържа автоматично сканиране на баркод. Въведи номера ръчно.":"This browser does not support automatic barcode scanning. Enter the card number manually.");
-        return;
-      }
-
-      try{
-        detector = new BarcodeDetector();
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video:{
-            facingMode:{ ideal:"environment" },
-            width:{ ideal:1280 },
-            height:{ ideal:720 }
-          }
-        });
-        if(cancelled){
-          stream.getTracks().forEach(track=>track.stop());
-          return;
-        }
-        streamRef.current = stream;
-        const video = videoRef.current;
-        if(video){
-          video.srcObject = stream;
-          try{ await video.play(); }catch(e){}
-        }
-        setStatus("searching");
-        setMessage(lang==="BG"?"Подравни баркода в рамката":"Align the barcode inside the frame");
-        scanLoop();
-      }catch(err){
-        setStatus("error");
-        if(err?.name==="NotAllowedError"){
-          setMessage(lang==="BG"?"Нужен е достъп до камерата, за да сканираме баркода.":"Camera access is required to scan the barcode.");
-        } else if(err?.name==="NotFoundError"){
-          setMessage(lang==="BG"?"Не открихме камера на това устройство.":"No camera was found on this device.");
-        } else {
-          setMessage(lang==="BG"?"Не успяхме да стартираме скенера. Въведи номера ръчно.":"We could not start the scanner. Enter the card number manually.");
-        }
-      }
-    };
-
-    startScanner();
-    return ()=>{ cancelled = true; stopStream(); };
-  },[lang,onDetected]);
-
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.78)",zIndex:230,display:"flex",alignItems:"flex-end"}} onClick={onClose}>
-      <div style={{width:"100%",background:"var(--bg)",borderRadius:"20px 20px 0 0",padding:"22px 20px 30px",maxWidth:620,margin:"0 auto"}} onClick={e=>e.stopPropagation()}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-          <div>
-            <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:18,color:"var(--text)"}}>{lang==="BG"?"📷 Сканирай Баркод":"📷 Scan Barcode"}</div>
-            <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",marginTop:2}}>{lang==="BG"?"Насочи камерата към картата":"Point your camera at the loyalty card"}</div>
-          </div>
-          <button onClick={onClose} style={{background:"none",border:"none",color:"var(--text-3)",fontSize:22,cursor:"pointer",lineHeight:1}}>×</button>
-        </div>
-
-        <div style={{position:"relative",background:"var(--bg-deep)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden",aspectRatio:"4 / 3",marginBottom:12}}>
-          <video ref={videoRef} autoPlay playsInline muted style={{width:"100%",height:"100%",objectFit:"cover",display:status==="unsupported"?"none":"block"}}/>
-          {status!=="unsupported"&&<div style={{position:"absolute",inset:"18% 12%",border:"2px solid rgba(255,255,255,0.92)",borderRadius:16,boxShadow:"0 0 0 999px rgba(0,0,0,0.18)"}}/>}
-          {(status==="starting"||status==="error"||status==="unsupported")&&<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",padding:20,textAlign:"center",background:status==="unsupported"?"var(--bg-deep)":"rgba(0,0,0,0.28)"}}>
-            <div>
-              <div style={{fontSize:30,marginBottom:10}}>{status==="starting"?"⏳":"📵"}</div>
-              <div style={{fontSize:13,color:"#fff",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700}}>{status==="starting"?(lang==="BG"?"Стартираме камерата…":"Starting the camera…"):message}</div>
-            </div>
-          </div>}
-        </div>
-
-        <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",lineHeight:1.55,marginBottom:14}}>
-          {message || (lang==="BG"?"Премести картата по-близо или по-далеч, ако баркодът не се хваща веднага.":"Move the card closer or farther away if the barcode is not picked up immediately.")}
-        </div>
-
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          <button className="ctrl-btn" onClick={onClose}>{lang==="BG"?"Ще въведа ръчно":"I'll type it manually"}</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LoyaltyBarcodeSheet({card, chain, lang, onClose}){
-  return (
-    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.82)",zIndex:235,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={onClose}>
-      <div style={{width:"100%",maxWidth:520,background:"var(--bg)",borderRadius:22,padding:"22px 20px 24px",boxShadow:"0 22px 48px rgba(0,0,0,0.35)"}} onClick={e=>e.stopPropagation()}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
-            <ChainLogo chainId={card.storeId} size={28}/>
-            <div style={{minWidth:0}}>
-              <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontSize:19,fontWeight:800,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{card.label||chain?.name||card.storeId}</div>
-              <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{chain?.name||card.storeId}</div>
-            </div>
-          </div>
-          <button onClick={onClose} style={{background:"none",border:"none",color:"var(--text-3)",fontSize:22,cursor:"pointer",lineHeight:1}}>×</button>
-        </div>
-
-        <LoyaltyBarcode value={card.number} displayValue={card.number} size={126} lang={lang}/>
-
-        <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",lineHeight:1.55,marginTop:14,textAlign:"center"}}>
-          {lang==="BG"?"Увеличи яркостта на екрана, ако скенерът не хваща баркода веднага.":"Turn up your screen brightness if the scanner does not read the barcode right away."}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -1973,14 +1905,45 @@ function Spesti(){
   const [dealView,setDealView] = useState("topDeals");
   const [expOfferDealId, setExpOfferDealId] = useState(null);
   const [dealStoreFilter,setDealStoreFilter] = useState(null);
-  const [checkedItems,setCheckedItems] = useState(new Set()); // Shopping mode checkmarks
-  const [loyaltyCards,setLoyaltyCards] = useState(()=>{
-    try{ return JSON.parse(localStorage.getItem('spesti_loyalty_cards')||'[]'); }catch(e){ return []; }
+  const [loyaltyCards, setLoyaltyCards] = useState(()=>{
+    try { return JSON.parse(localStorage.getItem('spesti_loyalty')||'{}'); } catch(e){ return {}; }
   });
-  const [loyaltyDraft,setLoyaltyDraft] = useState({store:"",label:"",number:""});
-  const [showLoyaltyScanner,setShowLoyaltyScanner] = useState(false);
-  const [activeLoyaltyCardId,setActiveLoyaltyCardId] = useState(null);
+  useEffect(()=>{ try{localStorage.setItem('spesti_loyalty',JSON.stringify(loyaltyCards));}catch(e){} },[loyaltyCards]);
+  const [showCardModal, setShowCardModal] = useState(null); // storeId or 'auto'
+  const [scanCardStore, setScanCardStore] = useState(null); // storeId being scanned
+  const [checkedItems,setCheckedItems] = useState(new Set()); // Shopping mode checkmarks
   const toggleChecked = id => setCheckedItems(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
+  const [showAlt,setShowAlt] = useState(new Set()); // Track which items show cheaper alternative
+  const toggleAlt = id => setShowAlt(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
+  const getCheaperAlt = (prod, activeStores) => {
+    const myUp = getBestUnitPrice(prod, activeStores);
+    if(myUp===Infinity) return null;
+    const candidates = PRODUCTS.filter(p=>
+      p.id!==prod.id &&
+      p.category===prod.category &&
+      p.subcategory===prod.subcategory &&
+      !weeklyList.has(p.id) &&
+      activeStores.some(s=>p.prices[s]!=null)
+    );
+    let best=null, bestUp=myUp;
+    for(const c of candidates){
+      const up=getBestUnitPrice(c,activeStores);
+      if(up<bestUp){ bestUp=up; best=c; }
+    }
+    return best;
+  };
+  const [lastSwap, setLastSwap] = useState(null); // {oldId, newId, oldName}
+  const swapItem = (oldId, newId) => {
+    const oldProd = PRODUCTS.find(p=>p.id===oldId);
+    setListsData(prev=>({...prev, lists: prev.lists.map(l=>l.id===prev.activeId ? {...l, items: l.items.map(id=>id===oldId?newId:id)} : l)}));
+    setShowAlt(prev=>{ const nx=new Set(prev); nx.delete(oldId); return nx; });
+    setLastSwap({oldId, newId, oldName: oldProd?pname(oldProd):""});
+  };
+  const revertSwap = () => {
+    if(!lastSwap) return;
+    setListsData(prev=>({...prev, lists: prev.lists.map(l=>l.id===prev.activeId ? {...l, items: l.items.map(id=>id===lastSwap.newId?lastSwap.oldId:id)} : l)}));
+    setLastSwap(null);
+  };
   const [selSubcat,setSelSubcat] = useState([]);
   const [selSc2,setSelSc2]       = useState("All"); // v2.9: sub-subcategory filter
   const [selFats,setSelFats]     = useState(new Set()); // v2.22: multi-select fat % filters
@@ -1988,8 +1951,6 @@ function Spesti(){
   useEffect(()=>{ setTimeout(()=>setAnimIn(true),80); },[]);
   useEffect(()=>{ setShowAllProds(false); setSelSubcat([]); setSelSc2("All"); setSelFats(new Set()); },[selCat,search]);
   useEffect(()=>{ setSelSc2("All"); },[selSubcat]);
-  useEffect(()=>{ if(!toast) return; const id=setTimeout(()=>setToast(null),2200); return ()=>clearTimeout(id); },[toast]);
-  useEffect(()=>{ try{localStorage.setItem('spesti_loyalty_cards',JSON.stringify(loyaltyCards));}catch(e){} },[loyaltyCards]);
   useEffect(()=>{
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     document.body.style.background = '';
@@ -1998,104 +1959,24 @@ function Spesti(){
 
   const activeArr = [...activeStores];
   const activeChains = ALL_CHAINS.filter(c=>activeStores.has(c.id));
-  const loyaltyStoreOptions = activeChains.length ? activeChains : ALL_CHAINS.filter(c=>c.status==="live");
-  const savedLoyaltyCards = [...loyaltyCards].sort((a,b)=>{
-    const aRank = loyaltyStoreOptions.some(c=>c.id===a.storeId) ? 0 : 1;
-    const bRank = loyaltyStoreOptions.some(c=>c.id===b.storeId) ? 0 : 1;
-    if(aRank !== bRank) return aRank - bRank;
-    const aName = ALL_CHAINS.find(c=>c.id===a.storeId)?.name || a.storeId || "";
-    const bName = ALL_CHAINS.find(c=>c.id===b.storeId)?.name || b.storeId || "";
-    return aName.localeCompare(bName);
-  });
-  const activeLoyaltyCard = savedLoyaltyCards.find(card=>card.storeId===activeLoyaltyCardId) || null;
-
-  useEffect(()=>{
-    if(loyaltyDraft.store) return;
-    const defaultStore = activeChains[0]?.id || ALL_CHAINS.find(c=>c.status==="live")?.id || "";
-    if(defaultStore) setLoyaltyDraft(prev=>prev.store ? prev : {...prev, store:defaultStore});
-  },[activeChains, loyaltyDraft.store]);
 
   const pname = prod => lang==="BG"?(prod.nameBG||prod.name||prod.nameEN):(prod.nameEN||prod.name);
   const getQty = id => quantities[id]||1;
-  const flashToast = msg => setToast(msg);
-  const rememberAddedItem = id => {
-    try{
-      const hist = JSON.parse(localStorage.getItem('spesti_history')||'{}');
-      const p = PRODUCTS.find(pr=>pr.id===id);
-      if(p){
-        if(!hist[id]) hist[id] = {count:0, cat:p.category, brand:p.brand||'', first:Date.now()};
-        hist[id].count++;
-        hist[id].last = Date.now();
-        localStorage.setItem('spesti_history', JSON.stringify(hist));
-      }
-    }catch(e){}
-  };
-  const updateActiveList = updater => setListsData(prev=>({
-    ...prev,
-    lists: prev.lists.map(l=>{
-      if(l.id!==prev.activeId) return l;
-      const items = new Set(l.items||[]);
-      const nextQuantities = {...(l.quantities||{})};
-      updater(items,nextQuantities);
-      return {...l, items:Array.from(items), quantities:nextQuantities};
-    })
-  }));
-  const setItemQty = (id,nextQty) => {
-    const wasInList = weeklyList.has(id);
-    const safeQty = Math.max(0,nextQty);
-    updateActiveList((items,nextQuantities)=>{
-      if(safeQty<=0){
-        items.delete(id);
-        delete nextQuantities[id];
-        return;
-      }
-      items.add(id);
-      if(safeQty===1) delete nextQuantities[id];
-      else nextQuantities[id] = safeQty;
-    });
-    if(!wasInList && safeQty>0) rememberAddedItem(id);
-    if(safeQty<=0) setCheckedItems(prev=>{
-      if(!prev.has(id)) return prev;
-      const nx = new Set(prev);
-      nx.delete(id);
-      return nx;
-    });
-  };
-  const toggleItem = id => setItemQty(id, weeklyList.has(id) ? 0 : 1);
-  const addOneToCart = id => setItemQty(id, (weeklyList.has(id) ? getQty(id) : 0) + 1);
-  const clearActiveCart = () => {
-    if(!weeklyList.size) return;
-    if(!confirm(lang==="BG"?"Да изчистим ли тази количка?":"Clear this cart?")) return;
-    updateActiveList((items,nextQuantities)=>{
-      items.clear();
-      Object.keys(nextQuantities).forEach(k=>delete nextQuantities[k]);
-    });
-    setCheckedItems(new Set());
-    flashToast(lang==="BG"?"Количката е изчистена":"Cart cleared");
-  };
-  const saveLoyaltyCard = () => {
-    const storeId = loyaltyDraft.store || loyaltyStoreOptions[0]?.id;
-    const number = loyaltyDraft.number.trim();
-    const label = loyaltyDraft.label.trim();
-    if(!storeId || !number){
-      flashToast(lang==="BG"?"Добави номер на карта":"Add a card number");
-      return;
+  const toggleItem = id => {
+    setList(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
+    // v2.26: Track shopping history — record every ADD with timestamp for personalization
+    if(!weeklyList.has(id)){
+      try{
+        const hist = JSON.parse(localStorage.getItem('spesti_history')||'{}');
+        const p = PRODUCTS.find(pr=>pr.id===id);
+        if(p){
+          if(!hist[id]) hist[id] = {count:0, cat:p.category, brand:p.brand||'', first:Date.now()};
+          hist[id].count++;
+          hist[id].last = Date.now();
+          localStorage.setItem('spesti_history', JSON.stringify(hist));
+        }
+      }catch(e){}
     }
-    setLoyaltyCards(prev=>[
-      {storeId,label,number,updatedAt:Date.now()},
-      ...prev.filter(card=>card.storeId!==storeId)
-    ]);
-    setLoyaltyDraft(prev=>({...prev,store:storeId,label:"",number:""}));
-    flashToast(lang==="BG"?"Картата е запазена":"Card saved");
-  };
-  const deleteLoyaltyCard = storeId => {
-    setLoyaltyCards(prev=>prev.filter(card=>card.storeId!==storeId));
-    flashToast(lang==="BG"?"Картата е премахната":"Card removed");
-  };
-  const handleLoyaltyScanDetected = value => {
-    setLoyaltyDraft(prev=>({...prev, number:value}));
-    setShowLoyaltyScanner(false);
-    flashToast(lang==="BG"?"Баркодът е сканиран":"Barcode scanned");
   };
   const toggleWatch = id => setWatch(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
 
@@ -2773,11 +2654,8 @@ function Spesti(){
           }
         </div>
 
-        <button onClick={()=>setPhase("onboarding")} style={{width:"100%",background:"var(--accent)",border:"none",borderRadius:10,padding:"16px 28px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:900,fontSize:15,color:"var(--accent-text)",cursor:"pointer",marginBottom:10}}>
-          {lang==="BG"?"🛒 Настрой Профила Си →":"🛒 Set Up My Profile →"}
-        </button>
-        <button onClick={()=>setPhase("app")} style={{width:"100%",background:"none",border:"1px solid var(--border)",borderRadius:10,padding:"12px 28px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:600,fontSize:13,color:"var(--text-3)",cursor:"pointer"}}>
-          {lang==="BG"?"Пропусни — разгледай всичко":"Skip — browse everything"}
+        <button onClick={()=>setPhase("app")} style={{width:"100%",background:"var(--accent)",border:"none",borderRadius:10,padding:"16px 28px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:900,fontSize:15,color:"var(--accent-text)",cursor:"pointer"}}>
+          {lang==="BG"?"Започни →":"Start →"}
         </button>
       </div>
     </div>
@@ -2839,8 +2717,13 @@ function Spesti(){
         <button onClick={()=>setStoreMgr(false)} className="ctrl-btn">{lang==="BG"?"← Назад":"← Back"}</button>
       </div>
       <div style={{maxWidth:540,margin:"0 auto",padding:"24px 20px 60px"}}>
-        <NearbyStores userLoc={userLoc} activeStores={activeStores} setActiveStores={setActive} lang={lang} onDone={()=>setStoreMgr(false)}/>
+        <NearbyStores userLoc={userLoc} activeStores={activeStores} setActiveStores={setActive} lang={lang} onDone={()=>setStoreMgr(false)} loyaltyCards={loyaltyCards} setLoyaltyCards={setLoyaltyCards} onScanCard={(sid)=>setScanCardStore(sid)}/>
       </div>
+      {scanCardStore && <CardScanner
+        lang={lang}
+        onScan={(code)=>{setLoyaltyCards(prev=>({...prev,[scanCardStore]:code}));setScanCardStore(null);}}
+        onClose={()=>setScanCardStore(null)}
+      />}
     </div>
   );
 
@@ -2849,8 +2732,6 @@ function Spesti(){
     <div style={{minHeight:"100vh",background:"var(--bg)",color:"var(--text)"}}>
       <style>{CSS}</style>
       {showShare&&<SharePanel listItems={listItems} storeBreakdown={storeBreakdown} activeArr={activeArr} getQty={getQty} lang={lang} onClose={()=>setShowShare(false)}/>}
-      {showLoyaltyScanner&&<BarcodeScannerSheet lang={lang} onDetected={handleLoyaltyScanDetected} onClose={()=>setShowLoyaltyScanner(false)}/>}
-      {activeLoyaltyCard&&<LoyaltyBarcodeSheet card={activeLoyaltyCard} chain={ALL_CHAINS.find(c=>c.id===activeLoyaltyCard.storeId)} lang={lang} onClose={()=>setActiveLoyaltyCardId(null)}/>}
       {toast&&<div className="toast">{toast}</div>}
 
       {/* HEADER — Cart-centric Japandi */}
@@ -2902,6 +2783,9 @@ function Spesti(){
           </div>
         </div>
       </div>}
+
+      {/* LOYALTY CARD FLOATING BUTTON */}
+      {Object.values(loyaltyCards).some(v=>v) && <button onClick={()=>setShowCardModal('auto')} style={{position:'fixed',bottom:70,right:16,width:48,height:48,borderRadius:'50%',background:'var(--accent)',color:'var(--accent-text)',border:'none',fontSize:22,cursor:'pointer',boxShadow:'0 4px 12px rgba(196,112,75,0.3)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center'}}>🪪</button>}
 
       {/* BOTTOM NAVIGATION BAR */}
       <div style={{position:"fixed",bottom:0,left:0,right:0,background:"var(--bg-nav)",borderTop:"1px solid var(--border)",zIndex:100,display:"flex",justifyContent:"center",paddingBottom:"env(safe-area-inset-bottom,0)",boxShadow:"0 -4px 20px rgba(0,0,0,0.06)"}}>
@@ -2967,13 +2851,19 @@ function Spesti(){
             <button className={"ctrl-btn"+(listBrowseMode?" active":"")} onClick={()=>setListBrowseMode(!listBrowseMode)} style={{fontSize:12}}>
               {listBrowseMode?(lang==="BG"?"Готово":"Done"):(lang==="BG"?"+ В Количката":"+ Add to Cart")}
             </button>
-            {listItems.length>0&&<button className="ctrl-btn" onClick={clearActiveCart} style={{fontSize:11,color:"#B65245"}}>{lang==="BG"?"🗑 Изчисти":"🗑 Clear Cart"}</button>}
+            {listItems.length>0&&<button className="ctrl-btn" onClick={()=>{if(confirm(lang==="BG"?"Изчисти количката?":"Clear the cart?")){setList(new Set());setQuantities({});}}} style={{fontSize:11}}>{lang==="BG"?"Изчисти":"Clear Cart"}</button>}
             <div style={{flex:1}}/>
             {[["savings","Спести"],["price","Цена"],["unitprice",lang==="BG"?"€/кг":"$/kg"],["az","A\u2013Z"]].map(([m,lbl])=>(
               <button key={m} className={"ctrl-btn"+(sortMode===m?" active":"")} onClick={()=>setSortMode(m)} style={{padding:"6px 12px",fontSize:11}}>{lbl}</button>
             ))}
           </div>
 
+          {listBrowseMode&&listItems.length>0&&!listAddCat&&<div style={{marginBottom:10,background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:10,padding:"10px 14px"}}>
+            <div style={{fontSize:10,fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700,color:"var(--text-2)",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.5px"}}>{lang==="BG"?`В количката (${listItems.length})`:`In cart (${listItems.length})`}</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+              {listItems.map(p=><span key={p.id} style={{fontSize:10,fontFamily:"'Inter',-apple-system,sans-serif",background:"rgba(107,143,113,0.1)",color:"var(--green)",borderRadius:6,padding:"3px 8px",fontWeight:600,whiteSpace:"nowrap"}}>{pname(p)}{getQty(p.id)>1?` ×${getQty(p.id)}`:""}</span>)}
+            </div>
+          </div>}
           {listBrowseMode&&<div style={{marginBottom:14}}><input className="inp" placeholder={lang==="BG"?"🔍 Търси продукт за добавяне… (вода, орехи, кафе)":"🔍 Search product to add… (water, nuts, coffee)"} value={search} onChange={e=>setSearch(e.target.value)} style={{border:"2px solid var(--accent)"}}/></div>}
 
           {/* v2.25: Quick-add category cards */}
@@ -3027,7 +2917,10 @@ function Spesti(){
                 <div style={{fontSize:12,fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,color:"var(--text)"}}>
                   {CAT_ICONS[listAddCat]} {lang==="BG"?(CAT_BG[listAddCat]||listAddCat):listAddCat}
                 </div>
-                <button onClick={()=>{setListAddCat(null);setListAddSubcat([]);setListAddSc2([]);setListAddFat([]);}} style={{display:"flex",alignItems:"center",gap:4,background:"var(--accent)",color:"var(--accent-text)",border:"none",borderRadius:10,padding:"6px 14px",fontSize:12,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",cursor:"pointer",boxShadow:"0 2px 8px rgba(196,112,75,0.2)"}}>{lang==="BG"?"← Назад":"← Back"}</button>
+                <div style={{display:"flex",gap:6}}>
+                  <button onClick={()=>{setListAddCat(null);setListAddSubcat([]);setListAddSc2([]);setListAddFat([]);}} style={{display:"flex",alignItems:"center",gap:4,background:"var(--green)",color:"#fff",border:"none",borderRadius:10,padding:"6px 14px",fontSize:12,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",cursor:"pointer",boxShadow:"0 2px 8px rgba(107,143,113,0.2)"}}>{lang==="BG"?"+ Друг продукт":"+ Add item"}</button>
+                  <button onClick={()=>{setListAddCat(null);setListAddSubcat([]);setListAddSc2([]);setListAddFat([]);}} style={{display:"flex",alignItems:"center",gap:4,background:"var(--accent)",color:"var(--accent-text)",border:"none",borderRadius:10,padding:"6px 14px",fontSize:12,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",cursor:"pointer",boxShadow:"0 2px 8px rgba(196,112,75,0.2)"}}>{lang==="BG"?"← Назад":"← Back"}</button>
+                </div>
               </div>
               {/* Subcategory pills — multi-select */}
               {subcatList.length>1&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>
@@ -3044,25 +2937,34 @@ function Spesti(){
                 <span style={{fontSize:9,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Мазнини:":"Fat:"}</span>
                 {fatList.map(([f,n])=><button key={f} className={"ctrl-btn"+(listAddFat.includes(f)?" active":"")} onClick={()=>{setListAddFat(prev=>prev.includes(f)?prev.filter(x=>x!==f):[...prev,f]);}} style={{fontSize:10,padding:"2px 6px"}}>{f} ({n})</button>)}
               </div>}
-              {hero&&<BestValueHero product={hero} category={listAddCat} avgUnitPrice={avgUp} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} addOneToCart={addOneToCart} getQty={getQty} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(hero)}/>}
+              {hero&&<BestValueHero product={hero} category={listAddCat} avgUnitPrice={avgUp} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} toggleItem={toggleItem} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(hero)}/>}
               {runners.length>0&&<div style={{fontSize:10,fontFamily:"'Inter',-apple-system,sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",color:"var(--text-3)",marginBottom:6}}>{lang==="BG"?"ОЩЕ ОПЦИИ:":"MORE OPTIONS:"}</div>}
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {runners.map(prod=>{
                   const inList=weeklyList.has(prod.id);
                   const bestId=getBestStore(prod,activeArr);
                   const bp=getBestPrice(prod,activeArr);
-                  return <div key={prod.id} className={"icard"+(inList?" inlist":"")} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 11px"}}>
-                    <div className={"check-box"+(inList?" chk":"")} onClick={()=>toggleItem(prod.id)}>
-                      {inList&&<span style={{color:"var(--accent-text)",fontSize:12,fontWeight:900}}>✓</span>}
-                    </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700,fontSize:13,color:"var(--text)"}}>{pname(prod)}</div>
-                      <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>
-                        <StoreBadge chainId={bestId} size={15} showName={true}/>
-                        {perUnit(prod,activeArr)&&<span style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{perUnit(prod,activeArr)}</span>}
+                  const isExp=expandedId===prod.id;
+                  return <div key={prod.id} className={"icard"+(inList?" inlist":"")} style={{cursor:"pointer"}}>
+                    <div onClick={()=>setExpId(isExp?null:prod.id)} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 11px"}}>
+                      <div className={"check-box"+(inList?" chk":"")}>
+                        {inList&&<span style={{color:"var(--accent-text)",fontSize:12,fontWeight:900}}>✓</span>}
                       </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700,fontSize:13,color:"var(--text)"}}>{pname(prod)}</div>
+                        <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>
+                          <StoreBadge chainId={bestId} size={15} showName={true}/>
+                          {perUnit(prod,activeArr)&&<span style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{perUnit(prod,activeArr)}</span>}
+                        </div>
+                      </div>
+                      <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:900,fontSize:16,color:"var(--green)"}}>{fmt(bp)}</div>
                     </div>
-                    <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:900,fontSize:16,color:"var(--green)"}}>{fmt(bp)}</div>
+                    {isExp&&<div style={{borderTop:"1px solid var(--border)",background:"var(--bg-deep)",padding:"10px 12px"}}>
+                      <PriceBar prod={prod} activeStores={activeStores} lang={lang}/>
+                      <button onClick={()=>toggleItem(prod.id)} style={{width:"100%",marginTop:8,background:inList?"transparent":"var(--accent)",color:inList?"var(--green)":"var(--accent-text)",border:inList?"1px solid var(--green)":"none",borderRadius:8,padding:"10px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:13,cursor:"pointer"}}>
+                        {inList?(lang==="BG"?"✓ В количката":"✓ In Cart"):(lang==="BG"?"🛒 В количката":"🛒 Add to Cart")}
+                      </button>
+                    </div>}
                   </div>;
                 })}
               </div>
@@ -3090,32 +2992,77 @@ function Spesti(){
                     const bp=getBestPrice(prod,activeArr);
                     const wp=getWorstPrice(prod,activeArr);
                     const unitSave=(wp||0)-(bp||0);
+                    const isExp=expandedId===prod.id;
                     return (
-                      <div key={prod.id} className={"icard"+(isIn?" inlist":"")} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px"}}>
-                        {!isIn&&<div className="check-box" onClick={()=>toggleItem(prod.id)}>
-                        </div>}
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                            <span style={{fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700,fontSize:14,color:"var(--text)"}}>{pname(prod)}</span>
-                            {prod.sale&&prod.sale[bestId]&&<span className="sale-tag">SALE</span>}
+                      <div key={prod.id} className={"icard"+(isIn?" inlist":"")} style={{cursor:"pointer"}}>
+                        <div onClick={()=>setExpId(isExp?null:prod.id)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px"}}>
+                          <div className={"check-box"+(isIn?" chk":"")}>
+                            {isIn&&<span style={{color:"var(--accent-text)",fontSize:12,fontWeight:900}}>✓</span>}
                           </div>
-                          <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4,flexWrap:"wrap"}}>
-                            <StoreBadge chainId={bestId} size={15} showName={true}/>
-                            {perUnit(prod,activeArr)&&<span style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{perUnit(prod,activeArr)}</span>}
-                            {unitSave>0.01&&isIn&&<span style={{fontSize:10,color:"var(--savings-hero-label)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?`спести ${fmt(unitSave)}/бр`:`save ${fmt(unitSave)}/unit`}</span>}
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                              <span style={{fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700,fontSize:14,color:"var(--text)"}}>{pname(prod)}</span>
+                              {prod.sale&&prod.sale[bestId]&&<span className="sale-tag">SALE</span>}
+                            </div>
+                            <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4,flexWrap:"wrap"}}>
+                              <StoreBadge chainId={bestId} size={15} showName={true}/>
+                              {perUnit(prod,activeArr)&&<span style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{perUnit(prod,activeArr)}</span>}
+                            </div>
+                          </div>
+                          <div style={{textAlign:"right",minWidth:55}}>
+                            <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:17,color:isIn?"var(--accent)":"var(--green)"}}>{fmt(bp)}</div>
                           </div>
                         </div>
-                        {isIn&&<div style={{display:"flex",alignItems:"center",gap:5}}>
-                          <button className="qty-btn" onClick={()=>setQtys(p=>({...p,[prod.id]:Math.max(1,qty-1)}))}>−</button>
-                          <span style={{fontSize:13,fontWeight:700,minWidth:22,textAlign:"center",fontFamily:"'Inter',-apple-system,sans-serif"}}>{qty}</span>
-                          <button className="qty-btn" onClick={()=>setQtys(p=>({...p,[prod.id]:qty+1}))}>+</button>
-                        </div>}
-                        <div style={{textAlign:"right",minWidth:62}}>
-                          <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:17,color:isIn?"var(--accent)":"var(--text-2)"}}>{fmt((bp||0)*qty)}</div>
-                          <button className="watch-btn" onClick={()=>toggleWatch(prod.id)} style={{opacity:watchlist.has(prod.id)?1:0.4,color:watchlist.has(prod.id)?"var(--accent)":"inherit"}}>
-                            {watchlist.has(prod.id)?"🔔":"🔕"}
+                        {isExp&&<div style={{borderTop:"1px solid var(--border)",background:"var(--bg-deep)",padding:"10px 12px"}}>
+                          <PriceBar prod={prod} activeStores={activeStores} lang={lang}/>
+                          <button onClick={(e)=>{e.stopPropagation();toggleItem(prod.id);}} style={{width:"100%",marginTop:8,background:isIn?"transparent":"var(--accent)",color:isIn?"var(--green)":"var(--accent-text)",border:isIn?"1px solid var(--green)":"none",borderRadius:8,padding:"10px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:13,cursor:"pointer"}}>
+                            {isIn?(lang==="BG"?"✓ В количката":"✓ In Cart"):(lang==="BG"?"🛒 В количката":"🛒 Add to Cart")}
                           </button>
-                        </div>
+                          {isIn&&<div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:5,marginTop:8}}>
+                            <button className="qty-btn" onClick={(e)=>{e.stopPropagation();if(qty<=1){toggleItem(prod.id);}else{setQtys(p=>({...p,[prod.id]:qty-1}));}}} style={qty<=1?{color:"#E05050",fontSize:11}:{}}>{qty<=1?"✕":"−"}</button>
+                            <span style={{fontSize:13,fontWeight:700,minWidth:22,textAlign:"center",fontFamily:"'Inter',-apple-system,sans-serif"}}>{qty}</span>
+                            <button className="qty-btn" onClick={(e)=>{e.stopPropagation();setQtys(p=>({...p,[prod.id]:qty+1}));}}>+</button>
+                          </div>}
+                          {isIn&&(()=>{
+                            const alt = getCheaperAlt(prod, activeArr);
+                            if(!alt) return null;
+                            const altBp = getBestPrice(alt, activeArr);
+                            const altUp = getBestUnitPrice(alt, activeArr);
+                            const myUp = getBestUnitPrice(prod, activeArr);
+                            const savePct = myUp>0 ? Math.round((1 - altUp/myUp)*100) : 0;
+                            const altStore = getBestStore(alt, activeArr);
+                            const isOpen = showAlt.has(prod.id);
+                            return <div style={{marginTop:8}}>
+                              {!isOpen&&<button onClick={(e)=>{e.stopPropagation();toggleAlt(prod.id);}} style={{background:"rgba(107,143,113,0.08)",border:"1px solid rgba(107,143,113,0.2)",borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",color:"var(--green)",cursor:"pointer",display:"flex",alignItems:"center",gap:4}}>
+                                💡 {lang==="BG"?`${savePct}% по-евтина алтернатива`:`${savePct}% cheaper alternative`}
+                              </button>}
+                              {isOpen&&<div style={{background:"rgba(107,143,113,0.06)",border:"1px solid rgba(107,143,113,0.15)",borderRadius:10,padding:"8px 10px",marginTop:2}}>
+                                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+                                  <div style={{flex:1,minWidth:0}}>
+                                    <div style={{fontSize:11,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pname(alt)}</div>
+                                    <div style={{display:"flex",alignItems:"center",gap:5,marginTop:3}}>
+                                      <StoreBadge chainId={altStore} size={13} showName={true}/>
+                                      <span style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{perUnit(alt,activeArr)||""}</span>
+                                    </div>
+                                  </div>
+                                  <div style={{textAlign:"right",flexShrink:0}}>
+                                    <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:14,color:"var(--green)"}}>{fmt(altBp)}</div>
+                                    <div style={{fontSize:9,color:"var(--green)",fontFamily:"'Inter',-apple-system,sans-serif"}}>-{savePct}%/{lang==="BG"?"ед":"unit"}</div>
+                                  </div>
+                                </div>
+                                <div style={{display:"flex",gap:6,marginTop:6}}>
+                                  <button onClick={(e)=>{e.stopPropagation();swapItem(prod.id,alt.id);}} style={{flex:1,background:"var(--green)",color:"#fff",border:"none",borderRadius:8,padding:"6px 0",fontSize:11,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",cursor:"pointer"}}>{lang==="BG"?"Замени":"Swap"}</button>
+                                  <button onClick={(e)=>{e.stopPropagation();toggleAlt(prod.id);}} style={{background:"transparent",border:"1px solid var(--border)",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:600,fontFamily:"'Inter',-apple-system,sans-serif",color:"var(--text-3)",cursor:"pointer"}}>{lang==="BG"?"Не":"No"}</button>
+                                </div>
+                              </div>}
+                            </div>;
+                          })()}
+                          {isIn&&lastSwap&&lastSwap.newId===prod.id&&<div style={{marginTop:5}}>
+                            <button onClick={(e)=>{e.stopPropagation();revertSwap();}} style={{background:"rgba(224,80,80,0.06)",border:"1px solid rgba(224,80,80,0.2)",borderRadius:8,padding:"4px 10px",fontSize:10,fontWeight:700,fontFamily:"'Inter',-apple-system,sans-serif",color:"#E05050",cursor:"pointer",display:"flex",alignItems:"center",gap:4}}>
+                              ↩ {lang==="BG"?`Върни ${lastSwap.oldName}`:`Revert to ${lastSwap.oldName}`}
+                            </button>
+                          </div>}
+                        </div>}
                       </div>
                     );
                   })}
@@ -3213,7 +3160,7 @@ function Spesti(){
             ))}
           </div>}
 
-          {heroProduct&&<BestValueHero product={heroProduct} category={selCat} avgUnitPrice={avgUnitPrice} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} addOneToCart={addOneToCart} getQty={getQty} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(heroProduct)}/>}
+          {heroProduct&&<BestValueHero product={heroProduct} category={selCat} avgUnitPrice={avgUnitPrice} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} toggleItem={toggleItem} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(heroProduct)}/>}
 
           {heroProduct&&displayProds.length>0&&<div style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:8}}>{lang==="BG"?"ОЩЕ ДОБРИ ОПЦИИ:":"MORE GOOD OPTIONS:"}</div>}
 
@@ -3222,11 +3169,9 @@ function Spesti(){
               const bestId=getBestStore(prod,activeArr);
               const bp=getBestPrice(prod,activeArr);
               const wp=getWorstPrice(prod,activeArr);
-              const inList=weeklyList.has(prod.id);
-              const qty=getQty(prod.id);
               const isExp=expandedId===prod.id;
               return (
-                <div key={prod.id} className={"icard"+(isExp?" exp":"")+(inList?" inlist":"")}>
+                <div key={prod.id} className={"icard"+(isExp?" exp":"")+(weeklyList.has(prod.id)?" inlist":"")}>
                   <div style={{display:"flex",alignItems:"center",gap:12,padding:"13px 14px",cursor:"pointer"}} onClick={()=>setExpId(isExp?null:prod.id)}>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
@@ -3269,19 +3214,10 @@ function Spesti(){
                         })}
                       </div>
                     </div>}
-                    <div style={{display:"flex",gap:8,marginTop:10,alignItems:"stretch"}}>
-                      {inList
-                        ? <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,background:"var(--bg-card)",border:"1px solid var(--savings-border)",borderRadius:8,padding:"6px 8px"}}>
-                            <button className="qty-btn" onClick={()=>setItemQty(prod.id,Math.max(1,qty-1))} style={{width:30,height:30}}>−</button>
-                            <div style={{flex:1,textAlign:"center"}}>
-                              <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"В количката":"In cart"}</div>
-                              <div style={{fontSize:14,fontWeight:800,color:"var(--green)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?`${qty} бр`:`${qty} pcs`}</div>
-                            </div>
-                            <button className="qty-btn" onClick={()=>addOneToCart(prod.id)} style={{width:30,height:30}}>+</button>
-                          </div>
-                        : <button onClick={()=>addOneToCart(prod.id)} style={{flex:1,background:"var(--accent)",color:"var(--accent-text)",border:"none",borderRadius:6,padding:"8px 13px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,cursor:"pointer"}}>
-                            {lang==="BG"?"🛒 В количката":"🛒 Add to Cart"}
-                          </button>}
+                    <div style={{display:"flex",gap:8,marginTop:10}}>
+                      <button onClick={()=>toggleItem(prod.id)} style={{flex:1,background:weeklyList.has(prod.id)?"var(--deal-card-in-list)":"var(--accent)",color:weeklyList.has(prod.id)?"var(--green)":"var(--accent-text)",border:weeklyList.has(prod.id)?"1px solid var(--savings-border)":"none",borderRadius:6,padding:"8px 13px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,cursor:"pointer"}}>
+                        {weeklyList.has(prod.id)?(lang==="BG"?"✓ В количката":"✓ In Cart"):(lang==="BG"?"🛒 В количката":"🛒 Add to Cart")}
+                      </button>
                       <button className="watch-btn" onClick={()=>toggleWatch(prod.id)} style={{background:"var(--bg-deep)",border:"1px solid var(--border)",borderRadius:6,padding:"8px 11px",fontSize:14,cursor:"pointer",opacity:watchlist.has(prod.id)?1:0.5,color:watchlist.has(prod.id)?"var(--accent)":"inherit"}}>
                         {watchlist.has(prod.id)?"🔔":"🔕"}
                       </button>
@@ -3484,59 +3420,6 @@ function Spesti(){
           <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontSize:21,fontWeight:800,marginBottom:3}}>{lang==="BG"?"Оферти тази Седмица":"Deals This Week"}</div>
           <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",marginBottom:16}}>{lang==="BG"?`${WEEKLY_DEALS.filter(d=>activeStores.has(d.store)).length} оферти от ${activeStores.size} магазина`:`${WEEKLY_DEALS.filter(d=>activeStores.has(d.store)).length} deals from ${activeStores.size} stores`}</div>
 
-          <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:16,padding:"16px 14px",marginBottom:18}}>
-            <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,marginBottom:12}}>
-              <div>
-                <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontSize:18,fontWeight:800,color:"var(--text)",marginBottom:2}}>{lang==="BG"?"Лоялни Карти":"Loyalty Cards"}</div>
-                <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Запази номера на картите си и ги дръж под ръка, докато разглеждаш офертите":"Save your card numbers and keep them handy while browsing deals"}</div>
-              </div>
-              <div style={{background:"var(--bg-deep)",border:"1px solid var(--border)",borderRadius:999,padding:"6px 10px",fontSize:11,fontWeight:700,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{savedLoyaltyCards.length}</div>
-            </div>
-
-            <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:savedLoyaltyCards.length?14:10}}>
-              <select className="inp" value={loyaltyDraft.store} onChange={e=>setLoyaltyDraft(prev=>({...prev,store:e.target.value}))} style={{fontSize:13}}>
-                {loyaltyStoreOptions.map(chain=><option key={chain.id} value={chain.id}>{chain.name}</option>)}
-              </select>
-              <input className="inp" value={loyaltyDraft.label} onChange={e=>setLoyaltyDraft(prev=>({...prev,label:e.target.value}))} placeholder={lang==="BG"?"Име на картата (по избор)":"Card name (optional)"} autoComplete="off"/>
-              <input className="inp" value={loyaltyDraft.number} onChange={e=>setLoyaltyDraft(prev=>({...prev,number:e.target.value}))} placeholder={lang==="BG"?"Номер на карта / баркод":"Card number / barcode"} autoComplete="off" spellCheck={false} style={{letterSpacing:"1px"}}/>
-            </div>
-
-            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:savedLoyaltyCards.length?14:0}}>
-              <button className="ctrl-btn" onClick={()=>setShowLoyaltyScanner(true)}>{lang==="BG"?"📷 Сканирай баркод":"📷 Scan barcode"}</button>
-              <button onClick={saveLoyaltyCard} style={{background:"var(--accent)",border:"none",borderRadius:10,padding:"10px 14px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,color:"var(--accent-text)",cursor:"pointer"}}>{lang==="BG"?"💳 Запази карта":"💳 Save Card"}</button>
-              {(loyaltyDraft.label||loyaltyDraft.number)&&<button className="ctrl-btn" onClick={()=>setLoyaltyDraft(prev=>({...prev,label:"",number:""}))}>{lang==="BG"?"Изчисти полетата":"Clear fields"}</button>}
-            </div>
-
-            {savedLoyaltyCards.length>0
-              ? <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:12}}>
-                  {savedLoyaltyCards.map(card=>{
-                    const chain = ALL_CHAINS.find(c=>c.id===card.storeId);
-                    return (
-                      <div key={card.storeId} style={{background:"linear-gradient(135deg,var(--bg-deep),var(--bg-card))",border:"1px solid var(--border)",borderRadius:14,padding:"12px 12px 14px"}}>
-                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:10}}>
-                          <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
-                            <ChainLogo chainId={card.storeId} size={24}/>
-                            <div style={{minWidth:0}}>
-                              <div style={{fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{card.label||chain?.name||card.storeId}</div>
-                              <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{chain?.name||card.storeId}</div>
-                            </div>
-                          </div>
-                          <div style={{display:"flex",gap:6,flexShrink:0}}>
-                            <button className="ctrl-btn" onClick={()=>setActiveLoyaltyCardId(card.storeId)} style={{padding:"5px 9px",fontSize:10}}>{lang==="BG"?"Покажи":"Show"}</button>
-                            <button onClick={()=>deleteLoyaltyCard(card.storeId)} style={{background:"none",border:"1px solid var(--border)",borderRadius:10,padding:"5px 9px",fontSize:10,fontWeight:700,color:"var(--text-3)",cursor:"pointer",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Премахни":"Remove"}</button>
-                          </div>
-                        </div>
-                        <div onClick={()=>setActiveLoyaltyCardId(card.storeId)} style={{cursor:"pointer"}}>
-                          <LoyaltyBarcode value={card.number} displayValue={card.number} compact={true} size={76} lang={lang}/>
-                        </div>
-                        <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif",marginTop:8}}>{lang==="BG"?"Покажи картата на екрана и магазинът може да сканира баркода":"Show the card on screen and the store can scan the barcode"}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              : <div style={{fontSize:12,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif",lineHeight:1.5}}>{lang==="BG"?"Добави карта за Kaufland, Lidl, Billa или който магазин ползваш най-често. Запазва се само на това устройство.":"Add a card for Kaufland, Lidl, Billa, or whichever store you use most. It stays saved only on this device."}</div>}
-          </div>
-
             {/* ── DEALS SECTION ── */}
             {WEEKLY_DEALS.length>0&&<div style={{marginBottom:20}}>
               <div style={{display:"flex",gap:6,marginBottom:6}}>
@@ -3724,6 +3607,19 @@ function Spesti(){
         </div>}
 
       </div>
+      {showCardModal && <LoyaltyCardModal
+        storeId={showCardModal}
+        loyaltyCards={loyaltyCards}
+        locations={STORE_LOCATIONS}
+        onClose={()=>setShowCardModal(null)}
+        lang={lang}
+        activeStores={activeStores}
+      />}
+      {scanCardStore && <CardScanner
+        lang={lang}
+        onScan={(code)=>{setLoyaltyCards(prev=>({...prev,[scanCardStore]:code}));setScanCardStore(null);}}
+        onClose={()=>setScanCardStore(null)}
+      />}
     </div>
   );
 }
