@@ -1548,6 +1548,134 @@ function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr
   );
 }
 
+// ─── BARCODE SCANNER SHEET ────────────────────────────────────────────────────
+function BarcodeScannerSheet({lang, onDetected, onClose}){
+  const videoRef = React.useRef(null);
+  const streamRef = React.useRef(null);
+  const timeoutRef = React.useRef(null);
+  const [status,setStatus] = React.useState("starting"); // starting|searching|unsupported|error
+  const [message,setMessage] = React.useState("");
+
+  useEffect(()=>{
+    let cancelled = false;
+    let detector = null;
+
+    const stopStream = ()=>{
+      if(timeoutRef.current){
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if(streamRef.current){
+        streamRef.current.getTracks().forEach(track=>track.stop());
+        streamRef.current = null;
+      }
+      if(videoRef.current) videoRef.current.srcObject = null;
+    };
+
+    const scanLoop = async ()=>{
+      if(cancelled) return;
+      const video = videoRef.current;
+      if(video && detector && video.readyState >= 2){
+        try{
+          const codes = await detector.detect(video);
+          const raw = codes.find(code=>code.rawValue)?.rawValue;
+          if(raw){
+            const cleaned = raw.replace(/\s+/g,"").trim();
+            if(cleaned){
+              onDetected(cleaned);
+              return;
+            }
+          }
+          setStatus("searching");
+        }catch(e){}
+      }
+      timeoutRef.current = setTimeout(scanLoop, 260);
+    };
+
+    const startScanner = async ()=>{
+      if(!navigator.mediaDevices?.getUserMedia){
+        setStatus("unsupported");
+        setMessage(lang==="BG"?"Този браузър не дава достъп до камерата за сканиране. Въведи номера ръчно.":"This browser cannot access the camera for scanning. Enter the card number manually.");
+        return;
+      }
+      if(typeof BarcodeDetector === "undefined"){
+        setStatus("unsupported");
+        setMessage(lang==="BG"?"Този браузър не поддържа автоматично сканиране на баркод. Въведи номера ръчно.":"This browser does not support automatic barcode scanning. Enter the card number manually.");
+        return;
+      }
+
+      try{
+        detector = new BarcodeDetector();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video:{
+            facingMode:{ ideal:"environment" },
+            width:{ ideal:1280 },
+            height:{ ideal:720 }
+          }
+        });
+        if(cancelled){
+          stream.getTracks().forEach(track=>track.stop());
+          return;
+        }
+        streamRef.current = stream;
+        const video = videoRef.current;
+        if(video){
+          video.srcObject = stream;
+          try{ await video.play(); }catch(e){}
+        }
+        setStatus("searching");
+        setMessage(lang==="BG"?"Подравни баркода в рамката":"Align the barcode inside the frame");
+        scanLoop();
+      }catch(err){
+        setStatus("error");
+        if(err?.name==="NotAllowedError"){
+          setMessage(lang==="BG"?"Нужен е достъп до камерата, за да сканираме баркода.":"Camera access is required to scan the barcode.");
+        } else if(err?.name==="NotFoundError"){
+          setMessage(lang==="BG"?"Не открихме камера на това устройство.":"No camera was found on this device.");
+        } else {
+          setMessage(lang==="BG"?"Не успяхме да стартираме скенера. Въведи номера ръчно.":"We could not start the scanner. Enter the card number manually.");
+        }
+      }
+    };
+
+    startScanner();
+    return ()=>{ cancelled = true; stopStream(); };
+  },[lang,onDetected]);
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.78)",zIndex:230,display:"flex",alignItems:"flex-end"}} onClick={onClose}>
+      <div style={{width:"100%",background:"var(--bg)",borderRadius:"20px 20px 0 0",padding:"22px 20px 30px",maxWidth:620,margin:"0 auto"}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+          <div>
+            <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontWeight:800,fontSize:18,color:"var(--text)"}}>{lang==="BG"?"📷 Сканирай Баркод":"📷 Scan Barcode"}</div>
+            <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",marginTop:2}}>{lang==="BG"?"Насочи камерата към картата":"Point your camera at the loyalty card"}</div>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",color:"var(--text-3)",fontSize:22,cursor:"pointer",lineHeight:1}}>×</button>
+        </div>
+
+        <div style={{position:"relative",background:"var(--bg-deep)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden",aspectRatio:"4 / 3",marginBottom:12}}>
+          <video ref={videoRef} autoPlay playsInline muted style={{width:"100%",height:"100%",objectFit:"cover",display:status==="unsupported"?"none":"block"}}/>
+          {status!=="unsupported"&&<div style={{position:"absolute",inset:"18% 12%",border:"2px solid rgba(255,255,255,0.92)",borderRadius:16,boxShadow:"0 0 0 999px rgba(0,0,0,0.18)"}}/>}
+          {(status==="starting"||status==="error"||status==="unsupported")&&<div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",padding:20,textAlign:"center",background:status==="unsupported"?"var(--bg-deep)":"rgba(0,0,0,0.28)"}}>
+            <div>
+              <div style={{fontSize:30,marginBottom:10}}>{status==="starting"?"⏳":"📵"}</div>
+              <div style={{fontSize:13,color:"#fff",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:700}}>{status==="starting"?(lang==="BG"?"Стартираме камерата…":"Starting the camera…"):message}</div>
+            </div>
+          </div>}
+        </div>
+
+        <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",lineHeight:1.55,marginBottom:14}}>
+          {message || (lang==="BG"?"Премести картата по-близо или по-далеч, ако баркодът не се хваща веднага.":"Move the card closer or farther away if the barcode is not picked up immediately.")}
+        </div>
+
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <button className="ctrl-btn" onClick={onClose}>{lang==="BG"?"Ще въведа ръчно":"I'll type it manually"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── SHARE LIST PANEL ────────────────────────────────────────────────────────
 function SharePanel({listItems, storeBreakdown, activeArr, getQty, lang, onClose}){
   const [copied, setCopied] = React.useState(false);
@@ -1797,6 +1925,7 @@ function Spesti(){
     try{ return JSON.parse(localStorage.getItem('spesti_loyalty_cards')||'[]'); }catch(e){ return []; }
   });
   const [loyaltyDraft,setLoyaltyDraft] = useState({store:"",label:"",number:""});
+  const [showLoyaltyScanner,setShowLoyaltyScanner] = useState(false);
   const toggleChecked = id => setCheckedItems(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
   const [selSubcat,setSelSubcat] = useState([]);
   const [selSc2,setSelSc2]       = useState("All"); // v2.9: sub-subcategory filter
@@ -1907,6 +2036,11 @@ function Spesti(){
   const deleteLoyaltyCard = storeId => {
     setLoyaltyCards(prev=>prev.filter(card=>card.storeId!==storeId));
     flashToast(lang==="BG"?"Картата е премахната":"Card removed");
+  };
+  const handleLoyaltyScanDetected = value => {
+    setLoyaltyDraft(prev=>({...prev, number:value}));
+    setShowLoyaltyScanner(false);
+    flashToast(lang==="BG"?"Баркодът е сканиран":"Barcode scanned");
   };
   const copyLoyaltyNumber = number => {
     const copiedMsg = lang==="BG"?"Номерът е копиран":"Card number copied";
@@ -2679,6 +2813,7 @@ function Spesti(){
     <div style={{minHeight:"100vh",background:"var(--bg)",color:"var(--text)"}}>
       <style>{CSS}</style>
       {showShare&&<SharePanel listItems={listItems} storeBreakdown={storeBreakdown} activeArr={activeArr} getQty={getQty} lang={lang} onClose={()=>setShowShare(false)}/>}
+      {showLoyaltyScanner&&<BarcodeScannerSheet lang={lang} onDetected={handleLoyaltyScanDetected} onClose={()=>setShowLoyaltyScanner(false)}/>}
       {toast&&<div className="toast">{toast}</div>}
 
       {/* HEADER — Cart-centric Japandi */}
@@ -3330,6 +3465,7 @@ function Spesti(){
             </div>
 
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:savedLoyaltyCards.length?14:0}}>
+              <button className="ctrl-btn" onClick={()=>setShowLoyaltyScanner(true)}>{lang==="BG"?"📷 Сканирай баркод":"📷 Scan barcode"}</button>
               <button onClick={saveLoyaltyCard} style={{background:"var(--accent)",border:"none",borderRadius:10,padding:"10px 14px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,color:"var(--accent-text)",cursor:"pointer"}}>{lang==="BG"?"💳 Запази карта":"💳 Save Card"}</button>
               {(loyaltyDraft.label||loyaltyDraft.number)&&<button className="ctrl-btn" onClick={()=>setLoyaltyDraft(prev=>({...prev,label:"",number:""}))}>{lang==="BG"?"Изчисти полетата":"Clear fields"}</button>}
             </div>
