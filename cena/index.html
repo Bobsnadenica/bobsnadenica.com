@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.svg"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&family=Noto+Serif+JP:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     #root{min-height:100vh}
@@ -1548,6 +1548,34 @@ function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr
   );
 }
 
+function getBarcodePayload(value){
+  return String(value||"")
+    .toUpperCase()
+    .replace(/\*/g,"")
+    .replace(/[^0-9A-Z\-\. \$\/\+%]/g,"")
+    .trim();
+}
+
+function LoyaltyBarcode({value, displayValue, size=86, compact=false, lang="EN"}){
+  const payload = getBarcodePayload(value);
+  if(!payload) return null;
+  const normalizedDisplay = String(displayValue||value||"").trim();
+  const wasNormalized = normalizedDisplay.toUpperCase() !== payload;
+  return (
+    <div style={{background:"#FFF",borderRadius:14,padding:compact?"12px 12px 10px":"16px 18px 14px",border:"1px solid rgba(0,0,0,0.08)",boxShadow:"inset 0 1px 0 rgba(255,255,255,0.5)"}}>
+      <div translate="no" style={{fontFamily:"'Libre Barcode 39', cursive",fontSize:size,lineHeight:0.9,color:"#121212",textAlign:"center",whiteSpace:"nowrap",letterSpacing:0,overflow:"hidden"}}>
+        {`*${payload}*`}
+      </div>
+      <div translate="no" style={{fontFamily:"ui-monospace,SFMono-Regular,Menlo,monospace",fontSize:compact?12:16,fontWeight:700,color:"#1A1A1A",textAlign:"center",letterSpacing:compact?"1px":"1.4px",marginTop:compact?6:8,wordBreak:"break-word"}}>
+        {normalizedDisplay}
+      </div>
+      {wasNormalized&&<div style={{fontSize:10,color:"#666",fontFamily:"'Inter',-apple-system,sans-serif",textAlign:"center",marginTop:6}}>
+        {lang==="BG"?"Баркодът ползва само поддържаните символи":"Barcode preview uses supported characters only"}
+      </div>}
+    </div>
+  );
+}
+
 // ─── BARCODE SCANNER SHEET ────────────────────────────────────────────────────
 function BarcodeScannerSheet({lang, onDetected, onClose}){
   const videoRef = React.useRef(null);
@@ -1670,6 +1698,31 @@ function BarcodeScannerSheet({lang, onDetected, onClose}){
 
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
           <button className="ctrl-btn" onClick={onClose}>{lang==="BG"?"Ще въведа ръчно":"I'll type it manually"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoyaltyBarcodeSheet({card, chain, lang, onClose}){
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.82)",zIndex:235,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}} onClick={onClose}>
+      <div style={{width:"100%",maxWidth:520,background:"var(--bg)",borderRadius:22,padding:"22px 20px 24px",boxShadow:"0 22px 48px rgba(0,0,0,0.35)"}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
+            <ChainLogo chainId={card.storeId} size={28}/>
+            <div style={{minWidth:0}}>
+              <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontSize:19,fontWeight:800,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{card.label||chain?.name||card.storeId}</div>
+              <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{chain?.name||card.storeId}</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",color:"var(--text-3)",fontSize:22,cursor:"pointer",lineHeight:1}}>×</button>
+        </div>
+
+        <LoyaltyBarcode value={card.number} displayValue={card.number} size={126} lang={lang}/>
+
+        <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",lineHeight:1.55,marginTop:14,textAlign:"center"}}>
+          {lang==="BG"?"Увеличи яркостта на екрана, ако скенерът не хваща баркода веднага.":"Turn up your screen brightness if the scanner does not read the barcode right away."}
         </div>
       </div>
     </div>
@@ -1926,6 +1979,7 @@ function Spesti(){
   });
   const [loyaltyDraft,setLoyaltyDraft] = useState({store:"",label:"",number:""});
   const [showLoyaltyScanner,setShowLoyaltyScanner] = useState(false);
+  const [activeLoyaltyCardId,setActiveLoyaltyCardId] = useState(null);
   const toggleChecked = id => setCheckedItems(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
   const [selSubcat,setSelSubcat] = useState([]);
   const [selSc2,setSelSc2]       = useState("All"); // v2.9: sub-subcategory filter
@@ -1953,6 +2007,7 @@ function Spesti(){
     const bName = ALL_CHAINS.find(c=>c.id===b.storeId)?.name || b.storeId || "";
     return aName.localeCompare(bName);
   });
+  const activeLoyaltyCard = savedLoyaltyCards.find(card=>card.storeId===activeLoyaltyCardId) || null;
 
   useEffect(()=>{
     if(loyaltyDraft.store) return;
@@ -2041,25 +2096,6 @@ function Spesti(){
     setLoyaltyDraft(prev=>({...prev, number:value}));
     setShowLoyaltyScanner(false);
     flashToast(lang==="BG"?"Баркодът е сканиран":"Barcode scanned");
-  };
-  const copyLoyaltyNumber = number => {
-    const copiedMsg = lang==="BG"?"Номерът е копиран":"Card number copied";
-    const fallbackCopy = () => {
-      try{
-        const ta = document.createElement("textarea");
-        ta.value = number;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        flashToast(copiedMsg);
-      }catch(e){}
-    };
-    if(navigator.clipboard?.writeText){
-      navigator.clipboard.writeText(number).then(()=>flashToast(copiedMsg)).catch(fallbackCopy);
-      return;
-    }
-    fallbackCopy();
   };
   const toggleWatch = id => setWatch(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
 
@@ -2814,6 +2850,7 @@ function Spesti(){
       <style>{CSS}</style>
       {showShare&&<SharePanel listItems={listItems} storeBreakdown={storeBreakdown} activeArr={activeArr} getQty={getQty} lang={lang} onClose={()=>setShowShare(false)}/>}
       {showLoyaltyScanner&&<BarcodeScannerSheet lang={lang} onDetected={handleLoyaltyScanDetected} onClose={()=>setShowLoyaltyScanner(false)}/>}
+      {activeLoyaltyCard&&<LoyaltyBarcodeSheet card={activeLoyaltyCard} chain={ALL_CHAINS.find(c=>c.id===activeLoyaltyCard.storeId)} lang={lang} onClose={()=>setActiveLoyaltyCardId(null)}/>}
       {toast&&<div className="toast">{toast}</div>}
 
       {/* HEADER — Cart-centric Japandi */}
@@ -3471,7 +3508,7 @@ function Spesti(){
             </div>
 
             {savedLoyaltyCards.length>0
-              ? <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:10}}>
+              ? <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:12}}>
                   {savedLoyaltyCards.map(card=>{
                     const chain = ALL_CHAINS.find(c=>c.id===card.storeId);
                     return (
@@ -3485,12 +3522,14 @@ function Spesti(){
                             </div>
                           </div>
                           <div style={{display:"flex",gap:6,flexShrink:0}}>
-                            <button className="ctrl-btn" onClick={()=>copyLoyaltyNumber(card.number)} style={{padding:"5px 9px",fontSize:10}}>{lang==="BG"?"Копирай":"Copy"}</button>
+                            <button className="ctrl-btn" onClick={()=>setActiveLoyaltyCardId(card.storeId)} style={{padding:"5px 9px",fontSize:10}}>{lang==="BG"?"Покажи":"Show"}</button>
                             <button onClick={()=>deleteLoyaltyCard(card.storeId)} style={{background:"none",border:"1px solid var(--border)",borderRadius:10,padding:"5px 9px",fontSize:10,fontWeight:700,color:"var(--text-3)",cursor:"pointer",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Премахни":"Remove"}</button>
                           </div>
                         </div>
-                        <div style={{fontFamily:"ui-monospace,SFMono-Regular,Menlo,monospace",fontSize:18,fontWeight:700,color:"var(--accent)",letterSpacing:"1.5px",wordBreak:"break-word",marginBottom:6}}>{card.number}</div>
-                        <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Отваряй тази карта, когато разглеждаш офертите за магазина":"Open this card while checking that store's deals"}</div>
+                        <div onClick={()=>setActiveLoyaltyCardId(card.storeId)} style={{cursor:"pointer"}}>
+                          <LoyaltyBarcode value={card.number} displayValue={card.number} compact={true} size={76} lang={lang}/>
+                        </div>
+                        <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif",marginTop:8}}>{lang==="BG"?"Покажи картата на екрана и магазинът може да сканира баркода":"Show the card on screen and the store can scan the barcode"}</div>
                       </div>
                     );
                   })}
