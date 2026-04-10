@@ -1503,13 +1503,14 @@ function WeeklyDeals({activeStores, weeklyList, toggleItem, lang, allStores}){
 }
 
 // ─── BEST VALUE HERO CARD ────────────────────────────────────────────────────
-function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr, weeklyList, toggleItem, lang, expandedId, setExpId, displayName}){
+function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr, weeklyList, addOneToCart, getQty, lang, expandedId, setExpId, displayName}){
   const bestUp = getBestUnitPrice(product, activeArr);
   const bestStoreId = getBestStore(product, activeArr);
   const bestPrice = getBestPrice(product, activeArr);
   const unitType = product.ut || "кг";
   const pctCheaper = avgUnitPrice > 0 ? Math.round((1 - bestUp / avgUnitPrice) * 100) : 0;
   const inList = weeklyList.has(product.id);
+  const qty = inList ? getQty(product.id) : 0;
   const catIcon = CAT_ICONS[category] || "";
   const isExp = expandedId === product.id;
 
@@ -1536,9 +1537,9 @@ function BestValueHero({product, category, avgUnitPrice, activeStores, activeArr
       ),
       // Add to list button
       React.createElement("button", {
-        onClick:(e)=>{e.stopPropagation();toggleItem(product.id);},
+        onClick:(e)=>{e.stopPropagation();addOneToCart(product.id);},
         style:{width:"100%",background:inList?"transparent":"var(--accent)",color:inList?"var(--green)":"var(--accent-text)",border:inList?"1px solid var(--green)":"none",borderRadius:8,padding:"10px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:13,cursor:"pointer",marginTop:2}
-      }, inList ? (lang==="BG"?"✓ В количката":"✓ In Cart") : (lang==="BG"?"🛒 В количката":"🛒 Add to Cart"))
+      }, inList ? (lang==="BG"?`+ Още 1 · ${qty} бр`:`+ Add One More · ${qty} in cart`) : (lang==="BG"?"🛒 В количката":"🛒 Add to Cart"))
     ),
     // Expanded PriceBar
     isExp && React.createElement("div", {style:{borderTop:"1px solid var(--border)",background:"var(--bg-deep)",padding:"13px 12px"}},
@@ -1792,6 +1793,10 @@ function Spesti(){
   const [expOfferDealId, setExpOfferDealId] = useState(null);
   const [dealStoreFilter,setDealStoreFilter] = useState(null);
   const [checkedItems,setCheckedItems] = useState(new Set()); // Shopping mode checkmarks
+  const [loyaltyCards,setLoyaltyCards] = useState(()=>{
+    try{ return JSON.parse(localStorage.getItem('spesti_loyalty_cards')||'[]'); }catch(e){ return []; }
+  });
+  const [loyaltyDraft,setLoyaltyDraft] = useState({store:"",label:"",number:""});
   const toggleChecked = id => setCheckedItems(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
   const [selSubcat,setSelSubcat] = useState([]);
   const [selSc2,setSelSc2]       = useState("All"); // v2.9: sub-subcategory filter
@@ -1800,6 +1805,8 @@ function Spesti(){
   useEffect(()=>{ setTimeout(()=>setAnimIn(true),80); },[]);
   useEffect(()=>{ setShowAllProds(false); setSelSubcat([]); setSelSc2("All"); setSelFats(new Set()); },[selCat,search]);
   useEffect(()=>{ setSelSc2("All"); },[selSubcat]);
+  useEffect(()=>{ if(!toast) return; const id=setTimeout(()=>setToast(null),2200); return ()=>clearTimeout(id); },[toast]);
+  useEffect(()=>{ try{localStorage.setItem('spesti_loyalty_cards',JSON.stringify(loyaltyCards));}catch(e){} },[loyaltyCards]);
   useEffect(()=>{
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     document.body.style.background = '';
@@ -1808,24 +1815,117 @@ function Spesti(){
 
   const activeArr = [...activeStores];
   const activeChains = ALL_CHAINS.filter(c=>activeStores.has(c.id));
+  const loyaltyStoreOptions = activeChains.length ? activeChains : ALL_CHAINS.filter(c=>c.status==="live");
+  const savedLoyaltyCards = [...loyaltyCards].sort((a,b)=>{
+    const aRank = loyaltyStoreOptions.some(c=>c.id===a.storeId) ? 0 : 1;
+    const bRank = loyaltyStoreOptions.some(c=>c.id===b.storeId) ? 0 : 1;
+    if(aRank !== bRank) return aRank - bRank;
+    const aName = ALL_CHAINS.find(c=>c.id===a.storeId)?.name || a.storeId || "";
+    const bName = ALL_CHAINS.find(c=>c.id===b.storeId)?.name || b.storeId || "";
+    return aName.localeCompare(bName);
+  });
+
+  useEffect(()=>{
+    if(loyaltyDraft.store) return;
+    const defaultStore = activeChains[0]?.id || ALL_CHAINS.find(c=>c.status==="live")?.id || "";
+    if(defaultStore) setLoyaltyDraft(prev=>prev.store ? prev : {...prev, store:defaultStore});
+  },[activeChains, loyaltyDraft.store]);
 
   const pname = prod => lang==="BG"?(prod.nameBG||prod.name||prod.nameEN):(prod.nameEN||prod.name);
   const getQty = id => quantities[id]||1;
-  const toggleItem = id => {
-    setList(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
-    // v2.26: Track shopping history — record every ADD with timestamp for personalization
-    if(!weeklyList.has(id)){
-      try{
-        const hist = JSON.parse(localStorage.getItem('spesti_history')||'{}');
-        const p = PRODUCTS.find(pr=>pr.id===id);
-        if(p){
-          if(!hist[id]) hist[id] = {count:0, cat:p.category, brand:p.brand||'', first:Date.now()};
-          hist[id].count++;
-          hist[id].last = Date.now();
-          localStorage.setItem('spesti_history', JSON.stringify(hist));
-        }
-      }catch(e){}
+  const flashToast = msg => setToast(msg);
+  const rememberAddedItem = id => {
+    try{
+      const hist = JSON.parse(localStorage.getItem('spesti_history')||'{}');
+      const p = PRODUCTS.find(pr=>pr.id===id);
+      if(p){
+        if(!hist[id]) hist[id] = {count:0, cat:p.category, brand:p.brand||'', first:Date.now()};
+        hist[id].count++;
+        hist[id].last = Date.now();
+        localStorage.setItem('spesti_history', JSON.stringify(hist));
+      }
+    }catch(e){}
+  };
+  const updateActiveList = updater => setListsData(prev=>({
+    ...prev,
+    lists: prev.lists.map(l=>{
+      if(l.id!==prev.activeId) return l;
+      const items = new Set(l.items||[]);
+      const nextQuantities = {...(l.quantities||{})};
+      updater(items,nextQuantities);
+      return {...l, items:Array.from(items), quantities:nextQuantities};
+    })
+  }));
+  const setItemQty = (id,nextQty) => {
+    const wasInList = weeklyList.has(id);
+    const safeQty = Math.max(0,nextQty);
+    updateActiveList((items,nextQuantities)=>{
+      if(safeQty<=0){
+        items.delete(id);
+        delete nextQuantities[id];
+        return;
+      }
+      items.add(id);
+      if(safeQty===1) delete nextQuantities[id];
+      else nextQuantities[id] = safeQty;
+    });
+    if(!wasInList && safeQty>0) rememberAddedItem(id);
+    if(safeQty<=0) setCheckedItems(prev=>{
+      if(!prev.has(id)) return prev;
+      const nx = new Set(prev);
+      nx.delete(id);
+      return nx;
+    });
+  };
+  const toggleItem = id => setItemQty(id, weeklyList.has(id) ? 0 : 1);
+  const addOneToCart = id => setItemQty(id, (weeklyList.has(id) ? getQty(id) : 0) + 1);
+  const clearActiveCart = () => {
+    if(!weeklyList.size) return;
+    if(!confirm(lang==="BG"?"Да изчистим ли тази количка?":"Clear this cart?")) return;
+    updateActiveList((items,nextQuantities)=>{
+      items.clear();
+      Object.keys(nextQuantities).forEach(k=>delete nextQuantities[k]);
+    });
+    setCheckedItems(new Set());
+    flashToast(lang==="BG"?"Количката е изчистена":"Cart cleared");
+  };
+  const saveLoyaltyCard = () => {
+    const storeId = loyaltyDraft.store || loyaltyStoreOptions[0]?.id;
+    const number = loyaltyDraft.number.trim();
+    const label = loyaltyDraft.label.trim();
+    if(!storeId || !number){
+      flashToast(lang==="BG"?"Добави номер на карта":"Add a card number");
+      return;
     }
+    setLoyaltyCards(prev=>[
+      {storeId,label,number,updatedAt:Date.now()},
+      ...prev.filter(card=>card.storeId!==storeId)
+    ]);
+    setLoyaltyDraft(prev=>({...prev,store:storeId,label:"",number:""}));
+    flashToast(lang==="BG"?"Картата е запазена":"Card saved");
+  };
+  const deleteLoyaltyCard = storeId => {
+    setLoyaltyCards(prev=>prev.filter(card=>card.storeId!==storeId));
+    flashToast(lang==="BG"?"Картата е премахната":"Card removed");
+  };
+  const copyLoyaltyNumber = number => {
+    const copiedMsg = lang==="BG"?"Номерът е копиран":"Card number copied";
+    const fallbackCopy = () => {
+      try{
+        const ta = document.createElement("textarea");
+        ta.value = number;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        flashToast(copiedMsg);
+      }catch(e){}
+    };
+    if(navigator.clipboard?.writeText){
+      navigator.clipboard.writeText(number).then(()=>flashToast(copiedMsg)).catch(fallbackCopy);
+      return;
+    }
+    fallbackCopy();
   };
   const toggleWatch = id => setWatch(prev=>{ const nx=new Set(prev); nx.has(id)?nx.delete(id):nx.add(id); return nx; });
 
@@ -2695,7 +2795,7 @@ function Spesti(){
             <button className={"ctrl-btn"+(listBrowseMode?" active":"")} onClick={()=>setListBrowseMode(!listBrowseMode)} style={{fontSize:12}}>
               {listBrowseMode?(lang==="BG"?"Готово":"Done"):(lang==="BG"?"+ В Количката":"+ Add to Cart")}
             </button>
-            {listBrowseMode&&<button className="ctrl-btn" onClick={()=>setList(new Set())} style={{fontSize:11}}>{lang==="BG"?"Изпразни":"Empty Cart"}</button>}
+            {listItems.length>0&&<button className="ctrl-btn" onClick={clearActiveCart} style={{fontSize:11,color:"#B65245"}}>{lang==="BG"?"🗑 Изчисти":"🗑 Clear Cart"}</button>}
             <div style={{flex:1}}/>
             {[["savings","Спести"],["price","Цена"],["unitprice",lang==="BG"?"€/кг":"$/kg"],["az","A\u2013Z"]].map(([m,lbl])=>(
               <button key={m} className={"ctrl-btn"+(sortMode===m?" active":"")} onClick={()=>setSortMode(m)} style={{padding:"6px 12px",fontSize:11}}>{lbl}</button>
@@ -2772,7 +2872,7 @@ function Spesti(){
                 <span style={{fontSize:9,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Мазнини:":"Fat:"}</span>
                 {fatList.map(([f,n])=><button key={f} className={"ctrl-btn"+(listAddFat.includes(f)?" active":"")} onClick={()=>{setListAddFat(prev=>prev.includes(f)?prev.filter(x=>x!==f):[...prev,f]);}} style={{fontSize:10,padding:"2px 6px"}}>{f} ({n})</button>)}
               </div>}
-              {hero&&<BestValueHero product={hero} category={listAddCat} avgUnitPrice={avgUp} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} toggleItem={toggleItem} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(hero)}/>}
+              {hero&&<BestValueHero product={hero} category={listAddCat} avgUnitPrice={avgUp} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} addOneToCart={addOneToCart} getQty={getQty} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(hero)}/>}
               {runners.length>0&&<div style={{fontSize:10,fontFamily:"'Inter',-apple-system,sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",color:"var(--text-3)",marginBottom:6}}>{lang==="BG"?"ОЩЕ ОПЦИИ:":"MORE OPTIONS:"}</div>}
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {runners.map(prod=>{
@@ -2941,7 +3041,7 @@ function Spesti(){
             ))}
           </div>}
 
-          {heroProduct&&<BestValueHero product={heroProduct} category={selCat} avgUnitPrice={avgUnitPrice} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} toggleItem={toggleItem} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(heroProduct)}/>}
+          {heroProduct&&<BestValueHero product={heroProduct} category={selCat} avgUnitPrice={avgUnitPrice} activeStores={activeStores} activeArr={activeArr} weeklyList={weeklyList} addOneToCart={addOneToCart} getQty={getQty} lang={lang} expandedId={expandedId} setExpId={setExpId} displayName={pname(heroProduct)}/>}
 
           {heroProduct&&displayProds.length>0&&<div style={{fontSize:10,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:8}}>{lang==="BG"?"ОЩЕ ДОБРИ ОПЦИИ:":"MORE GOOD OPTIONS:"}</div>}
 
@@ -2950,9 +3050,11 @@ function Spesti(){
               const bestId=getBestStore(prod,activeArr);
               const bp=getBestPrice(prod,activeArr);
               const wp=getWorstPrice(prod,activeArr);
+              const inList=weeklyList.has(prod.id);
+              const qty=getQty(prod.id);
               const isExp=expandedId===prod.id;
               return (
-                <div key={prod.id} className={"icard"+(isExp?" exp":"")+(weeklyList.has(prod.id)?" inlist":"")}>
+                <div key={prod.id} className={"icard"+(isExp?" exp":"")+(inList?" inlist":"")}>
                   <div style={{display:"flex",alignItems:"center",gap:12,padding:"13px 14px",cursor:"pointer"}} onClick={()=>setExpId(isExp?null:prod.id)}>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
@@ -2995,10 +3097,19 @@ function Spesti(){
                         })}
                       </div>
                     </div>}
-                    <div style={{display:"flex",gap:8,marginTop:10}}>
-                      <button onClick={()=>toggleItem(prod.id)} style={{flex:1,background:weeklyList.has(prod.id)?"var(--deal-card-in-list)":"var(--accent)",color:weeklyList.has(prod.id)?"var(--green)":"var(--accent-text)",border:weeklyList.has(prod.id)?"1px solid var(--savings-border)":"none",borderRadius:6,padding:"8px 13px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,cursor:"pointer"}}>
-                        {weeklyList.has(prod.id)?(lang==="BG"?"✓ В количката":"✓ In Cart"):(lang==="BG"?"🛒 В количката":"🛒 Add to Cart")}
-                      </button>
+                    <div style={{display:"flex",gap:8,marginTop:10,alignItems:"stretch"}}>
+                      {inList
+                        ? <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,background:"var(--bg-card)",border:"1px solid var(--savings-border)",borderRadius:8,padding:"6px 8px"}}>
+                            <button className="qty-btn" onClick={()=>setItemQty(prod.id,Math.max(1,qty-1))} style={{width:30,height:30}}>−</button>
+                            <div style={{flex:1,textAlign:"center"}}>
+                              <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"В количката":"In cart"}</div>
+                              <div style={{fontSize:14,fontWeight:800,color:"var(--green)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?`${qty} бр`:`${qty} pcs`}</div>
+                            </div>
+                            <button className="qty-btn" onClick={()=>addOneToCart(prod.id)} style={{width:30,height:30}}>+</button>
+                          </div>
+                        : <button onClick={()=>addOneToCart(prod.id)} style={{flex:1,background:"var(--accent)",color:"var(--accent-text)",border:"none",borderRadius:6,padding:"8px 13px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,cursor:"pointer"}}>
+                            {lang==="BG"?"🛒 В количката":"🛒 Add to Cart"}
+                          </button>}
                       <button className="watch-btn" onClick={()=>toggleWatch(prod.id)} style={{background:"var(--bg-deep)",border:"1px solid var(--border)",borderRadius:6,padding:"8px 11px",fontSize:14,cursor:"pointer",opacity:watchlist.has(prod.id)?1:0.5,color:watchlist.has(prod.id)?"var(--accent)":"inherit"}}>
                         {watchlist.has(prod.id)?"🔔":"🔕"}
                       </button>
@@ -3200,6 +3311,56 @@ function Spesti(){
         {view==="summary"&&<div>
           <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontSize:21,fontWeight:800,marginBottom:3}}>{lang==="BG"?"Оферти тази Седмица":"Deals This Week"}</div>
           <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif",marginBottom:16}}>{lang==="BG"?`${WEEKLY_DEALS.filter(d=>activeStores.has(d.store)).length} оферти от ${activeStores.size} магазина`:`${WEEKLY_DEALS.filter(d=>activeStores.has(d.store)).length} deals from ${activeStores.size} stores`}</div>
+
+          <div style={{background:"var(--bg-card)",border:"1px solid var(--border)",borderRadius:16,padding:"16px 14px",marginBottom:18}}>
+            <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,marginBottom:12}}>
+              <div>
+                <div style={{fontFamily:"'Noto Serif JP',Georgia,serif",fontSize:18,fontWeight:800,color:"var(--text)",marginBottom:2}}>{lang==="BG"?"Лоялни Карти":"Loyalty Cards"}</div>
+                <div style={{fontSize:12,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Запази номера на картите си и ги дръж под ръка, докато разглеждаш офертите":"Save your card numbers and keep them handy while browsing deals"}</div>
+              </div>
+              <div style={{background:"var(--bg-deep)",border:"1px solid var(--border)",borderRadius:999,padding:"6px 10px",fontSize:11,fontWeight:700,color:"var(--text-2)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{savedLoyaltyCards.length}</div>
+            </div>
+
+            <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:savedLoyaltyCards.length?14:10}}>
+              <select className="inp" value={loyaltyDraft.store} onChange={e=>setLoyaltyDraft(prev=>({...prev,store:e.target.value}))} style={{fontSize:13}}>
+                {loyaltyStoreOptions.map(chain=><option key={chain.id} value={chain.id}>{chain.name}</option>)}
+              </select>
+              <input className="inp" value={loyaltyDraft.label} onChange={e=>setLoyaltyDraft(prev=>({...prev,label:e.target.value}))} placeholder={lang==="BG"?"Име на картата (по избор)":"Card name (optional)"} autoComplete="off"/>
+              <input className="inp" value={loyaltyDraft.number} onChange={e=>setLoyaltyDraft(prev=>({...prev,number:e.target.value}))} placeholder={lang==="BG"?"Номер на карта / баркод":"Card number / barcode"} autoComplete="off" spellCheck={false} style={{letterSpacing:"1px"}}/>
+            </div>
+
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:savedLoyaltyCards.length?14:0}}>
+              <button onClick={saveLoyaltyCard} style={{background:"var(--accent)",border:"none",borderRadius:10,padding:"10px 14px",fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,color:"var(--accent-text)",cursor:"pointer"}}>{lang==="BG"?"💳 Запази карта":"💳 Save Card"}</button>
+              {(loyaltyDraft.label||loyaltyDraft.number)&&<button className="ctrl-btn" onClick={()=>setLoyaltyDraft(prev=>({...prev,label:"",number:""}))}>{lang==="BG"?"Изчисти полетата":"Clear fields"}</button>}
+            </div>
+
+            {savedLoyaltyCards.length>0
+              ? <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:10}}>
+                  {savedLoyaltyCards.map(card=>{
+                    const chain = ALL_CHAINS.find(c=>c.id===card.storeId);
+                    return (
+                      <div key={card.storeId} style={{background:"linear-gradient(135deg,var(--bg-deep),var(--bg-card))",border:"1px solid var(--border)",borderRadius:14,padding:"12px 12px 14px"}}>
+                        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:10}}>
+                          <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
+                            <ChainLogo chainId={card.storeId} size={24}/>
+                            <div style={{minWidth:0}}>
+                              <div style={{fontFamily:"'Inter',-apple-system,sans-serif",fontWeight:800,fontSize:12,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{card.label||chain?.name||card.storeId}</div>
+                              <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{chain?.name||card.storeId}</div>
+                            </div>
+                          </div>
+                          <div style={{display:"flex",gap:6,flexShrink:0}}>
+                            <button className="ctrl-btn" onClick={()=>copyLoyaltyNumber(card.number)} style={{padding:"5px 9px",fontSize:10}}>{lang==="BG"?"Копирай":"Copy"}</button>
+                            <button onClick={()=>deleteLoyaltyCard(card.storeId)} style={{background:"none",border:"1px solid var(--border)",borderRadius:10,padding:"5px 9px",fontSize:10,fontWeight:700,color:"var(--text-3)",cursor:"pointer",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Премахни":"Remove"}</button>
+                          </div>
+                        </div>
+                        <div style={{fontFamily:"ui-monospace,SFMono-Regular,Menlo,monospace",fontSize:18,fontWeight:700,color:"var(--accent)",letterSpacing:"1.5px",wordBreak:"break-word",marginBottom:6}}>{card.number}</div>
+                        <div style={{fontSize:10,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif"}}>{lang==="BG"?"Отваряй тази карта, когато разглеждаш офертите за магазина":"Open this card while checking that store's deals"}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              : <div style={{fontSize:12,color:"var(--text-3)",fontFamily:"'Inter',-apple-system,sans-serif",lineHeight:1.5}}>{lang==="BG"?"Добави карта за Kaufland, Lidl, Billa или който магазин ползваш най-често. Запазва се само на това устройство.":"Add a card for Kaufland, Lidl, Billa, or whichever store you use most. It stays saved only on this device."}</div>}
+          </div>
 
             {/* ── DEALS SECTION ── */}
             {WEEKLY_DEALS.length>0&&<div style={{marginBottom:20}}>
