@@ -33,13 +33,13 @@ function brandMark() {
 
 const primaryNavigation = [
   { to: "/", label: "Начало" },
-  { to: "/users", label: "За потребители" },
-  { to: "/consultants", label: "За консултанти" }
+  { to: "/consultants", label: "Каталог" },
+  { to: "/users", label: "За потребители" }
 ] as const;
 
 const footerPlatformLinks = [
   { to: "/users", label: "За потребители" },
-  { to: "/consultants", label: "За консултанти" },
+  { to: "/consultants", label: "Каталог на профили" },
   { to: "/auth", label: "Вход и регистрация" },
   { to: "/dashboard", label: "Моето табло" }
 ] as const;
@@ -73,7 +73,7 @@ function resolveDocumentTitle(pathname: string) {
   }
 
   if (pathname === "/consultants") {
-    return "За консултанти";
+    return "Каталог на профили";
   }
 
   if (pathname.startsWith("/consultants/")) {

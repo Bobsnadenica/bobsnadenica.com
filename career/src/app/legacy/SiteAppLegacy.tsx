@@ -168,7 +168,7 @@ const homeJourney = [
     step: "02",
     title: "За консултанти и ментори",
     text: "Изграждаш професионално присъствие, подреждаш профила си и стартираш с безплатен публичен профил, който хората могат да намират и разглеждат.",
-    ctaLabel: "Разгледай страницата за консултанти и ментори",
+    ctaLabel: "Разгледай каталога на консултантите и менторите",
     ctaTo: "/consultants"
   },
   {
@@ -813,6 +813,27 @@ function getConsultantTrustLabel(consultant: ConsultantProfile) {
   return `${consultant.rating.toFixed(1)} рейтинг · ${consultant.reviewCount} мнения`;
 }
 
+function truncateText(value: string, maxLength = 180) {
+  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function getConsultantDirectorySummary(consultant: ConsultantProfile) {
+  return truncateText(
+    consultant.experienceSummary || consultant.bio || getConsultantWorkApproach(consultant),
+    190
+  );
+}
+
+function getConsultantPriceLabel(consultant: ConsultantProfile) {
+  return consultant.priceBgn > 0 ? `от ${consultant.priceBgn} лв` : "Цена при запитване";
+}
+
 function getNameInitials(name: string) {
   const tokens = name
     .split(/\s+/)
@@ -1326,7 +1347,7 @@ export function HomePage() {
                 За потребители
               </Link>
               <Link className="ghost-button" to="/consultants">
-                За консултанти
+                Каталог
               </Link>
             </div>
 
@@ -1937,6 +1958,11 @@ export function UsersPage() {
 }
 
 export function ConsultantsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const city = searchParams.get("city") || "";
+  const kind = searchParams.get("kind") || "all";
+  const topOnly = searchParams.get("top") === "1";
   const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1947,7 +1973,7 @@ export function ConsultantsPage() {
     setError("");
 
     api
-      .listConsultants()
+      .listConsultants({ query, city })
       .then((items) => {
         if (mounted) {
           setConsultants(items);
@@ -1969,202 +1995,346 @@ export function ConsultantsPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [city, query]);
 
-  const spotlightProfiles = consultants.slice(0, 2);
-  const showcase = consultants.slice(0, 6);
+  const visibleConsultants = useMemo(() => {
+    return consultants
+      .filter((consultant) => {
+        const matchesType =
+          kind === "all" || getConsultantProfileType(consultant) === kind;
+        const matchesTop = !topOnly || consultant.featured;
+        return matchesType && matchesTop;
+      })
+      .sort((left, right) => {
+        if (left.featured !== right.featured) {
+          return left.featured ? -1 : 1;
+        }
+
+        if (right.rating !== left.rating) {
+          return right.rating - left.rating;
+        }
+
+        return left.name.localeCompare(right.name, "bg");
+      });
+  }, [consultants, kind, topOnly]);
+
+  const spotlightProfiles = useMemo(() => {
+    const featured = visibleConsultants.filter((consultant) => consultant.featured);
+    const fallback = visibleConsultants.filter((consultant) => !consultant.featured);
+    return [...featured, ...fallback].slice(0, 3);
+  }, [visibleConsultants]);
+
+  const nextOpenConsultant = useMemo(() => {
+    return [...visibleConsultants].sort((left, right) => {
+      const leftTime = new Date(left.nextAvailable).getTime();
+      const rightTime = new Date(right.nextAvailable).getTime();
+      const safeLeft = Number.isNaN(leftTime) ? Number.POSITIVE_INFINITY : leftTime;
+      const safeRight = Number.isNaN(rightTime) ? Number.POSITIVE_INFINITY : rightTime;
+      return safeLeft - safeRight;
+    })[0] || null;
+  }, [visibleConsultants]);
+
+  const citySuggestions = useMemo(() => {
+    return Array.from(
+      new Set(
+        consultants
+          .map((consultant) => consultant.city)
+          .filter((value) => value.trim())
+      )
+    ).sort((left, right) => left.localeCompare(right, "bg"));
+  }, [consultants]);
+
+  const directoryHighlights = useMemo(() => {
+    return Array.from(
+      new Set(
+        visibleConsultants.flatMap((consultant) => [
+          ...getConsultantSummaryTags(consultant),
+          ...getConsultationTopics(consultant).slice(0, 1)
+        ])
+      )
+    ).slice(0, 5);
+  }, [visibleConsultants]);
+
+  const topProfileCount = visibleConsultants.filter((consultant) => consultant.featured).length;
+  const mentorCount = visibleConsultants.filter(
+    (consultant) => getConsultantProfileType(consultant) === "mentor"
+  ).length;
+  const consultantCount = visibleConsultants.filter(
+    (consultant) => getConsultantProfileType(consultant) === "consultant"
+  ).length;
+  const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
+
+  function applyPresetQuery(nextQuery: string) {
+    setSearchParams(
+      nextQuery || city || kind !== "all" || topOnly
+        ? {
+            ...(nextQuery ? { q: nextQuery } : {}),
+            ...(city ? { city } : {}),
+            ...(kind !== "all" ? { kind } : {}),
+            ...(topOnly ? { top: "1" } : {})
+          }
+        : {}
+    );
+  }
+
+  function applyDirectoryFilters(nextFilters: {
+    query?: string;
+    city?: string;
+    kind?: string;
+    topOnly?: boolean;
+  }) {
+    const nextQuery = nextFilters.query ?? query;
+    const nextCity = nextFilters.city ?? city;
+    const nextKind = nextFilters.kind ?? kind;
+    const nextTopOnly = nextFilters.topOnly ?? topOnly;
+
+    setSearchParams(
+      nextQuery || nextCity || nextKind !== "all" || nextTopOnly
+        ? {
+            ...(nextQuery ? { q: nextQuery } : {}),
+            ...(nextCity ? { city: nextCity } : {}),
+            ...(nextKind !== "all" ? { kind: nextKind } : {}),
+            ...(nextTopOnly ? { top: "1" } : {})
+          }
+        : {}
+    );
+  }
 
   return (
     <>
-      <section className="hero consultants-hero">
-        <div className="container hero__grid consultants-hero__grid">
-          <div className="hero__copy">
-            <p className="eyebrow">За консултанти и ментори</p>
-            <h1>Профил, който изглежда сериозно, стартира безплатно и може да се споделя уверено.</h1>
+      <section className="hero directory-hero">
+        <div className="container directory-hero__grid">
+          <div className="hero__copy directory-hero__copy">
+            <p className="eyebrow">Публичен каталог</p>
+            <h1>Всеки консултант има собствен профил и ясен път от списъка към детайлите.</h1>
             <p className="hero__lede">
-              Страницата за консултанти и ментори е отделена ясно от потребителската
-              част. Тук акцентът е върху публичния профил, свободните часове,
-              споделянето и начина, по който хората вземат решение да резервират среща.
+              Каталогът е подреден като директория на хора, а не като маркетингова
+              секция. Първо виждаш лицето, фокуса и ключовите факти, после отваряш
+              профила с пълния контекст, темите и свободните часове.
             </p>
 
             <div className="hero-actions">
-              <Link className="primary-button" to="/auth?tab=register">
-                Създай профил
-              </Link>
-              <Link className="ghost-button" to="/users">
-                Виж потребителската перспектива
+              <a className="primary-button" href="#consultant-directory">
+                Разгледай профилите
+              </a>
+              <Link className="ghost-button" to="/auth?tab=register&role=consultant">
+                Създай свой профил
               </Link>
             </div>
 
-            <div className="hero-stats">
+            <div className="hero-stats directory-hero__stats">
               <div>
-                <strong>Публичен профил</strong>
-                <span>ясен фокус, град, езици и специализации</span>
+                <strong>{visibleConsultants.length || consultants.length || 0}</strong>
+                <span>активни профили в каталога</span>
               </div>
               <div>
-                <strong>Безплатен старт</strong>
-                <span>профилът може да бъде създаден и публикуван още от началото</span>
+                <strong>{consultantCount}</strong>
+                <span>консултанти с отделна публична страница</span>
               </div>
               <div>
-                <strong>Професионална визия</strong>
-                <span>по-ясен профил, по-силно доверие и по-лесно споделяне</span>
+                <strong>{mentorCount}</strong>
+                <span>ментори, които могат да бъдат разгледани по същия модел</span>
               </div>
             </div>
+
+            {directoryHighlights.length ? (
+              <div className="chip-row">
+                {directoryHighlights.map((item) => (
+                  <span className="chip" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
 
-          <aside className="hero__card hero__card--consultant consultant-intro-card">
-            <div className="hero__card-top">
-              <span className="status-badge status-badge--success">Активен профил</span>
-              <strong>Какво получаваш още от старт</strong>
+          <aside className="directory-hero__panel">
+            <div className="directory-hero__panel-intro">
+              <span className="status-badge status-badge--success">Лесен профилен преглед</span>
+              <h2>Бърз скан, после дълбочина.</h2>
               <p>
-                Отделна страница за консултанти и ментори, ясна структура за профила и
-                възможност за споделяне, свободни слотове и по-добро професионално присъствие.
+                Вдясно стоят избрани профили за бърз достъп, а пълният каталог по-долу
+                позволява търсене по дума, град и тип профил.
               </p>
             </div>
-            <div className="consultant-intro-card__list">
-              <article>
-                <strong>Профил</strong>
-                <span>Кратък фокус, град, езици, формати и експертиза в ясен ред.</span>
-              </article>
-              <article>
-                <strong>Видимост</strong>
-                <span>Публичен профил, който изглежда професионално и на телефон, и на десктоп.</span>
-              </article>
-              <article>
-                <strong>Резервации</strong>
-                <span>Свободните часове, темите и share линкът са събрани на едно ясно място.</span>
-              </article>
+
+            <div className="directory-spotlight-list">
+              {spotlightProfiles.map((consultant, index) => (
+                <DirectorySpotlightCard
+                  consultant={consultant}
+                  index={index}
+                  key={consultant.consultantId}
+                />
+              ))}
             </div>
-            <div className="hero__points">
-              <div>
-                <span>Публичен профил</span>
-                <strong>Да</strong>
+
+            {nextOpenConsultant ? (
+              <div className="directory-hero__next">
+                <span>Следващ свободен профил</span>
+                <strong>{nextOpenConsultant.name}</strong>
+                <p>
+                  {formatDate(nextOpenConsultant.nextAvailable)} ·{" "}
+                  {getSessionLengthLabel(nextOpenConsultant)}
+                </p>
               </div>
-              <div>
-                <span>Споделяне</span>
-                <strong>Готово</strong>
-              </div>
-            </div>
-            <div className="chip-row">
-              <span className="chip">Лидерски роли</span>
-              <span className="chip">Интервю подготовка</span>
-              <span className="chip">Кариерни преходи</span>
-            </div>
+            ) : null}
           </aside>
         </div>
       </section>
 
-      <section className="section section--tight">
-        <div className="container role-experience-grid role-experience-grid--consultant">
-          {consultantExperienceCards.map((item) => (
-            <article
-              className="role-experience-card role-experience-card--consultant"
-              key={item.title}
-            >
-              <span className="role-experience-card__eyebrow">{item.eyebrow}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section section--tight">
-        <div className="container consultant-proof-grid">
-          {spotlightProfiles.map((consultant) => (
-            <article className="consultant-proof-card" key={consultant.consultantId}>
-              <CoverMedia
-                src={consultant.heroUrl}
-                name={consultant.name}
-                className="consultant-proof-card__media"
-                eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
-                title={consultant.name}
-                subtitle={consultant.headline}
-              />
-              <div className="consultant-proof-card__body">
-                <span className={consultant.featured ? "status-badge" : "plan-pill"}>
-                  {consultant.featured ? "Подбран профил" : "Активен профил"}
-                </span>
-                <h3>{consultant.name}</h3>
-                <p>{consultant.headline}</p>
-                <div className="consultant-card__meta">
-                  <span>{getConsultantLocationLabel(consultant)}</span>
-                  <span>{consultant.experienceYears} години опит</span>
-                  <span>{consultant.sessionModes.join(" · ")}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-          <aside className="panel consultant-proof-panel">
-            <p className="eyebrow">Как изглежда добрият списък</p>
-            <h2>Подредени профили, видими детайли и ясен публичен модел.</h2>
-            <p>
-              Консултантската секция трябва да е лесна за преглеждане във всеки браузър:
-              подредена решетка, ясни акценти и без визуален шум.
-            </p>
-            <ul className="page-list">
-              <li>Разпознаваем headline още в първия екран</li>
-              <li>Специализации и град без пренатрупване</li>
-              <li>Ясни теми, формати, публичен статус и share възможност</li>
-            </ul>
-          </aside>
-        </div>
-        {loading ? <div className="panel">Зареждаме публичните профили...</div> : null}
-        {error ? <div className="panel panel--error">{error}</div> : null}
-        {!loading && !error && spotlightProfiles.length === 0 ? (
-          <div className="panel empty-state">
-            Все още няма публикувани консултантски профили. След регистрация и завършване на
-            профила, първите страници ще се покажат тук автоматично.
-          </div>
-        ) : null}
-      </section>
-
-      <PlanSection
-        eyebrow="Планове за консултанти и ментори"
-        title="Публичен старт за консултанти и ментори с реална видимост още от първия ден."
-        description="В текущата версия консултантите и менторите могат да изградят активен профил, да качат материали и да бъдат намирани в търсенето без допълнителни стъпки по активация."
-        plans={consultantPlans}
-      />
-
-      <section className="section section--alt">
-        <div className="container journey-grid consultant-journey-grid">
-          <article className="journey-card">
-            <span className="journey-card__step">01</span>
-            <h3>Създаваш профил</h3>
-            <p>Подреждаш специализация, град, езици, формати и ключова професионална история.</p>
-          </article>
-          <article className="journey-card">
-            <span className="journey-card__step">02</span>
-            <h3>Получаваш видимост</h3>
-            <p>Потребителите разглеждат профила ти в отделния списък за търсещи кариерен консултант.</p>
-          </article>
-          <article className="journey-card">
-            <span className="journey-card__step">03</span>
-            <h3>Подреждаш практиката си</h3>
-            <p>Добавяш теми, работен подход и наличност така, че хората да разбират лесно как протича работата с теб.</p>
-          </article>
-        </div>
-      </section>
-
-      <section className="section">
+      <section className="section section--tight" id="consultant-directory">
         <div className="container">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Публични профили</p>
-              <h2>Активните консултанти и ментори се показват тук в реално време.</h2>
+              <p className="eyebrow">Каталог на профили</p>
+              <h2>Разгледай хората по име, тема и наличност.</h2>
+              <p className="section-heading__copy">
+                Профилите са подредени така, че ключовите неща да се виждат веднага:
+                кой е човекът, по какво работи, какъв е форматът и кога има свободен час.
+              </p>
             </div>
           </div>
 
-          <div className="consultant-grid">
-            {showcase.map((consultant) => (
+          <div className="filter-bar">
+            <label>
+              Ключова дума
+              <input
+                value={query}
+                onChange={(event) => applyPresetQuery(event.target.value)}
+                placeholder="Leadership, интервю, кариерна промяна, LinkedIn..."
+              />
+            </label>
+            <label>
+              Град
+              <input
+                list="consultant-directory-cities"
+                value={city}
+                onChange={(event) => applyDirectoryFilters({ city: event.target.value })}
+                placeholder="София, Пловдив, Варна, Онлайн"
+              />
+              <datalist id="consultant-directory-cities">
+                {citySuggestions.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </label>
+          </div>
+
+          <div className="search-shortcuts directory-switches">
+            <span className="search-shortcuts__label">Тип профил</span>
+            <div className="search-shortcuts__list">
+              {(
+                [
+                  { value: "all", label: "Всички профили" },
+                  { value: "consultant", label: "Консултанти" },
+                  { value: "mentor", label: "Ментори" }
+                ] as const
+              ).map((option) => (
+                <button
+                  className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
+                  key={option.value}
+                  type="button"
+                  onClick={() => applyDirectoryFilters({ kind: option.value })}
+                >
+                  {option.label}
+                </button>
+              ))}
+              <button
+                className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
+                type="button"
+                onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
+              >
+                Само водещи профили
+              </button>
+            </div>
+          </div>
+
+          <div className="filter-actions">
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() =>
+                applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })
+              }
+              disabled={!hasActiveFilters}
+            >
+              Изчисти филтрите
+            </button>
+            <div className="directory-results-indicator">
+              <strong>{visibleConsultants.length}</strong>
+              <span>
+                {topProfileCount ? `${topProfileCount} водещи профила` : "всички активни профили"}
+              </span>
+            </div>
+          </div>
+
+          {loading ? <div className="panel">Зареждаме публичните профили...</div> : null}
+          {error ? <div className="panel panel--error">{error}</div> : null}
+
+          {!loading && !error && visibleConsultants.length === 0 ? (
+            <div className="panel empty-state">
+              Не намерихме профили по избраните критерии. Опитай с по-широка ключова дума
+              или изчисти филтрите.
+            </div>
+          ) : null}
+
+          <div className="consultant-grid consultant-grid--directory">
+            {visibleConsultants.map((consultant) => (
               <ConsultantCard key={consultant.consultantId} consultant={consultant} />
             ))}
           </div>
-          {!loading && !error && showcase.length === 0 ? (
-            <div className="panel empty-state">
-              В момента няма публикувани профили за показване в тази секция.
+        </div>
+      </section>
+
+      <section className="section section--tight">
+        <div className="container">
+          <article className="ad-banner panel directory-cta-banner">
+            <div className="ad-banner__content">
+              <div className="ad-banner__header">
+                <span className="ad-banner__label">За експерти</span>
+                <span className="ad-banner__partner">Публичен профил</span>
+              </div>
+              <h2>Искаш и твоят профил да изглежда така подреден и лесен за разглеждане?</h2>
+              <p>
+                Публичният профил събира лице, headline, теми, формати и свободни часове
+                в една страница, която можеш да споделяш уверено.
+              </p>
+              <div className="ad-banner__metrics">
+                <span>Отделна профилна страница</span>
+                <span>Линк за споделяне</span>
+                <span>Свободни слотове</span>
+              </div>
+              <div className="ad-banner__buttons">
+                <Link className="primary-button" to="/auth?tab=register&role=consultant">
+                  Създай профил
+                </Link>
+                <Link className="ghost-button" to="/contact">
+                  Свържи се с нас
+                </Link>
+              </div>
             </div>
-          ) : null}
+
+            <div className="ad-banner__visual">
+              <div className="ad-banner__visual-card ad-banner__visual-card--main">
+                <span>Каталог</span>
+                <strong>Подредено лице, кратък фокус и директен достъп до профила.</strong>
+                <p>
+                  Моделът е същият на десктоп и на телефон, така че профилът да е лесен
+                  за преглед във всеки контекст.
+                </p>
+              </div>
+              <div className="ad-banner__visual-card ad-banner__visual-card--floating">
+                <span>Профил</span>
+                <strong>Headline, теми, слотове, доверие.</strong>
+                <p>Най-важното се вижда още от директорията, без да се губи човекът зад профила.</p>
+              </div>
+              <div className="ad-banner__visual-pills">
+                <span>Личен профил</span>
+                <span>Ясна структура</span>
+                <span>Бързо споделяне</span>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
     </>
@@ -2617,6 +2787,21 @@ export function ConsultantPage() {
   const availabilityCalendar = groupAvailabilityByDay(visibleAvailability);
   const nextVisibleSlot = visibleAvailability[0] || consultant.nextAvailable;
   const availabilityPreviewSlots = visibleAvailability.slice(0, 4);
+  const profileSummary =
+    consultant.experienceSummary || consultant.bio || getConsultantWorkApproach(consultant);
+  const profileSignals = Array.from(
+    new Set([
+      ...getConsultantSummaryTags(consultant),
+      ...getConsultationTopics(consultant).slice(0, 2),
+      ...getConsultantIdealFor(consultant).slice(0, 1)
+    ])
+  ).slice(0, 6);
+  const profileFacts = [
+    { label: "Локация", value: getConsultantLocationLabel(consultant) },
+    { label: "Формат", value: consultant.sessionModes.join(" · ") },
+    { label: "Продължителност", value: getSessionLengthLabel(consultant) },
+    { label: "Цена", value: getConsultantPriceLabel(consultant) }
+  ];
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultant.slug}`
@@ -2693,44 +2878,81 @@ export function ConsultantPage() {
   return (
     <>
       <section className="profile-hero">
-        <div className="container profile-hero__grid">
-          <article className="profile-card">
-            <AvatarMedia
-              className="profile-card__avatar"
-              src={consultant.avatarUrl}
+        <div className="container profile-stage">
+          <article className="profile-stage__main">
+            <CoverMedia
+              src={consultant.heroUrl}
               name={consultant.name}
+              className="profile-stage__cover"
+              eyebrow={consultant.featured ? "Подбран профил" : "Публичен профил"}
+              title={consultant.name}
+              subtitle={consultant.headline}
             />
-            <div>
-              <p className="eyebrow">
-                Публичен профил · {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
-              </p>
-              <h1>{consultant.name}</h1>
-              <p className="profile-card__headline">{consultant.headline}</p>
-              <div className="chip-row">
-                {getConsultantSummaryTags(consultant).map((item) => (
-                  <span className="chip" key={item}>
-                    {item}
+
+            <div className="profile-stage__content">
+              <AvatarMedia
+                className="profile-stage__avatar"
+                src={consultant.avatarUrl}
+                name={consultant.name}
+              />
+
+              <div className="profile-stage__body">
+                <div className="chip-row consultant-card__status-row">
+                  <span className="plan-pill">
+                    {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
                   </span>
-                ))}
+                  <span className={consultant.featured ? "status-badge" : "plan-pill"}>
+                    {consultant.featured ? "Подбран профил" : "Активен профил"}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="eyebrow">Публичен профил в каталога</p>
+                  <h1>{consultant.name}</h1>
+                  <p className="profile-stage__headline">{consultant.headline}</p>
+                </div>
+
+                <p className="profile-stage__summary">{profileSummary}</p>
+
+                <div className="profile-stage__facts">
+                  {profileFacts.map((item) => (
+                    <article key={item.label}>
+                      <span>{item.label}</span>
+                      <strong>{item.value}</strong>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="meta-row">
+                  <span>{consultant.experienceYears} години опит</span>
+                  <span>{getConsultantTrustLabel(consultant)}</span>
+                  <span>Следващ свободен час: {formatDate(nextVisibleSlot)}</span>
+                </div>
+
+                {profileSignals.length ? (
+                  <div className="chip-row">
+                    {profileSignals.map((item) => (
+                      <span className="chip" key={item}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
+                <div className="profile-actions">
+                  <button className="ghost-button" type="button" onClick={shareProfile}>
+                    Сподели профила
+                  </button>
+                  <Link className="ghost-button" to="/consultants">
+                    Назад към каталога
+                  </Link>
+                </div>
+                {shareMessage ? <div className="panel panel--success">{shareMessage}</div> : null}
               </div>
-              <div className="meta-row">
-                <span>{getConsultantLocationLabel(consultant)}</span>
-                <span>{consultant.experienceYears} години опит</span>
-                <span>{getConsultantTrustLabel(consultant)}</span>
-              </div>
-              <div className="profile-actions">
-                <button className="ghost-button" type="button" onClick={shareProfile}>
-                  Сподели профила
-                </button>
-                <Link className="ghost-button" to="/users">
-                  Виж профилите
-                </Link>
-              </div>
-              {shareMessage ? <div className="panel panel--success">{shareMessage}</div> : null}
             </div>
           </article>
 
-          <aside className="booking-card">
+          <aside className="booking-card profile-stage__aside">
             <span className="status-badge status-badge--success">Следващ свободен слот</span>
             <strong>{formatDate(nextVisibleSlot)}</strong>
             <span>
@@ -2765,7 +2987,7 @@ export function ConsultantPage() {
               </div>
             ) : null}
             <CoverMedia
-              src={consultant.mapImageUrl}
+              src={consultant.mapImageUrl || consultant.heroUrl}
               name={consultant.name}
               className="booking-card__media"
               eyebrow="Консултация"
@@ -2776,16 +2998,16 @@ export function ConsultantPage() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="container consultant-detail-grid">
+      <section className="section section--tight">
+        <div className="container consultant-detail-grid consultant-detail-grid--profile">
           <div className="panel-stack">
-            <article className="panel">
+            <article className="panel consultant-detail-panel consultant-detail-panel--wide">
               <h2>За консултанта</h2>
               <p>{consultant.bio}</p>
             </article>
 
             {consultant.experienceSummary || (consultant.experienceHighlights || []).length ? (
-              <article className="panel">
+              <article className="panel consultant-detail-panel consultant-detail-panel--wide">
                 <h2>Професионален опит</h2>
                 {consultant.experienceSummary ? <p>{consultant.experienceSummary}</p> : null}
                 {(consultant.experienceHighlights || []).length ? (
@@ -2798,66 +3020,68 @@ export function ConsultantPage() {
               </article>
             ) : null}
 
-            <article className="panel">
-              <h2>Подходящо за</h2>
-              <div className="chip-row">
-                {getConsultantIdealFor(consultant).map((item) => (
-                  <span className="chip chip--soft" key={item}>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </article>
-
-            <article className="panel">
-              <h2>Теми на консултацията</h2>
-              <div className="chip-row">
-                {getConsultationTopics(consultant).map((item) => (
-                  <span className="chip" key={item}>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </article>
-
-            <article className="panel">
-              <h2>Езици, формати и професионален контекст</h2>
-              <div className="chip-row">
-                {consultant.languages.map((item) => (
-                  <span className="chip chip--soft" key={item}>
-                    {item}
-                  </span>
-                ))}
-                {consultant.sessionModes.map((item) => (
-                  <span className="chip chip--soft" key={item}>
-                    {item}
-                  </span>
-                ))}
-                {consultant.tags.map((item) => (
-                  <span className="chip chip--soft" key={item}>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </article>
-
-            <article className="panel">
-              <h2>Как протича работата</h2>
-              <p>{getConsultantWorkApproach(consultant)}</p>
-            </article>
-
-            {(consultant.educationHighlights || []).length ? (
-              <article className="panel">
-                <h2>Образование и сертификати</h2>
+            <div className="consultant-detail-cards">
+              <article className="panel consultant-detail-panel">
+                <h2>Подходящо за</h2>
                 <div className="chip-row">
-                  {(consultant.educationHighlights || []).map((item) => (
+                  {getConsultantIdealFor(consultant).map((item) => (
                     <span className="chip chip--soft" key={item}>
                       {item}
                     </span>
                   ))}
                 </div>
               </article>
-            ) : null}
+
+              <article className="panel consultant-detail-panel">
+                <h2>Теми на консултацията</h2>
+                <div className="chip-row">
+                  {getConsultationTopics(consultant).map((item) => (
+                    <span className="chip" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+
+              <article className="panel consultant-detail-panel">
+                <h2>Езици, формати и професионален контекст</h2>
+                <div className="chip-row">
+                  {consultant.languages.map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                  {consultant.sessionModes.map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                  {consultant.tags.map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+
+              <article className="panel consultant-detail-panel">
+                <h2>Как протича работата</h2>
+                <p>{getConsultantWorkApproach(consultant)}</p>
+              </article>
+
+              {(consultant.educationHighlights || []).length ? (
+                <article className="panel consultant-detail-panel">
+                  <h2>Образование и сертификати</h2>
+                  <div className="chip-row">
+                    {(consultant.educationHighlights || []).map((item) => (
+                      <span className="chip chip--soft" key={item}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ) : null}
+            </div>
           </div>
 
           <form className="panel booking-panel" onSubmit={submitBooking}>
@@ -5637,19 +5861,26 @@ function ConsultantCard({
   consultant: ConsultantProfile;
   match?: MatchInsight | null;
 }) {
+  const previewSlots = getUpcomingAvailabilitySlots(consultant.availability, 3);
+  const summary = getConsultantDirectorySummary(consultant);
+  const profileSignals = Array.from(
+    new Set([
+      ...getConsultantSummaryTags(consultant),
+      ...getConsultationTopics(consultant).slice(0, 2)
+    ])
+  ).slice(0, 4);
+
   return (
     <article className="consultant-card">
-      <CoverMedia
-        src={consultant.heroUrl}
-        name={consultant.name}
-        className="consultant-card__media"
-        eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
-        title={consultant.name}
-        subtitle={consultant.headline}
-      />
       <div className="consultant-card__body">
-        <div className="consultant-card__top">
-          <div>
+        <div className="consultant-card__header">
+          <AvatarMedia
+            className="consultant-card__avatar"
+            src={consultant.avatarUrl}
+            name={consultant.name}
+          />
+
+          <div className="consultant-card__identity">
             <div className="chip-row consultant-card__status-row">
               <span className="plan-pill">
                 {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
@@ -5661,39 +5892,103 @@ function ConsultantCard({
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
-            {match ? (
-              <p className="consultant-card__match">{match.note}</p>
-            ) : consultant.experienceSummary ? (
-              <p className="consultant-card__match">{consultant.experienceSummary}</p>
-            ) : null}
           </div>
-          <span className="rating-pill">
-            {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
-          </span>
+
+          <div className="consultant-card__rating">
+            <span className="rating-pill">
+              {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
+            </span>
+            <small>
+              {consultant.reviewCount ? `${consultant.reviewCount} мнения` : "нов профил"}
+            </small>
+          </div>
         </div>
 
-        <div className="chip-row">
-          {getConsultantSummaryTags(consultant).map((item) => (
+        {match ? <p className="consultant-card__match">{match.note}</p> : null}
+        <p className="consultant-card__summary">{summary}</p>
+
+        <div className="consultant-card__fact-grid">
+          <article>
+            <span>Локация</span>
+            <strong>{getConsultantLocationLabel(consultant)}</strong>
+          </article>
+          <article>
+            <span>Опит</span>
+            <strong>{consultant.experienceYears} години</strong>
+          </article>
+          <article>
+            <span>Формат</span>
+            <strong>{consultant.sessionModes.join(" · ")}</strong>
+          </article>
+          <article>
+            <span>Свободен час</span>
+            <strong>{formatDate(consultant.nextAvailable)}</strong>
+          </article>
+        </div>
+
+        <div className="chip-row consultant-card__topics">
+          {profileSignals.map((item) => (
             <span className="chip" key={item}>
               {item}
             </span>
           ))}
         </div>
 
-        <div className="consultant-card__meta">
-          <span>{getConsultantLocationLabel(consultant)}</span>
-          <span>{consultant.experienceYears} години опит</span>
-          <span>{consultant.reviewCount ? `${consultant.reviewCount} мнения` : "Нов профил"}</span>
-        </div>
-        <div className="consultant-card__meta">
-          <span>{consultant.sessionModes.join(" · ")}</span>
-          <span>Свободен: {formatDate(consultant.nextAvailable)}</span>
-        </div>
+        {previewSlots.length ? (
+          <div className="consultant-card__slots">
+            {previewSlots.map((slot) => (
+              <span className="consultant-slot-pill" key={slot}>
+                {formatAvailabilityShortLabel(slot)}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
-        <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
-          Виж профила
-        </Link>
+        <div className="consultant-card__footer">
+          <div className="consultant-card__footer-copy">
+            <strong>{getConsultantPriceLabel(consultant)}</strong>
+            <span>
+              {getSessionLengthLabel(consultant)} · {getConsultantTrustLabel(consultant)}
+            </span>
+          </div>
+
+          <Link className="primary-button" to={`/consultants/${consultant.slug}`}>
+            Отвори профила
+          </Link>
+        </div>
       </div>
     </article>
+  );
+}
+
+function DirectorySpotlightCard({
+  consultant,
+  index
+}: {
+  consultant: ConsultantProfile;
+  index: number;
+}) {
+  return (
+    <Link className="directory-spotlight" to={`/consultants/${consultant.slug}`}>
+      <AvatarMedia
+        className="directory-spotlight__avatar"
+        src={consultant.avatarUrl}
+        name={consultant.name}
+      />
+
+      <div className="directory-spotlight__body">
+        <span className="directory-spotlight__label">
+          {consultant.featured ? "Подбран профил" : `Профил ${String(index + 1).padStart(2, "0")}`}
+        </span>
+        <strong>{consultant.name}</strong>
+        <p>{consultant.headline}</p>
+        <div className="directory-spotlight__meta">
+          <span>{getConsultantLocationLabel(consultant)}</span>
+          <span>{consultant.experienceYears} години</span>
+        </div>
+      </div>
+
+      <span className="directory-spotlight__arrow">Виж</span>
+    </Link>
   );
 }
