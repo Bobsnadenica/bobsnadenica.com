@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
+import { demoUsers } from "../../lib/demo-data";
 import {
   clearPendingBootstrap,
   readPendingBootstrap,
@@ -1586,6 +1587,7 @@ export function UsersPage() {
   const topOnly = searchParams.get("top") === "1";
   const { configured, user } = useAuth();
   const { profile, loading: viewerLoading } = useViewerProfile();
+  const [selectedDemoUserId, setSelectedDemoUserId] = useState(demoUsers[0]?.userId || "");
   const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1618,6 +1620,13 @@ export function UsersPage() {
     };
   }, [city, query]);
 
+  const activeDemoProfile =
+    !profile && !viewerLoading
+      ? demoUsers.find((item) => item.userId === selectedDemoUserId) || demoUsers[0] || null
+      : null;
+  const matchingProfile = profile || activeDemoProfile;
+  const usingDemoProfile = Boolean(activeDemoProfile);
+
   const rankedConsultants = useMemo(() => {
     return consultants
       .filter((consultant) => {
@@ -1629,7 +1638,7 @@ export function UsersPage() {
       })
       .map((consultant) => ({
         consultant,
-        match: getConsultantMatch(profile, consultant)
+        match: getConsultantMatch(matchingProfile, consultant)
       }))
       .sort((left, right) => {
         const leftScore = left.match?.score || 0;
@@ -1645,18 +1654,18 @@ export function UsersPage() {
 
         return right.consultant.rating - left.consultant.rating;
       });
-  }, [consultants, kind, profile, topOnly]);
+  }, [consultants, kind, matchingProfile, topOnly]);
   const visibleConsultants = rankedConsultants;
   const hiddenCount = Math.max(rankedConsultants.length - visibleConsultants.length, 0);
   const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
   const topMatch = rankedConsultants.find((item) => item.match)?.consultant || null;
-  const topMatchDetails = topMatch ? getConsultantMatch(profile, topMatch) : null;
+  const topMatchDetails = topMatch ? getConsultantMatch(matchingProfile, topMatch) : null;
   const profileCtaTo = user ? "/dashboard" : "/auth?tab=register";
   const isConsultantViewer = profile?.role === "consultant";
   const profileSignals = [
-    profile?.occupation,
-    ...(profile?.interests || []).slice(0, 2),
-    ...(profile?.keywords || []).slice(0, 2)
+    matchingProfile?.occupation,
+    ...(matchingProfile?.interests || []).slice(0, 2),
+    ...(matchingProfile?.keywords || []).slice(0, 2)
   ].filter(Boolean) as string[];
 
   function applyPresetQuery(nextQuery: string) {
@@ -1705,6 +1714,8 @@ export function UsersPage() {
             <p className="hero__lede">
               {isConsultantViewer
                 ? "Това е потребителският изглед на CareerLane. Тук хората търсят консултант, а твоите съвпадения с професионалисти се подреждат в профила и таблото ти."
+                : usingDemoProfile && activeDemoProfile
+                  ? `В момента разглеждаш каталога през тестовия профил на ${activeDemoProfile.name}. Така можеш да видиш как различни потребителски данни променят подреждането на консултантите.`
                 : "Тази страница е за хората, които търсят консултант. Попълненият профил помага на CareerLane да подреди по-подходящите експерти според опита, целите и предпочитанията ти."}
             </p>
 
@@ -1724,12 +1735,26 @@ export function UsersPage() {
                 <span>
                   {isConsultantViewer
                     ? "се подреждат в профила и таблото ти"
+                    : usingDemoProfile
+                      ? "използва се тестов профил за демонстрация"
                     : "име, имейл, occupation и още разширяеми данни"}
                 </span>
               </div>
               <div>
-                <strong>{profile ? formatRoleLabel(profile.role) : "Гост достъп"}</strong>
-                <span>{profile ? `Роля: ${formatRoleLabel(profile.role)}` : "влез за персонален достъп"}</span>
+                <strong>
+                  {profile
+                    ? formatRoleLabel(profile.role)
+                    : usingDemoProfile
+                      ? "Тестов потребител"
+                      : "Гост достъп"}
+                </strong>
+                <span>
+                  {profile
+                    ? `Роля: ${formatRoleLabel(profile.role)}`
+                    : usingDemoProfile && activeDemoProfile
+                      ? activeDemoProfile.headline || "Примерен профил за демонстрация"
+                      : "влез за персонален достъп"}
+                </span>
               </div>
             </div>
           </div>
@@ -1745,16 +1770,18 @@ export function UsersPage() {
               </span>
               <strong>
                 {topMatch && !isConsultantViewer
-                  ? `${topMatch.name} е сред най-подходящите избори за профила ти`
+                  ? `${topMatch.name} е сред най-подходящите избори${usingDemoProfile ? " за този тестов профил" : " за профила ти"}`
                   : isConsultantViewer
                     ? "Тук виждаш как CareerLane представя консултантите пред търсещите потребители"
                     : "Виждаш всички активни консултанти и ментори"}
               </strong>
               <p>
                 {topMatch && topMatchDetails && !isConsultantViewer
-                  ? `${topMatchDetails.note} Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред.`
+                  ? `${topMatchDetails.note} ${usingDemoProfile ? "Тестовият профил е използван като примерен вход за подреждането." : "Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред."}`
                   : isConsultantViewer
                     ? "Като консултант няма да бъдеш съпоставян с други консултанти. Подходящите професионалисти се показват в твоето табло и профил."
+                    : usingDemoProfile
+                      ? "Избери друг тестов профил по-долу и ще видиш как се променят съвпаденията."
                     : "Попълненият профил помага на CareerLane да подрежда по-точно консултантите и менторите според целите ти."}
               </p>
             </div>
@@ -1798,11 +1825,41 @@ export function UsersPage() {
                   : "Отвори профила си"
                 : profile
                   ? "Допълни профила си"
-                  : "Създай профил"}
+                  : usingDemoProfile
+                    ? "Създай истински профил"
+                    : "Създай профил"}
             </Link>
           </aside>
         </div>
       </section>
+
+      {!profile && !viewerLoading ? (
+        <section className="section section--tight">
+          <div className="container">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Тестови потребители</p>
+                <h2>Смени примерния потребител и виж как се променя подреждането.</h2>
+                <p className="section-heading__copy">
+                  Тези профили са само за демонстрация. Избери един от тях и каталогът
+                  по-долу ще се подреди така, сякаш този човек търси консултант точно сега.
+                </p>
+              </div>
+            </div>
+
+            <div className="demo-user-grid">
+              {demoUsers.map((demoProfile) => (
+                <DemoUserProfileCard
+                  isActive={activeDemoProfile?.userId === demoProfile.userId}
+                  key={demoProfile.userId}
+                  profile={demoProfile}
+                  onSelect={() => setSelectedDemoUserId(demoProfile.userId)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="section section--tight">
         <div className="container role-experience-grid role-experience-grid--client">
@@ -2787,6 +2844,7 @@ export function ConsultantPage() {
   const availabilityCalendar = groupAvailabilityByDay(visibleAvailability);
   const nextVisibleSlot = visibleAvailability[0] || consultant.nextAvailable;
   const availabilityPreviewSlots = visibleAvailability.slice(0, 4);
+  const isDemoConsultant = Boolean(consultant.isDemo);
   const profileSummary =
     consultant.experienceSummary || consultant.bio || getConsultantWorkApproach(consultant);
   const profileSignals = Array.from(
@@ -2849,6 +2907,13 @@ export function ConsultantPage() {
     setMessage("");
     setError("");
 
+    if (isDemoConsultant) {
+      setError(
+        "Това е тестов профил за преглед на интерфейса. Резервациите към тестови профили са изключени."
+      );
+      return;
+    }
+
     if (isConsultantViewer) {
       setError(
         "Консултантските акаунти не резервират други консултанти. В профила и таблото си ще виждаш подходящите професионалисти за твоята практика."
@@ -2898,6 +2963,7 @@ export function ConsultantPage() {
 
               <div className="profile-stage__body">
                 <div className="chip-row consultant-card__status-row">
+                  {isDemoConsultant ? <span className="plan-pill">Тестов профил</span> : null}
                   <span className="plan-pill">
                     {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
                   </span>
@@ -3089,6 +3155,15 @@ export function ConsultantPage() {
             <p className="section-caption">
               Избери свободен час и изпрати кратък контекст, за да започне разговорът по-лесно.
             </p>
+            {isDemoConsultant ? (
+              <div className="panel panel--subtle role-guard-panel">
+                <strong>Това е тестов профил.</strong>
+                <p>
+                  Профилът е добавен, за да можеш да видиш как изглеждат каталогът,
+                  детайлната страница и наличностите. Изпращането на реални заявки е изключено.
+                </p>
+              </div>
+            ) : null}
             {visibleAvailability.length ? (
               <div className="availability-calendar" id="availability-calendar">
                 {availabilityCalendar.map((day) => (
@@ -3151,7 +3226,7 @@ export function ConsultantPage() {
             {message ? <div className="panel panel--success">{message}</div> : null}
             {error ? <div className="panel panel--error">{error}</div> : null}
 
-            {!isConsultantViewer ? (
+            {!isConsultantViewer && !isDemoConsultant ? (
               <button
                 className="primary-button"
                 type="submit"
@@ -5882,6 +5957,7 @@ function ConsultantCard({
 
           <div className="consultant-card__identity">
             <div className="chip-row consultant-card__status-row">
+              {consultant.isDemo ? <span className="plan-pill">Тест</span> : null}
               <span className="plan-pill">
                 {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
               </span>
@@ -5978,7 +6054,11 @@ function DirectorySpotlightCard({
 
       <div className="directory-spotlight__body">
         <span className="directory-spotlight__label">
-          {consultant.featured ? "Подбран профил" : `Профил ${String(index + 1).padStart(2, "0")}`}
+          {consultant.isDemo
+            ? "Тестов профил"
+            : consultant.featured
+              ? "Подбран профил"
+              : `Профил ${String(index + 1).padStart(2, "0")}`}
         </span>
         <strong>{consultant.name}</strong>
         <p>{consultant.headline}</p>
@@ -5990,5 +6070,50 @@ function DirectorySpotlightCard({
 
       <span className="directory-spotlight__arrow">Виж</span>
     </Link>
+  );
+}
+
+function DemoUserProfileCard({
+  profile,
+  isActive,
+  onSelect
+}: {
+  profile: UserProfile;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <article className={`demo-user-card ${isActive ? "demo-user-card--active" : ""}`}>
+      <div className="demo-user-card__header">
+        <div>
+          <span className="role-experience-card__eyebrow">Тестов потребител</span>
+          <h3>{profile.name}</h3>
+        </div>
+        <button
+          className={isActive ? "primary-button" : "ghost-button"}
+          type="button"
+          onClick={onSelect}
+        >
+          {isActive ? "Активен профил" : "Използвай за тест"}
+        </button>
+      </div>
+
+      <p>{profile.headline || profile.experienceSummary}</p>
+
+      <div className="demo-user-card__meta">
+        <span>{profile.occupation || "Потребителски профил"}</span>
+        <span>{profile.city || "Онлайн"}</span>
+      </div>
+
+      <div className="chip-row">
+        {(profile.interests || []).slice(0, 4).map((item) => (
+          <span className="chip chip--soft" key={item}>
+            {item}
+          </span>
+        ))}
+      </div>
+
+      {profile.goals ? <p className="demo-user-card__goal">{profile.goals}</p> : null}
+    </article>
   );
 }

@@ -1,4 +1,9 @@
 import { config, isApiConfigured } from "./config";
+import {
+  getDemoConsultantBySlug,
+  getFilteredDemoConsultants,
+  mergeConsultantLists
+} from "./demo-data";
 import type {
   Booking,
   ConsultantMediaKind,
@@ -131,13 +136,35 @@ export const api = {
     if (filters.query) params.set("query", filters.query);
     if (filters.city) params.set("city", filters.city);
     const queryString = params.toString();
+    const demoConsultants = getFilteredDemoConsultants(filters);
 
-    return request<ConsultantProfile[]>(
-      `/consultants${queryString ? `?${queryString}` : ""}`
-    );
+    if (!isApiConfigured) {
+      return demoConsultants;
+    }
+
+    try {
+      const consultants = await request<ConsultantProfile[]>(
+        `/consultants${queryString ? `?${queryString}` : ""}`
+      );
+
+      return mergeConsultantLists(consultants, demoConsultants);
+    } catch (error) {
+      if (demoConsultants.length) {
+        return demoConsultants;
+      }
+
+      throw error;
+    }
   },
 
   async getConsultant(slug: string) {
+    const demoConsultant = getDemoConsultantBySlug(slug);
+
+    if (demoConsultant) {
+      return demoConsultant;
+    }
+
+    requireBackend();
     return request<ConsultantProfile>(`/consultants/${slug}`);
   },
 
