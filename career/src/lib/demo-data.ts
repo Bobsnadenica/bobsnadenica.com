@@ -36,19 +36,23 @@ const consultantAvailability = {
 const demoImages = {
   ana: {
     avatar: "https://i.pravatar.cc/480?img=32",
-    hero: "https://i.pravatar.cc/1200?img=32"
+    hero: "https://picsum.photos/id/1011/1600/1000",
+    map: "https://picsum.photos/id/1040/1400/900"
   },
   boris: {
     avatar: "https://i.pravatar.cc/480?img=12",
-    hero: "https://i.pravatar.cc/1200?img=12"
+    hero: "https://picsum.photos/id/1005/1600/1000",
+    map: "https://picsum.photos/id/1037/1400/900"
   },
   elitsa: {
     avatar: "https://i.pravatar.cc/480?img=47",
-    hero: "https://i.pravatar.cc/1200?img=47"
+    hero: "https://picsum.photos/id/1025/1600/1000",
+    map: "https://picsum.photos/id/1060/1400/900"
   },
   nikolay: {
     avatar: "https://i.pravatar.cc/480?img=14",
-    hero: "https://i.pravatar.cc/1200?img=14"
+    hero: "https://picsum.photos/id/1043/1600/1000",
+    map: "https://picsum.photos/id/1059/1400/900"
   }
 } as const;
 
@@ -80,7 +84,7 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     nextAvailable: consultantAvailability.ana[0],
     avatarUrl: demoImages.ana.avatar,
     heroUrl: demoImages.ana.hero,
-    mapImageUrl: "",
+    mapImageUrl: demoImages.ana.map,
     tags: ["Мениджърски роли", "Кариерна стратегия", "LinkedIn"],
     availability: [...consultantAvailability.ana],
     idealFor: ["Мениджъри", "Head of / Director роли", "Кариерна промяна на senior ниво"],
@@ -116,7 +120,7 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     nextAvailable: consultantAvailability.boris[0],
     avatarUrl: demoImages.boris.avatar,
     heroUrl: demoImages.boris.hero,
-    mapImageUrl: "",
+    mapImageUrl: demoImages.boris.map,
     tags: ["PM", "Startup", "Ownership"],
     availability: [...consultantAvailability.boris],
     idealFor: ["Product Managers", "Startup founders", "Senior IC преход"],
@@ -152,7 +156,7 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     nextAvailable: consultantAvailability.elitsa[0],
     avatarUrl: demoImages.elitsa.avatar,
     heroUrl: demoImages.elitsa.hero,
-    mapImageUrl: "",
+    mapImageUrl: demoImages.elitsa.map,
     tags: ["Junior to Mid", "CV", "Remote roles"],
     availability: [...consultantAvailability.elitsa],
     idealFor: ["Junior и mid-level кандидати", "Първа международна кандидатура"],
@@ -188,7 +192,7 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     nextAvailable: consultantAvailability.nikolay[0],
     avatarUrl: demoImages.nikolay.avatar,
     heroUrl: demoImages.nikolay.hero,
-    mapImageUrl: "",
+    mapImageUrl: demoImages.nikolay.map,
     tags: ["Analytics", "BI", "Stakeholders"],
     availability: [...consultantAvailability.nikolay],
     idealFor: ["Data analysts", "BI specialists", "Career switch to data"],

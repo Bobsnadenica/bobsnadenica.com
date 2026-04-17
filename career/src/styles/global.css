@@ -393,6 +393,14 @@ main {
   font-weight: 700;
 }
 
+.ghost-button,
+.primary-button {
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
 .ghost-button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -432,6 +440,20 @@ main {
   transition:
     transform 180ms ease,
     box-shadow 180ms ease;
+}
+
+.hero-actions > *,
+.filter-actions > *,
+.profile-actions > *,
+.site-header__actions > * {
+  flex: 0 1 auto;
+}
+
+.hero-actions .primary-button,
+.hero-actions .ghost-button,
+.filter-actions .ghost-button,
+.profile-actions .ghost-button {
+  padding-inline: 18px;
 }
 
 .primary-button:hover {
