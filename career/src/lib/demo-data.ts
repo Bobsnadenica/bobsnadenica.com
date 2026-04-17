@@ -33,6 +33,25 @@ const consultantAvailability = {
   nikolay: [createIsoSlot(1, 8, 30), createIsoSlot(3, 10, 30), createIsoSlot(7, 17, 0)]
 } as const;
 
+const demoImages = {
+  ana: {
+    avatar: "https://i.pravatar.cc/480?img=32",
+    hero: "https://i.pravatar.cc/1200?img=32"
+  },
+  boris: {
+    avatar: "https://i.pravatar.cc/480?img=12",
+    hero: "https://i.pravatar.cc/1200?img=12"
+  },
+  elitsa: {
+    avatar: "https://i.pravatar.cc/480?img=47",
+    hero: "https://i.pravatar.cc/1200?img=47"
+  },
+  nikolay: {
+    avatar: "https://i.pravatar.cc/480?img=14",
+    hero: "https://i.pravatar.cc/1200?img=14"
+  }
+} as const;
+
 export const demoConsultants: ConsultantProfile[] = sortConsultants([
   {
     consultantId: "demo-consultant-ana",
@@ -59,8 +78,8 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     rating: 4.9,
     reviewCount: 18,
     nextAvailable: consultantAvailability.ana[0],
-    avatarUrl: "",
-    heroUrl: "",
+    avatarUrl: demoImages.ana.avatar,
+    heroUrl: demoImages.ana.hero,
     mapImageUrl: "",
     tags: ["Мениджърски роли", "Кариерна стратегия", "LinkedIn"],
     availability: [...consultantAvailability.ana],
@@ -95,8 +114,8 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     rating: 4.8,
     reviewCount: 11,
     nextAvailable: consultantAvailability.boris[0],
-    avatarUrl: "",
-    heroUrl: "",
+    avatarUrl: demoImages.boris.avatar,
+    heroUrl: demoImages.boris.hero,
     mapImageUrl: "",
     tags: ["PM", "Startup", "Ownership"],
     availability: [...consultantAvailability.boris],
@@ -131,8 +150,8 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     rating: 4.7,
     reviewCount: 9,
     nextAvailable: consultantAvailability.elitsa[0],
-    avatarUrl: "",
-    heroUrl: "",
+    avatarUrl: demoImages.elitsa.avatar,
+    heroUrl: demoImages.elitsa.hero,
     mapImageUrl: "",
     tags: ["Junior to Mid", "CV", "Remote roles"],
     availability: [...consultantAvailability.elitsa],
@@ -167,8 +186,8 @@ export const demoConsultants: ConsultantProfile[] = sortConsultants([
     rating: 4.6,
     reviewCount: 6,
     nextAvailable: consultantAvailability.nikolay[0],
-    avatarUrl: "",
-    heroUrl: "",
+    avatarUrl: demoImages.nikolay.avatar,
+    heroUrl: demoImages.nikolay.hero,
     mapImageUrl: "",
     tags: ["Analytics", "BI", "Stakeholders"],
     availability: [...consultantAvailability.nikolay],
