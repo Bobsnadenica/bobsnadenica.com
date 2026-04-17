@@ -1612,8 +1612,8 @@ export function UsersPage() {
               {isConsultantViewer
                 ? "Това е потребителският изглед на CareerLane. Тук хората търсят консултант, а твоите съвпадения с професионалисти се подреждат в профила и таблото ти."
                 : usingDemoProfile && activeDemoProfile
-                  ? `В момента разглеждаш каталога през тестовия профил на ${activeDemoProfile.name}. Така можеш да видиш как различни потребителски данни променят подреждането на консултантите.`
-                : "Тази страница е за хората, които търсят консултант. Попълненият профил помага на CareerLane да подреди по-подходящите експерти според опита, целите и предпочитанията ти."}
+                  ? `В момента каталогът е персонализиран спрямо профила на ${activeDemoProfile.name}, за да видиш как различен професионален контекст променя подреждането на консултантите.`
+                  : "Тази страница е за хората, които търсят консултант. Попълненият профил помага на CareerLane да подреди по-подходящите експерти според опита, целите и предпочитанията ти."}
             </p>
 
             <div className="hero-stats">
@@ -1633,8 +1633,8 @@ export function UsersPage() {
                   {isConsultantViewer
                     ? "се подреждат в профила и таблото ти"
                     : usingDemoProfile
-                      ? "използва се тестов профил за демонстрация"
-                    : "име, имейл, occupation и още разширяеми данни"}
+                      ? "подреждането се персонализира според избрания профил"
+                      : "име, имейл, occupation и още разширяеми данни"}
                 </span>
               </div>
               <div>
@@ -1642,14 +1642,14 @@ export function UsersPage() {
                   {profile
                     ? formatRoleLabel(profile.role)
                     : usingDemoProfile
-                      ? "Тестов потребител"
+                      ? "Избран профил"
                       : "Гост достъп"}
                 </strong>
                 <span>
                   {profile
                     ? `Роля: ${formatRoleLabel(profile.role)}`
                     : usingDemoProfile && activeDemoProfile
-                      ? activeDemoProfile.headline || "Примерен профил за демонстрация"
+                      ? activeDemoProfile.headline || "Персонализиран изглед"
                       : "влез за персонален достъп"}
                 </span>
               </div>
@@ -1667,19 +1667,19 @@ export function UsersPage() {
               </span>
               <strong>
                 {topMatch && !isConsultantViewer
-                  ? `${topMatch.name} е сред най-подходящите избори${usingDemoProfile ? " за този тестов профил" : " за профила ти"}`
+                  ? `${topMatch.name} е сред най-подходящите избори${usingDemoProfile ? " за избрания профил" : " за профила ти"}`
                   : isConsultantViewer
                     ? "Тук виждаш как CareerLane представя консултантите пред търсещите потребители"
                     : "Виждаш всички активни консултанти и ментори"}
               </strong>
               <p>
                 {topMatch && topMatchDetails && !isConsultantViewer
-                  ? `${topMatchDetails.note} ${usingDemoProfile ? "Тестовият профил е използван като примерен вход за подреждането." : "Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред."}`
+                  ? `${topMatchDetails.note} ${usingDemoProfile ? "Подреждането е персонализирано според избрания профил." : "Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред."}`
                   : isConsultantViewer
                     ? "Като консултант няма да бъдеш съпоставян с други консултанти. Подходящите професионалисти се показват в твоето табло и профил."
                     : usingDemoProfile
-                      ? "Избери друг тестов профил по-долу и ще видиш как се променят съвпаденията."
-                    : "Попълненият профил помага на CareerLane да подрежда по-точно консултантите и менторите според целите ти."}
+                      ? "Смени профила по-долу и ще видиш как се променят съвпаденията."
+                      : "Попълненият профил помага на CareerLane да подрежда по-точно консултантите и менторите според целите ти."}
               </p>
             </div>
             <div className="hero__points">
@@ -1722,9 +1722,7 @@ export function UsersPage() {
                   : "Отвори профила си"
                 : profile
                   ? "Допълни профила си"
-                  : usingDemoProfile
-                    ? "Създай истински профил"
-                    : "Създай профил"}
+                  : "Създай профил"}
             </Link>
           </aside>
         </div>
@@ -1735,11 +1733,11 @@ export function UsersPage() {
           <div className="container">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">Тестови потребители</p>
-                <h2>Смени примерния потребител и виж как се променя подреждането.</h2>
+                <p className="eyebrow">Персонализиране</p>
+                <h2>Избери профил и виж най-подходящите консултанти.</h2>
                 <p className="section-heading__copy">
-                  Тези профили са само за демонстрация. Избери един от тях и каталогът
-                  по-долу ще се подреди така, сякаш този човек търси консултант точно сега.
+                  Подреждането по-долу се променя според опита, целите и интересите в
+                  избрания профил.
                 </p>
               </div>
             </div>
@@ -2813,7 +2811,7 @@ export function ConsultantPage() {
 
     if (isDemoConsultant) {
       setError(
-        "Това е тестов профил за преглед на интерфейса. Резервациите към тестови профили са изключени."
+        "Заявките за този профил ще бъдат активни скоро."
       );
       return;
     }
@@ -2867,7 +2865,6 @@ export function ConsultantPage() {
 
               <div className="profile-stage__body">
                 <div className="chip-row consultant-card__status-row">
-                  {isDemoConsultant ? <span className="plan-pill">Тестов профил</span> : null}
                   <span className="plan-pill">
                     {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
                   </span>
@@ -2910,12 +2907,12 @@ export function ConsultantPage() {
                 ) : null}
 
                 <div className="profile-actions">
-                  <button className="ghost-button" type="button" onClick={shareProfile}>
-                    Сподели профила
-                  </button>
                   <Link className="ghost-button" to="/consultants">
                     Назад към каталога
                   </Link>
+                  <button className="ghost-button" type="button" onClick={shareProfile}>
+                    Сподели профила
+                  </button>
                 </div>
                 {shareMessage ? <div className="panel panel--success">{shareMessage}</div> : null}
               </div>
@@ -3061,10 +3058,10 @@ export function ConsultantPage() {
             </p>
             {isDemoConsultant ? (
               <div className="panel panel--subtle role-guard-panel">
-                <strong>Това е тестов профил.</strong>
+                <strong>Заявките за този профил ще бъдат активни скоро.</strong>
                 <p>
-                  Профилът е добавен, за да можеш да видиш как изглеждат каталогът,
-                  детайлната страница и наличностите. Изпращането на реални заявки е изключено.
+                  Профилът вече е публикуван в каталога, а резервациите ще станат
+                  достъпни след следващата активация на графика.
                 </p>
               </div>
             ) : null}
@@ -5860,7 +5857,6 @@ function ConsultantCard({
 
           <div className="consultant-card__identity">
             <div className="chip-row consultant-card__status-row">
-              {consultant.isDemo ? <span className="plan-pill">Тест</span> : null}
               <span className="plan-pill">
                 {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
               </span>
@@ -5971,11 +5967,9 @@ function DirectorySpotlightCard({
 
       <div className="directory-spotlight__body">
         <span className="directory-spotlight__label">
-          {consultant.isDemo
-            ? "Тестов профил"
-            : consultant.featured
-              ? "Подбран профил"
-              : `Профил ${String(index + 1).padStart(2, "0")}`}
+          {consultant.featured
+            ? "Подбран профил"
+            : `Профил ${String(index + 1).padStart(2, "0")}`}
         </span>
         <strong>{consultant.name}</strong>
         <p>{consultant.headline}</p>
@@ -6003,7 +5997,7 @@ function DemoUserProfileCard({
     <article className={`demo-user-card ${isActive ? "demo-user-card--active" : ""}`}>
       <div className="demo-user-card__header">
         <div>
-          <span className="role-experience-card__eyebrow">Тестов потребител</span>
+          <span className="role-experience-card__eyebrow">Профил</span>
           <h3>{profile.name}</h3>
         </div>
         <button
@@ -6011,7 +6005,7 @@ function DemoUserProfileCard({
           type="button"
           onClick={onSelect}
         >
-          {isActive ? "Активен профил" : "Използвай за тест"}
+          {isActive ? "Избран профил" : "Избери профил"}
         </button>
       </div>
 

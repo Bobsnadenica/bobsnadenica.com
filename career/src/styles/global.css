@@ -908,7 +908,6 @@ textarea {
 .hero__visual-image,
 .hero__visual img,
 .consultant-card__media,
-.consultant-card img,
 .profile-card__avatar,
 .booking-card__media,
 .booking-card img,
@@ -920,7 +919,6 @@ textarea {
 }
 
 .hero__visual img,
-.consultant-card img,
 .profile-card__avatar,
 .booking-card img,
 .consultant-proof-card img {
@@ -1617,7 +1615,6 @@ textarea {
   border-color: var(--border-strong);
 }
 
-.consultant-card img,
 .consultant-card__media {
   aspect-ratio: 1 / 0.86;
   min-height: 220px;
@@ -2231,7 +2228,7 @@ textarea {
 
 .directory-spotlight {
   display: grid;
-  grid-template-columns: 68px minmax(0, 1fr) auto;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
   gap: 14px;
   align-items: start;
   padding: 16px;
@@ -2253,9 +2250,11 @@ textarea {
 }
 
 .directory-spotlight__avatar {
-  width: 68px;
+  width: 88px;
   height: 68px;
   border-radius: 20px;
+  object-fit: cover;
+  object-position: center 18%;
 }
 
 .directory-spotlight__label {
@@ -2355,18 +2354,20 @@ textarea {
 
 .consultant-card__header {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr) auto;
+  grid-template-columns: 136px minmax(0, 1fr) auto;
   gap: 18px;
   align-items: start;
 }
 
 .consultant-card__avatar {
-  width: 104px;
+  width: 136px;
   height: 104px;
   min-height: 0;
-  aspect-ratio: 1 / 1;
-  border-radius: 28px;
+  aspect-ratio: 17 / 13;
+  border-radius: 26px;
   object-fit: cover;
+  object-position: center 18%;
+  justify-self: start;
   box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
 }
 
@@ -2514,6 +2515,8 @@ textarea {
   border-radius: 24px;
   border: 3px solid rgba(255, 255, 255, 0.92);
   box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
+  object-fit: cover;
+  object-position: center 18%;
 }
 
 .hero-spotlight-card__header h3,
@@ -2568,6 +2571,8 @@ textarea {
   border: 6px solid rgba(255, 255, 255, 0.96);
   background: white;
   box-shadow: 0 22px 40px rgba(15, 23, 42, 0.14);
+  object-fit: cover;
+  object-position: center 18%;
 }
 
 .profile-stage__headline {
@@ -2647,6 +2652,26 @@ textarea {
 .demo-user-card__header {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
+}
+
+.profile-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-content: start;
+  align-items: stretch;
+}
+
+.profile-actions > * {
+  min-width: 176px;
+}
+
+.booking-card__slot-preview > * {
+  flex: 1 1 124px;
+}
+
+.booking-card__schedule .ghost-button {
+  width: 100%;
+  justify-content: center;
 }
 
 .demo-user-card__header h3,
@@ -4349,7 +4374,17 @@ textarea {
     aspect-ratio: 1 / 0.92;
   }
 
-  .consultant-card__avatar,
+  .consultant-card__avatar {
+    width: 100%;
+    max-width: 176px;
+    height: 128px;
+  }
+
+  .directory-spotlight__avatar {
+    width: 88px;
+    height: 68px;
+  }
+
   .profile-stage__avatar {
     width: 112px;
     height: 112px;
@@ -4475,6 +4510,11 @@ textarea {
     gap: 8px;
   }
 
+  .profile-actions {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
   .profile-stage__content {
     padding: 0 18px 18px;
     margin-top: -42px;
@@ -4518,7 +4558,6 @@ textarea {
     justify-content: center;
   }
 
-  .consultant-card img,
   .consultant-proof-card img,
   .booking-card img {
     aspect-ratio: 1 / 0.92;
