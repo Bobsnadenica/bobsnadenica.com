@@ -1242,12 +1242,10 @@ function SuggestionPills({
 }
 
 export function HomePage() {
-  const [query, setQuery] = useState("");
   const [topDirectoryType, setTopDirectoryType] = useState<"all" | ConsultantProfileType>("all");
   const [homeConsultants, setHomeConsultants] = useState<ConsultantProfile[]>([]);
   const [homeLoading, setHomeLoading] = useState(true);
   const [homeError, setHomeError] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -1315,55 +1313,34 @@ export function HomePage() {
       <section className="hero">
         <div className="container hero__grid">
           <div className="hero__copy">
-            <p className="eyebrow">Професионална кариерна мрежа</p>
-            <h1>По-представителна кариера, по-ясен избор на консултант и по-силен следващ ход.</h1>
+            <p className="eyebrow">Каталог на консултанти и ментори</p>
+            <h1>Намери правилния човек още от първия екран.</h1>
             <p className="hero__lede">
-              CareerLane свързва професионалисти с проверени консултанти в среда,
-              създадена за доверие, добра презентация и ясно разграничение между роли,
-              профили и работен достъп.
+              По-малко шум, по-силни профили и директен път от каталога към личната страница
+              на консултанта или ментора.
             </p>
 
-            <form
-              className="search-card"
-              onSubmit={(event) => {
-                event.preventDefault();
-                navigate(`/users?q=${encodeURIComponent(query)}`);
-              }}
-            >
-              <label>
-                Какво търсиш?
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="LinkedIn профил, интервю, кариерна промяна, executive CV..."
-                />
-              </label>
-              <button className="primary-button" type="submit">
-                Намери консултант
-              </button>
-            </form>
-
             <div className="hero-actions">
-              <Link className="primary-button" to="/users">
-                За потребители
+              <Link className="primary-button" to="/consultants">
+                Виж каталога
               </Link>
-              <Link className="ghost-button" to="/consultants">
-                Каталог
+              <Link className="ghost-button" to="/users">
+                Търси по съвпадение
               </Link>
             </div>
 
             <div className="hero-stats">
               <div>
                 <strong>{directorySource.length} активни профила</strong>
-                <span>консултанти и ментори с публично присъствие</span>
+                <span>консултанти и ментори в един подреден каталог</span>
               </div>
               <div>
-                <strong>Отворен достъп за потребители</strong>
-                <span>консултантите и менторите могат да стартират с активен публичен профил</span>
-              </div>
-              <div>
-                <strong>Партньорска реклама</strong>
-                <span>позиция за полезни продукти и силни кариерни програми</span>
+                <strong>{spotlight ? spotlight.name : "Топ профил"}</strong>
+                <span>
+                  {spotlight
+                    ? spotlight.headline
+                    : "най-силният профил ще се показва тук автоматично"}
+                </span>
               </div>
             </div>
           </div>
@@ -1376,7 +1353,7 @@ export function HomePage() {
                     src={spotlight.heroUrl}
                     name={spotlight.name}
                     className="hero__visual-image"
-                    eyebrow="Подбран профил"
+                    eyebrow={spotlight.featured ? "Подбран профил" : "Активен профил"}
                     title={spotlight.name}
                     subtitle={spotlight.headline}
                   />
@@ -1443,94 +1420,14 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="section section--alt">
-        <div className="container journey-grid audience-grid">
-          {homeJourney.map((item) => (
-            <article className="journey-card" key={item.step}>
-              <span className="journey-card__step">{item.step}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-              <Link className="ghost-button" to={item.ctaTo}>
-                {item.ctaLabel}
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section section--tight" id="advertise">
-        <div className="container">
-          <aside className="ad-banner">
-            <div className="ad-banner__content">
-              <div className="ad-banner__header">
-                <span className="ad-banner__label">Партньорски продукт</span>
-                <span className="ad-banner__partner">Spesti</span>
-              </div>
-              <h2>Спри за секунда преди покупка и виж къде излиза по-изгодно.</h2>
-              <p>
-                Spesti помага да сравниш цени по-ясно и да планираш седмичните покупки
-                с по-малко импулсни решения и повече увереност.
-              </p>
-              <div className="ad-banner__metrics">
-                <span>Сравнение преди покупка</span>
-                <span>По-умен избор за кошницата</span>
-                <span>Бърз достъп от телефон и уеб</span>
-              </div>
-              <div className="ad-banner__actions">
-                <strong>Практичен инструмент за хора, които искат да харчат по-разумно.</strong>
-                <span>
-                  Част от екосистемата на bobsnadenica.com с фокус върху реална
-                  ежедневна стойност.
-                </span>
-                <div className="ad-banner__buttons">
-                  <a
-                    className="primary-button"
-                    href="https://www.bobsnadenica.com/cena/index.html"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Отвори Spesti
-                  </a>
-                  <a
-                    className="ghost-button"
-                    href="https://www.bobsnadenica.com/cena/index.html"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Виж цените
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="ad-banner__visual" aria-hidden="true">
-              <div className="ad-banner__visual-card ad-banner__visual-card--main">
-                <span className="ad-banner__visual-eyebrow">По-умен навик</span>
-                <strong>Сравни. Планирай. Спести.</strong>
-                <p>Проверка на цените преди магазина, без излишно лутане.</p>
-              </div>
-              <div className="ad-banner__visual-card ad-banner__visual-card--floating">
-                <span>Spesti</span>
-                <strong>Ясна картина за седмичната кошница.</strong>
-              </div>
-              <div className="ad-banner__visual-pills">
-                <span>Сравнение на цени</span>
-                <span>По-ясен избор</span>
-                <span>Пестене на време</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
       <section className="section">
         <div className="container">
           <div className="section-heading">
             <div>
               <p className="eyebrow">Топ профили</p>
-              <h2>Водещи консултанти и ментори, подредени на началната страница.</h2>
+              <h2>Най-силните профили, подредени за бърз избор.</h2>
               <p className="section-heading__copy">
-                Това е зоната за водещите активни профили. Можеш да превключваш между
-                консултанти и ментори и да показваш най-силното публично присъствие.
+                Превключваш между консултанти и ментори и отваряш профила веднага.
               </p>
             </div>
             <div className="search-shortcuts__list">
@@ -2080,6 +1977,8 @@ export function ConsultantsPage() {
     const fallback = visibleConsultants.filter((consultant) => !consultant.featured);
     return [...featured, ...fallback].slice(0, 3);
   }, [visibleConsultants]);
+  const leadConsultant = spotlightProfiles[0] || null;
+  const secondarySpotlights = spotlightProfiles.slice(1, 3);
 
   const nextOpenConsultant = useMemo(() => {
     return [...visibleConsultants].sort((left, right) => {
@@ -2163,40 +2062,39 @@ export function ConsultantsPage() {
         <div className="container directory-hero__grid">
           <div className="hero__copy directory-hero__copy">
             <p className="eyebrow">Публичен каталог</p>
-            <h1>Всеки консултант има собствен профил и ясен път от списъка към детайлите.</h1>
+            <h1>По-малко текст. По-силен first look. По-бърз избор.</h1>
             <p className="hero__lede">
-              Каталогът е подреден като директория на хора, а не като маркетингова
-              секция. Първо виждаш лицето, фокуса и ключовите факти, после отваряш
-              профила с пълния контекст, темите и свободните часове.
+              Тук първо виждаш най-силния профил, после останалите. Всеки card води
+              директно към личната страница на консултанта или ментора.
             </p>
 
             <div className="hero-actions">
               <a className="primary-button" href="#consultant-directory">
-                Разгледай профилите
+                Виж профилите
               </a>
               <Link className="ghost-button" to="/auth?tab=register&role=consultant">
-                Създай свой профил
+                Създай профил
               </Link>
             </div>
 
             <div className="hero-stats directory-hero__stats">
               <div>
                 <strong>{visibleConsultants.length || consultants.length || 0}</strong>
-                <span>активни профили в каталога</span>
+                <span>активни профили</span>
               </div>
               <div>
-                <strong>{consultantCount}</strong>
-                <span>консултанти с отделна публична страница</span>
+                <strong>{topProfileCount || 1}</strong>
+                <span>водещи профили</span>
               </div>
               <div>
                 <strong>{mentorCount}</strong>
-                <span>ментори, които могат да бъдат разгледани по същия модел</span>
+                <span>ментори в каталога</span>
               </div>
             </div>
 
             {directoryHighlights.length ? (
               <div className="chip-row">
-                {directoryHighlights.map((item) => (
+                {directoryHighlights.slice(0, 3).map((item) => (
                   <span className="chip" key={item}>
                     {item}
                   </span>
@@ -2206,23 +2104,29 @@ export function ConsultantsPage() {
           </div>
 
           <aside className="directory-hero__panel">
-            <div className="directory-hero__panel-intro">
-              <span className="status-badge status-badge--success">Лесен профилен преглед</span>
-              <h2>Бърз скан, после дълбочина.</h2>
-              <p>
-                Вдясно стоят избрани профили за бърз достъп, а пълният каталог по-долу
-                позволява търсене по дума, град и тип профил.
-              </p>
-            </div>
+            {leadConsultant ? (
+              <HeroSpotlightCard consultant={leadConsultant} />
+            ) : null}
 
-            <div className="directory-spotlight-list">
-              {spotlightProfiles.map((consultant, index) => (
-                <DirectorySpotlightCard
-                  consultant={consultant}
-                  index={index}
-                  key={consultant.consultantId}
-                />
-              ))}
+            {secondarySpotlights.length ? (
+              <div className="directory-spotlight-list">
+                {secondarySpotlights.map((consultant, index) => (
+                  <DirectorySpotlightCard
+                    consultant={consultant}
+                    index={index + 1}
+                    key={consultant.consultantId}
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            <div className="directory-hero__panel-intro">
+              <span className="status-badge status-badge--success">Профилите са clickable</span>
+              <h2>Тапваш card-а и отваряш профила.</h2>
+              <p>
+                Каталогът по-долу остава по-лек, а водещият консултант стои на първа
+                линия още в началото, включително на mobile.
+              </p>
             </div>
 
             {nextOpenConsultant ? (
@@ -5936,17 +5840,16 @@ function ConsultantCard({
   consultant: ConsultantProfile;
   match?: MatchInsight | null;
 }) {
-  const previewSlots = getUpcomingAvailabilitySlots(consultant.availability, 3);
   const summary = getConsultantDirectorySummary(consultant);
   const profileSignals = Array.from(
     new Set([
       ...getConsultantSummaryTags(consultant),
       ...getConsultationTopics(consultant).slice(0, 2)
     ])
-  ).slice(0, 4);
+  ).slice(0, 2);
 
   return (
-    <article className="consultant-card">
+    <Link className="consultant-card consultant-card--link" to={`/consultants/${consultant.slug}`}>
       <div className="consultant-card__body">
         <div className="consultant-card__header">
           <AvatarMedia
@@ -5983,23 +5886,10 @@ function ConsultantCard({
         {match ? <p className="consultant-card__match">{match.note}</p> : null}
         <p className="consultant-card__summary">{summary}</p>
 
-        <div className="consultant-card__fact-grid">
-          <article>
-            <span>Локация</span>
-            <strong>{getConsultantLocationLabel(consultant)}</strong>
-          </article>
-          <article>
-            <span>Опит</span>
-            <strong>{consultant.experienceYears} години</strong>
-          </article>
-          <article>
-            <span>Формат</span>
-            <strong>{consultant.sessionModes.join(" · ")}</strong>
-          </article>
-          <article>
-            <span>Свободен час</span>
-            <strong>{formatDate(consultant.nextAvailable)}</strong>
-          </article>
+        <div className="consultant-card__meta">
+          <span>{getConsultantLocationLabel(consultant)}</span>
+          <span>{consultant.experienceYears} години опит</span>
+          <span>{formatDate(consultant.nextAvailable)}</span>
         </div>
 
         <div className="chip-row consultant-card__topics">
@@ -6010,30 +5900,57 @@ function ConsultantCard({
           ))}
         </div>
 
-        {previewSlots.length ? (
-          <div className="consultant-card__slots">
-            {previewSlots.map((slot) => (
-              <span className="consultant-slot-pill" key={slot}>
-                {formatAvailabilityShortLabel(slot)}
-              </span>
-            ))}
-          </div>
-        ) : null}
-
         <div className="consultant-card__footer">
           <div className="consultant-card__footer-copy">
             <strong>{getConsultantPriceLabel(consultant)}</strong>
             <span>
-              {getSessionLengthLabel(consultant)} · {getConsultantTrustLabel(consultant)}
+              {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
             </span>
           </div>
-
-          <Link className="primary-button" to={`/consultants/${consultant.slug}`}>
-            Отвори профила
-          </Link>
+          <span className="consultant-card__link-label">Отвори профила</span>
         </div>
       </div>
-    </article>
+    </Link>
+  );
+}
+
+function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
+  return (
+    <Link className="hero-spotlight-card" to={`/consultants/${consultant.slug}`}>
+      <CoverMedia
+        src={consultant.heroUrl}
+        name={consultant.name}
+        className="hero-spotlight-card__media"
+        eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
+        title={consultant.name}
+        subtitle={consultant.headline}
+      />
+      <div className="hero-spotlight-card__body">
+        <div className="hero-spotlight-card__header">
+          <AvatarMedia
+            className="hero-spotlight-card__avatar"
+            src={consultant.avatarUrl}
+            name={consultant.name}
+          />
+          <div>
+            <span className="status-badge status-badge--success">Топ консултант / ментор</span>
+            <h3>{consultant.name}</h3>
+            <p>{consultant.headline}</p>
+          </div>
+        </div>
+
+        <div className="consultant-card__meta">
+          <span>{getConsultantLocationLabel(consultant)}</span>
+          <span>{consultant.experienceYears} години</span>
+          <span>{formatDate(consultant.nextAvailable)}</span>
+        </div>
+
+        <div className="hero-spotlight-card__footer">
+          <strong>{getConsultantPriceLabel(consultant)}</strong>
+          <span>Отвори профила</span>
+        </div>
+      </div>
+    </Link>
   );
 }
 
