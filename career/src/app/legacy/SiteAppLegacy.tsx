@@ -113,7 +113,7 @@ const userPlans: MarketingPlan[] = [
   },
   {
     name: "Разширен потребителски профил",
-    badge: "Coming soon",
+    badge: "Предстои",
     featured: true,
     disabled: true,
     note: "Подготвяме по-богат профил за хора, които искат по-подредена история, повече пространство за документи и по-силен работен поток.",
@@ -143,7 +143,7 @@ const consultantPlans: MarketingPlan[] = [
   },
   {
     name: "Pro профил за консултант",
-    badge: "Coming soon",
+    badge: "Предстои",
     featured: true,
     disabled: true,
     note: "Подготвяме Pro абонамент за консултанти и ментори с по-силна видимост, по-богато представяне и още инструменти за растеж.",
@@ -1314,10 +1314,10 @@ export function HomePage() {
         <div className="container hero__grid">
           <div className="hero__copy">
             <p className="eyebrow">Каталог на консултанти и ментори</p>
-            <h1>Намери правилния човек още от първия екран.</h1>
+            <h1>Избираш правилния човек още от първия екран.</h1>
             <p className="hero__lede">
-              По-малко шум, по-силни профили и директен път от каталога към личната страница
-              на консултанта или ментора.
+              Подбран профил, ясна наличност и директен достъп до личната страница на
+              консултанта или ментора.
             </p>
 
             <div className="hero-actions">
@@ -1332,10 +1332,10 @@ export function HomePage() {
             <div className="hero-stats">
               <div>
                 <strong>{directorySource.length} активни профила</strong>
-                <span>консултанти и ментори в един подреден каталог</span>
+                <span>в един подреден каталог</span>
               </div>
               <div>
-                <strong>{spotlight ? spotlight.name : "Топ профил"}</strong>
+                <strong>{spotlight ? "Водещ профил" : "Публичен каталог"}</strong>
                 <span>
                   {spotlight
                     ? spotlight.headline
@@ -1424,11 +1424,8 @@ export function HomePage() {
         <div className="container">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Топ профили</p>
-              <h2>Най-силните профили, подредени за бърз избор.</h2>
-              <p className="section-heading__copy">
-                Превключваш между консултанти и ментори и отваряш профила веднага.
-              </p>
+              <p className="eyebrow">Подбрани профили</p>
+              <h2>Силните профили, готови за бърз избор.</h2>
             </div>
             <div className="search-shortcuts__list">
               <button
@@ -1607,34 +1604,32 @@ export function UsersPage() {
         <div className="container hero__grid">
           <div className="hero__copy">
             <p className="eyebrow">За потребители</p>
-            <h1>Намираш правилния кариерен консултант с повече контекст и по-ясно съвпадение.</h1>
+            <h1>Избираш консултант по съвпадение, тема и наличност.</h1>
             <p className="hero__lede">
               {isConsultantViewer
-                ? "Това е потребителският изглед на CareerLane. Тук хората търсят консултант, а твоите съвпадения с професионалисти се подреждат в профила и таблото ти."
+                ? "Това е потребителският изглед на CareerLane. Подходящите професионалисти за теб се подреждат в профила и таблото ти."
                 : usingDemoProfile && activeDemoProfile
-                  ? `В момента каталогът е персонализиран спрямо профила на ${activeDemoProfile.name}, за да видиш как различен професионален контекст променя подреждането на консултантите.`
-                  : "Тази страница е за хората, които търсят консултант. Попълненият профил помага на CareerLane да подреди по-подходящите експерти според опита, целите и предпочитанията ти."}
+                  ? `Каталогът е персонализиран спрямо профила на ${activeDemoProfile.name}, за да видиш как различен професионален контекст променя подреждането на консултантите.`
+                  : "Попълненият профил помага да виждаш по-подходящите експерти по-напред."}
             </p>
 
             <div className="hero-stats">
               <div>
-                <strong>
-                  {isConsultantViewer ? "Потребителски изглед" : "Отворен каталог"}
-                </strong>
+                <strong>{isConsultantViewer ? "Потребителски изглед" : "Отворен каталог"}</strong>
                 <span>
                   {isConsultantViewer
-                    ? "така виждат списъка хората, които търсят консултант"
-                    : "до активните консултанти и ментори"}
+                    ? "така изглежда каталогът за хората, които търсят консултант"
+                    : "активни консултанти и ментори"}
                 </span>
               </div>
               <div>
-                <strong>{isConsultantViewer ? "Твоите съвпадения" : "Профил на потребителя"}</strong>
+                <strong>{topMatchDetails ? "Най-добро съвпадение" : "Профил на потребителя"}</strong>
                 <span>
-                  {isConsultantViewer
-                    ? "се подреждат в профила и таблото ти"
+                  {topMatchDetails
+                    ? `${topMatchDetails.score}% съвпадение`
                     : usingDemoProfile
                       ? "подреждането се персонализира според избрания профил"
-                      : "име, имейл, occupation и още разширяеми данни"}
+                      : "професионален контекст и предпочитания"}
                 </span>
               </div>
               <div>
@@ -1669,17 +1664,17 @@ export function UsersPage() {
                 {topMatch && !isConsultantViewer
                   ? `${topMatch.name} е сред най-подходящите избори${usingDemoProfile ? " за избрания профил" : " за профила ти"}`
                   : isConsultantViewer
-                    ? "Тук виждаш как CareerLane представя консултантите пред търсещите потребители"
+                    ? "Тук виждаш каталога така, както го виждат потребителите"
                     : "Виждаш всички активни консултанти и ментори"}
               </strong>
               <p>
                 {topMatch && topMatchDetails && !isConsultantViewer
-                  ? `${topMatchDetails.note} ${usingDemoProfile ? "Подреждането е персонализирано според избрания профил." : "Профилът ти помага на CareerLane да подреди по-подходящите експерти по-напред."}`
+                  ? `${topMatchDetails.note} ${usingDemoProfile ? "Подреждането е персонализирано според избрания профил." : "Профилът ти помага по-подходящите експерти да излизат по-напред."}`
                   : isConsultantViewer
                     ? "Като консултант няма да бъдеш съпоставян с други консултанти. Подходящите професионалисти се показват в твоето табло и профил."
                     : usingDemoProfile
                       ? "Смени профила по-долу и ще видиш как се променят съвпаденията."
-                      : "Попълненият профил помага на CareerLane да подрежда по-точно консултантите и менторите според целите ти."}
+                      : "Попълненият профил помага каталогът да се подрежда по-точно според целите ти."}
               </p>
             </div>
             <div className="hero__points">
@@ -1734,10 +1729,9 @@ export function UsersPage() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow">Персонализиране</p>
-                <h2>Избери профил и виж най-подходящите консултанти.</h2>
+                <h2>Избери профил и виж как се променя каталогът.</h2>
                 <p className="section-heading__copy">
-                  Подреждането по-долу се променя според опита, целите и интересите в
-                  избрания профил.
+                  Подреждането по-долу се променя според опита, целите и интересите в избрания профил.
                 </p>
               </div>
             </div>
@@ -1756,46 +1750,14 @@ export function UsersPage() {
         </section>
       ) : null}
 
-      <section className="section section--tight">
-        <div className="container role-experience-grid role-experience-grid--client">
-          {userExperienceCards.map((item) => (
-            <article className="role-experience-card role-experience-card--client" key={item.title}>
-              <span className="role-experience-card__eyebrow">{item.eyebrow}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <PlanSection
-        eyebrow="Планове за потребители"
-        title="Потребителският достъп е свободен, а фокусът е върху профила и точния избор на консултант или ментор."
-        description="Потребителите не плащат членство на този етап. Профилът служи за по-добро подреждане, заявки и по-ясно съвпадение."
-        plans={userPlans}
-      />
-
-      <section className="section section--alt">
-        <div className="container journey-grid">
-          {userJourney.map((item) => (
-            <article className="journey-card" key={item.step}>
-              <span className="journey-card__step">{item.step}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="section">
         <div className="container">
           <div className="section-heading">
             <div>
               <p className="eyebrow">Достъп до консултанти и ментори</p>
-              <h2>Филтрирай, сравнявай и намирай най-подходящите активни профили.</h2>
+              <h2>Филтрирай и отвори най-подходящите активни профили.</h2>
               <p className="section-heading__copy">
-                Списъкът е подреден така, че да се ориентираш бързо. Ако имаш попълнен
-                профил, CareerLane подрежда по-напред консултантите с най-близко съвпадение.
+                Ако имаш попълнен профил, най-близките съвпадения излизат по-напред.
               </p>
             </div>
           </div>
@@ -1998,17 +1960,6 @@ export function ConsultantsPage() {
     ).sort((left, right) => left.localeCompare(right, "bg"));
   }, [consultants]);
 
-  const directoryHighlights = useMemo(() => {
-    return Array.from(
-      new Set(
-        visibleConsultants.flatMap((consultant) => [
-          ...getConsultantSummaryTags(consultant),
-          ...getConsultationTopics(consultant).slice(0, 1)
-        ])
-      )
-    ).slice(0, 5);
-  }, [visibleConsultants]);
-
   const topProfileCount = visibleConsultants.filter((consultant) => consultant.featured).length;
   const mentorCount = visibleConsultants.filter(
     (consultant) => getConsultantProfileType(consultant) === "mentor"
@@ -2060,10 +2011,9 @@ export function ConsultantsPage() {
         <div className="container directory-hero__grid">
           <div className="hero__copy directory-hero__copy">
             <p className="eyebrow">Публичен каталог</p>
-            <h1>По-малко текст. По-силен first look. По-бърз избор.</h1>
+            <h1>Профили, подредени за бърз избор.</h1>
             <p className="hero__lede">
-              Тук първо виждаш най-силния профил, после останалите. Всеки card води
-              директно към личната страница на консултанта или ментора.
+              Първо виждаш водещия профил, после каталога. Всеки профил води директно към личната страница.
             </p>
 
             <div className="hero-actions">
@@ -2081,24 +2031,14 @@ export function ConsultantsPage() {
                 <span>активни профили</span>
               </div>
               <div>
-                <strong>{topProfileCount || 1}</strong>
-                <span>водещи профили</span>
+                <strong>{consultantCount}</strong>
+                <span>консултанти</span>
               </div>
               <div>
                 <strong>{mentorCount}</strong>
-                <span>ментори в каталога</span>
+                <span>ментори</span>
               </div>
             </div>
-
-            {directoryHighlights.length ? (
-              <div className="chip-row">
-                {directoryHighlights.slice(0, 3).map((item) => (
-                  <span className="chip" key={item}>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            ) : null}
           </div>
 
           <aside className="directory-hero__panel">
@@ -2118,18 +2058,9 @@ export function ConsultantsPage() {
               </div>
             ) : null}
 
-            <div className="directory-hero__panel-intro">
-              <span className="status-badge status-badge--success">Профилите са clickable</span>
-              <h2>Тапваш card-а и отваряш профила.</h2>
-              <p>
-                Каталогът по-долу остава по-лек, а водещият консултант стои на първа
-                линия още в началото, включително на mobile.
-              </p>
-            </div>
-
             {nextOpenConsultant ? (
               <div className="directory-hero__next">
-                <span>Следващ свободен профил</span>
+                <span>Следващ свободен слот</span>
                 <strong>{nextOpenConsultant.name}</strong>
                 <p>
                   {formatDate(nextOpenConsultant.nextAvailable)} ·{" "}
@@ -2148,8 +2079,7 @@ export function ConsultantsPage() {
               <p className="eyebrow">Каталог на профили</p>
               <h2>Разгледай хората по име, тема и наличност.</h2>
               <p className="section-heading__copy">
-                Профилите са подредени така, че ключовите неща да се виждат веднага:
-                кой е човекът, по какво работи, какъв е форматът и кога има свободен час.
+                Най-важното се вижда веднага: човекът, фокусът, форматът и следващият свободен час.
               </p>
             </div>
           </div>
@@ -2250,19 +2180,13 @@ export function ConsultantsPage() {
           <article className="ad-banner panel directory-cta-banner">
             <div className="ad-banner__content">
               <div className="ad-banner__header">
-                <span className="ad-banner__label">За експерти</span>
+                <span className="ad-banner__label">За консултанти</span>
                 <span className="ad-banner__partner">Публичен профил</span>
               </div>
-              <h2>Искаш и твоят профил да изглежда така подреден и лесен за разглеждане?</h2>
+              <h2>Профил, който изглежда уверено и се разглежда лесно.</h2>
               <p>
-                Публичният профил събира лице, headline, теми, формати и свободни часове
-                в една страница, която можеш да споделяш уверено.
+                Лице, headline, теми и свободни часове в една подредена публична страница.
               </p>
-              <div className="ad-banner__metrics">
-                <span>Отделна профилна страница</span>
-                <span>Линк за споделяне</span>
-                <span>Свободни слотове</span>
-              </div>
               <div className="ad-banner__buttons">
                 <Link className="primary-button" to="/auth?tab=register&role=consultant">
                   Създай профил
@@ -2278,19 +2202,8 @@ export function ConsultantsPage() {
                 <span>Каталог</span>
                 <strong>Подредено лице, кратък фокус и директен достъп до профила.</strong>
                 <p>
-                  Моделът е същият на десктоп и на телефон, така че профилът да е лесен
-                  за преглед във всеки контекст.
+                  Еднакво ясен на десктоп и на телефон.
                 </p>
-              </div>
-              <div className="ad-banner__visual-card ad-banner__visual-card--floating">
-                <span>Профил</span>
-                <strong>Headline, теми, слотове, доверие.</strong>
-                <p>Най-важното се вижда още от директорията, без да се губи човекът зад профила.</p>
-              </div>
-              <div className="ad-banner__visual-pills">
-                <span>Личен профил</span>
-                <span>Ясна структура</span>
-                <span>Бързо споделяне</span>
               </div>
             </div>
           </article>
@@ -2434,9 +2347,8 @@ export function ContactPage() {
             <p className="eyebrow">Контакти</p>
             <h1>Ясни канали за поддръжка, партньорства и правни въпроси.</h1>
             <p className="hero__lede">
-              Контактната страница е оформена така, както би изглеждала на реален
-              production сайт: с отделни направления, ясни очаквания и директен начин за
-              започване на разговор.
+              Общите въпроси, партньорствата и правните запитвания са разделени в ясни
+              канали, за да започва разговорът по-лесно.
             </p>
           </div>
 
@@ -2748,14 +2660,14 @@ export function ConsultantPage() {
   const availabilityPreviewSlots = visibleAvailability.slice(0, 4);
   const isDemoConsultant = Boolean(consultant.isDemo);
   const profileSummary =
-    consultant.experienceSummary || consultant.bio || getConsultantWorkApproach(consultant);
+    consultant.bio || consultant.experienceSummary || getConsultantWorkApproach(consultant);
   const profileSignals = Array.from(
     new Set([
       ...getConsultantSummaryTags(consultant),
       ...getConsultationTopics(consultant).slice(0, 2),
       ...getConsultantIdealFor(consultant).slice(0, 1)
     ])
-  ).slice(0, 6);
+  ).slice(0, 4);
   const profileFacts = [
     { label: "Локация", value: getConsultantLocationLabel(consultant) },
     { label: "Формат", value: consultant.sessionModes.join(" · ") },
@@ -5929,7 +5841,7 @@ function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
             name={consultant.name}
           />
           <div>
-            <span className="status-badge status-badge--success">Топ консултант / ментор</span>
+            <span className="status-badge status-badge--success">Подбран профил</span>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
           </div>
