@@ -12,6 +12,18 @@ This folder is a self-updating static archive that reads directly from
 
 You do not need to hand-edit the HTML when adding links.
 
+## Built-in interactions
+
+- Search across titles, notes, categories, and URLs
+- Filter by category
+- Switch between grid and compact layout
+- Sort manually, alphabetically, or by domain
+- Save favorite links in the browser
+- Reopen recent links quickly
+- Use the random picker for a fast jump
+
+Saved and recent links are stored in browser `localStorage`, not in the repo.
+
 ## Supported formats
 
 ```txt
@@ -20,6 +32,9 @@ https://example.com/
 Label | https://example.com/
 Label | https://example.com/ | Optional note
 ```
+
+Using labels and short notes is recommended because the cards look better and
+search more cleanly.
 
 Notes:
 

@@ -39,6 +39,9 @@
           <div class="hero__actions">
             <a class="button button--primary" href="#archive">Browse archive</a>
             <a class="button button--secondary" href="./Links.txt">Open Links.txt</a>
+            <button class="button button--ghost" id="surprise-button" type="button">
+              Surprise me
+            </button>
           </div>
 
           <dl class="hero__stats" aria-label="Archive statistics">
@@ -68,7 +71,7 @@
 
             <div class="signal-panel__body">
               <pre class="signal-panel__code"><code>Games:
-https://example.com/
+Steam | https://store.steampowered.com/ | PC games and wishlists
 Label | https://example.com/ | Optional note</code></pre>
 
               <div class="signal-panel__tags" id="hero-category-tags"></div>
@@ -101,15 +104,93 @@ Label | https://example.com/ | Optional note</code></pre>
               />
             </label>
 
+            <div class="control-bar" aria-label="Archive controls">
+              <label class="select-field" for="sort-select">
+                <span>Sort</span>
+                <select id="sort-select" name="sort">
+                  <option value="manual">Manual order</option>
+                  <option value="alpha">A to Z</option>
+                  <option value="host">By domain</option>
+                </select>
+              </label>
+
+              <div class="layout-toggle" role="group" aria-label="Layout mode">
+                <button
+                  class="toggle-chip is-active"
+                  id="layout-grid"
+                  type="button"
+                  data-layout="grid"
+                >
+                  Grid
+                </button>
+                <button
+                  class="toggle-chip"
+                  id="layout-compact"
+                  type="button"
+                  data-layout="compact"
+                >
+                  Compact
+                </button>
+              </div>
+
+              <button class="mini-action" id="reset-filters-button" type="button">
+                Reset filters
+              </button>
+            </div>
+
             <div class="toolbar__summary" id="results-summary">
               Loading links from Links.txt...
             </div>
+
+            <p class="toolbar__hint">
+              Shortcuts:
+              <code>/</code> search,
+              <code>r</code> random,
+              <code>esc</code> clear search.
+            </p>
 
             <nav
               class="category-pills"
               id="category-pills"
               aria-label="Filter by category"
             ></nav>
+          </div>
+        </section>
+
+        <section class="spotlight reveal" aria-labelledby="spotlight-title">
+          <div class="spotlight__heading">
+            <p class="eyebrow">Interactive layer</p>
+            <h2 id="spotlight-title">Save, revisit, and discover faster.</h2>
+            <p>
+              The archive now remembers your saved links and recent launches in
+              the browser, so the page becomes more useful the more you use it.
+            </p>
+          </div>
+
+          <div class="spotlight__grid">
+            <article class="feature-card feature-card--accent" id="random-card">
+              <div class="feature-card__header">
+                <p class="eyebrow">Random pick</p>
+                <h3>Need a quick jump?</h3>
+              </div>
+              <div id="random-link-card"></div>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__header">
+                <p class="eyebrow">Saved links</p>
+                <h3 id="favorites-heading">Your pinned shortcuts</h3>
+              </div>
+              <div class="feature-list" id="favorites-list"></div>
+            </article>
+
+            <article class="feature-card">
+              <div class="feature-card__header">
+                <p class="eyebrow">Recent launches</p>
+                <h3 id="recent-heading">Open again without searching</h3>
+              </div>
+              <div class="feature-list" id="recent-list"></div>
+            </article>
           </div>
         </section>
 
@@ -192,5 +273,7 @@ Label | https://example.com/ | Optional note</code></pre>
         </p>
       </footer>
     </div>
+
+    <div class="toast" id="toast" hidden></div>
   </body>
 </html>
