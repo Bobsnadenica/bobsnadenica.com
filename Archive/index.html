@@ -6,274 +6,110 @@
     <title>Useful Links Archive</title>
     <meta
       name="description"
-      content="A living archive of useful links, generated directly from Links.txt."
+      content="A minimal archive of useful links generated directly from Links.txt."
     />
-    <meta name="theme-color" content="#0e1822" />
+    <meta name="theme-color" content="#101514" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./assets/css/styles.css" />
     <script type="module" src="./assets/js/app.mjs"></script>
   </head>
   <body>
-    <div class="page-shell">
-      <div class="page-backdrop" aria-hidden="true">
-        <span class="page-backdrop__orb page-backdrop__orb--one"></span>
-        <span class="page-backdrop__orb page-backdrop__orb--two"></span>
-        <span class="page-backdrop__grid"></span>
-      </div>
+    <main class="shell">
+      <header class="masthead">
+        <p class="masthead__kicker">/ useful-links-archive</p>
+        <h1>Archive</h1>
+        <p class="masthead__lede">
+          Edit <code>Links.txt</code>. Push to GitHub. New links appear here.
+        </p>
 
-      <header class="hero reveal is-visible">
-        <div class="hero__content">
-          <p class="eyebrow">Living Link Archive</p>
-          <p class="hero__brand">Archive</p>
-          <h1>Every useful link, one text file away.</h1>
-          <p class="hero__lede">
-            Add a new entry to <code>Links.txt</code>, push to GitHub, and the
-            website turns it into a fresh button automatically.
-          </p>
+        <div class="masthead__actions">
+          <a class="ascii-button" href="#archive">[ browse ]</a>
+          <a class="ascii-button" href="./Links.txt">[ links.txt ]</a>
+        </div>
 
-          <div class="hero__actions">
-            <a class="button button--primary" href="#archive">Browse archive</a>
-            <a class="button button--secondary" href="./Links.txt">Open Links.txt</a>
-            <button class="button button--ghost" id="surprise-button" type="button">
-              Surprise me
-            </button>
+        <dl class="masthead__stats" aria-label="Archive statistics">
+          <div>
+            <dt>links</dt>
+            <dd id="hero-link-count">0</dd>
           </div>
-
-          <dl class="hero__stats" aria-label="Archive statistics">
-            <div>
-              <dt>Total links</dt>
-              <dd id="hero-link-count">0</dd>
-            </div>
-            <div>
-              <dt>Categories</dt>
-              <dd id="hero-category-count">0</dd>
-            </div>
-            <div>
-              <dt>Source</dt>
-              <dd>Plain text</dd>
-            </div>
-          </dl>
-        </div>
-
-        <div class="hero__visual reveal">
-          <section class="signal-panel" aria-labelledby="signal-panel-title">
-            <div class="signal-panel__meta">
-              <p class="eyebrow eyebrow--soft" id="signal-panel-title">
-                Source of truth
-              </p>
-              <p class="signal-panel__stamp" id="sync-stamp">Waiting for file...</p>
-            </div>
-
-            <div class="signal-panel__body">
-              <pre class="signal-panel__code"><code>Games:
-Steam | https://store.steampowered.com/ | PC games and wishlists
-Label | https://example.com/ | Optional note</code></pre>
-
-              <div class="signal-panel__tags" id="hero-category-tags"></div>
-            </div>
-          </section>
-        </div>
+          <div>
+            <dt>categories</dt>
+            <dd id="hero-category-count">0</dd>
+          </div>
+          <div>
+            <dt>source</dt>
+            <dd id="sync-stamp">live source</dd>
+          </div>
+        </dl>
       </header>
 
-      <main>
-        <section class="toolbar reveal">
-          <div class="toolbar__intro">
-            <p class="eyebrow">Find fast</p>
-            <h2>Search, filter, and launch.</h2>
-            <p>
-              Category headings become sections. URLs become buttons. If you
-              want more control later, the parser is already ready for labels
-              and notes.
-            </p>
+      <section class="controls" aria-label="Archive controls">
+        <label class="search-field" for="search-input">
+          <span>search</span>
+          <input
+            id="search-input"
+            name="search"
+            type="search"
+            placeholder="Search name, note, url, or category"
+            autocomplete="off"
+          />
+        </label>
+
+        <p class="results-summary" id="results-summary">
+          Loading links from Links.txt...
+        </p>
+
+        <p class="controls__hint">
+          shortcuts:
+          <code>/</code> search,
+          <code>esc</code> clear
+        </p>
+
+        <nav
+          class="category-pills"
+          id="category-pills"
+          aria-label="Filter by category"
+        ></nav>
+      </section>
+
+      <section class="archive" id="archive" aria-live="polite">
+        <noscript>
+          <div class="feedback feedback--error">
+            <h2>JavaScript is required</h2>
+            <p>This page renders its link list from <code>Links.txt</code>.</p>
           </div>
+        </noscript>
 
-          <div class="toolbar__controls">
-            <label class="search-field" for="search-input">
-              <span>Search the archive</span>
-              <input
-                id="search-input"
-                name="search"
-                type="search"
-                placeholder="Search by name, URL, note, or category"
-                autocomplete="off"
-              />
-            </label>
+        <div class="feedback feedback--error" id="error-state" hidden>
+          <h2>Could not build the archive</h2>
+          <p id="error-message"></p>
+        </div>
 
-            <div class="control-bar" aria-label="Archive controls">
-              <label class="select-field" for="sort-select">
-                <span>Sort</span>
-                <select id="sort-select" name="sort">
-                  <option value="manual">Manual order</option>
-                  <option value="alpha">A to Z</option>
-                  <option value="host">By domain</option>
-                </select>
-              </label>
+        <div class="feedback feedback--empty" id="empty-state" hidden>
+          <h2>No links match the current filter</h2>
+          <p>Try another term or switch back to all categories.</p>
+        </div>
 
-              <div class="layout-toggle" role="group" aria-label="Layout mode">
-                <button
-                  class="toggle-chip is-active"
-                  id="layout-grid"
-                  type="button"
-                  data-layout="grid"
-                >
-                  Grid
-                </button>
-                <button
-                  class="toggle-chip"
-                  id="layout-compact"
-                  type="button"
-                  data-layout="compact"
-                >
-                  Compact
-                </button>
-              </div>
-
-              <button class="mini-action" id="reset-filters-button" type="button">
-                Reset filters
-              </button>
-            </div>
-
-            <div class="toolbar__summary" id="results-summary">
-              Loading links from Links.txt...
-            </div>
-
-            <p class="toolbar__hint">
-              Shortcuts:
-              <code>/</code> search,
-              <code>r</code> random,
-              <code>esc</code> clear search.
-            </p>
-
-            <nav
-              class="category-pills"
-              id="category-pills"
-              aria-label="Filter by category"
-            ></nav>
-          </div>
-        </section>
-
-        <section class="spotlight reveal" aria-labelledby="spotlight-title">
-          <div class="spotlight__heading">
-            <p class="eyebrow">Interactive layer</p>
-            <h2 id="spotlight-title">Save, revisit, and discover faster.</h2>
-            <p>
-              The archive now remembers your saved links and recent launches in
-              the browser, so the page becomes more useful the more you use it.
-            </p>
-          </div>
-
-          <div class="spotlight__grid">
-            <article class="feature-card feature-card--accent" id="random-card">
-              <div class="feature-card__header">
-                <p class="eyebrow">Random pick</p>
-                <h3>Need a quick jump?</h3>
-              </div>
-              <div id="random-link-card"></div>
-            </article>
-
-            <article class="feature-card">
-              <div class="feature-card__header">
-                <p class="eyebrow">Saved links</p>
-                <h3 id="favorites-heading">Your pinned shortcuts</h3>
-              </div>
-              <div class="feature-list" id="favorites-list"></div>
-            </article>
-
-            <article class="feature-card">
-              <div class="feature-card__header">
-                <p class="eyebrow">Recent launches</p>
-                <h3 id="recent-heading">Open again without searching</h3>
-              </div>
-              <div class="feature-list" id="recent-list"></div>
-            </article>
-          </div>
-        </section>
-
-        <section class="archive reveal" id="archive" aria-live="polite">
-          <div class="archive__heading">
-            <p class="eyebrow">Collected knowledge</p>
-            <h2>Live from Links.txt</h2>
-          </div>
-
-          <noscript>
-            <div class="feedback feedback--error">
-              <h3>JavaScript is required</h3>
-              <p>
-                This page renders its buttons from <code>Links.txt</code> in the
-                browser.
-              </p>
-            </div>
-          </noscript>
-
-          <div class="feedback feedback--error" id="error-state" hidden>
-            <h3>Could not build the archive</h3>
-            <p id="error-message"></p>
-          </div>
-
-          <div class="feedback feedback--empty" id="empty-state" hidden>
-            <h3>No links match the current filter</h3>
-            <p>Try another search term or switch back to all categories.</p>
-          </div>
-
-          <div class="category-stack" id="category-stack"></div>
-        </section>
-
-        <section class="workflow reveal" aria-labelledby="workflow-title">
-          <div class="workflow__heading">
-            <p class="eyebrow">Future-ready workflow</p>
-            <h2 id="workflow-title">Edit one file. Keep the site current.</h2>
-          </div>
-
-          <div class="workflow__steps">
-            <article>
-              <span>01</span>
-              <h3>Add or organize links</h3>
-              <p>
-                Use a heading that ends with <code>:</code>, then list URLs
-                under it. Raw URLs work immediately.
-              </p>
-            </article>
-
-            <article>
-              <span>02</span>
-              <h3>Push to GitHub</h3>
-              <p>
-                The site reads the latest published <code>Links.txt</code>
-                directly, so your archive stays in sync with your repo.
-              </p>
-            </article>
-
-            <article>
-              <span>03</span>
-              <h3>See fresh buttons appear</h3>
-              <p>
-                Each new line becomes a new interactive entry without hand
-                editing the page.
-              </p>
-            </article>
-          </div>
-        </section>
-      </main>
+        <div class="category-stack" id="category-stack"></div>
+      </section>
 
       <footer class="site-footer">
         <p>
-          Single source of truth:
+          single source of truth:
           <a href="./Links.txt">Links.txt</a>
         </p>
-        <p class="site-footer__hint">
-          Supported lines:
-          <code>Category:</code>,
-          <code>https://example.com/</code>,
-          <code>Label | https://example.com/ | Optional note</code>.
+        <p>
+          supported lines:
+          <code>Category:</code>
+          <code>https://example.com/</code>
+          <code>Label | https://example.com/ | Optional note</code>
         </p>
       </footer>
-    </div>
-
-    <div class="toast" id="toast" hidden></div>
+    </main>
   </body>
 </html>

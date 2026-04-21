@@ -16,13 +16,7 @@ You do not need to hand-edit the HTML when adding links.
 
 - Search across titles, notes, categories, and URLs
 - Filter by category
-- Switch between grid and compact layout
-- Sort manually, alphabetically, or by domain
-- Save favorite links in the browser
-- Reopen recent links quickly
-- Use the random picker for a fast jump
-
-Saved and recent links are stored in browser `localStorage`, not in the repo.
+- Minimal ASCII-style link buttons with light hover motion
 
 ## Supported formats
 
