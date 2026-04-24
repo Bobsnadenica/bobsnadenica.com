@@ -777,6 +777,32 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .shortcut-stack,
+    .shortcut-callouts {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .shortcut-group {
+      display: grid;
+      gap: 0.95rem;
+    }
+
+    .shortcut-group h3 {
+      font-size: 1.18rem;
+      margin: 0;
+    }
+
+    .shortcut-group p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 68ch;
+    }
+
+    .shortcut-callouts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .shortcut-card,
     .terminal-card {
       padding: 1rem;
@@ -1247,6 +1273,7 @@
       .tips-grid,
       .notes-grid,
       .flow-grid,
+      .shortcut-callouts,
       .cleanup-grid,
       .finish-grid,
       .lab-body,
@@ -1305,6 +1332,7 @@
       .sim-stats,
       .sim-buttons,
       .search-row,
+      .shortcut-callouts,
       .shortcut-grid {
         grid-template-columns: 1fr;
       }
@@ -1655,61 +1683,730 @@
 
       <section class="section" id="shortcuts">
         <div class="section-label">Shortcuts</div>
-        <h2>Keyboard moves that make Mac workflows feel much faster</h2>
+        <h2>The default MacBook Air keyboard shortcuts worth actually learning</h2>
         <p class="section-intro">
-          A good Mac workflow is part command line, part keyboard navigation. These are the shortcuts
-          most worth memorizing because they reduce friction everywhere.
+          This is the expanded shortcut guide for a MacBook Air with Apple silicon. I focused on the
+          default macOS shortcuts, Finder shortcuts, screenshot shortcuts, text-editing moves, and
+          hardware-key behavior that actually matter day to day. App-specific shortcuts can still vary,
+          and many can be customized in System Settings &gt; Keyboard &gt; Keyboard Shortcuts.
         </p>
 
-        <div class="shortcut-grid">
-          <article class="shortcut-card">
-            <h3>Switch apps</h3>
-            <div class="shortcut-pill">
-              <span class="key-cap">Cmd</span>
-              <span class="key-cap">Tab</span>
-            </div>
-            <p>Cycle through open apps quickly.</p>
+        <div class="shortcut-callouts">
+          <article class="note-block">
+            <span>Keyboard model</span>
+            <h3>What is special about the MacBook Air M2 keyboard</h3>
+            <p>
+              Your top row is a hybrid row: by default it controls Mac features like brightness,
+              Mission Control, Spotlight, Dictation, Focus, media, and volume. Hold <code>Fn</code>
+              while pressing one of those keys if you want the standard <code>F1</code> to
+              <code>F12</code> behavior instead.
+            </p>
           </article>
-          <article class="shortcut-card">
-            <h3>Close current window or tab</h3>
-            <div class="shortcut-pill">
-              <span class="key-cap">Cmd</span>
-              <span class="key-cap">W</span>
-            </div>
-            <p>Works in Finder, browsers, editors, and many apps.</p>
+          <article class="note-block">
+            <span>Apple silicon note</span>
+            <h3>Startup behavior is different from old Intel Macs</h3>
+            <p>
+              On a MacBook Air M2, the main startup shortcut is really the power button itself:
+              press and keep holding Touch ID / power during startup to open Startup Options,
+              Recovery, and Safe Mode choices. Most of the old Intel startup key combos do not work
+              the same way on Apple silicon.
+            </p>
           </article>
-          <article class="shortcut-card">
-            <h3>Find in the current app</h3>
-            <div class="shortcut-pill">
-              <span class="key-cap">Cmd</span>
-              <span class="key-cap">F</span>
+        </div>
+
+        <div class="shortcut-stack">
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Modifier keys</span>
+            <h3>Know what each special key is for</h3>
+            <p>
+              If Mac shortcuts feel confusing at first, it is usually because the modifier keys do
+              different jobs than on Windows. Learn this legend once and the rest of the page makes
+              much more sense.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>What it does</th>
+                    <th>Why it matters</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>Cmd</code></td>
+                    <td>The primary action key for most Mac shortcuts.</td>
+                    <td>Think of it as the key behind copy, paste, save, switch apps, hide, and quit.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option</code></td>
+                    <td>Changes a command into an alternate or more advanced version.</td>
+                    <td>Common for hidden menu items, smaller volume steps, alternate open behavior, and word navigation.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control</code></td>
+                    <td>Used for focus movement, context behavior, and classic text-navigation shortcuts.</td>
+                    <td>You will see it a lot in accessibility, Mission Control, and cursor-control shortcuts.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift</code></td>
+                    <td>Adds selection, uppercase, or the "bigger version" of a shortcut.</td>
+                    <td>Very common in screenshots, text selection, redo, and alternate save actions.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn</code> / <code>Globe</code></td>
+                    <td>Switches top-row behavior, opens certain system tools, and triggers Mac laptop actions.</td>
+                    <td>Important on the MacBook Air because it unlocks standard <code>F</code> keys and Globe-key shortcuts.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Touch ID</code> / power</td>
+                    <td>Acts as power button, lock button, and the Apple silicon startup-options trigger.</td>
+                    <td>It is the key you use for wake, lock, force power-off, and startup recovery access.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <p>Search inside documents, web pages, and many app views.</p>
           </article>
-          <article class="shortcut-card">
-            <h3>Open a new Finder window</h3>
-            <div class="shortcut-pill">
-              <span class="key-cap">Cmd</span>
-              <span class="key-cap">N</span>
+
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Top row</span>
+            <h3>MacBook Air M2 function keys and what the hardware row does by default</h3>
+            <p>
+              This is the row most people underuse. On a MacBook Air M2 it gives you direct access
+              to the most common system controls without opening menus.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Default action</th>
+                    <th>What it does</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>F1</code></td>
+                    <td>Brightness down</td>
+                    <td>Decreases display brightness.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F2</code></td>
+                    <td>Brightness up</td>
+                    <td>Increases display brightness.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F3</code></td>
+                    <td>Mission Control</td>
+                    <td>Shows open windows and spaces so you can jump between workspaces visually.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F4</code></td>
+                    <td>Spotlight</td>
+                    <td>Opens Spotlight search for files, apps, settings, calculations, and quick actions.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F5</code></td>
+                    <td>Dictation / Siri</td>
+                    <td>Starts Dictation, and press-and-hold activates Siri.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F6</code></td>
+                    <td>Do Not Disturb</td>
+                    <td>Toggles Focus so notifications stop interrupting you.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F7</code></td>
+                    <td>Previous / rewind</td>
+                    <td>Moves backward in supported audio and video playback.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F8</code></td>
+                    <td>Play / pause</td>
+                    <td>Starts or pauses media playback.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F9</code></td>
+                    <td>Next / fast-forward</td>
+                    <td>Moves forward in supported audio and video playback.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F10</code></td>
+                    <td>Mute</td>
+                    <td>Mutes or unmutes Mac audio.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F11</code></td>
+                    <td>Volume down</td>
+                    <td>Reduces output volume.</td>
+                  </tr>
+                  <tr>
+                    <td><code>F12</code></td>
+                    <td>Volume up</td>
+                    <td>Raises output volume.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn</code> + <code>F1</code> to <code>F12</code></td>
+                    <td>Use standard function keys</td>
+                    <td>Runs the normal <code>F</code>-key behavior instead of the printed Mac feature.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option</code> + brightness or volume key</td>
+                    <td>Open related settings</td>
+                    <td>Jumps straight to Displays or Sound settings from the keyboard.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option</code> + <code>Shift</code> + brightness or volume key</td>
+                    <td>Fine-grained adjustment</td>
+                    <td>Changes brightness or volume in smaller steps when you want more precise control.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <p>Quick way to create a fresh Finder view.</p>
           </article>
-          <article class="shortcut-card">
-            <h3>Hide current app</h3>
-            <div class="shortcut-pill">
-              <span class="key-cap">Cmd</span>
-              <span class="key-cap">H</span>
+
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Everyday shortcuts</span>
+            <h3>The core default shortcuts that work almost everywhere</h3>
+            <p>
+              These are the shortcuts most Mac users end up using dozens of times a day across Finder,
+              browsers, editors, documents, and utility apps.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Shortcut</th>
+                    <th>What it does</th>
+                    <th>Where it helps</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>Cmd-X</code></td>
+                    <td>Cut the selected item to the clipboard.</td>
+                    <td>Useful when moving selected text or editable content.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-C</code></td>
+                    <td>Copy the selected item.</td>
+                    <td>Works for text, images, files, and many UI objects.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-V</code></td>
+                    <td>Paste clipboard contents.</td>
+                    <td>Use it everywhere from Finder to notes, email, and editors.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Z</code> / <code>Shift-Cmd-Z</code></td>
+                    <td>Undo or redo the last action.</td>
+                    <td>One of the safest ways to experiment without fear.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-A</code></td>
+                    <td>Select all.</td>
+                    <td>Fast for bulk edits, file selection, or replacing content.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-F</code></td>
+                    <td>Find inside the current window, page, or document.</td>
+                    <td>Ideal for scanning long pages, logs, docs, and Finder results.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-G</code> / <code>Shift-Cmd-G</code></td>
+                    <td>Jump to the next or previous search match.</td>
+                    <td>Pairs naturally with <code>Cmd-F</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-N</code></td>
+                    <td>Create a new window or document.</td>
+                    <td>Finder, browsers, editors, and many Apple apps use it.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-O</code></td>
+                    <td>Open a file, project, or item.</td>
+                    <td>Good for jumping straight into selected content.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-S</code></td>
+                    <td>Save the current file.</td>
+                    <td>The reflex shortcut that prevents accidental data loss.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-P</code></td>
+                    <td>Open the print dialog.</td>
+                    <td>Works in documents, browsers, PDFs, and many utilities.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-W</code></td>
+                    <td>Close the current tab or window.</td>
+                    <td>Great for cleanup without quitting the entire app.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Q</code></td>
+                    <td>Quit the current app.</td>
+                    <td>Use it when you want the whole app closed, not just a window.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-H</code></td>
+                    <td>Hide the current app.</td>
+                    <td>Useful when you want visual focus without actually closing anything.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option-Cmd-H</code></td>
+                    <td>Hide all apps except the current one.</td>
+                    <td>A fast way to clear desktop clutter.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Tab</code></td>
+                    <td>Switch to the next most recently used app.</td>
+                    <td>The fastest way to move between open applications.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-`</code></td>
+                    <td>Cycle between windows in the current app.</td>
+                    <td>Especially useful when you have multiple Finder or browser windows open.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Space</code></td>
+                    <td>Open or close Spotlight.</td>
+                    <td>Launch apps, search files, run math, and find settings instantly.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option-Cmd-Space</code></td>
+                    <td>Open Spotlight search from a Finder window.</td>
+                    <td>Helpful when you want search scoped to file work.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Cmd-Space</code> or <code>Fn-E</code></td>
+                    <td>Open emoji and symbol picker.</td>
+                    <td>Great for quick emoji, arrows, accents, and special symbols.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-,</code></td>
+                    <td>Open settings for the frontmost app.</td>
+                    <td>Usually the fastest path to preferences.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Cmd-F</code></td>
+                    <td>Toggle full screen for the current app.</td>
+                    <td>Useful when you want distraction-free work.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-Q</code></td>
+                    <td>Create a Quick Note.</td>
+                    <td>Great when you want to capture an idea without losing context.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option-Cmd-Esc</code></td>
+                    <td>Open the Force Quit window.</td>
+                    <td>Use it when a GUI app is frozen and refuses to close normally.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <p>Useful when you want the app gone temporarily without closing it.</p>
           </article>
-          <article class="shortcut-card">
-            <h3>Open force quit panel</h3>
-            <div class="shortcut-pill">
-              <span class="key-cap">Option</span>
-              <span class="key-cap">Cmd</span>
-              <span class="key-cap">Esc</span>
+
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Finder and macOS</span>
+            <h3>The best default shortcuts for files, windows, search, and system panels</h3>
+            <p>
+              These are the ones that make Finder feel fast instead of slow and menu-driven.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Shortcut</th>
+                    <th>What it does</th>
+                    <th>Why you will use it</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>Space</code></td>
+                    <td>Quick Look preview for the selected file.</td>
+                    <td>Preview images, PDFs, text, and many files instantly without opening the app.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-N</code></td>
+                    <td>Create a new folder in Finder.</td>
+                    <td>One of the fastest file-organizing moves on macOS.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Cmd-N</code></td>
+                    <td>Create a folder containing the selected items.</td>
+                    <td>Great for cleaning messy downloads or grouping related files fast.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-.</code></td>
+                    <td>Show or hide hidden files.</td>
+                    <td>Perfect when you need to inspect dotfiles like <code>.gitignore</code> or <code>.zshrc</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-I</code></td>
+                    <td>Open Get Info for the selected item.</td>
+                    <td>Useful for size, permissions, file type, and metadata.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-D</code></td>
+                    <td>Duplicate the selected file.</td>
+                    <td>Fast way to make a safe copy before editing something important.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-E</code></td>
+                    <td>Eject the selected disk, drive, or volume.</td>
+                    <td>Use before unplugging external storage.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Delete</code></td>
+                    <td>Move the selected item to Trash.</td>
+                    <td>Cleaner and faster than dragging files to the Trash icon.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-F</code></td>
+                    <td>Start a Finder search.</td>
+                    <td>Quick path to file discovery when you do not want Spotlight first.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-A</code></td>
+                    <td>Show or hide the Dock.</td>
+                    <td>Helpful when you want extra screen space or less clutter.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-C</code></td>
+                    <td>Show or hide Control Center.</td>
+                    <td>Good for quick audio, Wi-Fi, Bluetooth, and display controls.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-D</code></td>
+                    <td>Start or stop Dictation.</td>
+                    <td>Useful when you want voice-to-text without leaving your current app.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-N</code></td>
+                    <td>Show or hide Notification Center.</td>
+                    <td>Quick way to review alerts without opening extra panels.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-Shift-A</code></td>
+                    <td>Open Apps or Launchpad, depending on macOS version.</td>
+                    <td>Useful for browsing installed apps visually.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-Fn</code></td>
+                    <td>Open Character Viewer.</td>
+                    <td>Helpful for symbols, accented characters, and emoji selection.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Command</code> then <code>Command</code> again</td>
+                    <td>Open or close Type to Siri.</td>
+                    <td>Useful if you prefer typing requests instead of speaking them.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Space</code></td>
+                    <td>Switch input source.</td>
+                    <td>Important if you type in more than one language or layout.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Option-Space</code></td>
+                    <td>Move to the next input source.</td>
+                    <td>Useful for cycling through multiple configured keyboards.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Up Arrow</code></td>
+                    <td>Open Mission Control.</td>
+                    <td>Shows all spaces and windows so you can reorganize your desktop fast.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Down Arrow</code></td>
+                    <td>Show all windows of the front app.</td>
+                    <td>Excellent when one app has several documents or browser windows open.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-M</code></td>
+                    <td>Minimize the current window to the Dock.</td>
+                    <td>Useful when you want it out of the way but still open.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <p>Helpful for frozen GUI apps when the normal close flow fails.</p>
+          </article>
+
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Screenshots and power</span>
+            <h3>Shortcuts every Mac owner should know for captures, locking, sleep, and recovery</h3>
+            <p>
+              These are the shortcuts people usually end up searching for in a hurry. Memorizing them
+              once pays off for years.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Shortcut</th>
+                    <th>What it does</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>Shift-Cmd-3</code></td>
+                    <td>Capture the entire screen.</td>
+                    <td>The screenshot normally saves to the desktop.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-4</code></td>
+                    <td>Capture a selected region.</td>
+                    <td>After pressing it, drag to choose the area you want.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-4</code>, then <code>Space</code></td>
+                    <td>Capture a specific window.</td>
+                    <td>Great for cleaner screenshots of one app window without manual cropping.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-5</code></td>
+                    <td>Open the screenshot and screen-recording toolbar.</td>
+                    <td>Best all-in-one panel for screenshots, window capture, timer, and recordings.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control</code> + screenshot shortcut</td>
+                    <td>Copy the screenshot to the clipboard instead of saving it to the desktop.</td>
+                    <td>Perfect when you want to paste directly into chat, notes, or email.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Cmd-Q</code></td>
+                    <td>Lock the screen immediately.</td>
+                    <td>One of the best privacy habits when you step away from your Mac.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-Q</code></td>
+                    <td>Log out of the current macOS account.</td>
+                    <td>macOS asks for confirmation first.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option-Shift-Cmd-Q</code></td>
+                    <td>Log out immediately.</td>
+                    <td>Skips the confirmation dialog.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Touch ID</code> press</td>
+                    <td>Lock the screen on keyboards with Touch ID.</td>
+                    <td>On a MacBook Air M2 this is the fast physical lock control.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Touch ID</code> hold at startup</td>
+                    <td>Open Startup Options on Apple silicon.</td>
+                    <td>Use it for Recovery, startup disk selection, and Safe Mode access.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Touch ID</code> hold while Mac is unresponsive</td>
+                    <td>Force power off.</td>
+                    <td>Use only when the Mac is frozen and normal shutdown is impossible.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Text editing</span>
+            <h3>Navigation and editing shortcuts that make typing feel much faster</h3>
+            <p>
+              These work in many text fields and editors. Behavior can vary by app, but the patterns
+              below are part of standard macOS text editing.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Shortcut</th>
+                    <th>What it does</th>
+                    <th>Where it shines</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>Option-Left Arrow</code> / <code>Option-Right Arrow</code></td>
+                    <td>Move one word left or right.</td>
+                    <td>Huge speedup when editing long commands, URLs, notes, or code.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option-Shift-Left Arrow</code> / <code>Option-Shift-Right Arrow</code></td>
+                    <td>Select by word instead of by character.</td>
+                    <td>Perfect for cleaning up text quickly.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Left Arrow</code> / <code>Cmd-Right Arrow</code></td>
+                    <td>Jump to the beginning or end of the current line.</td>
+                    <td>Essential in terminals, editors, browsers, and forms.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-Left Arrow</code> / <code>Shift-Cmd-Right Arrow</code></td>
+                    <td>Select from the cursor to the start or end of the line.</td>
+                    <td>Very useful when replacing chunks of text.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cmd-Up Arrow</code> / <code>Cmd-Down Arrow</code></td>
+                    <td>Jump to the beginning or end of the document or text area.</td>
+                    <td>Helpful in long files, notes, and documents.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Shift-Cmd-Up Arrow</code> / <code>Shift-Cmd-Down Arrow</code></td>
+                    <td>Select from the cursor to the start or end of the document.</td>
+                    <td>Fast for selecting large text blocks.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Option-Delete</code></td>
+                    <td>Delete the word to the left of the insertion point.</td>
+                    <td>Much faster than tapping Delete repeatedly.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Fn-Delete</code></td>
+                    <td>Forward delete on laptops without a dedicated forward-delete key.</td>
+                    <td>Deletes the character to the right of the cursor.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-H</code></td>
+                    <td>Delete the character to the left of the cursor.</td>
+                    <td>Classic terminal and text-field editing behavior.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-D</code></td>
+                    <td>Delete the character to the right of the cursor.</td>
+                    <td>A handy keyboard-only alternative to forward delete.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-A</code></td>
+                    <td>Move to the beginning of the line or paragraph.</td>
+                    <td>Especially useful in shells and simple text fields.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-E</code></td>
+                    <td>Move to the end of the line or paragraph.</td>
+                    <td>Pairs naturally with <code>Control-A</code>.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F</code> / <code>Control-B</code></td>
+                    <td>Move one character forward or backward.</td>
+                    <td>Good when you want small cursor moves without touching arrow keys.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-N</code> / <code>Control-P</code></td>
+                    <td>Move down or up one line.</td>
+                    <td>Very useful in text areas and terminal-style editing.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-O</code></td>
+                    <td>Insert a new line after the insertion point.</td>
+                    <td>Nice for quick editing without changing where your cursor focus is.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-L</code></td>
+                    <td>Center the cursor or selection in the visible area.</td>
+                    <td>Useful in longer documents when you lose visual context.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Cmd-D</code></td>
+                    <td>Show dictionary definition for the selected word.</td>
+                    <td>Great for quick lookups without leaving the app.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel-plain shortcut-group">
+            <span class="box-label">Accessibility and focus</span>
+            <h3>The default shortcuts for keyboard navigation, focus control, and accessibility tools</h3>
+            <p>
+              These are especially helpful if you want to navigate macOS without always reaching for
+              the trackpad.
+            </p>
+            <div class="table-wrap">
+              <table class="command-table">
+                <thead>
+                  <tr>
+                    <th>Shortcut</th>
+                    <th>What it does</th>
+                    <th>When to use it</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>Option-Cmd-F5</code></td>
+                    <td>Open the Accessibility Shortcuts panel.</td>
+                    <td>Fast gateway to VoiceOver, Zoom, color filters, captions, and more.</td>
+                  </tr>
+                  <tr>
+                    <td>Triple-press <code>Touch ID</code></td>
+                    <td>Open Accessibility Shortcuts.</td>
+                    <td>A good hardware shortcut if you prefer not to remember the key combo.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F2</code> or <code>Fn-Control-F2</code></td>
+                    <td>Move focus to the menu bar.</td>
+                    <td>Useful for full keyboard navigation of app menus.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F3</code> or <code>Fn-Control-F3</code></td>
+                    <td>Move focus to the Dock.</td>
+                    <td>Lets you navigate Dock items with the keyboard.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F4</code> or <code>Fn-Control-F4</code></td>
+                    <td>Move focus to the active or next window.</td>
+                    <td>Helpful for window switching when you want less trackpad use.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F5</code> or <code>Fn-Control-F5</code></td>
+                    <td>Move focus to the window toolbar.</td>
+                    <td>Useful for controls near the top of app windows.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F6</code> or <code>Fn-Control-F6</code></td>
+                    <td>Move focus to the floating window.</td>
+                    <td>Helpful in apps that open inspector or floating panels.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Shift-F6</code></td>
+                    <td>Move focus to the previous panel.</td>
+                    <td>Lets you step backward through panels instead of forward only.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F7</code> or <code>Fn-Control-F7</code></td>
+                    <td>Change how Tab navigates controls.</td>
+                    <td>Useful if you want Tab to move through all controls, not just text boxes and lists.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-F8</code> or <code>Fn-Control-F8</code></td>
+                    <td>Move focus to the status menu in the menu bar.</td>
+                    <td>Good for keyboard access to Wi-Fi, battery, sound, and other status items.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Tab</code> / <code>Shift-Tab</code></td>
+                    <td>Move to the next or previous control.</td>
+                    <td>The basic habit behind full keyboard navigation.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Tab</code> / <code>Control-Shift-Tab</code></td>
+                    <td>Move between grouped controls.</td>
+                    <td>Helpful in forms, grouped options, and dialog layouts.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Option-Cmd-8</code></td>
+                    <td>Invert colors.</td>
+                    <td>Useful if you have enabled that accessibility shortcut in settings.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Control-Option-Cmd-,</code> / <code>Control-Option-Cmd-.</code></td>
+                    <td>Reduce or increase contrast.</td>
+                    <td>Helpful for visual accessibility adjustments.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </article>
         </div>
       </section>
