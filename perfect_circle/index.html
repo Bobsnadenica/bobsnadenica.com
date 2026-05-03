@@ -39,17 +39,18 @@
 
     #hud {
         position: fixed;
-        top: 40px;
+        top: 20px;
         left: 50%;
         transform: translateX(-50%);
         text-align: center;
         z-index: 10;
         pointer-events: none;
         text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        width: 100%;
     }
 
     #score {
-        font-size: 64px;
+        font-size: 48px;
         font-weight: 900;
         color: #fff;
         margin: 0;
@@ -58,11 +59,17 @@
     }
 
     #details {
-        font-size: 18px;
+        font-size: 16px;
         color: #aeb8c7;
-        margin-top: 8px;
+        margin-top: 4px;
         font-weight: 300;
         letter-spacing: 1px;
+    }
+
+    @media (min-width: 768px) {
+        #hud { top: 40px; }
+        #score { font-size: 64px; }
+        #details { font-size: 18px; }
     }
 
     #leaderboard {
@@ -251,8 +258,11 @@ function end() {
 }
 
 function getPos(e) {
-    if (e.touches) {
+    if (e.touches && e.touches.length > 0) {
         return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    if (e.changedTouches && e.changedTouches.length > 0) {
+        return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
     }
     return { x: e.clientX, y: e.clientY };
 }
@@ -411,9 +421,10 @@ canvas.addEventListener("mousedown", start);
 canvas.addEventListener("mousemove", draw);
 window.addEventListener("mouseup", end);
 
-canvas.addEventListener("touchstart", e => start(e.touches[0]), {passive: false});
-canvas.addEventListener("touchmove", e => draw(e.touches[0]), {passive: false});
-window.addEventListener("touchend", end);
+canvas.addEventListener("touchstart", start, {passive: false});
+canvas.addEventListener("touchmove", draw, {passive: false});
+window.addEventListener("touchend", end, {passive: false});
+window.addEventListener("touchcancel", end, {passive: false});
 
 </script>
 </body>
