@@ -62,21 +62,31 @@ pre { background: #0f172a; padding: 15px; border-radius: 8px; color: #38bdf8; fo
     <div id="hardware" class="tab-content"></div>
     <div id="network" class="tab-content"></div>
     <div id="media" class="tab-content"></div>
-    <div id="location" class="tab-content"></div>
+    <div id="location" class="tab-content">
+      <div id="locationData"></div>
+      <div id="map"></div>
+    </div>
     <div id="security" class="tab-content"></div>
     <div id="raw" class="tab-content"></div>
-    <div id="map"></div>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+let mapInstance = null;
+
 // Tab Switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
+    const target = document.getElementById(btn.dataset.tab);
+    target.classList.add('active');
+    
+    // Leaflet needs a resize trigger if it was initialized while hidden
+    if (btn.dataset.tab === 'location' && mapInstance) {
+      setTimeout(() => mapInstance.invalidateSize(), 100);
+    }
   };
 });
 
@@ -196,6 +206,14 @@ function renderData(d) {
     <div class="kv"><div>Microphone</div><div>${badge(d.permissions.microphone)}</div></div>
   `;
 
+  document.getElementById('locationData').innerHTML = `
+    <div class="kv"><div>Latitude</div><div>${d.ip?.latitude || 'N/A'}</div></div>
+    <div class="kv"><div>Longitude</div><div>${d.ip?.longitude || 'N/A'}</div></div>
+    <div class="kv"><div>Accuracy</div><div>${d.ip?.accuracy || 'Low (IP-based)'}</div></div>
+    <div class="kv"><div>City</div><div>${d.ip?.city || 'Unknown'}</div></div>
+    <div class="kv"><div>Region</div><div>${d.ip?.region || 'Unknown'}</div></div>
+  `;
+
   document.getElementById('system').innerHTML = `
     <div class="kv"><div>User Agent</div><div>${d.browser.ua}</div></div>
     <div class="kv"><div>Platform</div><div>${d.browser.platform}</div></div>
@@ -221,10 +239,13 @@ function renderData(d) {
   document.getElementById('raw').innerHTML = `<pre>${safeStringify(d)}</pre>`;
   
   // Map
-  if(d.ip?.latitude) {
-    const map = L.map('map').setView([d.ip.latitude, d.ip.longitude], 10);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    L.marker([d.ip.latitude, d.ip.longitude]).addTo(map).bindPopup('Estimated Location');
+  if(d.ip?.latitude && d.ip?.longitude) {
+    if (mapInstance) {
+      mapInstance.remove();
+    }
+    mapInstance = L.map('map').setView([d.ip.latitude, d.ip.longitude], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
+    L.marker([d.ip.latitude, d.ip.longitude]).addTo(mapInstance).bindPopup('Estimated Location');
   }
 }
 
