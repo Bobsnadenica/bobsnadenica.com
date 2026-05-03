@@ -1,0 +1,5134 @@
+{
+  "generatedAt": "2026-04-28T17:02:04.747Z",
+  "source": "https://www.broshura.bg",
+  "sourceCounts": {
+    "retailers": 38,
+    "brochures": 491,
+    "products": 614,
+    "stores": 501,
+    "locations": 112
+  },
+  "currency": "BGN",
+  "chains": [
+    {
+      "id": "kaufland",
+      "name": "Kaufland",
+      "color": "#E30613",
+      "country": "BG",
+      "stores": 15,
+      "offers": 348,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "348 brochure offers · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "zora",
+      "name": "ЗОРА",
+      "color": "#D71920",
+      "country": "BG",
+      "stores": 40,
+      "offers": 99,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 13,
+      "status": "live",
+      "desc": "99 brochure offers · 40 stores · 40 mapped locations"
+    },
+    {
+      "id": "jysk",
+      "name": "JYSK",
+      "color": "#003D7C",
+      "country": "BG",
+      "stores": 15,
+      "offers": 45,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "45 brochure offers · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "como",
+      "name": "Como",
+      "color": "#8B5E3C",
+      "country": "BG",
+      "stores": 1,
+      "offers": 35,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "35 brochure offers · 1 stores · 1 mapped locations"
+    },
+    {
+      "id": "praktiker",
+      "name": "Практикер",
+      "color": "#F58220",
+      "country": "BG",
+      "stores": 15,
+      "offers": 29,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 14,
+      "status": "live",
+      "desc": "29 brochure offers · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "ikea",
+      "name": "IKEA",
+      "color": "#0051BA",
+      "country": "BG",
+      "stores": 6,
+      "offers": 28,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 14,
+      "status": "live",
+      "desc": "28 brochure offers · 6 stores · 6 mapped locations"
+    },
+    {
+      "id": "technopolis",
+      "name": "Технополис",
+      "color": "#E30613",
+      "country": "BG",
+      "stores": 34,
+      "offers": 16,
+      "hasOffers": true,
+      "selectable": true,
+      "brochureCount": 10,
+      "status": "live",
+      "desc": "16 brochure offers · 34 stores · 34 mapped locations"
+    },
+    {
+      "id": "kik",
+      "name": "KiK",
+      "color": "#D6001C",
+      "country": "BG",
+      "stores": 48,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 48 stores · 48 mapped locations"
+    },
+    {
+      "id": "tehnomarket",
+      "name": "Техномаркет",
+      "color": "#C62828",
+      "country": "BG",
+      "stores": 42,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 42 stores · 42 mapped locations"
+    },
+    {
+      "id": "tedi",
+      "name": "TEDi",
+      "color": "#F4C400",
+      "country": "BG",
+      "stores": 18,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 13,
+      "status": "live",
+      "desc": "13 live brochures · 18 stores · 18 mapped locations"
+    },
+    {
+      "id": "lili-drogerie",
+      "name": "Лили Дрогерие",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 16,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 16 stores · 16 mapped locations"
+    },
+    {
+      "id": "mebeli-videnov",
+      "name": "Мебели Виденов",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 16,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 4,
+      "status": "live",
+      "desc": "4 live brochures · 16 stores · 16 mapped locations"
+    },
+    {
+      "id": "billa",
+      "name": "BILLA",
+      "color": "#D71920",
+      "country": "BG",
+      "stores": 16,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 16 stores · 16 mapped locations"
+    },
+    {
+      "id": "tmarket",
+      "name": "T MARKET",
+      "color": "#008A43",
+      "country": "BG",
+      "stores": 16,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 16 stores · 16 mapped locations"
+    },
+    {
+      "id": "apteki-medeya",
+      "name": "Аптеки Медея",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 11,
+      "status": "live",
+      "desc": "11 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "lidl",
+      "name": "ЛИДЛ",
+      "color": "#0050AA",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "supermarket-burleks",
+      "name": "Супермаркет Бурлекс",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 5,
+      "status": "live",
+      "desc": "5 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "fantastico",
+      "name": "Фантастико",
+      "color": "#E51B24",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "cba",
+      "name": "CBA Болеро",
+      "color": "#C2181E",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "maxxmart",
+      "name": "Maxxmart",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 12,
+      "status": "live",
+      "desc": "12 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "office-1",
+      "name": "Office 1",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 4,
+      "status": "live",
+      "desc": "4 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "temax",
+      "name": "TeMax",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 15,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 15 stores · 15 mapped locations"
+    },
+    {
+      "id": "banya-stil",
+      "name": "Баня Стил",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 13,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 13 stores · 13 mapped locations"
+    },
+    {
+      "id": "life",
+      "name": "Life",
+      "color": "#2E8B57",
+      "country": "BG",
+      "stores": 11,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 3,
+      "status": "live",
+      "desc": "3 live brochures · 11 stores · 11 mapped locations"
+    },
+    {
+      "id": "slaveks",
+      "name": "Славекс",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 8,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 5,
+      "status": "live",
+      "desc": "5 live brochures · 8 stores · 8 mapped locations"
+    },
+    {
+      "id": "interserviz-uzunovi",
+      "name": "Интерсервиз Узунови",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 7,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 12,
+      "status": "live",
+      "desc": "12 live brochures · 7 stores · 7 mapped locations"
+    },
+    {
+      "id": "gstroy",
+      "name": "GStroy",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 7,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 7 stores · 7 mapped locations"
+    },
+    {
+      "id": "praktis",
+      "name": "PRAKTIS",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 7,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 7 stores · 7 mapped locations"
+    },
+    {
+      "id": "aiko",
+      "name": "Aiko",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 6,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 6 stores · 6 mapped locations"
+    },
+    {
+      "id": "masterhaus",
+      "name": "Masterhaus",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 6,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 6 stores · 6 mapped locations"
+    },
+    {
+      "id": "m-max",
+      "name": "Mömax",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 6,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 6 stores · 6 mapped locations"
+    },
+    {
+      "id": "angro-treyd",
+      "name": "АНГРО ТРЕЙД",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 2,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 14,
+      "status": "live",
+      "desc": "14 live brochures · 2 stores · 2 mapped locations"
+    },
+    {
+      "id": "mal-muk",
+      "name": "Мал Мук",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 2,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 12,
+      "status": "live",
+      "desc": "12 live brochures · 2 stores · 2 mapped locations"
+    },
+    {
+      "id": "boro-teracol",
+      "name": "BORO TERACOL",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 2,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 10,
+      "status": "live",
+      "desc": "10 live brochures · 2 stores · 2 mapped locations"
+    },
+    {
+      "id": "hit-max",
+      "name": "HIT Max",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 2,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 2 stores · 2 mapped locations"
+    },
+    {
+      "id": "stop4eto",
+      "name": "Stop4eto",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 2,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 12,
+      "status": "live",
+      "desc": "12 live brochures · 2 stores · 2 mapped locations"
+    },
+    {
+      "id": "stroitelen-hipermarket-rila",
+      "name": "Строителен хипермаркет РИЛА",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 1,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 13,
+      "status": "live",
+      "desc": "13 live brochures · 1 stores · 1 mapped locations"
+    },
+    {
+      "id": "supermarket-flora",
+      "name": "Супермаркет Flora",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 1,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 15,
+      "status": "live",
+      "desc": "15 live brochures · 1 stores · 1 mapped locations"
+    },
+    {
+      "id": "mesechni-promotsii-dekemvri-2025",
+      "name": "Месечни промоции - декември 2025",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 0,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 1,
+      "status": "live",
+      "desc": "1 live brochure"
+    },
+    {
+      "id": "nachalna-stranitsa",
+      "name": "Начална страница",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 0,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 2,
+      "status": "live",
+      "desc": "2 live brochures"
+    },
+    {
+      "id": "produkti-ot-broshurata-s-validnost-23-04-2026-13-05-2026-vzemi-sega-na-izgodni-tseni-s-vazmozhnost-za-izplashtane-dostavka-do-tsyalata-strana-ili-vzemane-ot-magazina",
+      "name": "Продукти от брошурата с валидност 23.04.2026-13.05.2026. Вземи сега на изгодни цени с възможност за изплащане. Доставка до цялата страна или вземане от магазина.",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 0,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 5,
+      "status": "live",
+      "desc": "5 live brochures"
+    },
+    {
+      "id": "back-to-school-2025",
+      "name": "Back to School 2025",
+      "color": "#5B6A75",
+      "country": "BG",
+      "stores": 0,
+      "offers": 0,
+      "hasOffers": false,
+      "selectable": false,
+      "brochureCount": 1,
+      "status": "live",
+      "desc": "1 live brochure"
+    }
+  ],
+  "categories": [
+    {
+      "id": "Groceries",
+      "name": "Groceries",
+      "nameBG": "Храни",
+      "icon": "🛒",
+      "meta": {
+        "hasBrand": false,
+        "hasFat": false,
+        "sizes": []
+      }
+    },
+    {
+      "id": "Electronics",
+      "name": "Electronics",
+      "nameBG": "Техника",
+      "icon": "🔌",
+      "meta": {
+        "hasBrand": false,
+        "hasFat": false,
+        "sizes": []
+      }
+    },
+    {
+      "id": "Home",
+      "name": "Home",
+      "nameBG": "Дом",
+      "icon": "🛋️",
+      "meta": {
+        "hasBrand": false,
+        "hasFat": false,
+        "sizes": []
+      }
+    },
+    {
+      "id": "DIY",
+      "name": "DIY",
+      "nameBG": "Направи си сам",
+      "icon": "🧰",
+      "meta": {
+        "hasBrand": false,
+        "hasFat": false,
+        "sizes": []
+      }
+    },
+    {
+      "id": "Household",
+      "name": "Household",
+      "nameBG": "Домашни",
+      "icon": "🧴",
+      "meta": {
+        "hasBrand": false,
+        "hasFat": false,
+        "sizes": []
+      }
+    }
+  ],
+  "onboardingCategories": [
+    "Groceries",
+    "Electronics",
+    "Home",
+    "DIY"
+  ],
+  "storeLocations": [
+    {
+      "id": "1793146",
+      "chain": "aiko",
+      "lat": 42.51399,
+      "lon": 27.45266,
+      "city": "Burgas",
+      "address": "Бул. Янко Комитов 8, 8005, Бургас",
+      "name": "Aiko, Бул. Янко Комитов 8"
+    },
+    {
+      "id": "2001674",
+      "chain": "aiko",
+      "lat": 42.12424,
+      "lon": 24.77207,
+      "city": "Plovdiv",
+      "address": "Южна промишлена зонатракия, бул. Асеновградско шосе 14, 4023, Пловдив",
+      "name": "Aiko, Южна промишлена зонатракия, бул. Асеновградско шосе 14"
+    },
+    {
+      "id": "1793148",
+      "chain": "aiko",
+      "lat": 42.74013,
+      "lon": 23.23756,
+      "city": "Sofiya",
+      "address": "Бул.Европа 441, 1331, София",
+      "name": "Aiko, Бул.Европа 441"
+    },
+    {
+      "id": "1793145",
+      "chain": "aiko",
+      "lat": 42.63914,
+      "lon": 23.31981,
+      "city": "Sofiya",
+      "address": "Ул. Околовръстен път 135, 1700, София",
+      "name": "Aiko, Ул. Околовръстен път 135"
+    },
+    {
+      "id": "1793149",
+      "chain": "aiko",
+      "lat": 42.41384,
+      "lon": 25.63987,
+      "city": "Stara Zagora",
+      "address": "Бул. Патриарх Евтимий 50, 6000, Стара Загора",
+      "name": "Aiko, Бул. Патриарх Евтимий 50"
+    },
+    {
+      "id": "1793147",
+      "chain": "aiko",
+      "lat": 43.22095,
+      "lon": 27.87228,
+      "city": "Varna",
+      "address": "Бул. Владислав Варненчик 277а, 9009, Варна",
+      "name": "Aiko, Бул. Владислав Варненчик 277а"
+    },
+    {
+      "id": "1804739",
+      "chain": "angro-treyd",
+      "lat": 42.7274,
+      "lon": 23.26156,
+      "city": "Sofiya",
+      "address": "Бул. Европа 114, 1360, София",
+      "name": "АНГРО ТРЕЙД, Бул. Европа 114"
+    },
+    {
+      "id": "1804738",
+      "chain": "angro-treyd",
+      "lat": 42.72594,
+      "lon": 23.2626,
+      "city": "Sofiya",
+      "address": "Бул. Сливница 119, 1324, София",
+      "name": "АНГРО ТРЕЙД, Бул. Сливница 119"
+    },
+    {
+      "id": "1763114",
+      "chain": "apteki-medeya",
+      "lat": 42.70227,
+      "lon": 23.32328,
+      "city": "Sofiya",
+      "address": "Бул. „княгиня Мария Луиза“ 36, 1000 център, 1202, София",
+      "name": "Аптеки Медея, Бул. „княгиня Мария Луиза“ 36, 1000 център"
+    },
+    {
+      "id": "1574669",
+      "chain": "apteki-medeya",
+      "lat": 42.69824,
+      "lon": 23.33168,
+      "city": "Sofiya",
+      "address": "Бул. „княз Александър Дондуков“ 34, 1000 център,, 1000, София",
+      "name": "Аптеки Медея, Бул. „княз Александър Дондуков“ 34, 1000 център,"
+    },
+    {
+      "id": "1555257",
+      "chain": "apteki-medeya",
+      "lat": 42.68576,
+      "lon": 23.29714,
+      "city": "Sofiya",
+      "address": "Жк. Лагера, бул. Цар Борис Iii, бл. 49, 1612, София",
+      "name": "Аптеки Медея, Жк. Лагера, бул. Цар Борис Iii, бл. 49"
+    },
+    {
+      "id": "1555140",
+      "chain": "apteki-medeya",
+      "lat": 42.70864,
+      "lon": 23.29968,
+      "city": "Sofiya",
+      "address": "Жк. Света Троица, ул. Габрово бл. 347б вх. 1, 1309, София",
+      "name": "Аптеки Медея, Жк. Света Троица, ул. Габрово бл. 347б вх. 1"
+    },
+    {
+      "id": "1555249",
+      "chain": "apteki-medeya",
+      "lat": 42.7,
+      "lon": 23.30091,
+      "city": "Sofiya",
+      "address": "Зона Б- 19, бул. „а. стамболийски“ 167, 1309, София",
+      "name": "Аптеки Медея, Зона Б- 19, бул. „а. стамболийски“ 167"
+    },
+    {
+      "id": "1555202",
+      "chain": "apteki-medeya",
+      "lat": 42.71001,
+      "lon": 23.31349,
+      "city": "Sofiya",
+      "address": "Кв. Банишора, ул. Опълченска, бл. 41а, вх. а, 1233, София",
+      "name": "Аптеки Медея, Кв. Банишора, ул. Опълченска, бл. 41а, вх. а"
+    },
+    {
+      "id": "1555185",
+      "chain": "apteki-medeya",
+      "lat": 42.67686,
+      "lon": 23.30998,
+      "city": "Sofiya",
+      "address": "Кв. Иван Вазов, бул. „Витоша” 115, 1408, София",
+      "name": "Аптеки Медея, Кв. Иван Вазов, бул. „Витоша” 115"
+    },
+    {
+      "id": "1555132",
+      "chain": "apteki-medeya",
+      "lat": 42.67628,
+      "lon": 23.32138,
+      "city": "Sofiya",
+      "address": "Кв. Лозенец, бул. Черни връх 14, 1421, София",
+      "name": "Аптеки Медея, Кв. Лозенец, бул. Черни връх 14"
+    },
+    {
+      "id": "1555269",
+      "chain": "apteki-medeya",
+      "lat": 42.67874,
+      "lon": 23.3229,
+      "city": "Sofiya",
+      "address": "Кв. Лозенец, ул. Крум Попов 59, 1421, София",
+      "name": "Аптеки Медея, Кв. Лозенец, ул. Крум Попов 59"
+    },
+    {
+      "id": "1555206",
+      "chain": "apteki-medeya",
+      "lat": 42.70082,
+      "lon": 23.29326,
+      "city": "Sofiya",
+      "address": "Кв. Разсадника, бул. Ал. Стамболийски 233, 1309, София",
+      "name": "Аптеки Медея, Кв. Разсадника, бул. Ал. Стамболийски 233"
+    },
+    {
+      "id": "1555242",
+      "chain": "apteki-medeya",
+      "lat": 42.698,
+      "lon": 23.32777,
+      "city": "Sofiya",
+      "address": "Кв. Център, бул. Дондуков 11, 1000, София",
+      "name": "Аптеки Медея, Кв. Център, бул. Дондуков 11"
+    },
+    {
+      "id": "1555135",
+      "chain": "apteki-medeya",
+      "lat": 42.68811,
+      "lon": 23.3117,
+      "city": "Sofiya",
+      "address": "Кв. Център, бул. Прага 24, 1606, София",
+      "name": "Аптеки Медея, Кв. Център, бул. Прага 24"
+    },
+    {
+      "id": "1555220",
+      "chain": "apteki-medeya",
+      "lat": 42.69174,
+      "lon": 23.3143,
+      "city": "Sofiya",
+      "address": "Кв. Център, бул. Христо Ботев 17, 1606, София",
+      "name": "Аптеки Медея, Кв. Център, бул. Христо Ботев 17"
+    },
+    {
+      "id": "1555193",
+      "chain": "apteki-medeya",
+      "lat": 42.69998,
+      "lon": 23.31785,
+      "city": "Sofiya",
+      "address": "Кв. Център, ул. Пиротска 26, 1000, София",
+      "name": "Аптеки Медея, Кв. Център, ул. Пиротска 26"
+    },
+    {
+      "id": "1763113",
+      "chain": "apteki-medeya",
+      "lat": 42.68965,
+      "lon": 23.34194,
+      "city": "Sofiya",
+      "address": "Ул. „Цар Иван Асен Ii“ 30, 1124 ж.к. яворов,, 1124, София",
+      "name": "Аптеки Медея, Ул. „Цар Иван Асен Ii“ 30, 1124 ж.к. яворов,"
+    },
+    {
+      "id": "1552813",
+      "chain": "banya-stil",
+      "lat": 42.50389,
+      "lon": 27.46002,
+      "city": "Burgas",
+      "address": "Бул. Тодор Александров 30, сградата на технополис, 8001, Бургас",
+      "name": "Баня Стил, Бул. Тодор Александров 30, сградата на технополис"
+    },
+    {
+      "id": "1793110",
+      "chain": "banya-stil",
+      "lat": 41.93059,
+      "lon": 25.55868,
+      "city": "Haskovo",
+      "address": "Бул. \"Сан Стефано\" 7, 6304, Хасково",
+      "name": "Баня Стил, Бул. \"Сан Стефано\" 7"
+    },
+    {
+      "id": "1793111",
+      "chain": "banya-stil",
+      "lat": 42.18571,
+      "lon": 24.73782,
+      "city": "Plovdiv",
+      "address": "Ул. \"Васил Левски\" 152, карловско шосе - до ален мак, 4003, Пловдив",
+      "name": "Баня Стил, Ул. \"Васил Левски\" 152, карловско шосе - до ален мак"
+    },
+    {
+      "id": "1793114",
+      "chain": "banya-stil",
+      "lat": 43.85132,
+      "lon": 25.95709,
+      "city": "Ruse",
+      "address": "Бул. Цар Освободител № 6, 7000, Русе",
+      "name": "Баня Стил, Бул. Цар Освободител № 6"
+    },
+    {
+      "id": "1793113",
+      "chain": "banya-stil",
+      "lat": 43.269,
+      "lon": 26.93549,
+      "city": "Shumen",
+      "address": "Бул. Велики Преслав № 5, 9700, Шумен",
+      "name": "Баня Стил, Бул. Велики Преслав № 5"
+    },
+    {
+      "id": "1552815",
+      "chain": "banya-stil",
+      "lat": 42.65341,
+      "lon": 23.31513,
+      "city": "Sofiya",
+      "address": "Бул. Черни връх 102д, 1407, София",
+      "name": "Баня Стил, Бул. Черни връх 102д"
+    },
+    {
+      "id": "1793106",
+      "chain": "banya-stil",
+      "lat": 42.62408,
+      "lon": 23.35872,
+      "city": "Sofiya",
+      "address": "Жк. Младост 4, околовръстен път 265, в сградата на технополис, 1715, София",
+      "name": "Баня Стил, Жк. Младост 4, околовръстен път 265, в сградата на технополис"
+    },
+    {
+      "id": "1793109",
+      "chain": "banya-stil",
+      "lat": 42.65866,
+      "lon": 23.42794,
+      "city": "Sofiya",
+      "address": "Кв. Димитър Миленков 136б, outlet магазин и централен склад, 1528, София",
+      "name": "Баня Стил, Кв. Димитър Миленков 136б, outlet магазин и централен склад"
+    },
+    {
+      "id": "1793107",
+      "chain": "banya-stil",
+      "lat": 42.6996,
+      "lon": 23.30178,
+      "city": "Sofiya",
+      "address": "Кв. Зона Б- 19, бул. александър стамболийски 163, 1330, София",
+      "name": "Баня Стил, Кв. Зона Б- 19, бул. александър стамболийски 163"
+    },
+    {
+      "id": "1552808",
+      "chain": "banya-stil",
+      "lat": 42.70877,
+      "lon": 23.25094,
+      "city": "Sofiya",
+      "address": "Кв. Люлин, бул. д-р Петър Дертлиев 70, 1336, София",
+      "name": "Баня Стил, Кв. Люлин, бул. д-р Петър Дертлиев 70"
+    },
+    {
+      "id": "1793115",
+      "chain": "banya-stil",
+      "lat": 42.429,
+      "lon": 25.66617,
+      "city": "Stara Zagora",
+      "address": "Бул. \"Никола Петков\" 22, 6009, Стара Загора",
+      "name": "Баня Стил, Бул. \"Никола Петков\" 22"
+    },
+    {
+      "id": "1793116",
+      "chain": "banya-stil",
+      "lat": 43.22121,
+      "lon": 27.89806,
+      "city": "Varna",
+      "address": "Бул. „Сливница“ 160, в сградата на търговски център “камко“, 9009, Варна",
+      "name": "Баня Стил, Бул. „Сливница“ 160, в сградата на търговски център “камко“"
+    },
+    {
+      "id": "1793108",
+      "chain": "banya-stil",
+      "lat": 43.07806,
+      "lon": 25.63017,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. \"Бачо Киро\" 5, 5000, Велико Търново",
+      "name": "Баня Стил, Ул. \"Бачо Киро\" 5"
+    },
+    {
+      "id": "1793154",
+      "chain": "billa",
+      "lat": 42.69844,
+      "lon": 23.30904,
+      "city": "Sofiya",
+      "address": "Бул. Ал. Стамболийски 101, 1303, София",
+      "name": "BILLA, Бул. Ал. Стамболийски 101"
+    },
+    {
+      "id": "1552606",
+      "chain": "billa",
+      "lat": 42.67813,
+      "lon": 23.31962,
+      "city": "Sofiya",
+      "address": "Бул. Арсеналски 2, 1421, София",
+      "name": "BILLA, Бул. Арсеналски 2"
+    },
+    {
+      "id": "1793182",
+      "chain": "billa",
+      "lat": 42.69815,
+      "lon": 23.32801,
+      "city": "Sofiya",
+      "address": "Бул. Княз Александър Дондуков Корсаков № 11, 1000, София",
+      "name": "BILLA, Бул. Княз Александър Дондуков Корсаков № 11"
+    },
+    {
+      "id": "1793179",
+      "chain": "billa",
+      "lat": 42.71212,
+      "lon": 23.32113,
+      "city": "Sofiya",
+      "address": "Бул. Мария Луиза 102, 1267, София",
+      "name": "BILLA, Бул. Мария Луиза 102"
+    },
+    {
+      "id": "1552688",
+      "chain": "billa",
+      "lat": 42.68999,
+      "lon": 23.24867,
+      "city": "Sofiya",
+      "address": "Бул. Президент Линкълн 72 п, 1632, София",
+      "name": "BILLA, Бул. Президент Линкълн 72 п"
+    },
+    {
+      "id": "1793258",
+      "chain": "billa",
+      "lat": 42.69284,
+      "lon": 23.33444,
+      "city": "Sofiya",
+      "address": "Бул. Цар Освободител № 22, 1000, София",
+      "name": "BILLA, Бул. Цар Освободител № 22"
+    },
+    {
+      "id": "1793220",
+      "chain": "billa",
+      "lat": 42.70603,
+      "lon": 23.34865,
+      "city": "Sofiya",
+      "address": "Ж.к. Хаджи Димитър, ул. Скайлер 41, 1510, София",
+      "name": "BILLA, Ж.к. Хаджи Димитър, ул. Скайлер 41"
+    },
+    {
+      "id": "1793167",
+      "chain": "billa",
+      "lat": 42.70463,
+      "lon": 23.32325,
+      "city": "Sofiya",
+      "address": "Площад Лъвов мост № 2, 1202, София",
+      "name": "BILLA, Площад Лъвов мост № 2"
+    },
+    {
+      "id": "1793161",
+      "chain": "billa",
+      "lat": 42.6994,
+      "lon": 23.32032,
+      "city": "Sofiya",
+      "address": "Район Възраждане, ул. Пиротска 9, 1000, София",
+      "name": "BILLA, Район Възраждане, ул. Пиротска 9"
+    },
+    {
+      "id": "1793206",
+      "chain": "billa",
+      "lat": 42.69171,
+      "lon": 23.32522,
+      "city": "Sofiya",
+      "address": "Ул. Георги С. Раковски № 116, 1000, София",
+      "name": "BILLA, Ул. Георги С. Раковски № 116"
+    },
+    {
+      "id": "1793181",
+      "chain": "billa",
+      "lat": 42.69707,
+      "lon": 23.30176,
+      "city": "Sofiya",
+      "address": "Ул. Гюешево 14, 1303, София",
+      "name": "BILLA, Ул. Гюешево 14"
+    },
+    {
+      "id": "1793209",
+      "chain": "billa",
+      "lat": 42.6919,
+      "lon": 23.33782,
+      "city": "Sofiya",
+      "address": "Ул. Сан Стефано 22, 1000, София",
+      "name": "BILLA, Ул. Сан Стефано 22"
+    },
+    {
+      "id": "1552649",
+      "chain": "billa",
+      "lat": 42.69347,
+      "lon": 23.32871,
+      "city": "Sofiya",
+      "address": "Ул. Славянска 5, 1000, София",
+      "name": "BILLA, Ул. Славянска 5"
+    },
+    {
+      "id": "1793198",
+      "chain": "billa",
+      "lat": 42.70745,
+      "lon": 23.29542,
+      "city": "Sofiya",
+      "address": "Ул. Цар Иван Александър 27, 1309, София",
+      "name": "BILLA, Ул. Цар Иван Александър 27"
+    },
+    {
+      "id": "1793168",
+      "chain": "billa",
+      "lat": 42.69707,
+      "lon": 23.35149,
+      "city": "Sofiya",
+      "address": "Ул. Черковна № 38, 1505, София",
+      "name": "BILLA, Ул. Черковна № 38"
+    },
+    {
+      "id": "1793249",
+      "chain": "billa",
+      "lat": 42.70339,
+      "lon": 23.31076,
+      "city": "Sofiya",
+      "address": "Ул.Опълченска № 35, 1303, София",
+      "name": "BILLA, Ул.Опълченска № 35"
+    },
+    {
+      "id": "1804660",
+      "chain": "boro-teracol",
+      "lat": 42.71405,
+      "lon": 23.2549,
+      "city": "Sofiya",
+      "address": "Бул. Джавахарлал Неру 31, 1324, София",
+      "name": "BORO TERACOL, Бул. Джавахарлал Неру 31"
+    },
+    {
+      "id": "1804661",
+      "chain": "boro-teracol",
+      "lat": 42.64216,
+      "lon": 23.313,
+      "city": "Sofiya",
+      "address": "Бул. Черни Връх 177, 1407, София",
+      "name": "BORO TERACOL, Бул. Черни Връх 177"
+    },
+    {
+      "id": "1555913",
+      "chain": "cba",
+      "lat": 42.50197,
+      "lon": 27.46706,
+      "city": "Burgas",
+      "address": "Бул. Христо Ботев № 70, 8000, Бургас",
+      "name": "CBA Болеро, Бул. Христо Ботев № 70"
+    },
+    {
+      "id": "1555897",
+      "chain": "cba",
+      "lat": 42.31282,
+      "lon": 27.27327,
+      "city": "Burgas",
+      "address": "Ж.к. “Изгрев” бл. 101, 8300, Бургас",
+      "name": "CBA Болеро, Ж.к. “Изгрев” бл. 101"
+    },
+    {
+      "id": "1555919",
+      "chain": "cba",
+      "lat": 42.51726,
+      "lon": 27.46619,
+      "city": "Burgas",
+      "address": "Ж.к. Зорница бл. 47 вх.е, 8018, Бургас",
+      "name": "CBA Болеро, Ж.к. Зорница бл. 47 вх.е"
+    },
+    {
+      "id": "1555889",
+      "chain": "cba",
+      "lat": 42.30356,
+      "lon": 27.28296,
+      "city": "Burgas",
+      "address": "Ж.к. Лазур, бл. 163, 8300, Бургас",
+      "name": "CBA Болеро, Ж.к. Лазур, бл. 163"
+    },
+    {
+      "id": "1555876",
+      "chain": "cba",
+      "lat": 42.52154,
+      "lon": 27.45038,
+      "city": "Burgas",
+      "address": "Ж.к.Славейков, бл. 164, 8010, Бургас",
+      "name": "CBA Болеро, Ж.к.Славейков, бл. 164"
+    },
+    {
+      "id": "1555879",
+      "chain": "cba",
+      "lat": 42.50601,
+      "lon": 27.47378,
+      "city": "Burgas",
+      "address": "Жк. Лазур, до бл. 71, 8001, Бургас",
+      "name": "CBA Болеро, Жк. Лазур, до бл. 71"
+    },
+    {
+      "id": "1684645",
+      "chain": "cba",
+      "lat": 42.46334,
+      "lon": 27.4167,
+      "city": "Burgas",
+      "address": "К-с Меден рудник, до бл. 408, 8009, Бургас",
+      "name": "CBA Болеро, К-с Меден рудник, до бл. 408"
+    },
+    {
+      "id": "1684644",
+      "chain": "cba",
+      "lat": 42.60551,
+      "lon": 27.38554,
+      "city": "Burgas",
+      "address": "Кв. Ветрен, ул. Ал. Стамболийски 30, 8127, Бургас",
+      "name": "CBA Болеро, Кв. Ветрен, ул. Ал. Стамболийски 30"
+    },
+    {
+      "id": "1763063",
+      "chain": "cba",
+      "lat": 42.50457,
+      "lon": 27.46697,
+      "city": "Burgas",
+      "address": "Ул. „Струма“ 147, к - с, 8001 ж.к. братя миладинови, 8001, Бургас",
+      "name": "CBA Болеро, Ул. „Струма“ 147, к - с, 8001 ж.к. братя миладинови"
+    },
+    {
+      "id": "1555905",
+      "chain": "cba",
+      "lat": 42.49322,
+      "lon": 27.46413,
+      "city": "Burgas",
+      "address": "Ул. Цар Калоян, 8000, Бургас",
+      "name": "CBA Болеро, Ул. Цар Калоян"
+    },
+    {
+      "id": "1555882",
+      "chain": "cba",
+      "lat": 42.44443,
+      "lon": 27.63517,
+      "city": "Chernomorets",
+      "address": "Ул Струма до бл. 3, 8142, Черноморец",
+      "name": "CBA Болеро, Ул Струма до бл. 3"
+    },
+    {
+      "id": "1843618",
+      "chain": "cba",
+      "lat": 42.44639,
+      "lon": 27.63685,
+      "city": "Chernomorets",
+      "address": "Ул. Морска 30 3, 8142, Черноморец",
+      "name": "CBA Болеро, Ул. Морска 30 3"
+    },
+    {
+      "id": "1555908",
+      "chain": "cba",
+      "lat": 42.57046,
+      "lon": 27.61281,
+      "city": "Pomorie",
+      "address": "Ул. Добри Чинтулов 48, 8201, Поморие",
+      "name": "CBA Болеро, Ул. Добри Чинтулов 48"
+    },
+    {
+      "id": "1555885",
+      "chain": "cba",
+      "lat": 42.41836,
+      "lon": 27.69507,
+      "city": "Sozopol",
+      "address": "Ул. Републиканска бл. 10 партер, 8130, Созопол",
+      "name": "CBA Болеро, Ул. Републиканска бл. 10 партер"
+    },
+    {
+      "id": "1555869",
+      "chain": "cba",
+      "lat": 42.16778,
+      "lon": 27.84474,
+      "city": "Tsarevo",
+      "address": "Ул. Милин Камък № 11, 8260, Царево",
+      "name": "CBA Болеро, Ул. Милин Камък № 11"
+    },
+    {
+      "id": "1792882",
+      "chain": "como",
+      "lat": 42.6243,
+      "lon": 23.38097,
+      "city": "Sofiya",
+      "address": "Ул. „Околовръстен път“ 267, 1766, София",
+      "name": "Como, Ул. „Околовръстен път“ 267"
+    },
+    {
+      "id": "1552476",
+      "chain": "fantastico",
+      "lat": 42.69601,
+      "lon": 23.34785,
+      "city": "Sofiya",
+      "address": "Бул. Мадрид № 8, 1505, София",
+      "name": "Фантастико, Бул. Мадрид № 8"
+    },
+    {
+      "id": "1552520",
+      "chain": "fantastico",
+      "lat": 42.71054,
+      "lon": 23.29195,
+      "city": "Sofiya",
+      "address": "Бул. Сливница № 65, 1309, София",
+      "name": "Фантастико, Бул. Сливница № 65"
+    },
+    {
+      "id": "1552534",
+      "chain": "fantastico",
+      "lat": 42.67552,
+      "lon": 23.30861,
+      "city": "Sofiya",
+      "address": "Жк Иван Вазов, бул. Витоша № 192 - 198, 1408, София",
+      "name": "Фантастико, Жк Иван Вазов, бул. Витоша № 192 - 198"
+    },
+    {
+      "id": "1552514",
+      "chain": "fantastico",
+      "lat": 42.69438,
+      "lon": 23.28424,
+      "city": "Sofiya",
+      "address": "Жк Красна поляна, бул. Н. Мушанов, 1330, София",
+      "name": "Фантастико, Жк Красна поляна, бул. Н. Мушанов"
+    },
+    {
+      "id": "1552497",
+      "chain": "fantastico",
+      "lat": 42.67739,
+      "lon": 23.28647,
+      "city": "Sofiya",
+      "address": "Жк Красно село, ул. Хубча № 2, 1618, София",
+      "name": "Фантастико, Жк Красно село, ул. Хубча № 2"
+    },
+    {
+      "id": "1552532",
+      "chain": "fantastico",
+      "lat": 42.67449,
+      "lon": 23.32138,
+      "city": "Sofiya",
+      "address": "Жк Лозенец, бул. Черни връх № 20, 1421, София",
+      "name": "Фантастико, Жк Лозенец, бул. Черни връх № 20"
+    },
+    {
+      "id": "1552451",
+      "chain": "fantastico",
+      "lat": 42.67205,
+      "lon": 23.2997,
+      "city": "Sofiya",
+      "address": "Жк Стрелбище, ул. Нишава № 138, 1404, София",
+      "name": "Фантастико, Жк Стрелбище, ул. Нишава № 138"
+    },
+    {
+      "id": "1552491",
+      "chain": "fantastico",
+      "lat": 42.70899,
+      "lon": 23.35543,
+      "city": "Sofiya",
+      "address": "Жк Хаджи Димитър ул. Васил Кънчев / ул. Баба Вида № 29, 1510, София",
+      "name": "Фантастико, Жк Хаджи Димитър ул. Васил Кънчев / ул. Баба Вида № 29"
+    },
+    {
+      "id": "1552463",
+      "chain": "fantastico",
+      "lat": 42.70718,
+      "lon": 23.35104,
+      "city": "Sofiya",
+      "address": "Жк Хаджи Димитър, ул. Макгахан № 81, 1510, София",
+      "name": "Фантастико, Жк Хаджи Димитър, ул. Макгахан № 81"
+    },
+    {
+      "id": "1552457",
+      "chain": "fantastico",
+      "lat": 42.66576,
+      "lon": 23.32798,
+      "city": "Sofiya",
+      "address": "Кв. Манастирски ливади, ул. Пирин 51а,, 1407, София",
+      "name": "Фантастико, Кв. Манастирски ливади, ул. Пирин 51а,"
+    },
+    {
+      "id": "1552493",
+      "chain": "fantastico",
+      "lat": 42.69889,
+      "lon": 23.29051,
+      "city": "Sofiya",
+      "address": "Кв. Разсадника, ул. Хъшове 4, до блок 10, 1330, София",
+      "name": "Фантастико, Кв. Разсадника, ул. Хъшове 4, до блок 10"
+    },
+    {
+      "id": "1552466",
+      "chain": "fantastico",
+      "lat": 42.67351,
+      "lon": 23.35037,
+      "city": "Sofiya",
+      "address": "Район Изгрев, ул. Акад. Методи Попов, бл. 76, 1113, София",
+      "name": "Фантастико, Район Изгрев, ул. Акад. Методи Попов, бл. 76"
+    },
+    {
+      "id": "1552484",
+      "chain": "fantastico",
+      "lat": 42.69351,
+      "lon": 23.35116,
+      "city": "Sofiya",
+      "address": "Ул. Оборище № 72, 1505, София",
+      "name": "Фантастико, Ул. Оборище № 72"
+    },
+    {
+      "id": "1552498",
+      "chain": "fantastico",
+      "lat": 42.70257,
+      "lon": 23.28321,
+      "city": "Sofiya",
+      "address": "Ул. Суходолска № 2, бл.12, 1373, София",
+      "name": "Фантастико, Ул. Суходолска № 2, бл.12"
+    },
+    {
+      "id": "1552478",
+      "chain": "fantastico",
+      "lat": 42.68724,
+      "lon": 23.31529,
+      "city": "Sofiya",
+      "address": "Фантастико Дар, ул. Бузлуджа № 50, 1463, София",
+      "name": "Фантастико, Фантастико Дар, ул. Бузлуджа № 50"
+    },
+    {
+      "id": "1793477",
+      "chain": "gstroy",
+      "lat": 43.5874,
+      "lon": 27.82782,
+      "city": "Dobrich",
+      "address": "Ул. Ангел Стоянов 4, 9300, Добрич",
+      "name": "GStroy, Ул. Ангел Стоянов 4"
+    },
+    {
+      "id": "1556028",
+      "chain": "gstroy",
+      "lat": 43.43996,
+      "lon": 28.34967,
+      "city": "Kavarna",
+      "address": "Ул. Строител 1, 9650, Каварна",
+      "name": "GStroy, Ул. Строител 1"
+    },
+    {
+      "id": "1793474",
+      "chain": "gstroy",
+      "lat": 42.1118,
+      "lon": 24.76193,
+      "city": "Plovdiv",
+      "address": "Бул. Кукленско шосе 21, 4000, Пловдив",
+      "name": "GStroy, Бул. Кукленско шосе 21"
+    },
+    {
+      "id": "1955470",
+      "chain": "gstroy",
+      "lat": 42.14833,
+      "lon": 24.78541,
+      "city": "Plovdiv",
+      "address": "Бул. Цариградско шосе 96, 4019, Пловдив",
+      "name": "GStroy, Бул. Цариградско шосе 96"
+    },
+    {
+      "id": "1793476",
+      "chain": "gstroy",
+      "lat": 43.28123,
+      "lon": 26.97333,
+      "city": "Shumen",
+      "address": "Бул. Симеон Велики 4, 9700, Шумен",
+      "name": "GStroy, Бул. Симеон Велики 4"
+    },
+    {
+      "id": "1793475",
+      "chain": "gstroy",
+      "lat": 42.7252,
+      "lon": 23.31859,
+      "city": "Sofiya",
+      "address": "Ул. Първа Българска Армия 1б, 1220, София",
+      "name": "GStroy, Ул. Първа Българска Армия 1б"
+    },
+    {
+      "id": "1793478",
+      "chain": "gstroy",
+      "lat": 43.21664,
+      "lon": 27.87051,
+      "city": "Varna",
+      "address": "Ул. Уста Кольо Фичето 31, 9000, Варна",
+      "name": "GStroy, Ул. Уста Кольо Фичето 31"
+    },
+    {
+      "id": "1916093",
+      "chain": "hit-max",
+      "lat": 42.63806,
+      "lon": 23.37203,
+      "city": "Sofiya",
+      "address": "Бул. Александър Малинов 75, 1712, София",
+      "name": "HIT Max, Бул. Александър Малинов 75"
+    },
+    {
+      "id": "1921039",
+      "chain": "hit-max",
+      "lat": 42.7306,
+      "lon": 23.26816,
+      "city": "Sofiya",
+      "address": "Ул. Обелско шосе 20, 1360, София",
+      "name": "HIT Max, Ул. Обелско шосе 20"
+    },
+    {
+      "id": "1793631",
+      "chain": "ikea",
+      "lat": 42.51258,
+      "lon": 27.45414,
+      "city": "Burgas",
+      "address": "Ул. Янко Комитов 6, 8001, Бургас",
+      "name": "ИКЕА, Ул. Янко Комитов 6"
+    },
+    {
+      "id": "1793632",
+      "chain": "ikea",
+      "lat": 42.14511,
+      "lon": 24.78219,
+      "city": "Plovdiv",
+      "address": "Ул. Д-р Георги Странски 3, 4019, Пловдив",
+      "name": "ИКЕА, Ул. Д-р Георги Странски 3"
+    },
+    {
+      "id": "1617663",
+      "chain": "ikea",
+      "lat": 42.69844,
+      "lon": 23.30904,
+      "city": "Sofiya",
+      "address": "Бул. Ал. Стамболийски 101 - 103, 1303, София",
+      "name": "ИКЕА, Бул. Ал. Стамболийски 101 - 103"
+    },
+    {
+      "id": "1793629",
+      "chain": "ikea",
+      "lat": 42.62387,
+      "lon": 23.35584,
+      "city": "Sofiya",
+      "address": "Ул. Околовръстен път 216, 1756, София",
+      "name": "ИКЕА, Ул. Околовръстен път 216"
+    },
+    {
+      "id": "1793630",
+      "chain": "ikea",
+      "lat": 43.22692,
+      "lon": 27.87578,
+      "city": "Varna",
+      "address": "Бул. Сливница 185, 9009, Варна",
+      "name": "ИКЕА, Бул. Сливница 185"
+    },
+    {
+      "id": "1793628",
+      "chain": "ikea",
+      "lat": 43.07912,
+      "lon": 25.60061,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. Оборище 18, 5000, Велико Търново",
+      "name": "ИКЕА, Ул. Оборище 18"
+    },
+    {
+      "id": "1556204",
+      "chain": "interserviz-uzunovi",
+      "lat": 41.9388,
+      "lon": 25.55513,
+      "city": "Haskovo",
+      "address": "Ж.к Дружба, бул. Г. Сава Раковски 26, 6300, Хасково",
+      "name": "Интерсервиз Узунови, Ж.к Дружба, бул. Г. Сава Раковски 26"
+    },
+    {
+      "id": "1556200",
+      "chain": "interserviz-uzunovi",
+      "lat": 42.16249,
+      "lon": 24.73534,
+      "city": "Plovdiv",
+      "address": "Бул. „Дунав“ 5, 2b, коплекс роял сити, 4003, Пловдив",
+      "name": "Интерсервиз Узунови, Бул. „Дунав“ 5, 2b, коплекс роял сити"
+    },
+    {
+      "id": "1556196",
+      "chain": "interserviz-uzunovi",
+      "lat": 42.69818,
+      "lon": 23.31302,
+      "city": "Sofiya",
+      "address": "Бул. „Александър Стамболийски“ 50, 1303, София",
+      "name": "Интерсервиз Узунови, Бул. „Александър Стамболийски“ 50"
+    },
+    {
+      "id": "1556212",
+      "chain": "interserviz-uzunovi",
+      "lat": 43.21939,
+      "lon": 27.88911,
+      "city": "Varna",
+      "address": "Бул. Владислав Варненчик 186 ет. 2, 9009, Варна",
+      "name": "Интерсервиз Узунови, Бул. Владислав Варненчик 186 ет. 2"
+    },
+    {
+      "id": "1556193",
+      "chain": "interserviz-uzunovi",
+      "lat": 43.21498,
+      "lon": 27.86236,
+      "city": "Varna",
+      "address": "Ул. „Атанас Москов“ 24, 9028, Варна",
+      "name": "Интерсервиз Узунови, Ул. „Атанас Москов“ 24"
+    },
+    {
+      "id": "1556209",
+      "chain": "interserviz-uzunovi",
+      "lat": 43.21966,
+      "lon": 27.91367,
+      "city": "Varna",
+      "address": "Ул. „Селиолу“ 39 б, 9002, Варна",
+      "name": "Интерсервиз Узунови, Ул. „Селиолу“ 39 б"
+    },
+    {
+      "id": "1556190",
+      "chain": "interserviz-uzunovi",
+      "lat": 43.07812,
+      "lon": 25.62989,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. Бачо Киро, 50, 5000, Велико Търново",
+      "name": "Интерсервиз Узунови, Ул. Бачо Киро, 50"
+    },
+    {
+      "id": "2688288",
+      "chain": "jysk",
+      "lat": 42.90847,
+      "lon": 23.80274,
+      "city": "Botevgrad",
+      "address": "Бул. „Цар Освободител“ 24, 2140, Ботевград",
+      "name": "JYSK, Бул. „Цар Освободител“ 24"
+    },
+    {
+      "id": "1793570",
+      "chain": "jysk",
+      "lat": 42.2732,
+      "lon": 23.12976,
+      "city": "Dupnitsa",
+      "address": "Ул. Орлинска 64, 2600, Дупница",
+      "name": "JYSK, Ул. Орлинска 64"
+    },
+    {
+      "id": "1789642",
+      "chain": "jysk",
+      "lat": 42.65668,
+      "lon": 23.59063,
+      "city": "Elin Pelin",
+      "address": "Бул. Витоша 25, 2100, Елин Пелин",
+      "name": "JYSK, Бул. Витоша 25"
+    },
+    {
+      "id": "1793585",
+      "chain": "jysk",
+      "lat": 42.61008,
+      "lon": 23.03829,
+      "city": "Pernik",
+      "address": "Ул. Св.Св. Кирил и Методий 21, 2302, Перник",
+      "name": "JYSK, Ул. Св.Св. Кирил и Методий 21"
+    },
+    {
+      "id": "1793594",
+      "chain": "jysk",
+      "lat": 42.63806,
+      "lon": 23.37187,
+      "city": "Sofiya",
+      "address": "Бул. Александър Малинов 75, 1715, София",
+      "name": "JYSK, Бул. Александър Малинов 75"
+    },
+    {
+      "id": "1793598",
+      "chain": "jysk",
+      "lat": 42.70251,
+      "lon": 23.28421,
+      "city": "Sofiya",
+      "address": "Бул. Александър Стамболийски 196, 1330, София",
+      "name": "JYSK, Бул. Александър Стамболийски 196"
+    },
+    {
+      "id": "1555302",
+      "chain": "jysk",
+      "lat": 42.70954,
+      "lon": 23.45734,
+      "city": "Sofiya",
+      "address": "Бул. Ботевградско шосе 525, 1839, София",
+      "name": "JYSK, Бул. Ботевградско шосе 525"
+    },
+    {
+      "id": "1763105",
+      "chain": "jysk",
+      "lat": 42.66427,
+      "lon": 23.28774,
+      "city": "Sofiya",
+      "address": "Бул. България 69, 1404, София",
+      "name": "JYSK, Бул. България 69"
+    },
+    {
+      "id": "1793600",
+      "chain": "jysk",
+      "lat": 42.7182,
+      "lon": 23.3145,
+      "city": "Sofiya",
+      "address": "Бул. История Славянобългарска 21, 1220, София",
+      "name": "JYSK, Бул. История Славянобългарска 21"
+    },
+    {
+      "id": "1793601",
+      "chain": "jysk",
+      "lat": 42.66073,
+      "lon": 23.38211,
+      "city": "Sofiya",
+      "address": "Бул. Цариградско шосе 115з, 1784, София",
+      "name": "JYSK, Бул. Цариградско шосе 115з"
+    },
+    {
+      "id": "2688289",
+      "chain": "jysk",
+      "lat": 42.69134,
+      "lon": 23.28108,
+      "city": "Sofiya",
+      "address": "Красна Поляна 3, бул. „Никола Мушанов“ 149b, 1000, София",
+      "name": "JYSK, Красна Поляна 3, бул. „Никола Мушанов“ 149b"
+    },
+    {
+      "id": "1555277",
+      "chain": "jysk",
+      "lat": 42.62501,
+      "lon": 23.35092,
+      "city": "Sofiya",
+      "address": "Околовръстен път 214, 1434, София",
+      "name": "JYSK, Околовръстен път 214"
+    },
+    {
+      "id": "1793575",
+      "chain": "jysk",
+      "lat": 42.67987,
+      "lon": 23.36746,
+      "city": "Sofiya",
+      "address": "Ул. Коста Лулчев 52, 1000, София",
+      "name": "JYSK, Ул. Коста Лулчев 52"
+    },
+    {
+      "id": "1793582",
+      "chain": "jysk",
+      "lat": 42.6425,
+      "lon": 23.40785,
+      "city": "Sofiya",
+      "address": "Ул. Обиколна 32, 1582, София",
+      "name": "JYSK, Ул. Обиколна 32"
+    },
+    {
+      "id": "1793592",
+      "chain": "jysk",
+      "lat": 42.70983,
+      "lon": 23.34502,
+      "city": "Sofiya",
+      "address": "Ул. Резбарска 1ж, 1000, София",
+      "name": "JYSK, Ул. Резбарска 1ж"
+    },
+    {
+      "id": "1793312",
+      "chain": "kaufland",
+      "lat": 42.69026,
+      "lon": 23.30192,
+      "city": "Sofiya",
+      "address": "Бул. Ген. Тотлебен № 36, 1606, София",
+      "name": "Kaufland хипермаркет, Бул. Ген. Тотлебен № 36"
+    },
+    {
+      "id": "1841036",
+      "chain": "kaufland",
+      "lat": 42.69998,
+      "lon": 23.322,
+      "city": "Sofiya",
+      "address": "Бул. Княгиня Мария Луиза 25, 1000, София",
+      "name": "Kaufland хипермаркет, Бул. Княгиня Мария Луиза 25"
+    },
+    {
+      "id": "1793318",
+      "chain": "kaufland",
+      "lat": 42.71055,
+      "lon": 23.25794,
+      "city": "Sofiya",
+      "address": "Бул. Петър Дертлиев № 56, 1324, София",
+      "name": "Kaufland хипермаркет, Бул. Петър Дертлиев № 56"
+    },
+    {
+      "id": "1793278",
+      "chain": "kaufland",
+      "lat": 42.6705,
+      "lon": 23.27371,
+      "city": "Sofiya",
+      "address": "Бул. Тодор Каблешков № 3, 1618, София",
+      "name": "Kaufland хипермаркет, Бул. Тодор Каблешков № 3"
+    },
+    {
+      "id": "1793327",
+      "chain": "kaufland",
+      "lat": 42.72608,
+      "lon": 23.24175,
+      "city": "Sofiya",
+      "address": "Бул. Царица Йоанна № 97, 1343, София",
+      "name": "Kaufland хипермаркет, Бул. Царица Йоанна № 97"
+    },
+    {
+      "id": "2421728",
+      "chain": "kaufland",
+      "lat": 42.73981,
+      "lon": 23.31827,
+      "city": "Sofiya",
+      "address": "Булевард Илиянско шосе 1, 1220, София",
+      "name": "Кауфланд Хипермаркет, Булевард Илиянско шосе 1"
+    },
+    {
+      "id": "1978330",
+      "chain": "kaufland",
+      "lat": 42.6678,
+      "lon": 23.36591,
+      "city": "Sofiya",
+      "address": "Ж.к. Изток, бул. Доктор Г. М. Димитров 12, 1797, София",
+      "name": "Kaufland хипермаркет, Ж.к. Изток, бул. Доктор Г. М. Димитров 12"
+    },
+    {
+      "id": "2767444",
+      "chain": "kaufland",
+      "lat": 42.69853,
+      "lon": 23.34803,
+      "city": "Sofiya",
+      "address": "Проф. Милко Бичев 2, 1504, София",
+      "name": "Кауфланд Хипермаркет, Проф. Милко Бичев 2"
+    },
+    {
+      "id": "1793281",
+      "chain": "kaufland",
+      "lat": 42.65296,
+      "lon": 23.31398,
+      "city": "Sofiya",
+      "address": "Ул. Асен Йорданов № 7, 1574, София",
+      "name": "Kaufland хипермаркет, Ул. Асен Йорданов № 7"
+    },
+    {
+      "id": "1793276",
+      "chain": "kaufland",
+      "lat": 42.65562,
+      "lon": 23.28757,
+      "city": "Sofiya",
+      "address": "Ул. Васил Стефанов № 61, 1404, София",
+      "name": "Kaufland хипермаркет, Ул. Васил Стефанов № 61"
+    },
+    {
+      "id": "1793282",
+      "chain": "kaufland",
+      "lat": 42.68648,
+      "lon": 23.26893,
+      "city": "Sofiya",
+      "address": "Ул. Кукуряк № 3, 1618, София",
+      "name": "Kaufland хипермаркет, Ул. Кукуряк № 3"
+    },
+    {
+      "id": "1793322",
+      "chain": "kaufland",
+      "lat": 42.64247,
+      "lon": 23.33502,
+      "city": "Sofiya",
+      "address": "Ул. Проф. д-р Иван Странски № 20, 1000, София",
+      "name": "Kaufland хипермаркет, Ул. Проф. д-р Иван Странски № 20"
+    },
+    {
+      "id": "1793308",
+      "chain": "kaufland",
+      "lat": 42.71339,
+      "lon": 23.35391,
+      "city": "Sofiya",
+      "address": "Ул. Резбарска № 7б, 1510, София",
+      "name": "Kaufland хипермаркет, Ул. Резбарска № 7б"
+    },
+    {
+      "id": "1793324",
+      "chain": "kaufland",
+      "lat": 42.71112,
+      "lon": 23.30262,
+      "city": "Sofiya",
+      "address": "Ул. Скопие № 1, 1233, София",
+      "name": "Kaufland хипермаркет, Ул. Скопие № 1"
+    },
+    {
+      "id": "1793320",
+      "chain": "kaufland",
+      "lat": 42.72822,
+      "lon": 23.28614,
+      "city": "Sofiya",
+      "address": "Ул. Хан Кубрат № 61, 1229, София",
+      "name": "Kaufland хипермаркет, Ул. Хан Кубрат № 61"
+    },
+    {
+      "id": "1897100",
+      "chain": "kik",
+      "lat": 42.91057,
+      "lon": 23.80448,
+      "city": "Botevgrad",
+      "address": "Tsar Osvoboditel Blvd 35a, 2140, Botevgrad",
+      "name": "KiK, Tsar Osvoboditel Blvd 35a"
+    },
+    {
+      "id": "2356204",
+      "chain": "kik",
+      "lat": 42.50339,
+      "lon": 27.46007,
+      "city": "Burgas",
+      "address": "30. Todor Alexandrov Blvd., 8001, Burgas",
+      "name": "KiK, 30. Todor Alexandrov Blvd."
+    },
+    {
+      "id": "1897110",
+      "chain": "kik",
+      "lat": 42.53023,
+      "lon": 27.45804,
+      "city": "Burgas",
+      "address": "31. Transportna Str., 8008, Burgas",
+      "name": "KiK, 31. Transportna Str."
+    },
+    {
+      "id": "1897121",
+      "chain": "kik",
+      "lat": 42.49573,
+      "lon": 27.47109,
+      "city": "Burgas",
+      "address": "58. Aleksandrovska Str., 8000, Burgas",
+      "name": "KiK, 58. Aleksandrovska Str."
+    },
+    {
+      "id": "1980312",
+      "chain": "kik",
+      "lat": 42.50275,
+      "lon": 27.47558,
+      "city": "Burgas",
+      "address": "Zh.k. Bratya Miladinovi, Bl 118, 8001, Burgas",
+      "name": "KiK, Zh.k. Bratya Miladinovi, Bl 118"
+    },
+    {
+      "id": "2356203",
+      "chain": "kik",
+      "lat": 43.82123,
+      "lon": 27.14187,
+      "city": "Dulovo",
+      "address": "2a Baykal Str., 7650, Dulovo",
+      "name": "KiK, 2a Baykal Str."
+    },
+    {
+      "id": "1897128",
+      "chain": "kik",
+      "lat": 42.27302,
+      "lon": 23.12953,
+      "city": "Dupnitsa",
+      "address": "1. Otovitsa Str., 2600, Dupnitsa",
+      "name": "KiK, 1. Otovitsa Str."
+    },
+    {
+      "id": "1980310",
+      "chain": "kik",
+      "lat": 42.18043,
+      "lon": 26.57346,
+      "city": "Elhovo",
+      "address": "Aleksander Stamboliiski Str. 167, 8700, Elhovo",
+      "name": "KiK, Aleksander Stamboliiski Str. 167"
+    },
+    {
+      "id": "2356206",
+      "chain": "kik",
+      "lat": 42.65753,
+      "lon": 23.59126,
+      "city": "Elin Pelin",
+      "address": "Ul Kais Kadastre Number: 105, 2100, Elin Pelin",
+      "name": "KiK, Ul Kais Kadastre Number: 105"
+    },
+    {
+      "id": "1897138",
+      "chain": "kik",
+      "lat": 42.86732,
+      "lon": 25.31708,
+      "city": "Gabrovo",
+      "address": "40 Vasil Aprilov Blvd., 5300, Gabrovo",
+      "name": "KiK, 40 Vasil Aprilov Blvd."
+    },
+    {
+      "id": "1897118",
+      "chain": "kik",
+      "lat": 42.88254,
+      "lon": 25.31649,
+      "city": "Gabrovo",
+      "address": "Stancionna Str.nr 11, 5300, Gabrovo",
+      "name": "KiK, Stancionna Str.nr 11"
+    },
+    {
+      "id": "1897104",
+      "chain": "kik",
+      "lat": 41.56845,
+      "lon": 23.72899,
+      "city": "Gotse Delchev",
+      "address": "Todor Alexandrov Str. 38, 2900, Gotse Delchev",
+      "name": "KiK, Todor Alexandrov Str. 38"
+    },
+    {
+      "id": "1940231",
+      "chain": "kik",
+      "lat": 41.94071,
+      "lon": 25.55529,
+      "city": "Haskovo",
+      "address": "Bul. G. S. Rakovski 28a, 6303, Haskovo",
+      "name": "KiK, Bul. G. S. Rakovski 28a"
+    },
+    {
+      "id": "1897113",
+      "chain": "kik",
+      "lat": 41.94105,
+      "lon": 25.55538,
+      "city": "Haskovo",
+      "address": "M. Uvata,, 6300, Haskovo",
+      "name": "KiK, M. Uvata,"
+    },
+    {
+      "id": "2356205",
+      "chain": "kik",
+      "lat": 42.63397,
+      "lon": 24.8013,
+      "city": "Karlovo",
+      "address": "Uliza General Zaimov 32, 4300, Karlovo",
+      "name": "KiK, Uliza General Zaimov 32"
+    },
+    {
+      "id": "2747340",
+      "chain": "kik",
+      "lat": 42.79877,
+      "lon": 23.22903,
+      "city": "Kostinbrod",
+      "address": "Blvd. Lomsko shose 2, 2230, Kostinbrod",
+      "name": "KiK, Blvd. Lomsko shose 2"
+    },
+    {
+      "id": "2565976",
+      "chain": "kik",
+      "lat": 43.76765,
+      "lon": 23.72303,
+      "city": "Kozloduy",
+      "address": "Ul.Yanko Sakazov 25, 3320, Kozloduy",
+      "name": "KiK, Ul.Yanko Sakazov 25"
+    },
+    {
+      "id": "2495114",
+      "chain": "kik",
+      "lat": 43.82696,
+      "lon": 23.24098,
+      "city": "Lom",
+      "address": "Str. Pristanishtna 41, 3600, Lom",
+      "name": "KiK, Str. Pristanishtna 41"
+    },
+    {
+      "id": "1897141",
+      "chain": "kik",
+      "lat": 42.49512,
+      "lon": 24.18745,
+      "city": "Panagyurishte",
+      "address": "Georgi Benkovski Str. 67, 4500, Panagyurishte",
+      "name": "KiK, Georgi Benkovski Str. 67"
+    },
+    {
+      "id": "1897089",
+      "chain": "kik",
+      "lat": 42.1963,
+      "lon": 24.33423,
+      "city": "Pazardjik",
+      "address": "12. Georgi Benkovski Str., 4400, Pazardjik",
+      "name": "KiK, 12. Georgi Benkovski Str."
+    },
+    {
+      "id": "2356198",
+      "chain": "kik",
+      "lat": 42.18674,
+      "lon": 24.34604,
+      "city": "Pazardjik",
+      "address": "Dimcho Debelyanov Str. 10,, 4400, Pazardjik",
+      "name": "KiK, Dimcho Debelyanov Str. 10,"
+    },
+    {
+      "id": "1897086",
+      "chain": "kik",
+      "lat": 42.60601,
+      "lon": 23.1152,
+      "city": "Pernik",
+      "address": "Yuriy Gagarin Blvd Nr 2a, 2304, Pernik",
+      "name": "KiK, Yuriy Gagarin Blvd Nr 2a"
+    },
+    {
+      "id": "2356208",
+      "chain": "kik",
+      "lat": 42.60269,
+      "lon": 23.05011,
+      "city": "Pernik",
+      "address": "Zahari Zograf Str. 159, 2306, Pernik",
+      "name": "KiK, Zahari Zograf Str. 159"
+    },
+    {
+      "id": "1897105",
+      "chain": "kik",
+      "lat": 42.70425,
+      "lon": 24.16157,
+      "city": "Pirdop",
+      "address": "Stefan Stambolov Str., 2070, Pirdop",
+      "name": "KiK, Stefan Stambolov Str."
+    },
+    {
+      "id": "2473358",
+      "chain": "kik",
+      "lat": 42.27156,
+      "lon": 24.91843,
+      "city": "Rakovski",
+      "address": "Str. Petar Partevich 21, 4150, Rakovski",
+      "name": "KiK, Str. Petar Partevich 21"
+    },
+    {
+      "id": "1897116",
+      "chain": "kik",
+      "lat": 41.88132,
+      "lon": 23.47134,
+      "city": "Razlog",
+      "address": "Gotze Delchev Str. 51a, 2760, Razlog",
+      "name": "KiK, Gotze Delchev Str. 51a"
+    },
+    {
+      "id": "1897090",
+      "chain": "kik",
+      "lat": 43.84872,
+      "lon": 25.95199,
+      "city": "Ruse",
+      "address": "Platz Svoboda 7, 7000, Ruse",
+      "name": "KiK, Platz Svoboda 7"
+    },
+    {
+      "id": "1897122",
+      "chain": "kik",
+      "lat": 42.67602,
+      "lon": 26.32025,
+      "city": "Sliven",
+      "address": "Georgi Danchev Blvd. Nr 24 - 26, 8800, Sliven",
+      "name": "KiK, Georgi Danchev Blvd. Nr 24 - 26"
+    },
+    {
+      "id": "1897119",
+      "chain": "kik",
+      "lat": 42.67398,
+      "lon": 26.32416,
+      "city": "Sliven",
+      "address": "Tsar Simeon Blvd. 41, 8801, Sliven",
+      "name": "KiK, Tsar Simeon Blvd. 41"
+    },
+    {
+      "id": "1897095",
+      "chain": "kik",
+      "lat": 41.57223,
+      "lon": 24.71534,
+      "city": "Smolyan",
+      "address": "Beliya Kamak Str. Nr 24, 4700, Smolyan",
+      "name": "KiK, Beliya Kamak Str. Nr 24"
+    },
+    {
+      "id": "1897129",
+      "chain": "kik",
+      "lat": 42.66384,
+      "lon": 23.37874,
+      "city": "Sofia",
+      "address": "115z Tsarigradsko Shose Blvd., 1784, Sofia",
+      "name": "KiK, 115z Tsarigradsko Shose Blvd."
+    },
+    {
+      "id": "1897144",
+      "chain": "kik",
+      "lat": 42.71036,
+      "lon": 23.27103,
+      "city": "Sofia",
+      "address": "15 Tsaritsa Yoanna Blvd., 1336, Sofia",
+      "name": "KiK, 15 Tsaritsa Yoanna Blvd."
+    },
+    {
+      "id": "1897093",
+      "chain": "kik",
+      "lat": 42.71757,
+      "lon": 23.2404,
+      "city": "Sofia",
+      "address": "15. Rayko Daskalov Blvd., 1359, Sofia",
+      "name": "KiK, 15. Rayko Daskalov Blvd."
+    },
+    {
+      "id": "2356209",
+      "chain": "kik",
+      "lat": 42.66004,
+      "lon": 23.24531,
+      "city": "Sofia",
+      "address": "272. Tsar Boris Iii Blvd., 1619, Sofia",
+      "name": "KiK, 272. Tsar Boris Iii Blvd."
+    },
+    {
+      "id": "2367454",
+      "chain": "kik",
+      "lat": 42.70935,
+      "lon": 23.43437,
+      "city": "Sofia",
+      "address": "Street. Botevgradsko shose 525, 1839, Sofia",
+      "name": "KiK, Street. Botevgradsko shose 525"
+    },
+    {
+      "id": "2367455",
+      "chain": "kik",
+      "lat": 42.66307,
+      "lon": 23.28293,
+      "city": "Sofia",
+      "address": "Ul. Mur 56, 1680, Sofia",
+      "name": "KiK, Ul. Mur 56"
+    },
+    {
+      "id": "2529410",
+      "chain": "kik",
+      "lat": 42.69128,
+      "lon": 23.28109,
+      "city": "Sofiq",
+      "address": "Bul. Nikola Mushanow 149a, 1330, Sofiq",
+      "name": "KiK, Bul. Nikola Mushanow 149a"
+    },
+    {
+      "id": "1978384",
+      "chain": "kik",
+      "lat": 42.13727,
+      "lon": 24.54331,
+      "city": "Stamboliyski",
+      "address": "Trakija Blvd.nr. 30g, 4210, Stamboliyski",
+      "name": "KiK, Trakija Blvd.nr. 30g"
+    },
+    {
+      "id": "1897108",
+      "chain": "kik",
+      "lat": 43.24832,
+      "lon": 26.55837,
+      "city": "Targovishte",
+      "address": "27 Alexander Stamboliyski Blvd., 7700, Targovishte",
+      "name": "KiK, 27 Alexander Stamboliyski Blvd."
+    },
+    {
+      "id": "1897097",
+      "chain": "kik",
+      "lat": 42.89252,
+      "lon": 24.71569,
+      "city": "Troyan",
+      "address": "Akademik Angel Balevski Str. 1, 5600, Troyan",
+      "name": "KiK, Akademik Angel Balevski Str. 1"
+    },
+    {
+      "id": "1897139",
+      "chain": "kik",
+      "lat": 43.22726,
+      "lon": 27.875,
+      "city": "Varna",
+      "address": "185. Slivnitsa Blvd., 9009, Varna",
+      "name": "KiK, 185. Slivnitsa Blvd."
+    },
+    {
+      "id": "1897111",
+      "chain": "kik",
+      "lat": 43.21649,
+      "lon": 27.89864,
+      "city": "Varna",
+      "address": "2. Andrey Saharov Str., 9000, Varna",
+      "name": "KiK, 2. Andrey Saharov Str."
+    },
+    {
+      "id": "2356197",
+      "chain": "kik",
+      "lat": 43.24781,
+      "lon": 27.98307,
+      "city": "Varna",
+      "address": "Tzar Boris Iii Str. 22 - 24, 9022, Varna",
+      "name": "KiK, Tzar Boris Iii Str. 22 - 24"
+    },
+    {
+      "id": "1897102",
+      "chain": "kik",
+      "lat": 42.03118,
+      "lon": 24.00334,
+      "city": "Velingrad",
+      "address": "Khan Asparuh Str. 2, 4600, Velingrad",
+      "name": "KiK, Khan Asparuh Str. 2"
+    },
+    {
+      "id": "1898162",
+      "chain": "kik",
+      "lat": 44.00014,
+      "lon": 22.86968,
+      "city": "Vidin",
+      "address": "Blvd. Panonia 43, 3700, Vidin",
+      "name": "KiK, Blvd. Panonia 43"
+    },
+    {
+      "id": "1897126",
+      "chain": "kik",
+      "lat": 43.20806,
+      "lon": 23.54627,
+      "city": "Vratza",
+      "address": "2. Petropavlovska Str., 3000, Vratza",
+      "name": "KiK, 2. Petropavlovska Str."
+    },
+    {
+      "id": "2356210",
+      "chain": "kik",
+      "lat": 43.22082,
+      "lon": 23.54224,
+      "city": "Vratza",
+      "address": "Stoyan Daskalov Str Nr. 1, 3000, Vratza",
+      "name": "KiK, Stoyan Daskalov Str Nr. 1"
+    },
+    {
+      "id": "1897112",
+      "chain": "kik",
+      "lat": 42.47723,
+      "lon": 26.51189,
+      "city": "Yambol",
+      "address": "37. Bitolya Str., 8600, Yambol",
+      "name": "KiK, 37. Bitolya Str."
+    },
+    {
+      "id": "1793036",
+      "chain": "lidl",
+      "lat": 42.70248,
+      "lon": 23.28462,
+      "city": "Sofiya",
+      "address": "Бул. „Ал. Стамболийски“ № 196, 1373, София",
+      "name": "ЛИДЛ, Бул. „Ал. Стамболийски“ № 196"
+    },
+    {
+      "id": "1792965",
+      "chain": "lidl",
+      "lat": 42.70446,
+      "lon": 23.33365,
+      "city": "Sofiya",
+      "address": "Бул. „Васил Левски“ № 152, 1000, София",
+      "name": "ЛИДЛ, Бул. „Васил Левски“ № 152"
+    },
+    {
+      "id": "1793010",
+      "chain": "lidl",
+      "lat": 42.69561,
+      "lon": 23.30928,
+      "city": "Sofiya",
+      "address": "Бул. „Ген. Скобелев“ № 62а, 1303, София",
+      "name": "ЛИДЛ, Бул. „Ген. Скобелев“ № 62а"
+    },
+    {
+      "id": "1793019",
+      "chain": "lidl",
+      "lat": 42.69532,
+      "lon": 23.34605,
+      "city": "Sofiya",
+      "address": "Бул. „Евлоги и Христо Георгиеви“ № 169, 1504, София",
+      "name": "ЛИДЛ, Бул. „Евлоги и Христо Георгиеви“ № 169"
+    },
+    {
+      "id": "1792956",
+      "chain": "lidl",
+      "lat": 42.7042,
+      "lon": 23.32382,
+      "city": "Sofiya",
+      "address": "Бул. „Мария Луиза“ № 58, 1505, София",
+      "name": "ЛИДЛ, Бул. „Мария Луиза“ № 58"
+    },
+    {
+      "id": "1793042",
+      "chain": "lidl",
+      "lat": 42.70312,
+      "lon": 23.29364,
+      "city": "Sofiya",
+      "address": "Бул. „Тодор Александров“ № 173, 1309, София",
+      "name": "ЛИДЛ, Бул. „Тодор Александров“ № 173"
+    },
+    {
+      "id": "1792978",
+      "chain": "lidl",
+      "lat": 42.66284,
+      "lon": 23.31756,
+      "city": "Sofiya",
+      "address": "Бул. „Черни връх“ № 42, 1407, София",
+      "name": "ЛИДЛ, Бул. „Черни връх“ № 42"
+    },
+    {
+      "id": "2529378",
+      "chain": "lidl",
+      "lat": 42.69128,
+      "lon": 23.28111,
+      "city": "Sofiya",
+      "address": "Бул. Никола Мушанов 149a, 1330, София",
+      "name": "ЛИДЛ, Бул. Никола Мушанов 149a"
+    },
+    {
+      "id": "1792963",
+      "chain": "lidl",
+      "lat": 42.66968,
+      "lon": 23.35325,
+      "city": "Sofiya",
+      "address": "Ж.к. „Изток“, ул. „Николай Хайтов“ № 3, 1113, София",
+      "name": "ЛИДЛ, Ж.к. „Изток“, ул. „Николай Хайтов“ № 3"
+    },
+    {
+      "id": "1793018",
+      "chain": "lidl",
+      "lat": 42.71147,
+      "lon": 23.29166,
+      "city": "Sofiya",
+      "address": "Ж.к. „Илинден“, бул. „Сливница“ № 236, 1309, София",
+      "name": "ЛИДЛ, Ж.к. „Илинден“, бул. „Сливница“ № 236"
+    },
+    {
+      "id": "1792980",
+      "chain": "lidl",
+      "lat": 42.69348,
+      "lon": 23.36697,
+      "city": "Sofiya",
+      "address": "Ж.к. „Слатина“, ул. „Марко Бочар“ № 2, 1574, София",
+      "name": "ЛИДЛ, Ж.к. „Слатина“, ул. „Марко Бочар“ № 2"
+    },
+    {
+      "id": "1792960",
+      "chain": "lidl",
+      "lat": 42.70864,
+      "lon": 23.34285,
+      "city": "Sofiya",
+      "address": "Ж.к. „Хаджи Димитър“, ул. „Резбарска“ № 1в, 1510, София",
+      "name": "ЛИДЛ, Ж.к. „Хаджи Димитър“, ул. „Резбарска“ № 1в"
+    },
+    {
+      "id": "1793068",
+      "chain": "lidl",
+      "lat": 42.69483,
+      "lon": 23.32201,
+      "city": "Sofiya",
+      "address": "Ул. „Алабин“ № 35, 1000, София",
+      "name": "ЛИДЛ, Ул. „Алабин“ № 35"
+    },
+    {
+      "id": "1792992",
+      "chain": "lidl",
+      "lat": 42.69052,
+      "lon": 23.32324,
+      "city": "Sofiya",
+      "address": "Ул. „Г. С. Раковски“ № 126 - 128, 1000, София",
+      "name": "ЛИДЛ, Ул. „Г. С. Раковски“ № 126 - 128"
+    },
+    {
+      "id": "1792967",
+      "chain": "lidl",
+      "lat": 42.70027,
+      "lon": 23.32411,
+      "city": "Sofiya",
+      "address": "Ул. „Екзарх Йосиф“ № 37, 1000, София",
+      "name": "ЛИДЛ, Ул. „Екзарх Йосиф“ № 37"
+    },
+    {
+      "id": "3215765",
+      "chain": "life",
+      "lat": 43.28152,
+      "lon": 24.08345,
+      "city": "Cherven Bryag",
+      "address": "Център, ул. „Отец Паисий\" 6, 5980, Червен бряг",
+      "name": "Life Супермаркети, Център, ул. „Отец Паисий\" 6"
+    },
+    {
+      "id": "1555864",
+      "chain": "life",
+      "lat": 43.78422,
+      "lon": 23.73011,
+      "city": "Kozloduy",
+      "address": "Ул. Кирил и Методий 6, 3320, Козлодуй",
+      "name": "Life Супермаркети, Ул. Кирил и Методий 6"
+    },
+    {
+      "id": "3215764",
+      "chain": "life",
+      "lat": 43.41184,
+      "lon": 24.63059,
+      "city": "Pleven",
+      "address": "Бул. Русе 6, 5803, Плевен",
+      "name": "Life Супермаркети, Бул. Русе 6"
+    },
+    {
+      "id": "1555868",
+      "chain": "life",
+      "lat": 43.40848,
+      "lon": 24.64874,
+      "city": "Pleven",
+      "address": "Жк. \"Дружба\" до блок 422, 5806, Плевен",
+      "name": "Life Супермаркети, Жк. \"Дружба\" до блок 422"
+    },
+    {
+      "id": "1555898",
+      "chain": "life",
+      "lat": 43.42969,
+      "lon": 24.59119,
+      "city": "Pleven",
+      "address": "Жк. Сторгозия 82 а, 5802, Плевен",
+      "name": "Life Супермаркети, Жк. Сторгозия 82 а"
+    },
+    {
+      "id": "1555873",
+      "chain": "life",
+      "lat": 43.41709,
+      "lon": 24.6203,
+      "city": "Pleven",
+      "address": "Ул. „Васил Априлов” 14 (до пл. македония), 5809, Плевен",
+      "name": "Life Супермаркети, Ул. „Васил Априлов” 14 (до пл. македония)"
+    },
+    {
+      "id": "1555880",
+      "chain": "life",
+      "lat": 43.40414,
+      "lon": 24.63034,
+      "city": "Pleven",
+      "address": "Ул. „Трети Март” 35, 5803, Плевен",
+      "name": "Life Супермаркети, Ул. „Трети Март” 35"
+    },
+    {
+      "id": "1555891",
+      "chain": "life",
+      "lat": 43.40229,
+      "lon": 24.61138,
+      "city": "Pleven",
+      "address": "Ул. „Цар Самуил” 138, 5804, Плевен",
+      "name": "Life Супермаркети, Ул. „Цар Самуил” 138"
+    },
+    {
+      "id": "1555894",
+      "chain": "life",
+      "lat": 43.41395,
+      "lon": 24.62141,
+      "city": "Pleven",
+      "address": "Ул. П. Р. Славейков 59, 5809, Плевен",
+      "name": "Life Супермаркети, Ул. П. Р. Славейков 59"
+    },
+    {
+      "id": "3215763",
+      "chain": "life",
+      "lat": 43.41188,
+      "lon": 24.63058,
+      "city": "Pleven",
+      "address": "Ул. Русе 87, 5803, Плевен",
+      "name": "Life Супермаркети, Ул. Русе 87"
+    },
+    {
+      "id": "1555902",
+      "chain": "life",
+      "lat": 42.87789,
+      "lon": 24.71219,
+      "city": "Troyan",
+      "address": "Димитър Икономов - Димитриката 53, 5600, Троян",
+      "name": "Life Супермаркети, Димитър Икономов - Димитриката 53"
+    },
+    {
+      "id": "1799318",
+      "chain": "lili-drogerie",
+      "lat": 42.69895,
+      "lon": 23.33918,
+      "city": "Sofiya",
+      "address": "Бул. \"Александър Дондуков\" № 62, район оборище, 1527, София",
+      "name": "Лили Дрогерие, Бул. \"Александър Дондуков\" № 62, район оборище"
+    },
+    {
+      "id": "1799326",
+      "chain": "lili-drogerie",
+      "lat": 42.67715,
+      "lon": 23.3095,
+      "city": "Sofiya",
+      "address": "Бул. \"Витоша\" № 184, 1000, София",
+      "name": "Лили Дрогерие, Бул. \"Витоша\" № 184"
+    },
+    {
+      "id": "1799312",
+      "chain": "lili-drogerie",
+      "lat": 42.69203,
+      "lon": 23.32019,
+      "city": "Sofiya",
+      "address": "Бул. \"Витоша\" № 41, 1000, София",
+      "name": "Лили Дрогерие, Бул. \"Витоша\" № 41"
+    },
+    {
+      "id": "1799271",
+      "chain": "lili-drogerie",
+      "lat": 42.69647,
+      "lon": 23.35132,
+      "city": "Sofiya",
+      "address": "Бул. \"Мадрид\" № 40, 1505, София",
+      "name": "Лили Дрогерие, Бул. \"Мадрид\" № 40"
+    },
+    {
+      "id": "1799297",
+      "chain": "lili-drogerie",
+      "lat": 42.69795,
+      "lon": 23.31942,
+      "city": "Sofiya",
+      "address": "Бул. \"Тодор Александров\" № 11, 1000, София",
+      "name": "Лили Дрогерие, Бул. \"Тодор Александров\" № 11"
+    },
+    {
+      "id": "1799356",
+      "chain": "lili-drogerie",
+      "lat": 42.67847,
+      "lon": 23.32024,
+      "city": "Sofiya",
+      "address": "Бул.\"Арсеналски\" № 2,ет. - 2, 1421, София",
+      "name": "Лили Дрогерие, Бул.\"Арсеналски\" № 2,ет. - 2"
+    },
+    {
+      "id": "1799264",
+      "chain": "lili-drogerie",
+      "lat": 42.65534,
+      "lon": 23.39866,
+      "city": "Sofiya",
+      "address": "Бул.\"Професор Цветан Лазаров\" № 114, ж.к. дружба 2, 1528, София",
+      "name": "Лили Дрогерие, Бул.\"Професор Цветан Лазаров\" № 114, ж.к. дружба 2"
+    },
+    {
+      "id": "1799354",
+      "chain": "lili-drogerie",
+      "lat": 42.70454,
+      "lon": 23.32341,
+      "city": "Sofiya",
+      "address": "Пл.\"Лъвов мост\" № 1, 1202, София",
+      "name": "Лили Дрогерие, Пл.\"Лъвов мост\" № 1"
+    },
+    {
+      "id": "1799340",
+      "chain": "lili-drogerie",
+      "lat": 42.69913,
+      "lon": 23.32588,
+      "city": "Sofiya",
+      "address": "Ул. \"Веслец\" № 14, ет. 1,, 1000, София",
+      "name": "Лили Дрогерие, Ул. \"Веслец\" № 14, ет. 1,"
+    },
+    {
+      "id": "1957802",
+      "chain": "lili-drogerie",
+      "lat": 42.69992,
+      "lon": 23.3183,
+      "city": "Sofiya",
+      "address": "Ул. Пиротска 20, 1000, София",
+      "name": "Лили Дрогерие, Ул. Пиротска 20"
+    },
+    {
+      "id": "1799283",
+      "chain": "lili-drogerie",
+      "lat": 42.69174,
+      "lon": 23.32564,
+      "city": "Sofiya",
+      "address": "Ул.\"Георги С. Раковски\" № 147, 1142, София",
+      "name": "Лили Дрогерие, Ул.\"Георги С. Раковски\" № 147"
+    },
+    {
+      "id": "1799352",
+      "chain": "lili-drogerie",
+      "lat": 42.68526,
+      "lon": 23.30355,
+      "city": "Sofiya",
+      "address": "Ул.\"Георги Софийски\" № 56, 1606, София",
+      "name": "Лили Дрогерие, Ул.\"Георги Софийски\" № 56"
+    },
+    {
+      "id": "1799317",
+      "chain": "lili-drogerie",
+      "lat": 42.69313,
+      "lon": 23.32317,
+      "city": "Sofiya",
+      "address": "Ул.\"Граф Игнатиев\" № 16, 1000, София",
+      "name": "Лили Дрогерие, Ул.\"Граф Игнатиев\" № 16"
+    },
+    {
+      "id": "1799361",
+      "chain": "lili-drogerie",
+      "lat": 42.70183,
+      "lon": 23.30104,
+      "city": "Sofiya",
+      "address": "Ул.\"Димитър Петков\" № 77, 1309, София",
+      "name": "Лили Дрогерие, Ул.\"Димитър Петков\" № 77"
+    },
+    {
+      "id": "1799310",
+      "chain": "lili-drogerie",
+      "lat": 42.68087,
+      "lon": 23.33202,
+      "city": "Sofiya",
+      "address": "Ул.\"Елин Пелин\" № 45, 1164, София",
+      "name": "Лили Дрогерие, Ул.\"Елин Пелин\" № 45"
+    },
+    {
+      "id": "1799338",
+      "chain": "lili-drogerie",
+      "lat": 42.68927,
+      "lon": 23.30787,
+      "city": "Sofiya",
+      "address": "Ул.\"Пенчо Славейков\" № 5, 1606, София",
+      "name": "Лили Дрогерие, Ул.\"Пенчо Славейков\" № 5"
+    },
+    {
+      "id": "1555362",
+      "chain": "m-max",
+      "lat": 42.51399,
+      "lon": 27.45266,
+      "city": "Burgas",
+      "address": "Бул. Янко Комитов 8, 8005, Бургас",
+      "name": "Mömax, Бул. Янко Комитов 8"
+    },
+    {
+      "id": "1941437",
+      "chain": "m-max",
+      "lat": 42.12392,
+      "lon": 24.77194,
+      "city": "Plovdiv",
+      "address": "Ул. Асеновградско шосе 14, 4023, Пловдив",
+      "name": "Mömax, Ул. Асеновградско шосе 14"
+    },
+    {
+      "id": "1555355",
+      "chain": "m-max",
+      "lat": 42.71162,
+      "lon": 23.30167,
+      "city": "Sofiya",
+      "address": "Бул. Скопие 6, 1233, София",
+      "name": "Mömax, Бул. Скопие 6"
+    },
+    {
+      "id": "1793151",
+      "chain": "m-max",
+      "lat": 42.74013,
+      "lon": 23.23756,
+      "city": "Sofiya",
+      "address": "Бул.Европа 441, 1331, София",
+      "name": "Mömax, Бул.Европа 441"
+    },
+    {
+      "id": "1555350",
+      "chain": "m-max",
+      "lat": 42.41384,
+      "lon": 25.63987,
+      "city": "Stara Zagora",
+      "address": "Бул. Патриарх Евтимий 50, 6000, Стара Загора",
+      "name": "Mömax, Бул. Патриарх Евтимий 50"
+    },
+    {
+      "id": "1793150",
+      "chain": "m-max",
+      "lat": 43.22095,
+      "lon": 27.87228,
+      "city": "Varna",
+      "address": "Бул. Владислав Варненчик 277а, 9009, Варна",
+      "name": "Mömax, Бул. Владислав Варненчик 277а"
+    },
+    {
+      "id": "1921559",
+      "chain": "mal-muk",
+      "lat": 42.60015,
+      "lon": 23.1124,
+      "city": "Pernik",
+      "address": "Л. \"Владайско въстание 1, 2308, Перник",
+      "name": "Мал Мук, Л. \"Владайско въстание 1"
+    },
+    {
+      "id": "1921560",
+      "chain": "mal-muk",
+      "lat": 42.6743,
+      "lon": 23.26357,
+      "city": "Sofiya",
+      "address": "Ул. Любляна 20, 1618, София",
+      "name": "Мал Мук, Ул. Любляна 20"
+    },
+    {
+      "id": "1684720",
+      "chain": "masterhaus",
+      "lat": 42.71017,
+      "lon": 27.25481,
+      "city": "Aytos",
+      "address": "Местност Могилата, 8500, Айтос",
+      "name": "Masterhaus, Местност Могилата"
+    },
+    {
+      "id": "1552992",
+      "chain": "masterhaus",
+      "lat": 42.51987,
+      "lon": 27.43672,
+      "city": "Burgas",
+      "address": "Северна Промишлена Зона, 8010, Бургас",
+      "name": "Masterhaus, Северна Промишлена Зона"
+    },
+    {
+      "id": "1684721",
+      "chain": "masterhaus",
+      "lat": 42.61474,
+      "lon": 25.40784,
+      "city": "Kazanlak",
+      "address": "Ул. Кенали 88, 6100, Казанлък",
+      "name": "Masterhaus, Ул. Кенали 88"
+    },
+    {
+      "id": "1684718",
+      "chain": "masterhaus",
+      "lat": 42.65361,
+      "lon": 27.6733,
+      "city": "Nesebar",
+      "address": "Местност Чатал Тепе, 8230, Несебър",
+      "name": "Masterhaus, Местност Чатал Тепе"
+    },
+    {
+      "id": "1684719",
+      "chain": "masterhaus",
+      "lat": 42.26417,
+      "lon": 27.74107,
+      "city": "Primorsko",
+      "address": "Местност Шопака, 8180, Приморско",
+      "name": "Masterhaus, Местност Шопака"
+    },
+    {
+      "id": "2657040",
+      "chain": "masterhaus",
+      "lat": 42.67723,
+      "lon": 26.34384,
+      "city": "Sliven",
+      "address": "Бул. Стефан Стамболов, 8800, Сливен",
+      "name": "Masterhaus, Бул. Стефан Стамболов"
+    },
+    {
+      "id": "3218845",
+      "chain": "maxxmart",
+      "lat": 42.70943,
+      "lon": 23.41773,
+      "city": "Sofiya",
+      "address": "Бул. „Ботевградско шосе“ 441, 1839, София",
+      "name": "Maxxmart, Бул. „Ботевградско шосе“ 441"
+    },
+    {
+      "id": "1763031",
+      "chain": "maxxmart",
+      "lat": 42.67095,
+      "lon": 23.24213,
+      "city": "Sofiya",
+      "address": "Бул. „Никола Петков“ 151, 1619 кв. карпузица,, 1619, София",
+      "name": "Maxxmart, Бул. „Никола Петков“ 151, 1619 кв. карпузица,"
+    },
+    {
+      "id": "1763020",
+      "chain": "maxxmart",
+      "lat": 42.65993,
+      "lon": 23.33632,
+      "city": "Sofiya",
+      "address": "Бул. „Симеоновско шосе“ 4, 1700 ловен,, 1700, София",
+      "name": "Maxxmart, Бул. „Симеоновско шосе“ 4, 1700 ловен,"
+    },
+    {
+      "id": "1763030",
+      "chain": "maxxmart",
+      "lat": 42.66696,
+      "lon": 23.33786,
+      "city": "Sofiya",
+      "address": "Бул. Симеоновско шосе и ул. Никола Габровски, Товарна гара Пионер, 1700, София",
+      "name": "Maxxmart, Бул. Симеоновско шосе и ул. Никола Габровски, Товарна гара Пионер"
+    },
+    {
+      "id": "1763032",
+      "chain": "maxxmart",
+      "lat": 42.64839,
+      "lon": 23.29678,
+      "city": "Sofiya",
+      "address": "Околовръстен Път № 59, 1404, София",
+      "name": "Maxxmart, Околовръстен Път № 59"
+    },
+    {
+      "id": "1763018",
+      "chain": "maxxmart",
+      "lat": 42.70658,
+      "lon": 23.33534,
+      "city": "Sofiya",
+      "address": "Пл.Сточна гара ул.Владайска река № 4, 1510, София",
+      "name": "Maxxmart, Пл.Сточна гара ул.Владайска река № 4"
+    },
+    {
+      "id": "1569212",
+      "chain": "maxxmart",
+      "lat": 42.77904,
+      "lon": 23.27425,
+      "city": "Sofiya",
+      "address": "С.Мрамор ул.Васил Левски№ 51 (бивш стопански двор), 1261, София",
+      "name": "Maxxmart, С.Мрамор ул.Васил Левски№ 51 (бивш стопански двор)"
+    },
+    {
+      "id": "1569206",
+      "chain": "maxxmart",
+      "lat": 42.68756,
+      "lon": 23.23292,
+      "city": "Sofiya",
+      "address": "Ул. „Бойчо Бойчев“ 80, 1362, София",
+      "name": "Maxxmart, Ул. „Бойчо Бойчев“ 80"
+    },
+    {
+      "id": "1763028",
+      "chain": "maxxmart",
+      "lat": 42.67689,
+      "lon": 23.2897,
+      "city": "Sofiya",
+      "address": "Ул. „Дойран“ 19, 1680 ж.к. белите брези, 1680, София",
+      "name": "Maxxmart, Ул. „Дойран“ 19, 1680 ж.к. белите брези"
+    },
+    {
+      "id": "1763026",
+      "chain": "maxxmart",
+      "lat": 42.80609,
+      "lon": 23.3476,
+      "city": "Sofiya",
+      "address": "Ул. „Искърско дефиле 143а, 1280 кумарица, гр. нови искър, 1281, София",
+      "name": "Maxxmart, Ул. „Искърско дефиле 143а, 1280 кумарица, гр. нови искър"
+    },
+    {
+      "id": "1569213",
+      "chain": "maxxmart",
+      "lat": 42.64144,
+      "lon": 23.31514,
+      "city": "Sofiya",
+      "address": "Ул. „Околовръстен път“ 121, 1700, 1680, София",
+      "name": "Maxxmart, Ул. „Околовръстен път“ 121, 1700"
+    },
+    {
+      "id": "1763024",
+      "chain": "maxxmart",
+      "lat": 42.6436,
+      "lon": 23.30669,
+      "city": "Sofiya",
+      "address": "Ул. „Околовръстен път“ 28, 1404 ботаническа градина, 1616, София",
+      "name": "Maxxmart, Ул. „Околовръстен път“ 28, 1404 ботаническа градина"
+    },
+    {
+      "id": "1763029",
+      "chain": "maxxmart",
+      "lat": 42.60951,
+      "lon": 23.39978,
+      "city": "Sofiya",
+      "address": "Ул. „Самоковско шосе“ 183, 1137 камбаните, панчарево, 1434, София",
+      "name": "Maxxmart, Ул. „Самоковско шосе“ 183, 1137 камбаните, панчарево"
+    },
+    {
+      "id": "1763025",
+      "chain": "maxxmart",
+      "lat": 42.75218,
+      "lon": 23.29311,
+      "city": "Sofiya",
+      "address": "Ул. Никола Зозиков № 1, 1231, София",
+      "name": "Maxxmart, Ул. Никола Зозиков № 1"
+    },
+    {
+      "id": "1569218",
+      "chain": "maxxmart",
+      "lat": 42.66431,
+      "lon": 23.34367,
+      "city": "Sofiya",
+      "address": "Ул.Никола Габровски 9, гара пионер, 1172, София",
+      "name": "Maxxmart, Ул.Никола Габровски 9, гара пионер"
+    },
+    {
+      "id": "1556324",
+      "chain": "mebeli-videnov",
+      "lat": 42.0195,
+      "lon": 23.09341,
+      "city": "Blagoevgrad",
+      "address": "Ул. Св. Св. Кирил и Методий 5, 2700, Благоевград",
+      "name": "Мебели Виденов, Ул. Св. Св. Кирил и Методий 5"
+    },
+    {
+      "id": "1556362",
+      "chain": "mebeli-videnov",
+      "lat": 42.9107,
+      "lon": 23.80281,
+      "city": "Botevgrad",
+      "address": "Бул. Цар Освободител 33б, 2140, Ботевград",
+      "name": "Мебели Виденов, Бул. Цар Освободител 33б"
+    },
+    {
+      "id": "1556245",
+      "chain": "mebeli-videnov",
+      "lat": 42.26689,
+      "lon": 23.11948,
+      "city": "Dupnitsa",
+      "address": "Ул. Преспа 9, 2600, Дупница",
+      "name": "Мебели Виденов, Ул. Преспа 9"
+    },
+    {
+      "id": "1556380",
+      "chain": "mebeli-videnov",
+      "lat": 42.28195,
+      "lon": 22.69642,
+      "city": "Kyustendil",
+      "address": "Бул. Цар Освободител 234, 2500, Кюстендил",
+      "name": "Мебели Виденов, Бул. Цар Освободител 234"
+    },
+    {
+      "id": "1556354",
+      "chain": "mebeli-videnov",
+      "lat": 43.40612,
+      "lon": 23.22916,
+      "city": "Montana",
+      "address": "Бул. Христо Ботев 67, 3400, Монтана",
+      "name": "Мебели Виденов, Бул. Христо Ботев 67"
+    },
+    {
+      "id": "1556307",
+      "chain": "mebeli-videnov",
+      "lat": 42.60126,
+      "lon": 23.02639,
+      "city": "Pernik",
+      "address": "Ул. Захари Зограф 159, 2300, Перник",
+      "name": "Мебели Виденов, Ул. Захари Зограф 159"
+    },
+    {
+      "id": "2606008",
+      "chain": "mebeli-videnov",
+      "lat": 42.70436,
+      "lon": 24.16184,
+      "city": "Pirdop",
+      "address": "Ритейл парк Средногорие e871, 2070, Пирдоп",
+      "name": "Мебели Виденов, Ритейл парк Средногорие e871"
+    },
+    {
+      "id": "1556250",
+      "chain": "mebeli-videnov",
+      "lat": 43.836,
+      "lon": 25.9559,
+      "city": "Ruse",
+      "address": "Ул. Борисова 111, 7012, Русе",
+      "name": "Мебели Виденов, Ул. Борисова 111"
+    },
+    {
+      "id": "1556172",
+      "chain": "mebeli-videnov",
+      "lat": 42.33705,
+      "lon": 23.5564,
+      "city": "Samokov",
+      "address": "Ул. Иван Вазов 2, 2000, Самоков",
+      "name": "Мебели Виденов, Ул. Иван Вазов 2"
+    },
+    {
+      "id": "2606007",
+      "chain": "mebeli-videnov",
+      "lat": 42.70936,
+      "lon": 23.45339,
+      "city": "Sofiya",
+      "address": "Бул. Ботевградско шосе 515 - 525, 1540, София",
+      "name": "Мебели Виденов, Бул. Ботевградско шосе 515 - 525"
+    },
+    {
+      "id": "1556335",
+      "chain": "mebeli-videnov",
+      "lat": 42.70909,
+      "lon": 23.29462,
+      "city": "Sofiya",
+      "address": "Бул. Сливница 125, 1309, София",
+      "name": "Мебели Виденов, Бул. Сливница 125"
+    },
+    {
+      "id": "2606006",
+      "chain": "mebeli-videnov",
+      "lat": 42.71741,
+      "lon": 23.25848,
+      "city": "Sofiya",
+      "address": "Бул. Царица Йоанна 65 - 67, 1324, София",
+      "name": "Мебели Виденов, Бул. Царица Йоанна 65 - 67"
+    },
+    {
+      "id": "1556185",
+      "chain": "mebeli-videnov",
+      "lat": 42.64764,
+      "lon": 23.38158,
+      "city": "Sofiya",
+      "address": "Кв. Младост 1а, бл.554, 1729, София",
+      "name": "Мебели Виденов, Кв. Младост 1а, бл.554"
+    },
+    {
+      "id": "1556271",
+      "chain": "mebeli-videnov",
+      "lat": 42.63655,
+      "lon": 23.32398,
+      "city": "Sofiya",
+      "address": "Ул. Околовръстен път 106а, 1415, София",
+      "name": "Мебели Виденов, Ул. Околовръстен път 106а"
+    },
+    {
+      "id": "1556303",
+      "chain": "mebeli-videnov",
+      "lat": 42.00947,
+      "lon": 23.98599,
+      "city": "Velingrad",
+      "address": "Бул. Съединение 68а, 4601, Велинград",
+      "name": "Мебели Виденов, Бул. Съединение 68а"
+    },
+    {
+      "id": "1556375",
+      "chain": "mebeli-videnov",
+      "lat": 43.20869,
+      "lon": 23.54442,
+      "city": "Vratsa",
+      "address": "Ул. Река Лева 54, 3000, Враца",
+      "name": "Мебели Виденов, Ул. Река Лева 54"
+    },
+    {
+      "id": "1552371",
+      "chain": "office-1",
+      "lat": 42.70315,
+      "lon": 23.33024,
+      "city": "Beloslav",
+      "address": "Ул. „Св. Кирил и Методий“ № 24, 1202, Белослав",
+      "name": "Office 1, Ул. „Св. Кирил и Методий“ № 24"
+    },
+    {
+      "id": "1552460",
+      "chain": "office-1",
+      "lat": 42.66181,
+      "lon": 23.28647,
+      "city": "Sofiya",
+      "address": "Бул. „България“ № 81а, 1404, София",
+      "name": "Office 1, Бул. „България“ № 81а"
+    },
+    {
+      "id": "1552496",
+      "chain": "office-1",
+      "lat": 42.67858,
+      "lon": 23.31007,
+      "city": "Sofiya",
+      "address": "Бул. Витоша № 168, 1408, София",
+      "name": "Office 1, Бул. Витоша № 168"
+    },
+    {
+      "id": "1552405",
+      "chain": "office-1",
+      "lat": 42.68666,
+      "lon": 23.31777,
+      "city": "Sofiya",
+      "address": "Бул. Витоша № 96, 1463, София",
+      "name": "Office 1, Бул. Витоша № 96"
+    },
+    {
+      "id": "1552452",
+      "chain": "office-1",
+      "lat": 42.67263,
+      "lon": 23.32296,
+      "city": "Sofiya",
+      "address": "Бул. Джеймс Баучер № 51, 1407, София",
+      "name": "Office 1, Бул. Джеймс Баучер № 51"
+    },
+    {
+      "id": "1552428",
+      "chain": "office-1",
+      "lat": 42.70291,
+      "lon": 23.32346,
+      "city": "Sofiya",
+      "address": "Бул. Княгиня Мария Луиза № 42, 1202, София",
+      "name": "Office 1, Бул. Княгиня Мария Луиза № 42"
+    },
+    {
+      "id": "1552485",
+      "chain": "office-1",
+      "lat": 42.6982,
+      "lon": 23.33131,
+      "city": "Sofiya",
+      "address": "Бул. Княз Александър Дондуков № 34б, 1000, София",
+      "name": "Office 1, Бул. Княз Александър Дондуков № 34б"
+    },
+    {
+      "id": "1552388",
+      "chain": "office-1",
+      "lat": 42.72597,
+      "lon": 23.30246,
+      "city": "Sofiya",
+      "address": "Бул. Ломско шосе бл. 171, 1220, София",
+      "name": "Office 1, Бул. Ломско шосе бл. 171"
+    },
+    {
+      "id": "1552373",
+      "chain": "office-1",
+      "lat": 42.67293,
+      "lon": 23.2938,
+      "city": "Sofiya",
+      "address": "Ж.к. Бели брези, бул. Гоце Делчев, бл. 29, 1680, София",
+      "name": "Office 1, Ж.к. Бели брези, бул. Гоце Делчев, бл. 29"
+    },
+    {
+      "id": "1552440",
+      "chain": "office-1",
+      "lat": 42.70957,
+      "lon": 23.35614,
+      "city": "Sofiya",
+      "address": "Ул. „Васил Кънчев“ № 26, 1510, София",
+      "name": "Office 1, Ул. „Васил Кънчев“ № 26"
+    },
+    {
+      "id": "1552458",
+      "chain": "office-1",
+      "lat": 42.69113,
+      "lon": 23.32445,
+      "city": "Sofiya",
+      "address": "Ул. Георги Сава Раковски № 120а, 1000, София",
+      "name": "Office 1, Ул. Георги Сава Раковски № 120а"
+    },
+    {
+      "id": "1552448",
+      "chain": "office-1",
+      "lat": 42.68669,
+      "lon": 23.3304,
+      "city": "Sofiya",
+      "address": "Ул. Граф Игнатиев № 78, 1142, София",
+      "name": "Office 1, Ул. Граф Игнатиев № 78"
+    },
+    {
+      "id": "1552447",
+      "chain": "office-1",
+      "lat": 42.69297,
+      "lon": 23.31792,
+      "city": "Sofiya",
+      "address": "Ул. Солунска № 43, 1000, София",
+      "name": "Office 1, Ул. Солунска № 43"
+    },
+    {
+      "id": "1552379",
+      "chain": "office-1",
+      "lat": 42.69841,
+      "lon": 23.3148,
+      "city": "Sofiya",
+      "address": "Ул. Софроний Врачански № 2, пл.възраждане, 1303, София",
+      "name": "Office 1, Ул. Софроний Врачански № 2, пл.възраждане"
+    },
+    {
+      "id": "1552424",
+      "chain": "office-1",
+      "lat": 42.69264,
+      "lon": 23.33748,
+      "city": "Sofiya",
+      "address": "Ул. Шейново № 7, 1504, София",
+      "name": "Office 1, Ул. Шейново № 7"
+    },
+    {
+      "id": "1793079",
+      "chain": "praktiker",
+      "lat": 42.51414,
+      "lon": 27.45141,
+      "city": "Burgas",
+      "address": "Бул. Янко Комитов 8, 8001, Бургас",
+      "name": "Практикер, Бул. Янко Комитов 8"
+    },
+    {
+      "id": "1793083",
+      "chain": "praktiker",
+      "lat": 41.97151,
+      "lon": 25.55994,
+      "city": "Haskovo",
+      "address": "М. Увата 214.4 (димитровградско шосе срещу бирената фабрика), 6303, Хасково",
+      "name": "Практикер, М. Увата 214.4 (димитровградско шосе срещу бирената фабрика)"
+    },
+    {
+      "id": "1793075",
+      "chain": "praktiker",
+      "lat": 42.18149,
+      "lon": 24.34538,
+      "city": "Pazardzhik",
+      "address": "Бул. Стефан Стамболов 13, 4400, Пазарджик",
+      "name": "Практикер, Бул. Стефан Стамболов 13"
+    },
+    {
+      "id": "1793081",
+      "chain": "praktiker",
+      "lat": 42.61936,
+      "lon": 23.04991,
+      "city": "Pernik",
+      "address": "Ул. Захари Зограф 159, 2306, Перник",
+      "name": "Практикер, Ул. Захари Зограф 159"
+    },
+    {
+      "id": "1793077",
+      "chain": "praktiker",
+      "lat": 43.40908,
+      "lon": 24.63747,
+      "city": "Pleven",
+      "address": "Бул. Европа 6в, 5806, Плевен",
+      "name": "Практикер, Бул. Европа 6в"
+    },
+    {
+      "id": "1556005",
+      "chain": "praktiker",
+      "lat": 42.12678,
+      "lon": 24.75875,
+      "city": "Plovdiv",
+      "address": "Бул. Кукленско шосе 9, 4004, Пловдив",
+      "name": "Практикер, Бул. Кукленско шосе 9"
+    },
+    {
+      "id": "1793085",
+      "chain": "praktiker",
+      "lat": 43.84692,
+      "lon": 25.9671,
+      "city": "Ruse",
+      "address": "Бул. Липник 10, 7005, Русе",
+      "name": "Практикер, Бул. Липник 10"
+    },
+    {
+      "id": "1793082",
+      "chain": "praktiker",
+      "lat": 43.27442,
+      "lon": 26.94268,
+      "city": "Shumen",
+      "address": "Бул. Симеон Велики 37, 9700, Шумен",
+      "name": "Практикер, Бул. Симеон Велики 37"
+    },
+    {
+      "id": "1811370",
+      "chain": "praktiker",
+      "lat": 42.6878,
+      "lon": 23.27706,
+      "city": "Sofiya Krasno Selo",
+      "address": "Бул. Никола Мушанов 149б, 1373, София Красно село",
+      "name": "Практикер, Бул. Никола Мушанов 149б"
+    },
+    {
+      "id": "1556009",
+      "chain": "praktiker",
+      "lat": 42.72975,
+      "lon": 23.26676,
+      "city": "Sofiya Lyulin",
+      "address": "Бул. Панчо Владигеров 75, 1360, София Люлин",
+      "name": "Практикер, Бул. Панчо Владигеров 75"
+    },
+    {
+      "id": "1556014",
+      "chain": "praktiker",
+      "lat": 42.64059,
+      "lon": 23.40962,
+      "city": "Sofiya Tsarigradsko Shose",
+      "address": "Бул. Цариградско шосе 323, 1582, София Цариградско шосе",
+      "name": "Практикер, Бул. Цариградско шосе 323"
+    },
+    {
+      "id": "1556000",
+      "chain": "praktiker",
+      "lat": 42.42713,
+      "lon": 25.65995,
+      "city": "Stara Zagora",
+      "address": "Бул. Н. Петков 48, 6009, Стара Загора",
+      "name": "Практикер, Бул. Н. Петков 48"
+    },
+    {
+      "id": "1556024",
+      "chain": "praktiker",
+      "lat": 43.07334,
+      "lon": 25.61355,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. Магистрална 17, 5002, Велико Търново",
+      "name": "Практикер, Ул. Магистрална 17"
+    },
+    {
+      "id": "1793076",
+      "chain": "praktiker",
+      "lat": 43.18735,
+      "lon": 23.57991,
+      "city": "Vratsa",
+      "address": "Бул. Втори юни 150, 3001, Враца",
+      "name": "Практикер, Бул. Втори юни 150"
+    },
+    {
+      "id": "1793084",
+      "chain": "praktiker",
+      "lat": 42.46772,
+      "lon": 26.5256,
+      "city": "Yambol",
+      "address": "Бул. Граф Игнатиев 177, 8600, Ямбол",
+      "name": "Практикер, Бул. Граф Игнатиев 177"
+    },
+    {
+      "id": "1553484",
+      "chain": "praktis",
+      "lat": 41.93038,
+      "lon": 25.60375,
+      "city": "Haskovo",
+      "address": "Бул. Съединение 110, 6300, Хасково",
+      "name": "PRAKTIS, Бул. Съединение 110"
+    },
+    {
+      "id": "1792947",
+      "chain": "praktis",
+      "lat": 42.15589,
+      "lon": 24.70862,
+      "city": "Plovdiv",
+      "address": "Бул. България № 310, 4000, Пловдив",
+      "name": "PRAKTIS, Бул. България № 310"
+    },
+    {
+      "id": "1792952",
+      "chain": "praktis",
+      "lat": 43.83047,
+      "lon": 25.9692,
+      "city": "Ruse",
+      "address": "Жк. Дружба 1, ул. стрешер планина № 59, 7000, Русе",
+      "name": "PRAKTIS, Жк. Дружба 1, ул. стрешер планина № 59"
+    },
+    {
+      "id": "2451507",
+      "chain": "praktis",
+      "lat": 42.70874,
+      "lon": 23.46071,
+      "city": "Sofiya",
+      "address": "Бул. Ботевградско шосе 527, 1839, София",
+      "name": "PRAKTIS, Бул. Ботевградско шосе 527"
+    },
+    {
+      "id": "1792949",
+      "chain": "praktis",
+      "lat": 42.42042,
+      "lon": 25.63509,
+      "city": "Stara Zagora",
+      "address": "Бул. Славянски 24, 6000, Стара Загора",
+      "name": "PRAKTIS, Бул. Славянски 24"
+    },
+    {
+      "id": "1792945",
+      "chain": "praktis",
+      "lat": 43.07809,
+      "lon": 25.59955,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. Магистрална 61, 5000, Велико Търново",
+      "name": "PRAKTIS, Ул. Магистрална 61"
+    },
+    {
+      "id": "1792951",
+      "chain": "praktis",
+      "lat": 43.97842,
+      "lon": 22.87151,
+      "city": "Vidin",
+      "address": "Ул. Цар Александър 2 - 120, южна промишлена зона, 3700, Видин",
+      "name": "PRAKTIS, Ул. Цар Александър 2 - 120, южна промишлена зона"
+    },
+    {
+      "id": "2959824",
+      "chain": "slaveks",
+      "lat": 42.34695,
+      "lon": 26.52919,
+      "city": "Tenevo",
+      "address": "Улица Георги Димитров 24, 8672, Тенево",
+      "name": "Славекс, Улица Георги Димитров 24"
+    },
+    {
+      "id": "2959822",
+      "chain": "slaveks",
+      "lat": 42.53271,
+      "lon": 26.54578,
+      "city": "Veselinovo",
+      "address": "Ул. Георги Дражев 28, 8632, Веселиново",
+      "name": "Славекс, Ул. Георги Дражев 28"
+    },
+    {
+      "id": "2959816",
+      "chain": "slaveks",
+      "lat": 42.47415,
+      "lon": 26.51954,
+      "city": "Yambol",
+      "address": "Бул. Граф Игнатиев 42а, 8602, Ямбол",
+      "name": "Славекс, Бул. Граф Игнатиев 42а"
+    },
+    {
+      "id": "2959817",
+      "chain": "slaveks",
+      "lat": 42.47219,
+      "lon": 26.52651,
+      "city": "Yambol",
+      "address": "Ж.к. Диана, ул. Надежда 15, 8602, Ямбол",
+      "name": "Славекс, Ж.к. Диана, ул. Надежда 15"
+    },
+    {
+      "id": "2959819",
+      "chain": "slaveks",
+      "lat": 42.4825,
+      "lon": 26.49422,
+      "city": "Yambol",
+      "address": "Ж.к. Златен рог, ул. „Дружба“ 51, 8606, Ямбол",
+      "name": "Славекс, Ж.к. Златен рог, ул. „Дружба“ 51"
+    },
+    {
+      "id": "2959820",
+      "chain": "slaveks",
+      "lat": 42.4818,
+      "lon": 26.51201,
+      "city": "Yambol",
+      "address": "Ж.к. Изток, ул. „Търговска“ 34е, 8600, Ямбол",
+      "name": "Славекс, Ж.к. Изток, ул. „Търговска“ 34е"
+    },
+    {
+      "id": "2959821",
+      "chain": "slaveks",
+      "lat": 42.48405,
+      "lon": 26.5044,
+      "city": "Yambol",
+      "address": "Ямбол Център, ул. „Каранова“ 2, 8600, Ямбол",
+      "name": "Славекс, Ямбол Център, ул. „Каранова“ 2"
+    },
+    {
+      "id": "2959823",
+      "chain": "slaveks",
+      "lat": 42.57989,
+      "lon": 26.60552,
+      "city": "Zimnitsa",
+      "address": "Ул. Хан Аспарух 4, 8690, Зимница",
+      "name": "Славекс, Ул. Хан Аспарух 4"
+    },
+    {
+      "id": "2001681",
+      "chain": "stop4eto",
+      "lat": 42.1603,
+      "lon": 24.76132,
+      "city": "Plovdiv",
+      "address": "Ул. „Барикадите 6, 4021, Пловдив",
+      "name": "Stop4eto, Ул. „Барикадите 6"
+    },
+    {
+      "id": "1796788",
+      "chain": "stop4eto",
+      "lat": 42.14136,
+      "lon": 24.7863,
+      "city": "Plovdiv",
+      "address": "Ул. Георги Данчов 16, 4023, Пловдив",
+      "name": "Stop4eto, Ул. Георги Данчов 16"
+    },
+    {
+      "id": "1957119",
+      "chain": "stroitelen-hipermarket-rila",
+      "lat": 42.11828,
+      "lon": 24.75172,
+      "city": "Plovdiv",
+      "address": "Ул. Братя Бъкстон 122, 4004, Пловдив",
+      "name": "Строителен хипермаркет РИЛА, Ул. Братя Бъкстон 122"
+    },
+    {
+      "id": "1806163",
+      "chain": "supermarket-burleks",
+      "lat": 42.70809,
+      "lon": 23.14575,
+      "city": "Bankya",
+      "address": "Ул. Александър Стамболийски 2, 1320, Банкя",
+      "name": "Супермаркет Бурлекс, Ул. Александър Стамболийски 2"
+    },
+    {
+      "id": "1806185",
+      "chain": "supermarket-burleks",
+      "lat": 42.67158,
+      "lon": 23.59833,
+      "city": "Elin Pelin",
+      "address": "Бул. София - пазар, 2110, Елин Пелин",
+      "name": "Супермаркет Бурлекс, Бул. София - пазар"
+    },
+    {
+      "id": "1806177",
+      "chain": "supermarket-burleks",
+      "lat": 42.69778,
+      "lon": 23.31611,
+      "city": "Sofiya",
+      "address": "Бул. Александър Стамболийски 44, 1000, София",
+      "name": "Супермаркет Бурлекс, Бул. Александър Стамболийски 44"
+    },
+    {
+      "id": "1806183",
+      "chain": "supermarket-burleks",
+      "lat": 42.67335,
+      "lon": 23.31143,
+      "city": "Sofiya",
+      "address": "Бул. Арсеналски 105, 1421, София",
+      "name": "Супермаркет Бурлекс, Бул. Арсеналски 105"
+    },
+    {
+      "id": "1806176",
+      "chain": "supermarket-burleks",
+      "lat": 42.69112,
+      "lon": 23.31151,
+      "city": "Sofiya",
+      "address": "Бул. Генерал Скобелев 62, 9154, София",
+      "name": "Супермаркет Бурлекс, Бул. Генерал Скобелев 62"
+    },
+    {
+      "id": "1806171",
+      "chain": "supermarket-burleks",
+      "lat": 42.73611,
+      "lon": 23.30544,
+      "city": "Sofiya",
+      "address": "Бул.Ген.Никола Жеков, 1700, София",
+      "name": "Супермаркет Бурлекс, Бул.Ген.Никола Жеков"
+    },
+    {
+      "id": "1806186",
+      "chain": "supermarket-burleks",
+      "lat": 42.66704,
+      "lon": 23.28424,
+      "city": "Sofiya",
+      "address": "Ж.к. Борово, 1680, София",
+      "name": "Супермаркет Бурлекс, Ж.к. Борово"
+    },
+    {
+      "id": "1806180",
+      "chain": "supermarket-burleks",
+      "lat": 42.71228,
+      "lon": 23.4123,
+      "city": "Sofiya",
+      "address": "Ул. 27 1, 1839, София",
+      "name": "Супермаркет Бурлекс, Ул. 27 1"
+    },
+    {
+      "id": "1806160",
+      "chain": "supermarket-burleks",
+      "lat": 42.71852,
+      "lon": 23.24765,
+      "city": "Sofiya",
+      "address": "Ул. Захари Стоянов 17, 1336, София",
+      "name": "Супермаркет Бурлекс, Ул. Захари Стоянов 17"
+    },
+    {
+      "id": "1806164",
+      "chain": "supermarket-burleks",
+      "lat": 42.71163,
+      "lon": 23.31189,
+      "city": "Sofiya",
+      "address": "Ул. Иван Тургенев 2, 1233, София",
+      "name": "Супермаркет Бурлекс, Ул. Иван Тургенев 2"
+    },
+    {
+      "id": "1806184",
+      "chain": "supermarket-burleks",
+      "lat": 42.66294,
+      "lon": 23.28326,
+      "city": "Sofiya",
+      "address": "Ул. Мур 56, 1680, София",
+      "name": "Супермаркет Бурлекс, Ул. Мур 56"
+    },
+    {
+      "id": "1806166",
+      "chain": "supermarket-burleks",
+      "lat": 42.67171,
+      "lon": 23.29018,
+      "city": "Sofiya",
+      "address": "Ул. Пирински Проход 47 в, 1680, София",
+      "name": "Супермаркет Бурлекс, Ул. Пирински Проход 47 в"
+    },
+    {
+      "id": "1806172",
+      "chain": "supermarket-burleks",
+      "lat": 42.67129,
+      "lon": 23.27934,
+      "city": "Sofiya",
+      "address": "Ул. Пчела 30, 1618, София",
+      "name": "Супермаркет Бурлекс, Ул. Пчела 30"
+    },
+    {
+      "id": "1806165",
+      "chain": "supermarket-burleks",
+      "lat": 42.64984,
+      "lon": 23.26062,
+      "city": "Sofiya",
+      "address": "Ул. Севастократор Калоян 77, 1616, София",
+      "name": "Супермаркет Бурлекс, Ул. Севастократор Калоян 77"
+    },
+    {
+      "id": "1806170",
+      "chain": "supermarket-burleks",
+      "lat": 42.67041,
+      "lon": 23.35833,
+      "city": "Sofiya",
+      "address": "Ул. Тарас Шевченко 11 - 13, 1113, София",
+      "name": "Супермаркет Бурлекс, Ул. Тарас Шевченко 11 - 13"
+    },
+    {
+      "id": "1553606",
+      "chain": "supermarket-flora",
+      "lat": 42.50976,
+      "lon": 27.47491,
+      "city": "Burgas",
+      "address": "Ж.к.Лазур бл. 166 в сграда панорама флора, 8001, Бургас",
+      "name": "Супермаркет Flora, Ж.к.Лазур бл. 166 в сграда панорама флора"
+    },
+    {
+      "id": "1553820",
+      "chain": "technopolis",
+      "lat": 42.00976,
+      "lon": 23.09342,
+      "city": "Blagoevgrad",
+      "address": "Ул. Св. Димитър Солунски 5, 2700, Благоевград",
+      "name": "Технополис, Ул. Св. Димитър Солунски 5"
+    },
+    {
+      "id": "1793090",
+      "chain": "technopolis",
+      "lat": 42.5214,
+      "lon": 27.45532,
+      "city": "Burgas 1",
+      "address": "К-с Славейков 94, 8000, Бургас 1",
+      "name": "Технополис, К-с Славейков 94"
+    },
+    {
+      "id": "1793088",
+      "chain": "technopolis",
+      "lat": 42.52846,
+      "lon": 27.45299,
+      "city": "Burgas 2",
+      "address": "Бул. Транспортна 53, 8001, Бургас 2",
+      "name": "Технополис, Бул. Транспортна 53"
+    },
+    {
+      "id": "1793102",
+      "chain": "technopolis",
+      "lat": 43.55044,
+      "lon": 27.83469,
+      "city": "Dobrich",
+      "address": "Кръстовището на Околовръстен път и ул. Батовска, 9300, Добрич",
+      "name": "Технополис, Кръстовището на Околовръстен път и ул. Батовска"
+    },
+    {
+      "id": "1553802",
+      "chain": "technopolis",
+      "lat": 42.90034,
+      "lon": 25.32587,
+      "city": "Gabrovo",
+      "address": "Ул. Индустриална 10, 5302, Габрово",
+      "name": "Технополис, Ул. Индустриална 10"
+    },
+    {
+      "id": "1553902",
+      "chain": "technopolis",
+      "lat": 41.93175,
+      "lon": 25.60573,
+      "city": "Haskovo",
+      "address": "Бул. Съединение 79, 6300, Хасково",
+      "name": "Технополис, Бул. Съединение 79"
+    },
+    {
+      "id": "1553843",
+      "chain": "technopolis",
+      "lat": 41.63082,
+      "lon": 25.37673,
+      "city": "Kardzhali",
+      "address": "Бул. Беломорски 4, 6600, Кърджали",
+      "name": "Технополис, Бул. Беломорски 4"
+    },
+    {
+      "id": "1553857",
+      "chain": "technopolis",
+      "lat": 42.27423,
+      "lon": 22.66842,
+      "city": "Kyustendil",
+      "address": "Гюешевско шосе 5, 2502, Кюстендил",
+      "name": "Технополис, Гюешевско шосе 5"
+    },
+    {
+      "id": "1973712",
+      "chain": "technopolis",
+      "lat": 43.14519,
+      "lon": 24.71282,
+      "city": "Lovech",
+      "address": "Ул. Княз Имеретински 105, 5502, Ловеч",
+      "name": "Технополис, Ул. Княз Имеретински 105"
+    },
+    {
+      "id": "1553868",
+      "chain": "technopolis",
+      "lat": 43.42216,
+      "lon": 23.22776,
+      "city": "Montana",
+      "address": "Бул. 3 - ти март 216а, 3400, Монтана",
+      "name": "Технополис, Бул. 3 - ти март 216а"
+    },
+    {
+      "id": "1793091",
+      "chain": "technopolis",
+      "lat": 42.18244,
+      "lon": 24.34663,
+      "city": "Pazardzhik",
+      "address": "Бул. Стефан Стамболов 13, 4401, Пазарджик",
+      "name": "Технополис, Бул. Стефан Стамболов 13"
+    },
+    {
+      "id": "1553793",
+      "chain": "technopolis",
+      "lat": 42.61048,
+      "lon": 23.03827,
+      "city": "Pernik",
+      "address": "Бул. Св.Св.Кирил и Методий 21, 2300, Перник",
+      "name": "Технополис, Бул. Св.Св.Кирил и Методий 21"
+    },
+    {
+      "id": "1553854",
+      "chain": "technopolis",
+      "lat": 43.41384,
+      "lon": 24.63294,
+      "city": "Pleven",
+      "address": "Бул. Георги Кочев 4, 5803, Плевен",
+      "name": "Технополис, Бул. Георги Кочев 4"
+    },
+    {
+      "id": "1793093",
+      "chain": "technopolis",
+      "lat": 43.52161,
+      "lon": 26.53945,
+      "city": "Razgrad",
+      "address": "Бул. Априлско въстание 66, 7200, Разград",
+      "name": "Технополис, Бул. Априлско въстание 66"
+    },
+    {
+      "id": "1793092",
+      "chain": "technopolis",
+      "lat": 43.83161,
+      "lon": 25.96993,
+      "city": "Ruse",
+      "address": "Бул. Христо Ботев 38, 7015, Русе",
+      "name": "Технополис, Бул. Христо Ботев 38"
+    },
+    {
+      "id": "1793094",
+      "chain": "technopolis",
+      "lat": 41.50765,
+      "lon": 23.27537,
+      "city": "Sandanski",
+      "address": "Магистрален път Е- 79 (разклона за с. дамяница, местност \"кънлийца\"), 2813, Сандански",
+      "name": "Технополис, Магистрален път Е- 79 (разклона за с. дамяница, местност \"кънлийца\")"
+    },
+    {
+      "id": "1793096",
+      "chain": "technopolis",
+      "lat": 43.2773,
+      "lon": 26.95056,
+      "city": "Shumen",
+      "address": "Бул. Цар Симеон Велики 5, 9703, Шумен",
+      "name": "Технополис, Бул. Цар Симеон Велики 5"
+    },
+    {
+      "id": "1793103",
+      "chain": "technopolis",
+      "lat": 44.11457,
+      "lon": 27.27326,
+      "city": "Silistra",
+      "address": "Бул. 7 - ми септември 23, 7500, Силистра",
+      "name": "Технополис, Бул. 7 - ми септември 23"
+    },
+    {
+      "id": "1553797",
+      "chain": "technopolis",
+      "lat": 42.66413,
+      "lon": 26.32486,
+      "city": "Sliven",
+      "address": "Бул. Стефан Караджа 6, 8800, Сливен",
+      "name": "Технополис, Бул. Стефан Караджа 6"
+    },
+    {
+      "id": "2541301",
+      "chain": "technopolis",
+      "lat": 42.68864,
+      "lon": 23.27827,
+      "city": "Sofiya",
+      "address": "Бул. Никола Мушанов 149 б, 1373, София",
+      "name": "Технополис, Бул. Никола Мушанов 149 б"
+    },
+    {
+      "id": "1553827",
+      "chain": "technopolis",
+      "lat": 42.71929,
+      "lon": 23.25705,
+      "city": "Sofiya Lyulin",
+      "address": "Кв. Люлин - бул. Царица Йоанна 70, 1324, София Люлин",
+      "name": "Технополис, Кв. Люлин - бул. Царица Йоанна 70"
+    },
+    {
+      "id": "1553879",
+      "chain": "technopolis",
+      "lat": 42.62403,
+      "lon": 23.37866,
+      "city": "Sofiya Mladost",
+      "address": "Жк Младост 4, околовръстен път 265, 1715, София Младост",
+      "name": "Технополис, Жк Младост 4, околовръстен път 265"
+    },
+    {
+      "id": "1553799",
+      "chain": "technopolis",
+      "lat": 42.66437,
+      "lon": 23.28858,
+      "city": "Sofiya Mol Balgariya",
+      "address": "Бул. България 69, 1404, София Мол България",
+      "name": "Технополис, Бул. България 69"
+    },
+    {
+      "id": "1553823",
+      "chain": "technopolis",
+      "lat": 42.65821,
+      "lon": 23.31501,
+      "city": "Sofiya Mol Paradise",
+      "address": "Бул. Черни връх 100, 1407, София Мол Paradise",
+      "name": "Технополис, Бул. Черни връх 100"
+    },
+    {
+      "id": "1793087",
+      "chain": "technopolis",
+      "lat": 42.6608,
+      "lon": 23.38261,
+      "city": "Sofiya Mol The Mall",
+      "address": "Бул. Цариградско шосе 115, 1784, София Мол The Mall",
+      "name": "Технополис, Бул. Цариградско шосе 115"
+    },
+    {
+      "id": "1793101",
+      "chain": "technopolis",
+      "lat": 42.71762,
+      "lon": 23.31772,
+      "city": "Sofiya Nadezhda",
+      "address": "Бул. История Славянобългарска 13, 1220, София Надежда",
+      "name": "Технополис, Бул. История Славянобългарска 13"
+    },
+    {
+      "id": "1793097",
+      "chain": "technopolis",
+      "lat": 42.69126,
+      "lon": 23.35301,
+      "city": "Sofiya Serdika Tsentar",
+      "address": "Бул. Ситняково 48, 1797, София Сердика център",
+      "name": "Технополис, Бул. Ситняково 48"
+    },
+    {
+      "id": "1793095",
+      "chain": "technopolis",
+      "lat": 42.42858,
+      "lon": 25.6619,
+      "city": "Stara Zagora",
+      "address": "Бул. Никола Петков 50, 6009, Стара Загора",
+      "name": "Технополис, Бул. Никола Петков 50"
+    },
+    {
+      "id": "1793098",
+      "chain": "technopolis",
+      "lat": 43.22174,
+      "lon": 27.87284,
+      "city": "Varna 1",
+      "address": "Бул. Владислав Варненчик 277, 9000, Варна 1",
+      "name": "Технополис, Бул. Владислав Варненчик 277"
+    },
+    {
+      "id": "1793099",
+      "chain": "technopolis",
+      "lat": 43.23289,
+      "lon": 27.86407,
+      "city": "Varna 2",
+      "address": "Бул. Цар Освободител 267, 9004, Варна 2",
+      "name": "Технополис, Бул. Цар Освободител 267"
+    },
+    {
+      "id": "1553812",
+      "chain": "technopolis",
+      "lat": 43.07181,
+      "lon": 25.63879,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. Магистрална 4, 5000, Велико Търново",
+      "name": "Технополис, Ул. Магистрална 4"
+    },
+    {
+      "id": "1793089",
+      "chain": "technopolis",
+      "lat": 44.00664,
+      "lon": 22.88055,
+      "city": "Vidin",
+      "address": "Бул. Панония, 3701, Видин",
+      "name": "Технополис, Бул. Панония"
+    },
+    {
+      "id": "1793100",
+      "chain": "technopolis",
+      "lat": 43.18682,
+      "lon": 23.57665,
+      "city": "Vratsa",
+      "address": "Бул. Втори юни, 152, 3000, Враца",
+      "name": "Технополис, Бул. Втори юни, 152"
+    },
+    {
+      "id": "1553860",
+      "chain": "technopolis",
+      "lat": 42.46847,
+      "lon": 26.52478,
+      "city": "Yambol",
+      "address": "Бул. Граф Игнатиев 173 - 175, 8602, Ямбол",
+      "name": "Технополис, Бул. Граф Игнатиев 173 - 175"
+    },
+    {
+      "id": "1842462",
+      "chain": "tedi",
+      "lat": 42.65663,
+      "lon": 23.59118,
+      "city": "Elin Pelin",
+      "address": "Бул. Витоша 25, 2100, Елин Пелин",
+      "name": "TEDi, Бул. Витоша 25"
+    },
+    {
+      "id": "1762869",
+      "chain": "tedi",
+      "lat": 41.97127,
+      "lon": 25.5597,
+      "city": "Haskovo",
+      "address": "Местност Увата, 6300, Хасково",
+      "name": "TEDi, Местност Увата"
+    },
+    {
+      "id": "1762867",
+      "chain": "tedi",
+      "lat": 41.63135,
+      "lon": 25.37832,
+      "city": "Kardzhali",
+      "address": "Бул. „Беломорски“ 68, 6600 източна промишлена зона, 6600, Кърджали",
+      "name": "TEDi, Бул. „Беломорски“ 68, 6600 източна промишлена зона"
+    },
+    {
+      "id": "2955275",
+      "chain": "tedi",
+      "lat": 42.79938,
+      "lon": 23.22985,
+      "city": "Kostinbrod",
+      "address": "Бул. Ломско шосе е - 81, 2230, Костинброд",
+      "name": "TEDi, Бул. Ломско шосе е - 81"
+    },
+    {
+      "id": "1763068",
+      "chain": "tedi",
+      "lat": 42.18645,
+      "lon": 24.32032,
+      "city": "Pazardzhik",
+      "address": "Ул. „Любен Боянов“ 1, 4400 руски, 4404, Пазарджик",
+      "name": "TEDi, Ул. „Любен Боянов“ 1, 4400 руски"
+    },
+    {
+      "id": "1763064",
+      "chain": "tedi",
+      "lat": 42.60182,
+      "lon": 23.0471,
+      "city": "Pernik",
+      "address": "Ул. „Захари Зограф“ 159, 2306 горно могиличе, перник, 2306, Перник",
+      "name": "TEDi, Ул. „Захари Зограф“ 159, 2306 горно могиличе, перник"
+    },
+    {
+      "id": "1763065",
+      "chain": "tedi",
+      "lat": 42.61053,
+      "lon": 23.09178,
+      "city": "Pernik",
+      "address": "Ул. Юрий Гагарин 2а, 2303, Перник",
+      "name": "TEDi, Ул. Юрий Гагарин 2а"
+    },
+    {
+      "id": "1763066",
+      "chain": "tedi",
+      "lat": 42.68241,
+      "lon": 26.34016,
+      "city": "Sliven",
+      "address": "Бул. „Георги Данчев“ 24, 8808 ж.к. българка, 8804, Сливен",
+      "name": "TEDi, Бул. „Георги Данчев“ 24, 8808 ж.к. българка"
+    },
+    {
+      "id": "1842461",
+      "chain": "tedi",
+      "lat": 42.66091,
+      "lon": 23.38306,
+      "city": "Sofiya",
+      "address": "Бул. „Цариградско шосе“ 115z, 1784, 1784, София",
+      "name": "TEDi, Бул. „Цариградско шосе“ 115z, 1784"
+    },
+    {
+      "id": "2310328",
+      "chain": "tedi",
+      "lat": 42.70988,
+      "lon": 23.45313,
+      "city": "Sofiya",
+      "address": "Бул. Ботевградско шосе 515 - 525, 1839, София",
+      "name": "TEDi, Бул. Ботевградско шосе 515 - 525"
+    },
+    {
+      "id": "2541304",
+      "chain": "tedi",
+      "lat": 42.68872,
+      "lon": 23.27721,
+      "city": "Sofiya",
+      "address": "Бул. Никола Мушанов 149 а, 1330, София",
+      "name": "TEDi, Бул. Никола Мушанов 149 а"
+    },
+    {
+      "id": "2212093",
+      "chain": "tedi",
+      "lat": 42.71038,
+      "lon": 23.27133,
+      "city": "Sofiya",
+      "address": "Бул. Царица Йоанна 15, 1336, София",
+      "name": "TEDi, Бул. Царица Йоанна 15"
+    },
+    {
+      "id": "2002499",
+      "chain": "tedi",
+      "lat": 42.66408,
+      "lon": 23.2887,
+      "city": "Sofiya",
+      "address": "Кв. Манастирски ливади, бул. България 69, 1404, София",
+      "name": "TEDi, Кв. Манастирски ливади, бул. България 69"
+    },
+    {
+      "id": "1763067",
+      "chain": "tedi",
+      "lat": 42.42721,
+      "lon": 25.66243,
+      "city": "Stara Zagora",
+      "address": "Бул. „Никола Петков“ 52, 6009 южна промишлена зона, 6009, Стара Загора",
+      "name": "TEDi, Бул. „Никола Петков“ 52, 6009 южна промишлена зона"
+    },
+    {
+      "id": "2002500",
+      "chain": "tedi",
+      "lat": 43.07255,
+      "lon": 25.61606,
+      "city": "Veliko Tarnovo",
+      "address": "Ж.к. Зона Б, ул. Магистрална 17, 5000, Велико Търново",
+      "name": "TEDi, Ж.к. Зона Б, ул. Магистрална 17"
+    },
+    {
+      "id": "2547689",
+      "chain": "tedi",
+      "lat": 42.03142,
+      "lon": 24.00484,
+      "city": "Velingrad",
+      "address": "Кв. Лъджене, бул. „Хан Аспарух“ 2 в - г, 4600, Велинград",
+      "name": "TEDi, Кв. Лъджене, бул. „Хан Аспарух“ 2 в - г"
+    },
+    {
+      "id": "3310744",
+      "chain": "tedi",
+      "lat": 43.18587,
+      "lon": 23.58225,
+      "city": "Vratsa",
+      "address": "Бул. 2-ри юни 154, 3000, Враца",
+      "name": "TEDi, Бул. 2-ри юни 154"
+    },
+    {
+      "id": "1763069",
+      "chain": "tedi",
+      "lat": 42.47739,
+      "lon": 26.51268,
+      "city": "Yambol",
+      "address": "Ул. Битоля 37, 8601, Ямбол",
+      "name": "TEDi, Ул. Битоля 37"
+    },
+    {
+      "id": "1554588",
+      "chain": "tehnomarket",
+      "lat": 41.99745,
+      "lon": 23.08786,
+      "city": "Blagoevgrad",
+      "address": "Ж.к “Струмско”, бул. Яне Сандански, 2703, Благоевград",
+      "name": "Техномаркет, Ж.к “Струмско”, бул. Яне Сандански"
+    },
+    {
+      "id": "1554672",
+      "chain": "tehnomarket",
+      "lat": 42.90867,
+      "lon": 23.80195,
+      "city": "Botevgrad",
+      "address": "Бул. Цар Освободител 24а, 2140, Ботевград",
+      "name": "Техномаркет, Бул. Цар Освободител 24а"
+    },
+    {
+      "id": "1554696",
+      "chain": "tehnomarket",
+      "lat": 42.47227,
+      "lon": 27.43235,
+      "city": "Burgas",
+      "address": "Бул.Захари Стоянов 1, 8009, Бургас",
+      "name": "Техномаркет, Бул.Захари Стоянов 1"
+    },
+    {
+      "id": "1652221",
+      "chain": "tehnomarket",
+      "lat": 42.5195,
+      "lon": 27.4617,
+      "city": "Burgas",
+      "address": "Бул.Транспортна 29, бургас, 8008, Бургас",
+      "name": "Техномаркет, Бул.Транспортна 29, бургас"
+    },
+    {
+      "id": "1554632",
+      "chain": "tehnomarket",
+      "lat": 42.05894,
+      "lon": 25.5855,
+      "city": "Dimitrovgrad",
+      "address": "Бул.Стефан Стамболов 4а, 6400, Димитровград",
+      "name": "Техномаркет, Бул.Стефан Стамболов 4а"
+    },
+    {
+      "id": "1554598",
+      "chain": "tehnomarket",
+      "lat": 42.26707,
+      "lon": 23.11347,
+      "city": "Dupnitsa",
+      "address": "Ул. Иван Вазов 30, 2600, Дупница",
+      "name": "Техномаркет, Ул. Иван Вазов 30"
+    },
+    {
+      "id": "1789638",
+      "chain": "tehnomarket",
+      "lat": 42.65597,
+      "lon": 23.59052,
+      "city": "Elin Pelin",
+      "address": "Бул. Витоша 25, 2100, Елин Пелин",
+      "name": "Техномаркет, Бул. Витоша 25"
+    },
+    {
+      "id": "1554748",
+      "chain": "tehnomarket",
+      "lat": 41.57102,
+      "lon": 23.72281,
+      "city": "Gotse Delchev",
+      "address": "Бул. Панаирски ливади 1, 2900, Гоце Делчев",
+      "name": "Техномаркет, Бул. Панаирски ливади 1"
+    },
+    {
+      "id": "1554640",
+      "chain": "tehnomarket",
+      "lat": 41.93162,
+      "lon": 25.60452,
+      "city": "Haskovo",
+      "address": "Бул. Съединение 77, 6300, Хасково",
+      "name": "Техномаркет, Бул. Съединение 77"
+    },
+    {
+      "id": "1554687",
+      "chain": "tehnomarket",
+      "lat": 42.43521,
+      "lon": 23.81745,
+      "city": "Ihtiman",
+      "address": "Ул.Цар Освободител 128, 2050, Ихтиман",
+      "name": "Техномаркет, Ул.Цар Освободител 128"
+    },
+    {
+      "id": "1554726",
+      "chain": "tehnomarket",
+      "lat": 41.63277,
+      "lon": 25.37829,
+      "city": "Kardzhali",
+      "address": "Бул. Беломорски 68, 6600, Кърджали",
+      "name": "Техномаркет, Бул. Беломорски 68"
+    },
+    {
+      "id": "1705205",
+      "chain": "tehnomarket",
+      "lat": 42.63185,
+      "lon": 24.81362,
+      "city": "Karlovo",
+      "address": "Местност „Кантона“ 219, 4301, Карлово",
+      "name": "Техномаркет, Местност „Кантона“ 219"
+    },
+    {
+      "id": "1781197",
+      "chain": "tehnomarket",
+      "lat": 42.65274,
+      "lon": 27.67237,
+      "city": "Nesebar",
+      "address": "С.Равда,м. Чатал Тепе № 2, 8238, Несебър",
+      "name": "Техномаркет, С.Равда,м. Чатал Тепе № 2"
+    },
+    {
+      "id": "1554667",
+      "chain": "tehnomarket",
+      "lat": 42.09048,
+      "lon": 25.21084,
+      "city": "Parvomay",
+      "address": "Ул. Княз Борис I-ви 43, 4270, Първомай",
+      "name": "Техномаркет, Ул. Княз Борис I-ви 43"
+    },
+    {
+      "id": "1554716",
+      "chain": "tehnomarket",
+      "lat": 42.18328,
+      "lon": 24.31674,
+      "city": "Pazardzhik",
+      "address": "Ул. Христо Касапвелев, 4400, Пазарджик",
+      "name": "Техномаркет, Ул. Христо Касапвелев"
+    },
+    {
+      "id": "1687799",
+      "chain": "tehnomarket",
+      "lat": 42.60694,
+      "lon": 23.05616,
+      "city": "Pernik",
+      "address": "Перник, ул. „Юрий Гагарин“ № 2а, 2309, Перник",
+      "name": "Техномаркет, Перник, ул. „Юрий Гагарин“ № 2а"
+    },
+    {
+      "id": "1652223",
+      "chain": "tehnomarket",
+      "lat": 41.40578,
+      "lon": 23.20191,
+      "city": "Petrich",
+      "address": "Ул. ''Места'' № 3, петрич, 2850, Петрич",
+      "name": "Техномаркет, Ул. ''Места'' № 3, петрич"
+    },
+    {
+      "id": "1652222",
+      "chain": "tehnomarket",
+      "lat": 42.70378,
+      "lon": 24.16316,
+      "city": "Pirdop",
+      "address": "Подбалкански път, разклонът за гр. Пирдоп, Пирдоп, 2070, Пирдоп",
+      "name": "Техномаркет, Подбалкански път, разклонът за гр. Пирдоп, Пирдоп"
+    },
+    {
+      "id": "1554575",
+      "chain": "tehnomarket",
+      "lat": 43.40787,
+      "lon": 24.63635,
+      "city": "Pleven",
+      "address": "Бул. Европа 6а, 5803, Плевен",
+      "name": "Техномаркет, Бул. Европа 6а"
+    },
+    {
+      "id": "1554705",
+      "chain": "tehnomarket",
+      "lat": 42.15536,
+      "lon": 24.70713,
+      "city": "Plovdiv",
+      "address": "Бул. България ( 4 - ти километър), 4000, Пловдив",
+      "name": "Техномаркет, Бул. България ( 4 - ти километър)"
+    },
+    {
+      "id": "1554651",
+      "chain": "tehnomarket",
+      "lat": 42.14131,
+      "lon": 24.74107,
+      "city": "Plovdiv",
+      "address": "Бул. Руски 54, мол марково тепе, 4002, Пловдив",
+      "name": "Техномаркет, Бул. Руски 54, мол марково тепе"
+    },
+    {
+      "id": "1554731",
+      "chain": "tehnomarket",
+      "lat": 42.14493,
+      "lon": 24.78039,
+      "city": "Plovdiv",
+      "address": "Мол Пловдив Плаза, ул. „ Д-р Георги Странски“, 4017, Пловдив",
+      "name": "Техномаркет, Мол Пловдив Плаза, ул. „ Д-р Георги Странски“"
+    },
+    {
+      "id": "1554615",
+      "chain": "tehnomarket",
+      "lat": 42.34489,
+      "lon": 23.55225,
+      "city": "Samokov",
+      "address": "Ул. Софийско шосе 30а, 2000, Самоков",
+      "name": "Техномаркет, Ул. Софийско шосе 30а"
+    },
+    {
+      "id": "1554584",
+      "chain": "tehnomarket",
+      "lat": 41.55508,
+      "lon": 23.27663,
+      "city": "Sandanski",
+      "address": "Ул.Тодор Каблешков 7, 2800, Сандански",
+      "name": "Техномаркет, Ул.Тодор Каблешков 7"
+    },
+    {
+      "id": "1782096",
+      "chain": "tehnomarket",
+      "lat": 43.27996,
+      "lon": 26.92782,
+      "city": "Shumen",
+      "address": "Кралевиче 1, 9701, Шумен",
+      "name": "Техномаркет, Кралевиче 1"
+    },
+    {
+      "id": "1554709",
+      "chain": "tehnomarket",
+      "lat": 42.67406,
+      "lon": 26.3451,
+      "city": "Sliven",
+      "address": "Бул.Бургаско шосе 55, 8806, Сливен",
+      "name": "Техномаркет, Бул.Бургаско шосе 55"
+    },
+    {
+      "id": "1705203",
+      "chain": "tehnomarket",
+      "lat": 41.5675,
+      "lon": 24.73703,
+      "city": "Smolyan",
+      "address": "Ритейл парк, ул. Белия камък 24, 4701, Смолян",
+      "name": "Техномаркет, Ритейл парк, ул. Белия камък 24"
+    },
+    {
+      "id": "2305335",
+      "chain": "tehnomarket",
+      "lat": 42.70989,
+      "lon": 23.45207,
+      "city": "Sofiya",
+      "address": "Бул. „Ботевградско шосе“ 515, 1839, София",
+      "name": "Техномаркет, Бул. „Ботевградско шосе“ 515"
+    },
+    {
+      "id": "1554701",
+      "chain": "tehnomarket",
+      "lat": 42.69826,
+      "lon": 23.30861,
+      "city": "Sofiya",
+      "address": "Бул. Ал.Стамболийски 101, етаж - 2, 1303, София",
+      "name": "Техномаркет, Бул. Ал.Стамболийски 101, етаж - 2"
+    },
+    {
+      "id": "1554722",
+      "chain": "tehnomarket",
+      "lat": 42.73361,
+      "lon": 23.24817,
+      "city": "Sofiya",
+      "address": "Бул. Европа 171, 1343, София",
+      "name": "Техномаркет, Бул. Европа 171"
+    },
+    {
+      "id": "1776734",
+      "chain": "tehnomarket",
+      "lat": 42.66035,
+      "lon": 23.24518,
+      "city": "Sofiya",
+      "address": "Бул. Цар Борис 272, 1619, София",
+      "name": "Техномаркет, Бул. Цар Борис 272"
+    },
+    {
+      "id": "1554569",
+      "chain": "tehnomarket",
+      "lat": 42.64514,
+      "lon": 23.39444,
+      "city": "Sofiya",
+      "address": "Бул. Цариградско шосе 92, 1784, София",
+      "name": "Техномаркет, Бул. Цариградско шосе 92"
+    },
+    {
+      "id": "1554565",
+      "chain": "tehnomarket",
+      "lat": 42.72389,
+      "lon": 23.3055,
+      "city": "Sofiya",
+      "address": "Жк. Надежда, бул. Ломско шосе 2 а, 1220, София",
+      "name": "Техномаркет, Жк. Надежда, бул. Ломско шосе 2 а"
+    },
+    {
+      "id": "1554624",
+      "chain": "tehnomarket",
+      "lat": 42.67853,
+      "lon": 23.3211,
+      "city": "Sofiya",
+      "address": "Ъгъла на бул.Черни връх и бул. Арсеналски, 1421, София",
+      "name": "Техномаркет, Ъгъла на бул.Черни връх и бул. Арсеналски"
+    },
+    {
+      "id": "1554713",
+      "chain": "tehnomarket",
+      "lat": 42.62414,
+      "lon": 23.35206,
+      "city": "Sofiya",
+      "address": "Ring Mall Околовръстен Път 216, 1434, София",
+      "name": "Техномаркет, Ring Mall Околовръстен Път 216"
+    },
+    {
+      "id": "1554645",
+      "chain": "tehnomarket",
+      "lat": 42.43759,
+      "lon": 25.63298,
+      "city": "Stara Zagora",
+      "address": "Ул. Хан Аспарух 30 Mall Galleria, 6008, Стара Загора",
+      "name": "Техномаркет, Ул. Хан Аспарух 30 Mall Galleria"
+    },
+    {
+      "id": "1554736",
+      "chain": "tehnomarket",
+      "lat": 43.61526,
+      "lon": 25.34371,
+      "city": "Svishtov",
+      "address": "Ул. Петър Ангелов 28, 5250, Свищов",
+      "name": "Техномаркет, Ул. Петър Ангелов 28"
+    },
+    {
+      "id": "1554593",
+      "chain": "tehnomarket",
+      "lat": 43.24739,
+      "lon": 26.55941,
+      "city": "Targovishte",
+      "address": "Бул. Ал. Стамболийски 42, 7702, Търговище",
+      "name": "Техномаркет, Бул. Ал. Стамболийски 42"
+    },
+    {
+      "id": "1652225",
+      "chain": "tehnomarket",
+      "lat": 42.89189,
+      "lon": 24.71574,
+      "city": "Troyan",
+      "address": "Ул. „Академик Ангел Балевски“ 1, троян, 5600, Троян",
+      "name": "Техномаркет, Ул. „Академик Ангел Балевски“ 1, троян"
+    },
+    {
+      "id": "1554738",
+      "chain": "tehnomarket",
+      "lat": 43.07324,
+      "lon": 25.61491,
+      "city": "Veliko Tarnovo",
+      "address": "Ул. Магистрална 17, 5002, Велико Търново",
+      "name": "Техномаркет, Ул. Магистрална 17"
+    },
+    {
+      "id": "1652219",
+      "chain": "tehnomarket",
+      "lat": 42.02917,
+      "lon": 24.00716,
+      "city": "Velingrad",
+      "address": "Местността „Превалата“, Околовръстен път, Велинград, 4600, Велинград",
+      "name": "Техномаркет, Местността „Превалата“, Околовръстен път, Велинград"
+    },
+    {
+      "id": "1763010",
+      "chain": "tehnomarket",
+      "lat": 42.47769,
+      "lon": 26.51378,
+      "city": "Yambol",
+      "address": "Ул. ''Битоля'' № 37, ямбол, 8601, Ямбол",
+      "name": "Техномаркет, Ул. ''Битоля'' № 37, ямбол"
+    },
+    {
+      "id": "1763071",
+      "chain": "temax",
+      "lat": 42.27371,
+      "lon": 23.13124,
+      "city": "Dupnitsa",
+      "address": "Ритейл парк Дупница - ул. Отовица 1, 2602, Дупница",
+      "name": "TeMax, Ритейл парк Дупница - ул. Отовица 1"
+    },
+    {
+      "id": "1552404",
+      "chain": "temax",
+      "lat": 42.88943,
+      "lon": 25.29446,
+      "city": "Gabrovo",
+      "address": "Западна Промишлена зона кв. Войново, 5306, Габрово",
+      "name": "TeMax, Западна Промишлена зона кв. Войново"
+    },
+    {
+      "id": "1763072",
+      "chain": "temax",
+      "lat": 41.58367,
+      "lon": 23.74435,
+      "city": "Gotse Delchev",
+      "address": "Ул. „Панайрски ливади продължение, 2900 гоце делчев, 2900, Гоце Делчев",
+      "name": "TeMax, Ул. „Панайрски ливади продължение, 2900 гоце делчев"
+    },
+    {
+      "id": "1552394",
+      "chain": "temax",
+      "lat": 41.63431,
+      "lon": 25.38079,
+      "city": "Kardzhali",
+      "address": "Бул. България № 115, 6600, Кърджали",
+      "name": "TeMax, Бул. България № 115"
+    },
+    {
+      "id": "2803676",
+      "chain": "temax",
+      "lat": 42.63507,
+      "lon": 24.8008,
+      "city": "Karlovo",
+      "address": "Ул. \"Ген.Заимов\" 32, 4300, Карлово",
+      "name": "TeMax, Ул. \"Ген.Заимов\" 32"
+    },
+    {
+      "id": "2803675",
+      "chain": "temax",
+      "lat": 43.76789,
+      "lon": 23.7227,
+      "city": "Kozloduy",
+      "address": "Ул. „Южна Индустриална Зона“ 2, 3320, Козлодуй",
+      "name": "TeMax, Ул. „Южна Индустриална Зона“ 2"
+    },
+    {
+      "id": "1552387",
+      "chain": "temax",
+      "lat": 43.42272,
+      "lon": 23.24085,
+      "city": "Montana",
+      "address": "Местност Лъката, 3400, Монтана",
+      "name": "TeMax, Местност Лъката"
+    },
+    {
+      "id": "1552389",
+      "chain": "temax",
+      "lat": 42.18835,
+      "lon": 24.35737,
+      "city": "Pazardzhik",
+      "address": "Бул. Пловдивско Шосе 115, 4401, Пазарджик",
+      "name": "TeMax, Бул. Пловдивско Шосе 115"
+    },
+    {
+      "id": "1842120",
+      "chain": "temax",
+      "lat": 41.40341,
+      "lon": 23.20356,
+      "city": "Petrich",
+      "address": "Ул. Свобода 33, 2850, Петрич",
+      "name": "TeMax, Ул. Свобода 33"
+    },
+    {
+      "id": "1684715",
+      "chain": "temax",
+      "lat": 42.70442,
+      "lon": 24.16173,
+      "city": "Pirdop",
+      "address": "Ритейл Парк Средногорие, 2070, Пирдоп",
+      "name": "TeMax, Ритейл Парк Средногорие"
+    },
+    {
+      "id": "1552384",
+      "chain": "temax",
+      "lat": 42.29563,
+      "lon": 25.93799,
+      "city": "Radnevo",
+      "address": "Ул. Заводска, 6275, Раднево",
+      "name": "TeMax, Ул. Заводска"
+    },
+    {
+      "id": "1552392",
+      "chain": "temax",
+      "lat": 43.02679,
+      "lon": 25.10988,
+      "city": "Sevlievo",
+      "address": "Ул. 'Велика и Георги Ченчеви', 5400, Севлиево",
+      "name": "TeMax, Ул. 'Велика и Георги Ченчеви'"
+    },
+    {
+      "id": "1552378",
+      "chain": "temax",
+      "lat": 42.03144,
+      "lon": 24.30195,
+      "city": "Targovishte",
+      "address": "Бул: Цар Освободител 44, 4550, Търговище",
+      "name": "TeMax, Бул: Цар Освободител 44"
+    },
+    {
+      "id": "1842121",
+      "chain": "temax",
+      "lat": 42.89176,
+      "lon": 24.71755,
+      "city": "Troyan",
+      "address": "Ул. Минко Радковски 3, 5602, Троян",
+      "name": "TeMax, Ул. Минко Радковски 3"
+    },
+    {
+      "id": "1552391",
+      "chain": "temax",
+      "lat": 43.20011,
+      "lon": 23.57229,
+      "city": "Vratsa",
+      "address": "Бул. Васил Кънчов, 3000, Враца",
+      "name": "TeMax, Бул. Васил Кънчов"
+    },
+    {
+      "id": "1679997",
+      "chain": "tmarket",
+      "lat": 42.88827,
+      "lon": 26.44552,
+      "city": "Kotel",
+      "address": "Ул. Хаджи Къна Боева № 4, ет.2, 8970, Котел",
+      "name": "T MARKET, Ул. Хаджи Къна Боева № 4, ет.2"
+    },
+    {
+      "id": "1793465",
+      "chain": "tmarket",
+      "lat": 42.67782,
+      "lon": 23.29771,
+      "city": "Sofiya",
+      "address": "Бул. България, пл. Ручей, 1612, София",
+      "name": "T MARKET, Бул. България, пл. Ручей"
+    },
+    {
+      "id": "1555287",
+      "chain": "tmarket",
+      "lat": 42.69704,
+      "lon": 23.27615,
+      "city": "Sofiya",
+      "address": "Бул. Възкресение 85, 1373, София",
+      "name": "T MARKET, Бул. Възкресение 85"
+    },
+    {
+      "id": "1793408",
+      "chain": "tmarket",
+      "lat": 42.7098,
+      "lon": 23.30868,
+      "city": "Sofiya",
+      "address": "Бул. Ген. Столетов № 70, 1233, София",
+      "name": "T MARKET, Бул. Ген. Столетов № 70"
+    },
+    {
+      "id": "1555137",
+      "chain": "tmarket",
+      "lat": 42.70869,
+      "lon": 23.27955,
+      "city": "Sofiya",
+      "address": "Ж.к. Гевгелийски, ул. Мачуково, срещу бл. 1, 1309, София",
+      "name": "T MARKET, Ж.к. Гевгелийски, ул. Мачуково, срещу бл. 1"
+    },
+    {
+      "id": "1555173",
+      "chain": "tmarket",
+      "lat": 42.67547,
+      "lon": 23.3043,
+      "city": "Sofiya",
+      "address": "Ж.к. Иван Вазов, ул. Стефан Малинов 2, 1408, София",
+      "name": "T MARKET, Ж.к. Иван Вазов, ул. Стефан Малинов 2"
+    },
+    {
+      "id": "1793420",
+      "chain": "tmarket",
+      "lat": 42.6744,
+      "lon": 23.3591,
+      "city": "Sofiya",
+      "address": "Ж.к. Изток, ул. Атанас Далчев 2, 1113, София",
+      "name": "T MARKET, Ж.к. Изток, ул. Атанас Далчев 2"
+    },
+    {
+      "id": "1793441",
+      "chain": "tmarket",
+      "lat": 42.70169,
+      "lon": 23.28384,
+      "city": "Sofiya",
+      "address": "Ж.к. Красна поляна, ул. Суходолска № 2, 1373, София",
+      "name": "T MARKET, Ж.к. Красна поляна, ул. Суходолска № 2"
+    },
+    {
+      "id": "1554998",
+      "chain": "tmarket",
+      "lat": 42.68318,
+      "lon": 23.2875,
+      "city": "Sofiya",
+      "address": "Ж.к. Лагера, ул. Баба Илийца 2, 1612, София",
+      "name": "T MARKET, Ж.к. Лагера, ул. Баба Илийца 2"
+    },
+    {
+      "id": "1793398",
+      "chain": "tmarket",
+      "lat": 42.66952,
+      "lon": 23.32299,
+      "city": "Sofiya",
+      "address": "Ж.к. Лозенец, ул. Персенк 22, бл. 34, 1407, София",
+      "name": "T MARKET, Ж.к. Лозенец, ул. Персенк 22, бл. 34"
+    },
+    {
+      "id": "1793428",
+      "chain": "tmarket",
+      "lat": 42.69963,
+      "lon": 23.28894,
+      "city": "Sofiya",
+      "address": "Ж.к. Разсадника, бл. 129130, вх. г, ет. партер, 1309, София",
+      "name": "T MARKET, Ж.к. Разсадника, бл. 129130, вх. г, ет. партер"
+    },
+    {
+      "id": "1555023",
+      "chain": "tmarket",
+      "lat": 42.66996,
+      "lon": 23.2956,
+      "city": "Sofiya",
+      "address": "Ж.к. Стрелбище, ул. Червена роза 50, 1404, София",
+      "name": "T MARKET, Ж.к. Стрелбище, ул. Червена роза 50"
+    },
+    {
+      "id": "1554966",
+      "chain": "tmarket",
+      "lat": 42.705,
+      "lon": 23.36319,
+      "city": "Sofiya",
+      "address": "Ж.к. Сухата река, ул. Тодорини кукли 47, 1517, София",
+      "name": "T MARKET, Ж.к. Сухата река, ул. Тодорини кукли 47"
+    },
+    {
+      "id": "1793422",
+      "chain": "tmarket",
+      "lat": 42.6696,
+      "lon": 23.28778,
+      "city": "Sofiya",
+      "address": "Кв. Борово до бл. 232, 1680, София",
+      "name": "T MARKET, Кв. Борово до бл. 232"
+    },
+    {
+      "id": "1793393",
+      "chain": "tmarket",
+      "lat": 42.69168,
+      "lon": 23.36322,
+      "city": "Sofiya",
+      "address": "Кв. Редута ул. Атанас Узунов 14, 1505, София",
+      "name": "T MARKET, Кв. Редута ул. Атанас Узунов 14"
+    },
+    {
+      "id": "1555216",
+      "chain": "tmarket",
+      "lat": 42.69279,
+      "lon": 23.36001,
+      "city": "Sofiya",
+      "address": "Кв. Редута, ул. Велчо Атанасов 27, 1505, София",
+      "name": "T MARKET, Кв. Редута, ул. Велчо Атанасов 27"
+    },
+    {
+      "id": "1806440",
+      "chain": "zora",
+      "lat": 42.91141,
+      "lon": 23.80895,
+      "city": "Botevgrad",
+      "address": "Бул. Цар Освободител 37, 2140, Ботевград",
+      "name": "ЗОРА, Бул. Цар Освободител 37"
+    },
+    {
+      "id": "1793139",
+      "chain": "zora",
+      "lat": 42.5305,
+      "lon": 27.45717,
+      "city": "Burgas",
+      "address": "Ул. Транспортна, 8008, Бургас",
+      "name": "ЗОРА, Ул. Транспортна"
+    },
+    {
+      "id": "1843617",
+      "chain": "zora",
+      "lat": 43.57954,
+      "lon": 27.83153,
+      "city": "Dobrich",
+      "address": "Бул. 25-ти Септември 70, 9301, Добрич",
+      "name": "ЗОРА, Бул. 25-ти Септември 70"
+    },
+    {
+      "id": "1793123",
+      "chain": "zora",
+      "lat": 42.27128,
+      "lon": 23.13079,
+      "city": "Dupnitsa",
+      "address": "Ул. „Орлинска“ 52, 2602, Дупница",
+      "name": "ЗОРА, Ул. „Орлинска“ 52"
+    },
+    {
+      "id": "1652242",
+      "chain": "zora",
+      "lat": 41.56875,
+      "lon": 23.72834,
+      "city": "Gotse Delchev",
+      "address": "Ул. Кирил и Методий 17, 2900, Гоце Делчев",
+      "name": "ЗОРА, Ул. Кирил и Методий 17"
+    },
+    {
+      "id": "1793121",
+      "chain": "zora",
+      "lat": 41.93193,
+      "lon": 25.90114,
+      "city": "Harmanli",
+      "address": "Ул. „Янко Сакъзов“ 2, 6450, Харманли",
+      "name": "ЗОРА, Ул. „Янко Сакъзов“ 2"
+    },
+    {
+      "id": "1793133",
+      "chain": "zora",
+      "lat": 41.93035,
+      "lon": 25.60293,
+      "city": "Haskovo",
+      "address": "Бул. \"Съединение\" 106, 6304, Хасково",
+      "name": "ЗОРА, Бул. \"Съединение\" 106"
+    },
+    {
+      "id": "1793142",
+      "chain": "zora",
+      "lat": 41.63063,
+      "lon": 25.37803,
+      "city": "Kardzhali",
+      "address": "Бул. „Беломорски“ 72, 6600, Кърджали",
+      "name": "ЗОРА, Бул. „Беломорски“ 72"
+    },
+    {
+      "id": "1793143",
+      "chain": "zora",
+      "lat": 41.6454,
+      "lon": 25.37405,
+      "city": "Kardzhali",
+      "address": "Бул. „Тракия“ 14, 6600, Кърджали",
+      "name": "ЗОРА, Бул. „Тракия“ 14"
+    },
+    {
+      "id": "1793117",
+      "chain": "zora",
+      "lat": 42.72684,
+      "lon": 23.67293,
+      "city": "Karlovo",
+      "address": "Ул. „Ген. Заимов“ 32, 4300, Карлово",
+      "name": "ЗОРА, Ул. „Ген. Заимов“ 32"
+    },
+    {
+      "id": "2705752",
+      "chain": "zora",
+      "lat": 43.76742,
+      "lon": 23.72286,
+      "city": "Kozloduy",
+      "address": "Център, ул. Янко Сакъзов, 3320, Козлодуй",
+      "name": "ЗОРА, Център, ул. Янко Сакъзов"
+    },
+    {
+      "id": "1793141",
+      "chain": "zora",
+      "lat": 43.4219,
+      "lon": 23.22518,
+      "city": "Montana",
+      "address": "Бул. Христо Ботев 68, 3400, Монтана",
+      "name": "ЗОРА, Бул. Христо Ботев 68"
+    },
+    {
+      "id": "2705753",
+      "chain": "zora",
+      "lat": 42.49499,
+      "lon": 24.18729,
+      "city": "Panagyurishte",
+      "address": "Ул. „Георги Бенковски“ 67, 4500, Панагюрище",
+      "name": "ЗОРА, Ул. „Георги Бенковски“ 67"
+    },
+    {
+      "id": "1793120",
+      "chain": "zora",
+      "lat": 43.40748,
+      "lon": 24.63726,
+      "city": "Pleven",
+      "address": "Бул. Европа 6, 5806, Плевен",
+      "name": "ЗОРА, Бул. Европа 6"
+    },
+    {
+      "id": "1793135",
+      "chain": "zora",
+      "lat": 43.41968,
+      "lon": 24.6137,
+      "city": "Pleven",
+      "address": "Пл. Иван Миндиликов 1, 5800, Плевен",
+      "name": "ЗОРА, Пл. Иван Миндиликов 1"
+    },
+    {
+      "id": "2421129",
+      "chain": "zora",
+      "lat": 42.2727,
+      "lon": 24.91679,
+      "city": "Rakovski",
+      "address": "Ул. Петър Парчевич 21, 4150, Раковски",
+      "name": "ЗОРА, Ул. Петър Парчевич 21"
+    },
+    {
+      "id": "1793134",
+      "chain": "zora",
+      "lat": 41.88811,
+      "lon": 23.46361,
+      "city": "Razlog",
+      "address": "Ул. „Бяла река“ 4, 2760, Разлог",
+      "name": "ЗОРА, Ул. „Бяла река“ 4"
+    },
+    {
+      "id": "1553293",
+      "chain": "zora",
+      "lat": 43.85197,
+      "lon": 25.98752,
+      "city": "Ruse",
+      "address": "Бул. Липник 121, 7005, Русе",
+      "name": "ЗОРА, Бул. Липник 121"
+    },
+    {
+      "id": "1652243",
+      "chain": "zora",
+      "lat": 43.27622,
+      "lon": 26.94712,
+      "city": "Shumen",
+      "address": "Ул. Преспа 6, 9703, Шумен",
+      "name": "ЗОРА, Ул. Преспа 6"
+    },
+    {
+      "id": "1793140",
+      "chain": "zora",
+      "lat": 42.68016,
+      "lon": 26.31491,
+      "city": "Sliven",
+      "address": "Бул. „Цар Освободител“ 1a, 8800, Сливен",
+      "name": "ЗОРА, Бул. „Цар Освободител“ 1a"
+    },
+    {
+      "id": "1553287",
+      "chain": "zora",
+      "lat": 42.65457,
+      "lon": 23.37154,
+      "city": "Sofiya",
+      "address": "Бул. Андрей Сахаров № 20, 1784, София",
+      "name": "ЗОРА, Бул. Андрей Сахаров № 20"
+    },
+    {
+      "id": "1553275",
+      "chain": "zora",
+      "lat": 42.70941,
+      "lon": 23.45793,
+      "city": "Sofiya",
+      "address": "Бул. Ботевградско шосе 525, 1839, София",
+      "name": "ЗОРА, Бул. Ботевградско шосе 525"
+    },
+    {
+      "id": "1553348",
+      "chain": "zora",
+      "lat": 42.70801,
+      "lon": 23.36524,
+      "city": "Sofiya",
+      "address": "Бул. Вл.Вазов 40, 1517, София",
+      "name": "ЗОРА, Бул. Вл.Вазов 40"
+    },
+    {
+      "id": "1553266",
+      "chain": "zora",
+      "lat": 42.71517,
+      "lon": 23.26225,
+      "city": "Sofiya",
+      "address": "Бул. Джавахарлал Неру № 10, 1324, София",
+      "name": "ЗОРА, Бул. Джавахарлал Неру № 10"
+    },
+    {
+      "id": "1793125",
+      "chain": "zora",
+      "lat": 42.74631,
+      "lon": 23.23014,
+      "city": "Sofiya",
+      "address": "Бул. Европа 184, 1331, София",
+      "name": "ЗОРА, Бул. Европа 184"
+    },
+    {
+      "id": "1793118",
+      "chain": "zora",
+      "lat": 42.72695,
+      "lon": 23.30131,
+      "city": "Sofiya",
+      "address": "Бул. Ломско Шосе, бл. 172, 1231, София",
+      "name": "ЗОРА, Бул. Ломско Шосе, бл. 172"
+    },
+    {
+      "id": "1763081",
+      "chain": "zora",
+      "lat": 42.70225,
+      "lon": 23.32113,
+      "city": "Sofiya",
+      "address": "Бул. Мария Луиза 32, 1202, София",
+      "name": "ЗОРА, Бул. Мария Луиза 32"
+    },
+    {
+      "id": "2212092",
+      "chain": "zora",
+      "lat": 42.71035,
+      "lon": 23.27096,
+      "city": "Sofiya",
+      "address": "Бул. Царица Йоанна 15, 1336, София",
+      "name": "ЗОРА, Бул. Царица Йоанна 15"
+    },
+    {
+      "id": "1553268",
+      "chain": "zora",
+      "lat": 42.64012,
+      "lon": 23.31162,
+      "city": "Sofiya",
+      "address": "Бул. Черни връх № 204, 1415, София",
+      "name": "ЗОРА, Бул. Черни връх № 204"
+    },
+    {
+      "id": "1793144",
+      "chain": "zora",
+      "lat": 42.67967,
+      "lon": 23.36751,
+      "city": "Sofiya",
+      "address": "Ул. Коста Лулчев 52, 1574, София",
+      "name": "ЗОРА, Ул. Коста Лулчев 52"
+    },
+    {
+      "id": "2197029",
+      "chain": "zora",
+      "lat": 42.71178,
+      "lon": 23.30174,
+      "city": "Sofiya",
+      "address": "Ул. Скопие 4, 1233, София",
+      "name": "ЗОРА, Ул. Скопие 4"
+    },
+    {
+      "id": "1793126",
+      "chain": "zora",
+      "lat": 42.41294,
+      "lon": 25.6395,
+      "city": "Stara Zagora",
+      "address": "Бул. Патриарх Евтимий 50, 6006, Стара Загора",
+      "name": "ЗОРА, Бул. Патриарх Евтимий 50"
+    },
+    {
+      "id": "1553341",
+      "chain": "zora",
+      "lat": 42.4139,
+      "lon": 25.59963,
+      "city": "Stara Zagora",
+      "address": "Бул. Цар Симеон Велики, 6003, Стара Загора",
+      "name": "ЗОРА, Бул. Цар Симеон Велики"
+    },
+    {
+      "id": "1793128",
+      "chain": "zora",
+      "lat": 41.76454,
+      "lon": 26.20627,
+      "city": "Svilengrad",
+      "address": "Бул. „България“ 198, 6500, Свиленград",
+      "name": "ЗОРА, Бул. „България“ 198"
+    },
+    {
+      "id": "1793119",
+      "chain": "zora",
+      "lat": 43.24774,
+      "lon": 26.55703,
+      "city": "Targovishte",
+      "address": "Бул. „Александър Стамболийски“ 40 - 44, 7702, Търговище",
+      "name": "ЗОРА, Бул. „Александър Стамболийски“ 40 - 44"
+    },
+    {
+      "id": "1793122",
+      "chain": "zora",
+      "lat": 43.22344,
+      "lon": 27.87339,
+      "city": "Varna",
+      "address": "Бул. Република 55, 9020, Варна",
+      "name": "ЗОРА, Бул. Република 55"
+    },
+    {
+      "id": "1793132",
+      "chain": "zora",
+      "lat": 43.23321,
+      "lon": 27.86691,
+      "city": "Varna",
+      "address": "Бул. Цар Освободител 263, 9027, Варна",
+      "name": "ЗОРА, Бул. Цар Освободител 263"
+    },
+    {
+      "id": "2705754",
+      "chain": "zora",
+      "lat": 42.02904,
+      "lon": 24.00729,
+      "city": "Velingrad",
+      "address": "Кв. Лъджене, Околовръстен път 58, 4600, Велинград",
+      "name": "ЗОРА, Кв. Лъджене, Околовръстен път 58"
+    },
+    {
+      "id": "1793138",
+      "chain": "zora",
+      "lat": 44.00207,
+      "lon": 22.86973,
+      "city": "Vidin",
+      "address": "Retail Park Vidin, бул. „Панония“ 43, 3700, Видин",
+      "name": "ЗОРА, Retail Park Vidin, бул. „Панония“ 43"
+    },
+    {
+      "id": "1793136",
+      "chain": "zora",
+      "lat": 43.20515,
+      "lon": 23.55565,
+      "city": "Vratsa",
+      "address": "Бул. „Демокрация“ 16, 3000, Враца",
+      "name": "ЗОРА, Бул. „Демокрация“ 16"
+    }
+  ]
+}

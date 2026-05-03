@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-04-28T17:46:17.697Z",
+  "source": "https://www.broshura.bg",
+  "discoveryPagesVisited": 134,
+  "counts": {
+    "retailers": 39,
+    "brochures": 478,
+    "products": 63,
+    "stores": 421,
+    "locations": 71
+  },
+  "notes": [
+    "Exports are derived from sitemap, retailer, brochure-catalog, store listing, brochure, product, and store pages on Broshura.bg.",
+    "Store listing discovery is canonicalized to the main /fl/ pages so chains with regional sub-pages keep their full store coverage."
+  ]
+}

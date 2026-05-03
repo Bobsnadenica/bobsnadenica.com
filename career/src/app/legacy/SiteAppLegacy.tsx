@@ -1,0 +1,5942 @@
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router-dom";
+import { api } from "../../lib/api";
+import { useAuth } from "../../lib/auth";
+import { demoUsers } from "../../lib/demo-data";
+import {
+  clearPendingBootstrap,
+  readPendingBootstrap,
+  socialProviders,
+  writePendingBootstrap,
+  writeSocialAuthIntent
+} from "../../lib/auth-flow";
+import { resolvePublicUrl } from "../../lib/url";
+import type {
+  Booking,
+  ConsultantMediaKind,
+  ConsultantProfile,
+  ConsultantProfileType,
+  PlanTier,
+  UploadedDocument,
+  UserProfile,
+  UserRole
+} from "../../lib/types";
+
+async function uploadFileToSignedUrl(
+  uploadUrl: string,
+  file: File,
+  failureLabel: string
+) {
+  if (!uploadUrl) {
+    return;
+  }
+
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream"
+    },
+    body: file
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Неуспешно качване на ${failureLabel}.`);
+  }
+}
+
+const MATCH_STOP_WORDS = new Set([
+  "and",
+  "for",
+  "the",
+  "with",
+  "или",
+  "как",
+  "при",
+  "за",
+  "на",
+  "по",
+  "в",
+  "с",
+  "от",
+  "до",
+  "към"
+]);
+
+type AuthScreen =
+  | "login"
+  | "register"
+  | "confirm"
+  | "forgot-request"
+  | "forgot-confirm";
+
+type MarketingPlan = {
+  name: string;
+  price?: string;
+  badge: string;
+  featured?: boolean;
+  disabled?: boolean;
+  note: string;
+  points: string[];
+  ctaLabel: string;
+  ctaTo: string;
+};
+
+type MatchInsight = {
+  score: number;
+  label: string;
+  note: string;
+};
+
+type SuggestedFillMode = "replace" | "append-list" | "append-lines" | "append-text";
+type QuestionSuggestionOption = string | { label: string; value: string };
+
+const userPlans: MarketingPlan[] = [
+  {
+    name: "Потребителски профил",
+    price: "0 €",
+    badge: "Отворен достъп",
+    note: "Потребителите използват CareerLane без членска такса и имат достъп до активните консултанти и ментори.",
+    points: [
+      "Пълен достъп до активните консултанти и ментори",
+      "Личен профил с основна професионална информация",
+      "CV качване, заявки за консултации и история на сесиите"
+    ],
+    ctaLabel: "Създай профил",
+    ctaTo: "/auth?tab=register&role=client"
+  },
+  {
+    name: "Разширен потребителски профил",
+    badge: "Предстои",
+    featured: true,
+    disabled: true,
+    note: "Подготвяме по-богат профил за хора, които искат по-подредена история, повече пространство за документи и по-силен работен поток.",
+    points: [
+      "Повече място за CV, дипломи и допълнителни материали",
+      "Запазени профили и лични бележки към консултации",
+      "По-подреден работен изглед за следващи стъпки и подготовка"
+    ],
+    ctaLabel: "Очаквай скоро",
+    ctaTo: "/dashboard"
+  }
+];
+
+const consultantPlans: MarketingPlan[] = [
+  {
+    name: "Публичен профил за консултант",
+    price: "0 €",
+    badge: "Публичен профил",
+    note: "Консултантите и менторите могат да създадат активен публичен профил, да добавят снимка, CV, теми и свободни слотове и да бъдат откривани в платформата.",
+    points: [
+      "Публичен профил, достъпен в списъка с консултанти и ментори",
+      "Редакция на специализации, теми, снимка и свободни слотове",
+      "Възможност потребителите да разглеждат и резервират консултации"
+    ],
+    ctaLabel: "Създай профил",
+    ctaTo: "/auth?tab=register&role=consultant"
+  },
+  {
+    name: "Pro профил за консултант",
+    badge: "Предстои",
+    featured: true,
+    disabled: true,
+    note: "Подготвяме Pro абонамент за консултанти и ментори с по-силна видимост, по-богато представяне и още инструменти за растеж.",
+    points: [
+      "Приоритетно показване и по-силно позициониране в каталога",
+      "Разширени секции за материали, визия и практика",
+      "По-добър профилен прочит за споделяне и представяне"
+    ],
+    ctaLabel: "Очаквай скоро",
+    ctaTo: "/dashboard"
+  }
+];
+
+const homeJourney = [
+  {
+    step: "01",
+    title: "За професионалисти",
+    text: "Откриваш консултант според целите си, професионалния си профил и темата, по която търсиш подкрепа.",
+    ctaLabel: "Разгледай потребителската страница",
+    ctaTo: "/users"
+  },
+  {
+    step: "02",
+    title: "За консултанти и ментори",
+    text: "Изграждаш професионално присъствие, подреждаш профила си и стартираш с безплатен публичен профил, който хората могат да намират и разглеждат.",
+    ctaLabel: "Разгледай каталога на консултантите и менторите",
+    ctaTo: "/consultants"
+  },
+  {
+    step: "03",
+    title: "За партньори",
+    text: "Има място за рекламни позиции към работодатели, академии и кариерни програми.",
+    ctaLabel: "Заяви рекламна позиция",
+    ctaTo: "/auth?tab=register"
+  }
+] as const;
+
+const userJourney = [
+  {
+    step: "01",
+    title: "Определи фокус",
+    text: "Търси по тема, град и тип подкрепа, за да стигнеш по-бързо до правилния профил."
+  },
+  {
+    step: "02",
+    title: "Сравни профили",
+    text: "Виж специализации, опит, езици и следващи свободни слотове в един ясен изглед."
+  },
+  {
+    step: "03",
+    title: "Подготви профила си",
+    text: "Качи CV, довърши заглавието си и използвай таблото като работно място за следващите стъпки."
+  }
+] as const;
+
+const userExperienceCards = [
+  {
+    eyebrow: "Профил и посока",
+    title: "Потребителският поток е за ясно търсене, а не за сложна настройка.",
+    text: "Профилът служи като професионален контекст, за да могат съвпаденията и препоръките да звучат смислено още от първия екран."
+  },
+  {
+    eyebrow: "Съвпадение",
+    title: "CareerLane подрежда консултантите според твоята тема, опит и предпочитания.",
+    text: "Ключови думи, интереси и формат на работа помагат на платформата да извади по-подходящите профили по-напред."
+  },
+  {
+    eyebrow: "Следваща стъпка",
+    title: "От профила към консултацията всичко остава в едно подредено работно място.",
+    text: "CV, активни профили и предстоящи сесии са събрани така, че да мислиш за следващата стъпка, а не за навигацията."
+  }
+] as const;
+
+const consultantExperienceCards = [
+  {
+    eyebrow: "Видимост",
+    title: "Консултантският поток е изграден около публично присъствие и доверие.",
+    text: "Профилът ти има собствена страница, ясна визия и структура, която помага на хората да разберат бързо с какво можеш да бъдеш полезен."
+  },
+  {
+    eyebrow: "Резервации",
+    title: "Свободните часове, темите и форматите стоят в центъра на практиката ти.",
+    text: "Таблото е организирано така, че да подреждаш наличности, да поддържаш профила си актуален и да изглеждаш готов за резервации."
+  },
+  {
+    eyebrow: "Растеж",
+    title: "Профилът е подготвен за следващ слой видимост и по-силно позициониране.",
+    text: "Когато Pro абонаментът се активира, ще имаш естествено място за по-богато представяне и по-силен профилен прочит."
+  }
+] as const;
+
+const aboutHighlights = [
+  {
+    value: "Публични профили",
+    label: "реални консултанти и ментори с отделна публична страница"
+  },
+  {
+    value: "Ясни роли",
+    label: "отделни потоци за потребители, консултанти и партньори"
+  },
+  {
+    value: "Едно табло",
+    label: "централно място за профил, документи и предстоящи сесии"
+  }
+] as const;
+
+const aboutPrinciples = [
+  {
+    title: "Ясна структура",
+    text: "Потребителите трябва да разбират къде се намират, какво могат да направят и каква е следващата полезна стъпка."
+  },
+  {
+    title: "Професионално доверие",
+    text: "Профилите, страниците и публичните секции са оформени така, че да изглеждат уверено и сериозно още на първо отваряне."
+  },
+  {
+    title: "Лек процес на работа",
+    text: "Регистрацията, входът, профилът и достъпът до кариерни консултанти са подредени с минимално триене и без излишни технически детайли."
+  }
+] as const;
+
+const faqItems = [
+  {
+    question: "Какво получават потребителите безплатно?",
+    answer:
+      "Потребителите използват CareerLane без платено членство на този етап. Те могат да създадат профил, да добавят основна информация и CV, да разглеждат активните консултанти и ментори и да заявяват консултации."
+  },
+  {
+    question: "Могат ли консултантите да използват платформата безплатно?",
+    answer:
+      "Да. Консултантите и менторите могат да създадат публичен профил, който да бъде откриваем, отваряем и споделяем, без да е нужна допълнителна активация в текущата версия."
+  },
+  {
+    question: "Показват ли се публично консултантските тарифи?",
+    answer:
+      "Не. В текущата публична версия акцентът е върху профила, експертизата и свободните слотове, а не върху видими тарифи."
+  },
+  {
+    question: "Как работи регистрацията и потвърждението?",
+    answer:
+      "Регистрацията е организирана като един ясен поток с директен достъп до профила след създаването му. Потвърждението е част от този процес и не изисква отделен бутон на входната страница."
+  },
+  {
+    question: "Има ли forgot password процес?",
+    answer:
+      "Да. На страницата за вход има отделен поток за забравена парола с изпращане на код и въвеждане на нова парола."
+  },
+  {
+    question: "Какви документи могат да се пазят в профила?",
+    answer:
+      "Профилът започва с основен CV документ и ключова информация за професионалния контекст. Структурата е подготвена да се разширява с дипломи, портфолио и допълнителни материали с развитието на услугата."
+  },
+  {
+    question: "Как се заявява рекламна позиция?",
+    answer:
+      "Партньорите могат да използват рекламната зона и страницата за контакти, където са описани каналите за партньорски и рекламни заявки."
+  },
+  {
+    question: "Гарантира ли платформата наемане или кариерен резултат?",
+    answer:
+      "Не. CareerLane предоставя среда за професионално позициониране и консултации, но не гарантира конкретен резултат при кандидатстване, интервю или наемане."
+  }
+] as const;
+
+const legalSections = [
+  {
+    title: "Условия за използване",
+    points: [
+      "Платформата е предназначена за професионалисти, консултанти и партньори, които използват услугата законосъобразно и добросъвестно.",
+      "Акаунтът е личен и потребителят носи отговорност за точността на предоставените данни и сигурността на достъпа си.",
+      "CareerLane може да актуализира интерфейса, членствата и публичните секции при развитие на услугата."
+    ]
+  },
+  {
+    title: "Поверителност и данни",
+    points: [
+      "Профилните данни и документите се използват за предоставяне на услугата, за достъп до таблото и за улесняване на консултантския процес.",
+      "Публично се показва само информацията, която е предназначена за публичен профил на консултант или маркетингова страница.",
+      "Потребителите могат да поискат корекция или заличаване на данни чрез канала за контакт, описан на страницата за контакти."
+    ]
+  },
+  {
+    title: "Членства и платени услуги",
+    points: [
+      "В текущата публична версия потребителите използват платформата без членска такса, а консултантите могат да поддържат активен публичен профил.",
+      "Ако в бъдеще бъдат добавени платени услуги, условията и цените следва да бъдат показани ясно преди потвърждение.",
+      "Публичната версия на сайта не представлява обещание за бъдещи ценови планове извън видимото съдържание."
+    ]
+  },
+  {
+    title: "Роля на платформата",
+    points: [
+      "CareerLane е среда за свързване, позициониране и организация на консултации между потребители и консултанти.",
+      "Платформата не дава гаранция за интервю, оферта, наемане, повишение или конкретен кариерен резултат.",
+      "Консултантите носят отговорност за съдържанието и професионалното представяне в собствените си профили."
+    ]
+  },
+  {
+    title: "Cookies и комуникация",
+    points: [
+      "Сайтът може да използва функционални и аналитични механизми за нормална работа, сигурност и подобряване на потребителското изживяване.",
+      "Системните съобщения, потвържденията и възстановяването на парола са част от нормалното предоставяне на услугата.",
+      "Маркетингови и партньорски комуникации следва да бъдат отделени ясно от системните съобщения."
+    ]
+  }
+] as const;
+
+const contactChannels = [
+  {
+    title: "Общи въпроси и поддръжка",
+    description: "За въпроси по профила, достъпа, регистрацията и използването на платформата.",
+    email: "support@careerlane.eu"
+  },
+  {
+    title: "Партньорства и реклама",
+    description: "За рекламни позиции, работодателски брандове, академии и други партньорски формати.",
+    email: "partners@careerlane.eu"
+  },
+  {
+    title: "Правни и данни",
+    description: "За правни запитвания, privacy заявки и административни въпроси, свързани с данни.",
+    email: "legal@careerlane.eu"
+  }
+] as const;
+
+function renderSocialProviderIcon(
+  providerKey: (typeof socialProviders)[number]["key"]
+) {
+  if (providerKey === "apple") {
+    return (
+      <span
+        className="social-auth__brand social-auth__brand--apple"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" role="presentation">
+          <path d="M15.2 4.3c.8-1 1.3-2.3 1.2-3.6-1.2.1-2.6.8-3.5 1.8-.8.9-1.4 2.2-1.2 3.5 1.3.1 2.6-.6 3.5-1.7Zm3.4 12.6c-.4 1-1 1.9-1.6 2.7-.9 1.1-1.9 2.4-3.3 2.4-1.2 0-1.7-.8-3.1-.8-1.4 0-1.9.8-3.1.8-1.3 0-2.2-1.2-3.1-2.4C2.7 17.6 1.4 14 2.6 11c.9-2.1 2.7-3.5 4.7-3.5 1.3 0 2.5.9 3.1.9.6 0 2-.9 3.5-.9.6 0 2.5.1 3.8 1.9-.1.1-2.2 1.3-2.2 3.8 0 3 2.7 4 2.8 4.1Z" />
+        </svg>
+      </span>
+    );
+  }
+
+  if (providerKey === "linkedin") {
+    return (
+      <span
+        className="social-auth__brand social-auth__brand--linkedin"
+        aria-hidden="true"
+      >
+        <span className="social-auth__brand-label">in</span>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="social-auth__brand social-auth__brand--google"
+      aria-hidden="true"
+    >
+      <span className="social-auth__brand-letter">G</span>
+    </span>
+  );
+}
+
+function formatDate(date: string) {
+  const parsed = new Date(date);
+
+  if (!date || Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(parsed);
+}
+
+function formatEuro(value: number) {
+  return new Intl.NumberFormat("bg-BG", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatRoleLabel(role: UserRole) {
+  return role === "consultant" ? "Консултант / ментор" : "Потребител";
+}
+
+function formatPlanLabel(plan: PlanTier) {
+  return plan === "pro" ? "Разширен" : "Стандартен";
+}
+
+function formatMembershipLabel(role: UserRole, plan: PlanTier) {
+  if (role === "consultant") {
+    return plan === "pro" ? "Разширен профил" : "Публичен профил";
+  }
+
+  return plan === "pro" ? "Разширен достъп" : "Потребителски профил";
+}
+
+function formatConsultantTypeLabel(profileType?: ConsultantProfileType) {
+  return profileType === "mentor" ? "Ментор" : "Консултант";
+}
+
+function getConsultantProfileType(consultant: ConsultantProfile) {
+  return consultant.profileType || "consultant";
+}
+
+function formatBookingStatusLabel(status: Booking["status"]) {
+  if (status === "confirmed") return "Потвърдена";
+  if (status === "cancelled") return "Отказана";
+  return "Заявена";
+}
+
+function getNextBooking(bookings: Booking[]) {
+  const now = Date.now();
+  const sortedBookings = [...bookings].sort(
+    (left, right) =>
+      new Date(left.scheduledAt).getTime() - new Date(right.scheduledAt).getTime()
+  );
+
+  return (
+    sortedBookings.find((booking) => new Date(booking.scheduledAt).getTime() >= now) ||
+    sortedBookings[0] ||
+    null
+  );
+}
+
+function getProfileCompletion(
+  profile: UserProfile,
+  consultantProfile: ConsultantProfile | null
+) {
+  const baseChecks = [
+    Boolean(profile.name.trim()),
+    Boolean((profile.city || "").trim()),
+    Boolean((profile.occupation || "").trim()),
+    Boolean(profile.age),
+    Boolean((profile.headline || "").trim()),
+    Boolean((profile.bio || "").trim()),
+    Boolean((profile.experienceSummary || "").trim()),
+    Boolean((profile.experienceHighlights || []).length),
+    Boolean((profile.educationHighlights || []).length),
+    Boolean((profile.skills || []).length),
+    Boolean((profile.interests || []).length),
+    Boolean((profile.keywords || []).length),
+    Boolean((profile.goals || "").trim()),
+    Boolean(profile.cvDocument)
+  ];
+
+  const consultantChecks =
+    profile.role === "consultant"
+      ? [
+          Boolean((consultantProfile?.headline || "").trim()),
+          Boolean((consultantProfile?.bio || "").trim()),
+          Boolean((consultantProfile?.experienceSummary || "").trim()),
+          Boolean((consultantProfile?.experienceHighlights || []).length),
+          Boolean((consultantProfile?.educationHighlights || []).length),
+          Boolean((consultantProfile?.specializations || []).length),
+          Boolean((consultantProfile?.languages || []).length),
+          Boolean((consultantProfile?.idealFor || []).length),
+          Boolean((consultantProfile?.consultationTopics || []).length),
+          Boolean((consultantProfile?.workApproach || "").trim()),
+          Boolean((consultantProfile?.availability || []).length)
+        ]
+      : [];
+
+  const checks = [...baseChecks, ...consultantChecks];
+  const completed = checks.filter(Boolean).length;
+
+  return Math.round((completed / checks.length) * 100);
+}
+
+function getDocumentCapacityNote(plan: PlanTier) {
+  return plan === "pro"
+    ? "Разширено място за CV, дипломи и допълнителни материали."
+    : "Основно място за един активен CV документ.";
+}
+
+function getRolePlanSummary(role: UserRole, plan: PlanTier) {
+  if (role === "consultant") {
+    return "Публичен консултантски или менторски профил, който хората могат да намират, отварят и резервират.";
+  }
+
+  return "Потребителски профил с достъп до активните консултанти и ментори.";
+}
+
+function slugifyValue(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9а-я]+/gi, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function parseListValue(value: FormDataEntryValue | null) {
+  return String(value || "")
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function mergeUniqueValues(current: string, next: string, separator: ", " | "\n") {
+  const items = [current, next]
+    .flatMap((value) =>
+      value
+        .split(/\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+    .filter((item, index, values) => values.indexOf(item) === index);
+
+  return items.join(separator);
+}
+
+function applySuggestedFieldValue(
+  form: HTMLFormElement | null,
+  fieldName: string,
+  value: string,
+  mode: SuggestedFillMode = "replace"
+) {
+  if (!form) {
+    return;
+  }
+
+  const control = form.elements.namedItem(fieldName);
+
+  if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) {
+    return;
+  }
+
+  const currentValue = control.value.trim();
+  const nextValue =
+    mode === "append-list"
+      ? mergeUniqueValues(currentValue, value, ", ")
+      : mode === "append-lines"
+        ? mergeUniqueValues(currentValue, value, "\n")
+        : mode === "append-text"
+          ? currentValue.includes(value)
+            ? currentValue
+            : [currentValue, value].filter(Boolean).join(" ")
+          : value;
+
+  control.value = nextValue;
+  control.dispatchEvent(new Event("input", { bubbles: true }));
+  control.dispatchEvent(new Event("change", { bubbles: true }));
+  control.focus();
+}
+
+function buildAvailabilityPreset(daysAhead: number, hour: number): {
+  label: string;
+  value: string;
+} {
+  const slot = new Date();
+  slot.setDate(slot.getDate() + daysAhead);
+  slot.setHours(hour, 0, 0, 0);
+
+  return {
+    label: `${daysAhead === 1 ? "Утре" : `След ${daysAhead} дни`} · ${slot.toLocaleTimeString(
+      "bg-BG",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    )}`,
+    value: slot.toISOString()
+  };
+}
+
+function formatDateInputValue(date: Date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function getRelativeDateInputValue(daysAhead = 0) {
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + daysAhead);
+  return formatDateInputValue(nextDate);
+}
+
+function buildAvailabilitySlot(dateValue: string, timeValue: string) {
+  if (!dateValue || !timeValue) {
+    return "";
+  }
+
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const [hours, minutes] = timeValue.split(":").map(Number);
+
+  if (!year || !month || !day || Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return "";
+  }
+
+  const slot = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
+  if (Number.isNaN(slot.getTime())) {
+    return "";
+  }
+
+  return slot.toISOString();
+}
+
+function normalizeAvailabilitySlots(value: string[]) {
+  return Array.from(
+    new Set(
+      value
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .filter((item) => !Number.isNaN(new Date(item).getTime()))
+    )
+  ).sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+}
+
+function getUpcomingAvailabilitySlots(
+  value: string[],
+  limit = Number.POSITIVE_INFINITY
+) {
+  const cutoff = Date.now() - 5 * 60 * 1000;
+
+  return normalizeAvailabilitySlots(value)
+    .filter((item) => new Date(item).getTime() >= cutoff)
+    .slice(0, limit);
+}
+
+function formatAvailabilityDayLabel(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }).format(parsed);
+}
+
+function formatAvailabilityTimeLabel(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(parsed);
+}
+
+function formatAvailabilityShortLabel(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(parsed);
+}
+
+function getAvailabilityDayKey(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  return [
+    parsed.getFullYear(),
+    String(parsed.getMonth() + 1).padStart(2, "0"),
+    String(parsed.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function groupAvailabilityByDay(value: string[]) {
+  const groups = new Map<
+    string,
+    {
+      key: string;
+      label: string;
+      slots: string[];
+    }
+  >();
+
+  getUpcomingAvailabilitySlots(value).forEach((slot) => {
+    const key = getAvailabilityDayKey(slot);
+
+    if (!key) {
+      return;
+    }
+
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.slots.push(slot);
+      return;
+    }
+
+    groups.set(key, {
+      key,
+      label: formatAvailabilityDayLabel(slot),
+      slots: [slot]
+    });
+  });
+
+  return Array.from(groups.values());
+}
+
+function tokenizeText(value: string) {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9а-я]+/gi)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2 && !MATCH_STOP_WORDS.has(token));
+}
+
+function formatSignalLabel(value: string) {
+  if (/^[a-z0-9 -]+$/i.test(value)) {
+    return value;
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getConsultantIdealFor(consultant: ConsultantProfile) {
+  return consultant.idealFor?.length ? consultant.idealFor : consultant.tags || [];
+}
+
+function getConsultationTopics(consultant: ConsultantProfile) {
+  return consultant.consultationTopics?.length
+    ? consultant.consultationTopics
+    : consultant.specializations || [];
+}
+
+function getConsultantWorkApproach(consultant: ConsultantProfile) {
+  return (
+    consultant.workApproach ||
+    "Работата е подредена около профила, целта на консултацията и конкретните следващи стъпки."
+  );
+}
+
+function getSessionLengthLabel(consultant: ConsultantProfile) {
+  return `${consultant.sessionLengthMinutes || 60} минути`;
+}
+
+function getConsultantLocationLabel(consultant: ConsultantProfile) {
+  return consultant.city || "Онлайн / дистанционно";
+}
+
+function getConsultantSummaryTags(consultant: ConsultantProfile) {
+  return (consultant.specializations || []).length
+    ? (consultant.specializations || []).slice(0, 2)
+    : getConsultationTopics(consultant).length
+      ? getConsultationTopics(consultant).slice(0, 2)
+      : (consultant.experienceHighlights || []).slice(0, 2);
+}
+
+function getConsultantTrustLabel(consultant: ConsultantProfile) {
+  if (!consultant.reviewCount) {
+    return "Нов профил в CareerLane";
+  }
+
+  return `${consultant.rating.toFixed(1)} рейтинг · ${consultant.reviewCount} мнения`;
+}
+
+function truncateText(value: string, maxLength = 180) {
+  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function getConsultantDirectorySummary(consultant: ConsultantProfile) {
+  return truncateText(
+    consultant.experienceSummary || consultant.bio || getConsultantWorkApproach(consultant),
+    190
+  );
+}
+
+function getConsultantPriceLabel(consultant: ConsultantProfile) {
+  return consultant.priceBgn > 0 ? `от ${consultant.priceBgn} лв` : "Цена при запитване";
+}
+
+function getNameInitials(name: string) {
+  const tokens = name
+    .split(/\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 2);
+
+  return tokens.map((item) => item.charAt(0).toUpperCase()).join("") || "CL";
+}
+
+function AvatarMedia({
+  src,
+  name,
+  className
+}: {
+  src?: string;
+  name: string;
+  className: string;
+}) {
+  if (src) {
+    return <img className={className} src={resolvePublicUrl(src)} alt={name} decoding="async" />;
+  }
+
+  return (
+    <div className={`${className} visual-avatar`} aria-label={name}>
+      <span>{getNameInitials(name)}</span>
+    </div>
+  );
+}
+
+function CoverMedia({
+  src,
+  name,
+  className,
+  eyebrow,
+  title,
+  subtitle
+}: {
+  src?: string;
+  name: string;
+  className: string;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+}) {
+  if (src) {
+    return <img className={className} src={resolvePublicUrl(src)} alt={name} decoding="async" />;
+  }
+
+  return (
+    <div className={`${className} visual-cover`} aria-label={name}>
+      <span className="visual-cover__eyebrow">{eyebrow}</span>
+      <strong>{title}</strong>
+      <p>{subtitle}</p>
+    </div>
+  );
+}
+
+function getProfileSignalTokens(profile: UserProfile) {
+  return Array.from(
+    new Set(
+      tokenizeText(
+        [
+          profile.occupation,
+          profile.headline,
+          profile.bio,
+          profile.experienceSummary,
+          profile.goals,
+          ...(profile.experienceHighlights || []),
+          ...(profile.educationHighlights || []),
+          ...(profile.skills || []),
+          ...(profile.interests || []),
+          ...(profile.keywords || [])
+        ]
+          .filter(Boolean)
+          .join(" ")
+      )
+    )
+  );
+}
+
+function getConsultantSignalTokens(consultant: ConsultantProfile) {
+  return new Set(
+    tokenizeText(
+      [
+        consultant.headline,
+        consultant.bio,
+        consultant.experienceSummary,
+        ...consultant.specializations,
+        ...consultant.tags,
+        ...(consultant.experienceHighlights || []),
+        ...(consultant.educationHighlights || []),
+        ...getConsultantIdealFor(consultant),
+        ...getConsultationTopics(consultant)
+      ].join(" ")
+    )
+  );
+}
+
+function getConsultantMatch(profile: UserProfile | null, consultant: ConsultantProfile) {
+  if (!profile || profile.role !== "client") {
+    return null;
+  }
+
+  const profileTokens = getProfileSignalTokens(profile);
+
+  if (!profileTokens.length) {
+    return null;
+  }
+
+  const consultantTokens = getConsultantSignalTokens(consultant);
+  const overlaps = profileTokens.filter((token) => consultantTokens.has(token));
+  const preferredModes = profile.preferredSessionModes || [];
+  const modeMatch = preferredModes.some((mode) => consultant.sessionModes.includes(mode));
+  const cityMatch =
+    Boolean(profile.city) && consultant.city.toLowerCase() === String(profile.city).toLowerCase();
+
+  const rawScore = overlaps.length * 18 + (modeMatch ? 10 : 0) + (cityMatch ? 6 : 0);
+  const score = Math.min(98, Math.max(32, rawScore));
+
+  if (!overlaps.length && !modeMatch && !cityMatch) {
+    return null;
+  }
+
+  const reasons = overlaps.slice(0, 2).map(formatSignalLabel);
+
+  if (modeMatch) {
+    reasons.push("предпочитан формат");
+  }
+
+  const label = score >= 72 ? "Силно съвпадение" : "Добро съвпадение";
+  const note = reasons.length
+    ? `Подходящ по ${reasons.join(", ")}.`
+    : "Подходящ спрямо профила и предпочитанията ти.";
+
+  return {
+    score,
+    label,
+    note
+  } satisfies MatchInsight;
+}
+
+function getProfessionalMatch(
+  consultant: ConsultantProfile | null,
+  profile: UserProfile | null
+) {
+  if (!consultant || !profile || profile.role !== "client") {
+    return null;
+  }
+
+  const consultantTokens = getConsultantSignalTokens(consultant);
+  const profileTokens = getProfileSignalTokens(profile);
+
+  if (!profileTokens.length) {
+    return null;
+  }
+
+  const overlaps = profileTokens.filter((token) => consultantTokens.has(token));
+  const modeMatch = (profile.preferredSessionModes || []).some((mode) =>
+    consultant.sessionModes.includes(mode)
+  );
+  const cityMatch =
+    Boolean(profile.city) &&
+    consultant.city.toLowerCase() === String(profile.city).toLowerCase() &&
+    consultant.sessionModes.includes("В офис");
+
+  if (!overlaps.length && !modeMatch && !cityMatch) {
+    return null;
+  }
+
+  const rawScore = overlaps.length * 18 + (modeMatch ? 10 : 0) + (cityMatch ? 6 : 0);
+  const score = Math.min(98, Math.max(32, rawScore));
+  const reasons = overlaps.slice(0, 2).map(formatSignalLabel);
+
+  if (modeMatch) {
+    reasons.push("предпочитан формат");
+  }
+
+  if (cityMatch) {
+    reasons.push("среща на място");
+  }
+
+  return {
+    score,
+    label: score >= 72 ? "Силен профилен интерес" : "Подходящ профил",
+    note: reasons.length
+      ? `Профилът търси подкрепа по ${reasons.join(", ")}.`
+      : "Профилът е близък до темите и начина ти на работа."
+  } satisfies MatchInsight;
+}
+
+function useViewerProfile() {
+  const { user, token, loading: authLoading } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
+    if (!user || !token) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    setLoading(true);
+
+    api
+      .getMyProfile(token)
+      .then((value) => {
+        if (mounted) {
+          setProfile(value);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setProfile(null);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, token, user]);
+
+  return {
+    loading,
+    profile,
+    plan: profile?.plan || ("free" as PlanTier),
+    role: profile?.role || ("client" as UserRole)
+  };
+}
+
+function QuestionBlock({
+  step,
+  title,
+  hint,
+  wide = false,
+  children
+}: {
+  step: string;
+  title: string;
+  hint: string;
+  wide?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <article className={`question-card ${wide ? "question-card--wide" : ""}`}>
+      <div className="question-card__header">
+        <span className="question-card__step">{step}</span>
+        <div>
+          <h3>{title}</h3>
+          <p>{hint}</p>
+        </div>
+      </div>
+      <div className="question-card__body">{children}</div>
+    </article>
+  );
+}
+
+function QuestionFlowIntro({
+  eyebrow,
+  title,
+  description,
+  completion
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  completion: number;
+}) {
+  return (
+    <div className="question-flow__intro">
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
+        <p className="section-caption">{description}</p>
+      </div>
+      <div className="question-flow__meter">
+        <span>Завършеност</span>
+        <strong>{completion}%</strong>
+        <div
+          aria-hidden="true"
+          className="question-flow__progress"
+        >
+          <span style={{ width: `${Math.max(8, Math.min(100, completion))}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SuggestionPills({
+  label,
+  fieldName,
+  options,
+  mode = "append-list"
+}: {
+  label: string;
+  fieldName: string;
+  options: QuestionSuggestionOption[];
+  mode?: SuggestedFillMode;
+}) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [hasValue, setHasValue] = useState(false);
+
+  useEffect(() => {
+    const form = rootRef.current?.closest("form");
+
+    if (!form) {
+      return;
+    }
+
+    const control = form.elements.namedItem(fieldName);
+
+    if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    const syncValueState = () => {
+      setHasValue(Boolean(control.value.trim()));
+    };
+
+    const handleFocus = () => {
+      setIsFocused(true);
+      syncValueState();
+    };
+
+    const handleBlur = () => {
+      window.setTimeout(() => {
+        const activeElement = document.activeElement;
+        const stillInsideSuggestions =
+          activeElement instanceof Node && rootRef.current?.contains(activeElement);
+        const fieldStillFocused = activeElement === control;
+
+        if (!stillInsideSuggestions && !fieldStillFocused) {
+          setIsFocused(false);
+        }
+      }, 0);
+    };
+
+    syncValueState();
+
+    control.addEventListener("focus", handleFocus);
+    control.addEventListener("blur", handleBlur);
+    control.addEventListener("input", syncValueState);
+    control.addEventListener("change", syncValueState);
+
+    return () => {
+      control.removeEventListener("focus", handleFocus);
+      control.removeEventListener("blur", handleBlur);
+      control.removeEventListener("input", syncValueState);
+      control.removeEventListener("change", syncValueState);
+    };
+  }, [fieldName]);
+
+  if (!isFocused) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`answer-suggestions ${hasValue ? "answer-suggestions--open" : "answer-suggestions--hint"}`}
+      ref={rootRef}
+    >
+      {hasValue ? (
+        <>
+          <span className="answer-suggestions__label">{label}</span>
+          <div className="answer-suggestions__grid">
+            {options.map((option) => {
+              const item = typeof option === "string" ? { label: option, value: option } : option;
+
+              return (
+                <button
+                  className="suggestion-pill"
+                  key={`${fieldName}-${item.label}`}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={(event) =>
+                    applySuggestedFieldValue(event.currentTarget.form, fieldName, item.value, mode)
+                  }
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <span className="answer-suggestions__hint">
+          Започни да пишеш, за да видиш идеи за това поле.
+        </span>
+      )}
+    </div>
+  );
+}
+
+export function HomePage() {
+  const [topDirectoryType, setTopDirectoryType] = useState<"all" | ConsultantProfileType>("all");
+  const [homeConsultants, setHomeConsultants] = useState<ConsultantProfile[]>([]);
+  const [homeLoading, setHomeLoading] = useState(true);
+  const [homeError, setHomeError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    setHomeLoading(true);
+    setHomeError("");
+
+    api
+      .listConsultants()
+      .then((items) => {
+        if (mounted) {
+          setHomeConsultants(items);
+        }
+      })
+      .catch((value) => {
+        if (mounted) {
+          setHomeConsultants([]);
+          setHomeError(
+            value instanceof Error ? value.message : "Неуспешно зареждане на публичните профили."
+          );
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setHomeLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const directorySource = homeConsultants;
+  const featured = useMemo(
+    () =>
+      [...directorySource]
+        .filter(
+          (item) =>
+            topDirectoryType === "all" ||
+            getConsultantProfileType(item) === topDirectoryType
+        )
+        .sort((left, right) => {
+          if (left.featured !== right.featured) {
+            return left.featured ? -1 : 1;
+          }
+
+          if (right.rating !== left.rating) {
+            return right.rating - left.rating;
+          }
+
+          return right.reviewCount - left.reviewCount;
+        })
+        .slice(0, 4),
+    [directorySource, topDirectoryType]
+  );
+  const spotlight =
+    featured[0] ||
+    directorySource.find((item) => item.featured) ||
+    directorySource[0] ||
+    null;
+
+  return (
+    <>
+      <section className="hero">
+        <div className="container hero__grid">
+          <div className="hero__copy">
+            <p className="eyebrow">Каталог на консултанти и ментори</p>
+            <h1>Избираш правилния човек още от първия екран.</h1>
+            <p className="hero__lede">
+              Подбран профил, ясна наличност и директен достъп до личната страница на
+              консултанта или ментора.
+            </p>
+
+            <div className="hero-actions">
+              <Link className="primary-button" to="/consultants">
+                Виж каталога
+              </Link>
+              <Link className="ghost-button" to="/users">
+                Търси по съвпадение
+              </Link>
+            </div>
+
+            <div className="hero-stats">
+              <div>
+                <strong>{directorySource.length} активни профила</strong>
+                <span>в един подреден каталог</span>
+              </div>
+              <div>
+                <strong>{spotlight ? "Водещ профил" : "Публичен каталог"}</strong>
+                <span>
+                  {spotlight
+                    ? spotlight.headline
+                    : "най-силният профил ще се показва тук автоматично"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <aside className="hero__card hero__card--client">
+            {spotlight ? (
+              <>
+                <div className="hero__visual">
+                  <CoverMedia
+                    src={spotlight.heroUrl}
+                    name={spotlight.name}
+                    className="hero__visual-image"
+                    eyebrow={spotlight.featured ? "Подбран профил" : "Активен профил"}
+                    title={spotlight.name}
+                    subtitle={spotlight.headline}
+                  />
+                </div>
+                <div className="hero__card-top">
+                  <span className="status-badge status-badge--success">
+                    Подбран {formatConsultantTypeLabel(getConsultantProfileType(spotlight)).toLowerCase()}
+                  </span>
+                  <strong>{spotlight.name}</strong>
+                  <p>{spotlight.headline}</p>
+                </div>
+                <div className="hero__consultant">
+                  <AvatarMedia
+                    src={spotlight.avatarUrl}
+                    name={spotlight.name}
+                    className="hero__consultant-avatar"
+                  />
+                  <div>
+                    <strong>{getConsultantLocationLabel(spotlight)}</strong>
+                    <p>{getConsultantSummaryTags(spotlight).join(" · ") || "Профилът се попълва"}</p>
+                    <span>{getConsultantTrustLabel(spotlight)}</span>
+                  </div>
+                </div>
+                <div className="hero__points">
+                  <div>
+                    <span>Следващ свободен слот</span>
+                    <strong>{formatDate(spotlight.nextAvailable)}</strong>
+                  </div>
+                  <div>
+                    <span>Работен формат</span>
+                    <strong>{spotlight.sessionModes.join(" · ")}</strong>
+                  </div>
+                </div>
+                <Link className="primary-button" to={`/consultants/${spotlight.slug}`}>
+                  Прегледай профила
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="hero__card-top">
+                  <span className="plan-pill">Публичният каталог се подготвя</span>
+                  <strong>Първите реални профили ще се показват тук веднага след публикуване.</strong>
+                  <p>
+                    След като консултанти и ментори завършат публичния си профил, началната
+                    страница ще започне да показва водещите профили автоматично.
+                  </p>
+                </div>
+                <div className="hero__points">
+                  <div>
+                    <span>Статус</span>
+                    <strong>{homeLoading ? "Зареждаме" : "Изчаква профили"}</strong>
+                  </div>
+                  <div>
+                    <span>Следваща стъпка</span>
+                    <strong>Създай консултантски профил</strong>
+                  </div>
+                </div>
+                <Link className="primary-button" to="/auth?tab=register&role=consultant">
+                  Създай профил
+                </Link>
+              </>
+            )}
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Подбрани профили</p>
+              <h2>Силните профили, готови за бърз избор.</h2>
+            </div>
+            <div className="search-shortcuts__list">
+              <button
+                className={`shortcut-chip ${topDirectoryType === "all" ? "shortcut-chip--active" : ""}`}
+                type="button"
+                onClick={() => setTopDirectoryType("all")}
+              >
+                Всички
+              </button>
+              <button
+                className={`shortcut-chip ${topDirectoryType === "consultant" ? "shortcut-chip--active" : ""}`}
+                type="button"
+                onClick={() => setTopDirectoryType("consultant")}
+              >
+                Консултанти
+              </button>
+              <button
+                className={`shortcut-chip ${topDirectoryType === "mentor" ? "shortcut-chip--active" : ""}`}
+                type="button"
+                onClick={() => setTopDirectoryType("mentor")}
+              >
+                Ментори
+              </button>
+              <Link className="ghost-button" to="/users">
+                Виж профилите
+              </Link>
+            </div>
+          </div>
+
+          <div className="consultant-grid">
+            {featured.map((consultant) => (
+              <ConsultantCard key={consultant.consultantId} consultant={consultant} />
+            ))}
+          </div>
+          {!homeLoading && !homeError && featured.length === 0 ? (
+            <div className="panel empty-state">
+              Все още няма публикувани водещи профили. След като консултантите завършат профила си,
+              тук ще се показват водещите активни страници.
+            </div>
+          ) : null}
+          {homeError ? <div className="panel panel--error">{homeError}</div> : null}
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function UsersPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const city = searchParams.get("city") || "";
+  const kind = searchParams.get("kind") || "all";
+  const topOnly = searchParams.get("top") === "1";
+  const { configured, user } = useAuth();
+  const { profile, loading: viewerLoading } = useViewerProfile();
+  const [selectedDemoUserId, setSelectedDemoUserId] = useState(demoUsers[0]?.userId || "");
+  const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+
+    api
+      .listConsultants({ query, city })
+      .then((items) => {
+        if (mounted) {
+          setConsultants(items);
+          setError("");
+        }
+      })
+      .catch((value) => {
+        if (mounted) {
+          setError(value instanceof Error ? value.message : "Неуспешно зареждане.");
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [city, query]);
+
+  const activeDemoProfile =
+    !profile && !viewerLoading
+      ? demoUsers.find((item) => item.userId === selectedDemoUserId) || demoUsers[0] || null
+      : null;
+  const matchingProfile = profile || activeDemoProfile;
+  const usingDemoProfile = Boolean(activeDemoProfile);
+
+  const rankedConsultants = useMemo(() => {
+    return consultants
+      .filter((consultant) => {
+        const matchesType =
+          kind === "all" ||
+          getConsultantProfileType(consultant) === kind;
+        const matchesTop = !topOnly || consultant.featured;
+        return matchesType && matchesTop;
+      })
+      .map((consultant) => ({
+        consultant,
+        match: getConsultantMatch(matchingProfile, consultant)
+      }))
+      .sort((left, right) => {
+        const leftScore = left.match?.score || 0;
+        const rightScore = right.match?.score || 0;
+
+        if (rightScore !== leftScore) {
+          return rightScore - leftScore;
+        }
+
+        if (left.consultant.featured !== right.consultant.featured) {
+          return left.consultant.featured ? -1 : 1;
+        }
+
+        return right.consultant.rating - left.consultant.rating;
+      });
+  }, [consultants, kind, matchingProfile, topOnly]);
+  const visibleConsultants = rankedConsultants;
+  const hiddenCount = Math.max(rankedConsultants.length - visibleConsultants.length, 0);
+  const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
+  const topMatch = rankedConsultants.find((item) => item.match)?.consultant || null;
+  const topMatchDetails = topMatch ? getConsultantMatch(matchingProfile, topMatch) : null;
+  const profileCtaTo = user ? "/dashboard" : "/auth?tab=register";
+  const isConsultantViewer = profile?.role === "consultant";
+  const profileSignals = [
+    matchingProfile?.occupation,
+    ...(matchingProfile?.interests || []).slice(0, 2),
+    ...(matchingProfile?.keywords || []).slice(0, 2)
+  ].filter(Boolean) as string[];
+
+  function applyPresetQuery(nextQuery: string) {
+    setSearchParams(
+      nextQuery || city || kind !== "all" || topOnly
+        ? {
+            q: nextQuery,
+            city,
+            ...(kind !== "all" ? { kind } : {}),
+            ...(topOnly ? { top: "1" } : {})
+          }
+        : {}
+    );
+  }
+
+  function applyDirectoryFilters(nextFilters: {
+    query?: string;
+    city?: string;
+    kind?: string;
+    topOnly?: boolean;
+  }) {
+    const nextQuery = nextFilters.query ?? query;
+    const nextCity = nextFilters.city ?? city;
+    const nextKind = nextFilters.kind ?? kind;
+    const nextTopOnly = nextFilters.topOnly ?? topOnly;
+
+    setSearchParams(
+      nextQuery || nextCity || nextKind !== "all" || nextTopOnly
+        ? {
+            ...(nextQuery ? { q: nextQuery } : {}),
+            ...(nextCity ? { city: nextCity } : {}),
+            ...(nextKind !== "all" ? { kind: nextKind } : {}),
+            ...(nextTopOnly ? { top: "1" } : {})
+          }
+        : {}
+    );
+  }
+
+  return (
+    <>
+      <section className="hero">
+        <div className="container hero__grid">
+          <div className="hero__copy">
+            <p className="eyebrow">За потребители</p>
+            <h1>Избираш консултант по съвпадение, тема и наличност.</h1>
+            <p className="hero__lede">
+              {isConsultantViewer
+                ? "Това е потребителският изглед на CareerLane. Подходящите професионалисти за теб се подреждат в профила и таблото ти."
+                : usingDemoProfile && activeDemoProfile
+                  ? `Каталогът е персонализиран спрямо профила на ${activeDemoProfile.name}, за да видиш как различен професионален контекст променя подреждането на консултантите.`
+                  : "Попълненият профил помага да виждаш по-подходящите експерти по-напред."}
+            </p>
+
+            <div className="hero-stats">
+              <div>
+                <strong>{isConsultantViewer ? "Потребителски изглед" : "Отворен каталог"}</strong>
+                <span>
+                  {isConsultantViewer
+                    ? "така изглежда каталогът за хората, които търсят консултант"
+                    : "активни консултанти и ментори"}
+                </span>
+              </div>
+              <div>
+                <strong>{topMatchDetails ? "Най-добро съвпадение" : "Профил на потребителя"}</strong>
+                <span>
+                  {topMatchDetails
+                    ? `${topMatchDetails.score}% съвпадение`
+                    : usingDemoProfile
+                      ? "подреждането се персонализира според избрания профил"
+                      : "професионален контекст и предпочитания"}
+                </span>
+              </div>
+              <div>
+                <strong>
+                  {profile
+                    ? formatRoleLabel(profile.role)
+                    : usingDemoProfile
+                      ? "Избран профил"
+                      : "Гост достъп"}
+                </strong>
+                <span>
+                  {profile
+                    ? `Роля: ${formatRoleLabel(profile.role)}`
+                    : usingDemoProfile && activeDemoProfile
+                      ? activeDemoProfile.headline || "Персонализиран изглед"
+                      : "влез за персонален достъп"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <aside className="hero__card">
+            <div className="hero__card-top">
+              <span className={topMatchDetails ? "status-badge status-badge--success" : "plan-pill"}>
+                {topMatchDetails
+                  ? topMatchDetails.label
+                  : isConsultantViewer
+                    ? "Потребителски изглед"
+                    : "Активни профили"}
+              </span>
+              <strong>
+                {topMatch && !isConsultantViewer
+                  ? `${topMatch.name} е сред най-подходящите избори${usingDemoProfile ? " за избрания профил" : " за профила ти"}`
+                  : isConsultantViewer
+                    ? "Тук виждаш каталога така, както го виждат потребителите"
+                    : "Виждаш всички активни консултанти и ментори"}
+              </strong>
+              <p>
+                {topMatch && topMatchDetails && !isConsultantViewer
+                  ? `${topMatchDetails.note} ${usingDemoProfile ? "Подреждането е персонализирано според избрания профил." : "Профилът ти помага по-подходящите експерти да излизат по-напред."}`
+                  : isConsultantViewer
+                    ? "Като консултант няма да бъдеш съпоставян с други консултанти. Подходящите професионалисти се показват в твоето табло и профил."
+                    : usingDemoProfile
+                      ? "Смени профила по-долу и ще видиш как се променят съвпаденията."
+                      : "Попълненият профил помага каталогът да се подрежда по-точно според целите ти."}
+              </p>
+            </div>
+            <div className="hero__points">
+              <div>
+                <span>Показани профили</span>
+                <strong>{visibleConsultants.length}</strong>
+              </div>
+              <div>
+                <span>
+                  {topMatchDetails
+                    ? "Съвпадение"
+                    : isConsultantViewer
+                      ? "Твоите съвпадения"
+                      : "Допълнителни профили"}
+                </span>
+                <strong>
+                  {topMatchDetails
+                    ? `${topMatchDetails.score}%`
+                    : isConsultantViewer
+                      ? "В таблото"
+                      : hiddenCount > 0
+                      ? `+${hiddenCount}`
+                      : "Пълен списък"}
+                </strong>
+              </div>
+            </div>
+            {profileSignals.length ? (
+              <div className="chip-row">
+                {profileSignals.map((item) => (
+                  <span className="chip chip--soft" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <Link className="primary-button" to={profileCtaTo}>
+              {isConsultantViewer
+                ? user
+                  ? "Отвори таблото си"
+                  : "Отвори профила си"
+                : profile
+                  ? "Допълни профила си"
+                  : "Създай профил"}
+            </Link>
+          </aside>
+        </div>
+      </section>
+
+      {!profile && !viewerLoading ? (
+        <section className="section section--tight">
+          <div className="container">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Персонализиране</p>
+                <h2>Избери профил и виж как се променя каталогът.</h2>
+                <p className="section-heading__copy">
+                  Подреждането по-долу се променя според опита, целите и интересите в избрания профил.
+                </p>
+              </div>
+            </div>
+
+            <div className="demo-user-grid">
+              {demoUsers.map((demoProfile) => (
+                <DemoUserProfileCard
+                  isActive={activeDemoProfile?.userId === demoProfile.userId}
+                  key={demoProfile.userId}
+                  profile={demoProfile}
+                  onSelect={() => setSelectedDemoUserId(demoProfile.userId)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="section">
+        <div className="container">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Достъп до консултанти и ментори</p>
+              <h2>Филтрирай и отвори най-подходящите активни профили.</h2>
+              <p className="section-heading__copy">
+                Ако имаш попълнен профил, най-близките съвпадения излизат по-напред.
+              </p>
+            </div>
+          </div>
+
+          <div className="filter-bar">
+            <label>
+              Ключова дума
+              <input
+                value={query}
+                onChange={(event) =>
+                  applyPresetQuery(event.target.value)
+                }
+                placeholder="Executive CV, интервю, leadership, кариерна промяна..."
+              />
+            </label>
+            <label>
+              Град
+              <input
+                value={city}
+                onChange={(event) =>
+                  applyDirectoryFilters({ city: event.target.value })
+                }
+                placeholder="София, Берлин, Лондон, Виена"
+              />
+            </label>
+          </div>
+
+          <div className="search-shortcuts directory-switches">
+            <span className="search-shortcuts__label">Тип профил</span>
+            <div className="search-shortcuts__list">
+              {(
+                [
+                  { value: "all", label: "Всички" },
+                  { value: "consultant", label: "Консултанти" },
+                  { value: "mentor", label: "Ментори" }
+                ] as const
+              ).map((option) => (
+                <button
+                  className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
+                  key={option.value}
+                  type="button"
+                  onClick={() => applyDirectoryFilters({ kind: option.value })}
+                >
+                  {option.label}
+                </button>
+              ))}
+              <button
+                className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
+                type="button"
+                onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
+              >
+                Само водещи профили
+              </button>
+            </div>
+          </div>
+
+          <div className="filter-actions">
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })}
+              disabled={!hasActiveFilters}
+            >
+              Изчисти филтрите
+            </button>
+            <Link className="ghost-button" to={profileCtaTo}>
+              {isConsultantViewer
+                ? user
+                  ? "Към таблото"
+                  : "Отвори профила си"
+                : profile
+                  ? "Отвори профила си"
+                  : "Влез за персонален достъп"}
+            </Link>
+          </div>
+
+          {isConsultantViewer ? (
+            <div className="panel panel--subtle role-guard-panel">
+              <strong>Това е страница за потребители.</strong>
+              <p>
+                CareerLane съпоставя потребителите с консултанти, а консултантите с
+                професионалисти. Твоите подходящи профили са в профила и таблото ти.
+              </p>
+              <Link className="ghost-button" to={profileCtaTo}>
+                {user ? "Отвори таблото си" : "Към профила"}
+              </Link>
+            </div>
+          ) : null}
+
+          {viewerLoading ? <div className="panel">Проверяваме достъпа на акаунта...</div> : null}
+          {loading ? <div className="panel">Зареждаме консултантите...</div> : null}
+          {error ? <div className="panel panel--error">{error}</div> : null}
+
+          {!loading && !error && visibleConsultants.length === 0 ? (
+            <div className="panel">Няма съвпадения за избраните филтри.</div>
+          ) : null}
+
+          <div className="consultant-grid">
+            {visibleConsultants.map(({ consultant, match }) => (
+              <ConsultantCard
+                key={consultant.consultantId}
+                consultant={consultant}
+                match={match}
+              />
+            ))}
+          </div>
+
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function ConsultantsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const city = searchParams.get("city") || "";
+  const kind = searchParams.get("kind") || "all";
+  const topOnly = searchParams.get("top") === "1";
+  const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError("");
+
+    api
+      .listConsultants({ query, city })
+      .then((items) => {
+        if (mounted) {
+          setConsultants(items);
+        }
+      })
+      .catch((value) => {
+        if (mounted) {
+          setError(
+            value instanceof Error ? value.message : "Неуспешно зареждане на публичните профили."
+          );
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [city, query]);
+
+  const visibleConsultants = useMemo(() => {
+    return consultants
+      .filter((consultant) => {
+        const matchesType =
+          kind === "all" || getConsultantProfileType(consultant) === kind;
+        const matchesTop = !topOnly || consultant.featured;
+        return matchesType && matchesTop;
+      })
+      .sort((left, right) => {
+        if (left.featured !== right.featured) {
+          return left.featured ? -1 : 1;
+        }
+
+        if (right.rating !== left.rating) {
+          return right.rating - left.rating;
+        }
+
+        return left.name.localeCompare(right.name, "bg");
+      });
+  }, [consultants, kind, topOnly]);
+
+  const spotlightProfiles = useMemo(() => {
+    const featured = visibleConsultants.filter((consultant) => consultant.featured);
+    const fallback = visibleConsultants.filter((consultant) => !consultant.featured);
+    return [...featured, ...fallback].slice(0, 3);
+  }, [visibleConsultants]);
+  const leadConsultant = spotlightProfiles[0] || null;
+  const secondarySpotlights = spotlightProfiles.slice(1, 3);
+
+  const nextOpenConsultant = useMemo(() => {
+    return [...visibleConsultants].sort((left, right) => {
+      const leftTime = new Date(left.nextAvailable).getTime();
+      const rightTime = new Date(right.nextAvailable).getTime();
+      const safeLeft = Number.isNaN(leftTime) ? Number.POSITIVE_INFINITY : leftTime;
+      const safeRight = Number.isNaN(rightTime) ? Number.POSITIVE_INFINITY : rightTime;
+      return safeLeft - safeRight;
+    })[0] || null;
+  }, [visibleConsultants]);
+
+  const citySuggestions = useMemo(() => {
+    return Array.from(
+      new Set(
+        consultants
+          .map((consultant) => consultant.city)
+          .filter((value) => value.trim())
+      )
+    ).sort((left, right) => left.localeCompare(right, "bg"));
+  }, [consultants]);
+
+  const topProfileCount = visibleConsultants.filter((consultant) => consultant.featured).length;
+  const mentorCount = visibleConsultants.filter(
+    (consultant) => getConsultantProfileType(consultant) === "mentor"
+  ).length;
+  const consultantCount = visibleConsultants.filter(
+    (consultant) => getConsultantProfileType(consultant) === "consultant"
+  ).length;
+  const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
+
+  function applyPresetQuery(nextQuery: string) {
+    setSearchParams(
+      nextQuery || city || kind !== "all" || topOnly
+        ? {
+            ...(nextQuery ? { q: nextQuery } : {}),
+            ...(city ? { city } : {}),
+            ...(kind !== "all" ? { kind } : {}),
+            ...(topOnly ? { top: "1" } : {})
+          }
+        : {}
+    );
+  }
+
+  function applyDirectoryFilters(nextFilters: {
+    query?: string;
+    city?: string;
+    kind?: string;
+    topOnly?: boolean;
+  }) {
+    const nextQuery = nextFilters.query ?? query;
+    const nextCity = nextFilters.city ?? city;
+    const nextKind = nextFilters.kind ?? kind;
+    const nextTopOnly = nextFilters.topOnly ?? topOnly;
+
+    setSearchParams(
+      nextQuery || nextCity || nextKind !== "all" || nextTopOnly
+        ? {
+            ...(nextQuery ? { q: nextQuery } : {}),
+            ...(nextCity ? { city: nextCity } : {}),
+            ...(nextKind !== "all" ? { kind: nextKind } : {}),
+            ...(nextTopOnly ? { top: "1" } : {})
+          }
+        : {}
+    );
+  }
+
+  return (
+    <>
+      <section className="hero directory-hero">
+        <div className="container directory-hero__grid">
+          <div className="hero__copy directory-hero__copy">
+            <p className="eyebrow">Публичен каталог</p>
+            <h1>Профили, подредени за бърз избор.</h1>
+            <p className="hero__lede">
+              Първо виждаш водещия профил, после каталога. Всеки профил води директно към личната страница.
+            </p>
+
+            <div className="hero-actions">
+              <a className="primary-button" href="#consultant-directory">
+                Виж профилите
+              </a>
+              <Link className="ghost-button" to="/auth?tab=register&role=consultant">
+                Създай профил
+              </Link>
+            </div>
+
+            <div className="hero-stats directory-hero__stats">
+              <div>
+                <strong>{visibleConsultants.length || consultants.length || 0}</strong>
+                <span>активни профили</span>
+              </div>
+              <div>
+                <strong>{consultantCount}</strong>
+                <span>консултанти</span>
+              </div>
+              <div>
+                <strong>{mentorCount}</strong>
+                <span>ментори</span>
+              </div>
+            </div>
+          </div>
+
+          <aside className="directory-hero__panel">
+            {leadConsultant ? (
+              <HeroSpotlightCard consultant={leadConsultant} />
+            ) : null}
+
+            {secondarySpotlights.length ? (
+              <div className="directory-spotlight-list">
+                {secondarySpotlights.map((consultant, index) => (
+                  <DirectorySpotlightCard
+                    consultant={consultant}
+                    index={index + 1}
+                    key={consultant.consultantId}
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            {nextOpenConsultant ? (
+              <div className="directory-hero__next">
+                <span>Следващ свободен слот</span>
+                <strong>{nextOpenConsultant.name}</strong>
+                <p>
+                  {formatDate(nextOpenConsultant.nextAvailable)} ·{" "}
+                  {getSessionLengthLabel(nextOpenConsultant)}
+                </p>
+              </div>
+            ) : null}
+          </aside>
+        </div>
+      </section>
+
+      <section className="section section--tight" id="consultant-directory">
+        <div className="container">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Каталог на профили</p>
+              <h2>Разгледай хората по име, тема и наличност.</h2>
+              <p className="section-heading__copy">
+                Най-важното се вижда веднага: човекът, фокусът, форматът и следващият свободен час.
+              </p>
+            </div>
+          </div>
+
+          <div className="filter-bar">
+            <label>
+              Ключова дума
+              <input
+                value={query}
+                onChange={(event) => applyPresetQuery(event.target.value)}
+                placeholder="Leadership, интервю, кариерна промяна, LinkedIn..."
+              />
+            </label>
+            <label>
+              Град
+              <input
+                list="consultant-directory-cities"
+                value={city}
+                onChange={(event) => applyDirectoryFilters({ city: event.target.value })}
+                placeholder="София, Пловдив, Варна, Онлайн"
+              />
+              <datalist id="consultant-directory-cities">
+                {citySuggestions.map((item) => (
+                  <option key={item} value={item} />
+                ))}
+              </datalist>
+            </label>
+          </div>
+
+          <div className="search-shortcuts directory-switches">
+            <span className="search-shortcuts__label">Тип профил</span>
+            <div className="search-shortcuts__list">
+              {(
+                [
+                  { value: "all", label: "Всички профили" },
+                  { value: "consultant", label: "Консултанти" },
+                  { value: "mentor", label: "Ментори" }
+                ] as const
+              ).map((option) => (
+                <button
+                  className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
+                  key={option.value}
+                  type="button"
+                  onClick={() => applyDirectoryFilters({ kind: option.value })}
+                >
+                  {option.label}
+                </button>
+              ))}
+              <button
+                className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
+                type="button"
+                onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
+              >
+                Само водещи профили
+              </button>
+            </div>
+          </div>
+
+          <div className="filter-actions">
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() =>
+                applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })
+              }
+              disabled={!hasActiveFilters}
+            >
+              Изчисти филтрите
+            </button>
+            <div className="directory-results-indicator">
+              <strong>{visibleConsultants.length}</strong>
+              <span>
+                {topProfileCount ? `${topProfileCount} водещи профила` : "всички активни профили"}
+              </span>
+            </div>
+          </div>
+
+          {loading ? <div className="panel">Зареждаме публичните профили...</div> : null}
+          {error ? <div className="panel panel--error">{error}</div> : null}
+
+          {!loading && !error && visibleConsultants.length === 0 ? (
+            <div className="panel empty-state">
+              Не намерихме профили по избраните критерии. Опитай с по-широка ключова дума
+              или изчисти филтрите.
+            </div>
+          ) : null}
+
+          <div className="consultant-grid consultant-grid--directory">
+            {visibleConsultants.map((consultant) => (
+              <ConsultantCard key={consultant.consultantId} consultant={consultant} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section section--tight">
+        <div className="container">
+          <article className="ad-banner panel directory-cta-banner">
+            <div className="ad-banner__content">
+              <div className="ad-banner__header">
+                <span className="ad-banner__label">За консултанти</span>
+                <span className="ad-banner__partner">Публичен профил</span>
+              </div>
+              <h2>Профил, който изглежда уверено и се разглежда лесно.</h2>
+              <p>
+                Лице, headline, теми и свободни часове в една подредена публична страница.
+              </p>
+              <div className="ad-banner__buttons">
+                <Link className="primary-button" to="/auth?tab=register&role=consultant">
+                  Създай профил
+                </Link>
+                <Link className="ghost-button" to="/contact">
+                  Свържи се с нас
+                </Link>
+              </div>
+            </div>
+
+            <div className="ad-banner__visual">
+              <div className="ad-banner__visual-card ad-banner__visual-card--main">
+                <span>Каталог</span>
+                <strong>Подредено лице, кратък фокус и директен достъп до профила.</strong>
+                <p>
+                  Еднакво ясен на десктоп и на телефон.
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function AboutPage() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">За нас</p>
+            <h1>CareerLane е създадена като професионална среда за по-ясни кариерни решения.</h1>
+            <p className="hero__lede">
+              Платформата свързва професионалисти, консултанти и партньори в по-подреден
+              и представителен онлайн формат. Целта ни е хората да намират правилната
+              подкрепа по-лесно и да работят от едно ясно място.
+            </p>
+
+            <div className="hero-stats">
+              {aboutHighlights.map((item) => (
+                <div key={item.label}>
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Какво стои зад продукта</p>
+            <h2>Професионална структура, а не шумен списък.</h2>
+            <p>
+              В основата на CareerLane са ясно разграничени роли, добра навигация и
+              подредено представяне на профили, документи и следващи действия.
+            </p>
+            <div className="chip-row">
+              <span className="chip">Подредено изживяване</span>
+              <span className="chip">Ясни роли и профили</span>
+              <span className="chip">Професионално присъствие</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container info-grid">
+          {aboutPrinciples.map((item) => (
+            <article className="info-card" key={item.title}>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section section--alt">
+        <div className="container public-layout">
+          <div className="panel-stack">
+            <article className="panel">
+              <p className="eyebrow">Кого обслужваме</p>
+              <h2>Една платформа, няколко ясно разграничени аудитории.</h2>
+              <div className="info-grid">
+                <article className="info-card">
+                  <h3>Професионалисти</h3>
+                  <p>За хора, които търсят по-силен профил, по-ясен разказ и правилен консултант.</p>
+                </article>
+                <article className="info-card">
+                  <h3>Консултанти</h3>
+                  <p>За специалисти, които искат по-представителен публичен профил и по-добра видимост.</p>
+                </article>
+                <article className="info-card">
+                  <h3>Партньори</h3>
+                  <p>За работодателски брандове, академии и програми, които искат релевантно рекламно присъствие.</p>
+                </article>
+              </div>
+            </article>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Оперативен стандарт</p>
+            <h2>Сайтът е подготвен като пълна публична витрина.</h2>
+            <p>
+              Заедно с основните продуктови страници вече има отделни страници за компания,
+              контакт, FAQ и правна информация, така че публичното присъствие да изглежда
+              завършено и надеждно.
+            </p>
+            <Link className="ghost-button" to="/legal">
+              Виж правната информация
+            </Link>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function ContactPage() {
+  const [message, setMessage] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    topic: "support",
+    details: ""
+  });
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
+    const recipient =
+      form.topic === "partnerships"
+        ? "partners@careerlane.eu"
+        : form.topic === "legal"
+          ? "legal@careerlane.eu"
+          : "support@careerlane.eu";
+    const subject = `[CareerLane] ${
+      form.topic === "partnerships"
+        ? "Партньорско запитване"
+        : form.topic === "legal"
+          ? "Правно запитване"
+          : "Обща поддръжка"
+    }`;
+    const body = `Име: ${form.name}\nИмейл: ${form.email}\nТема: ${form.topic}\n\nСъобщение:\n${form.details}`;
+
+    setMessage("Отваряме имейл клиента ти с подготвено съобщение.");
+
+    if (typeof window !== "undefined") {
+      window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+  }
+
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">Контакти</p>
+            <h1>Ясни канали за поддръжка, партньорства и правни въпроси.</h1>
+            <p className="hero__lede">
+              Общите въпроси, партньорствата и правните запитвания са разделени в ясни
+              канали, за да започва разговорът по-лесно.
+            </p>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Работен стандарт</p>
+            <h2>Бърза ориентация по тип запитване.</h2>
+            <p>
+              Общите въпроси, партньорствата и правните запитвания са разделени в различни
+              канали, за да се насочват по-точно и по-лесно.
+            </p>
+            <div className="hero__points">
+              <div>
+                <span>Отговор</span>
+                <strong>до 1 работен ден</strong>
+              </div>
+              <div>
+                <span>Формат</span>
+                <strong>имейл или форма</strong>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container contact-grid">
+          {contactChannels.map((channel) => (
+            <article className="info-card" key={channel.email}>
+              <p className="eyebrow">Контактен канал</p>
+              <h3>{channel.title}</h3>
+              <p>{channel.description}</p>
+              <a className="ghost-button" href={`mailto:${channel.email}`}>
+                {channel.email}
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section section--alt">
+        <div className="container public-layout">
+          <form className="panel form-stack" onSubmit={handleSubmit}>
+            <p className="eyebrow">Форма за контакт</p>
+            <h2>Изпрати запитване</h2>
+            <p className="section-caption">
+              Формата подготвя имейл към правилния канал според избраната тема.
+            </p>
+
+            {message ? <div className="panel panel--success">{message}</div> : null}
+
+            <div className="two-column">
+              <label>
+                Име
+                <input
+                  value={form.name}
+                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  placeholder="Име и фамилия"
+                  required
+                />
+              </label>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  placeholder="name@example.com"
+                  required
+                />
+              </label>
+            </div>
+
+            <label>
+              Тема
+              <select
+                value={form.topic}
+                onChange={(event) => setForm({ ...form, topic: event.target.value })}
+              >
+                <option value="support">Обща поддръжка</option>
+                <option value="partnerships">Партньорства и реклама</option>
+                <option value="legal">Правни и данни</option>
+              </select>
+            </label>
+
+            <label>
+              Съобщение
+              <textarea
+                rows={6}
+                value={form.details}
+                onChange={(event) => setForm({ ...form, details: event.target.value })}
+                placeholder="Опиши запитването си възможно най-ясно."
+                required
+              />
+            </label>
+
+            <button className="primary-button" type="submit">
+              Подготви имейл
+            </button>
+          </form>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Насоки</p>
+            <h2>Кога коя тема е правилният избор</h2>
+            <ul className="page-list">
+              <li>Използвай `Обща поддръжка` за акаунт, достъп, вход и потребителски въпроси.</li>
+              <li>Използвай `Партньорства и реклама` за рекламната зона и employer branding формати.</li>
+              <li>Използвай `Правни и данни` за privacy заявки, условия и административни въпроси.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function LegacyAccountPreviewPage() {
+  return <Navigate to="/dashboard" replace />;
+}
+
+export function FaqPage() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">FAQ</p>
+            <h1>Отговори на най-честите въпроси за платформата, акаунтите и достъпа.</h1>
+            <p className="hero__lede">
+              FAQ страницата е подредена така, че нов потребител, консултант или партньор
+              да получи бърза ориентация без да търси информация в отделни секции.
+            </p>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Полезни връзки</p>
+            <h2>Още помощ</h2>
+            <div className="helper-grid helper-grid--single">
+              <article className="helper-card">
+                <strong>Контакти</strong>
+                <p>За въпроси извън FAQ използвай страницата за контакти.</p>
+                <Link className="ghost-button" to="/contact">
+                  Отвори контактите
+                </Link>
+              </article>
+              <article className="helper-card">
+                <strong>Правна информация</strong>
+                <p>За условия, privacy и правни детайли виж правната страница.</p>
+                <Link className="ghost-button" to="/legal">
+                  Отвори правната страница
+                </Link>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container faq-list">
+          {faqItems.map((item, index) => (
+            <details className="faq-item" key={item.question} open={index === 0}>
+              <summary>{item.question}</summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function LegalPage() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container page-hero__grid">
+          <div className="page-intro">
+            <p className="eyebrow">Правна информация</p>
+            <h1>Правна информация, условия за използване и насоки за поверителност.</h1>
+            <p className="hero__lede">
+              Тази страница обобщава основните правила за използване на платформата,
+              обработката на данни и ролята на CareerLane като професионална среда за
+              свързване и организация на консултации.
+            </p>
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Последна актуализация</p>
+            <h2>20 март 2026</h2>
+            <p>
+              При промени по членствата, политиките или начина на работа на платформата
+              правната информация следва да бъде обновявана ясно и навреме.
+            </p>
+            <a className="ghost-button" href="mailto:legal@careerlane.eu">
+              legal@careerlane.eu
+            </a>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container public-layout">
+          <div className="panel-stack">
+            {legalSections.map((section) => (
+              <article className="panel legal-section" key={section.title}>
+                <h2>{section.title}</h2>
+                <ul className="page-list">
+                  {section.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <aside className="panel page-side-card">
+            <p className="eyebrow">Важно</p>
+            <h2>Платформата не е гаранция за резултат.</h2>
+            <p>
+              CareerLane улеснява професионалното позициониране и организацията на
+              консултации, но не дава гаранция за интервю, оферта или наемане.
+            </p>
+            <Link className="ghost-button" to="/faq">
+              Прегледай FAQ
+            </Link>
+          </aside>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function NotFoundPage() {
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="panel empty-state empty-state--centered">
+          <p className="eyebrow">404</p>
+          <h2>Тази страница не беше намерена.</h2>
+          <p>
+            Възможно е адресът да е променен или страницата вече да не е активна. Използвай
+            някоя от основните секции, за да продължиш.
+          </p>
+          <div className="dashboard-actions">
+            <Link className="primary-button" to="/">
+              Към началото
+            </Link>
+            <Link className="ghost-button" to="/users">
+              За потребители
+            </Link>
+            <Link className="ghost-button" to="/contact">
+              Контакти
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function ConsultantPage() {
+  const { slug = "" } = useParams();
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+  const { profile: viewerProfile, loading: viewerProfileLoading } = useViewerProfile();
+  const [consultant, setConsultant] = useState<ConsultantProfile | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [note, setNote] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
+
+  useEffect(() => {
+    api
+      .getConsultant(slug)
+      .then((value) => {
+        setConsultant(value);
+        setSelectedSlot(getUpcomingAvailabilitySlots(value.availability, 1)[0] || "");
+      })
+      .catch((value) => {
+        setError(value instanceof Error ? value.message : "Неуспешно зареждане.");
+      });
+  }, [slug]);
+
+  if (error) {
+    return (
+      <section className="section">
+        <div className="container">
+          <div className="panel panel--error">{error}</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!consultant) {
+    return (
+      <section className="section">
+        <div className="container">
+          <div className="panel">Зареждаме профила на консултанта...</div>
+        </div>
+      </section>
+    );
+  }
+
+  const isConsultantViewer = viewerProfile?.role === "consultant";
+  const bookingCtaTo = user ? "/dashboard" : "/auth?tab=register";
+  const visibleAvailability = getUpcomingAvailabilitySlots(consultant.availability, 12);
+  const availabilityCalendar = groupAvailabilityByDay(visibleAvailability);
+  const nextVisibleSlot = visibleAvailability[0] || consultant.nextAvailable;
+  const availabilityPreviewSlots = visibleAvailability.slice(0, 4);
+  const isDemoConsultant = Boolean(consultant.isDemo);
+  const profileSummary =
+    consultant.bio || consultant.experienceSummary || getConsultantWorkApproach(consultant);
+  const profileSignals = Array.from(
+    new Set([
+      ...getConsultantSummaryTags(consultant),
+      ...getConsultationTopics(consultant).slice(0, 2),
+      ...getConsultantIdealFor(consultant).slice(0, 1)
+    ])
+  ).slice(0, 4);
+  const profileFacts = [
+    { label: "Локация", value: getConsultantLocationLabel(consultant) },
+    { label: "Формат", value: consultant.sessionModes.join(" · ") },
+    { label: "Продължителност", value: getSessionLengthLabel(consultant) },
+    { label: "Цена", value: getConsultantPriceLabel(consultant) }
+  ];
+  const shareUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultant.slug}`
+      : "";
+
+  const jumpToAvailability = () => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.getElementById("availability-calendar")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  };
+
+  const shareProfile = async () => {
+    setShareMessage("");
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({
+          title: `${consultant.name} | CareerLane`,
+          text: consultant.headline,
+          url: shareUrl
+        });
+        setShareMessage("Профилът беше споделен успешно.");
+        return;
+      }
+
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareMessage("Линкът към профила беше копиран.");
+        return;
+      }
+
+      setShareMessage("Профилният линк е готов за споделяне.");
+    } catch {
+      setShareMessage("Споделянето беше прекъснато.");
+    }
+  };
+
+  const submitBooking = async (event: FormEvent) => {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (isDemoConsultant) {
+      setError(
+        "Заявките за този профил ще бъдат активни скоро."
+      );
+      return;
+    }
+
+    if (isConsultantViewer) {
+      setError(
+        "Консултантските акаунти не резервират други консултанти. В профила и таблото си ще виждаш подходящите професионалисти за твоята практика."
+      );
+      return;
+    }
+
+    const bookingToken = user && token ? token : "";
+
+    if (!bookingToken) {
+      navigate(`/auth?redirect=${encodeURIComponent(`/consultants/${consultant.slug}`)}`);
+      return;
+    }
+
+    try {
+      await api.createBooking(bookingToken, {
+        consultantId: consultant.consultantId,
+        scheduledAt: selectedSlot,
+        note
+      });
+      setMessage("Консултацията е заявена успешно. Ще я видиш в профила си.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно създаване на заявка.");
+    }
+  };
+
+  return (
+    <>
+      <section className="profile-hero">
+        <div className="container profile-stage">
+          <article className="profile-stage__main">
+            <CoverMedia
+              src={consultant.heroUrl}
+              name={consultant.name}
+              className="profile-stage__cover"
+              eyebrow={consultant.featured ? "Подбран профил" : "Публичен профил"}
+              title={consultant.name}
+              subtitle={consultant.headline}
+            />
+
+            <div className="profile-stage__content">
+              <AvatarMedia
+                className="profile-stage__avatar"
+                src={consultant.avatarUrl}
+                name={consultant.name}
+              />
+
+              <div className="profile-stage__body">
+                <div className="chip-row consultant-card__status-row">
+                  <span className="plan-pill">
+                    {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
+                  </span>
+                  <span className={consultant.featured ? "status-badge" : "plan-pill"}>
+                    {consultant.featured ? "Подбран профил" : "Активен профил"}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="eyebrow">Публичен профил в каталога</p>
+                  <h1>{consultant.name}</h1>
+                  <p className="profile-stage__headline">{consultant.headline}</p>
+                </div>
+
+                <p className="profile-stage__summary">{profileSummary}</p>
+
+                <div className="profile-stage__facts">
+                  {profileFacts.map((item) => (
+                    <article key={item.label}>
+                      <span>{item.label}</span>
+                      <strong>{item.value}</strong>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="meta-row">
+                  <span>{consultant.experienceYears} години опит</span>
+                  <span>{getConsultantTrustLabel(consultant)}</span>
+                  <span>Следващ свободен час: {formatDate(nextVisibleSlot)}</span>
+                </div>
+
+                {profileSignals.length ? (
+                  <div className="chip-row">
+                    {profileSignals.map((item) => (
+                      <span className="chip" key={item}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
+                <div className="profile-actions">
+                  <Link className="ghost-button" to="/consultants">
+                    Назад към каталога
+                  </Link>
+                  <button className="ghost-button" type="button" onClick={shareProfile}>
+                    Сподели профила
+                  </button>
+                </div>
+                {shareMessage ? <div className="panel panel--success">{shareMessage}</div> : null}
+              </div>
+            </div>
+          </article>
+
+          <aside className="booking-card profile-stage__aside">
+            <span className="status-badge status-badge--success">Следващ свободен слот</span>
+            <strong>{formatDate(nextVisibleSlot)}</strong>
+            <span>
+              {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
+            </span>
+            <p>
+              {getConsultantWorkApproach(consultant)}
+            </p>
+            {availabilityPreviewSlots.length ? (
+              <div className="booking-card__schedule">
+                <span className="search-shortcuts__label">Свободни часове</span>
+                <div className="booking-card__slot-preview">
+                  {availabilityPreviewSlots.map((slot) => (
+                    <button
+                      className={`slot-button slot-button--compact ${
+                        selectedSlot === slot ? "slot-button--active" : ""
+                      }`}
+                      key={slot}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSlot(slot);
+                        jumpToAvailability();
+                      }}
+                    >
+                      {formatAvailabilityShortLabel(slot)}
+                    </button>
+                  ))}
+                </div>
+                <button className="ghost-button" type="button" onClick={jumpToAvailability}>
+                  Виж календара
+                </button>
+              </div>
+            ) : null}
+            <CoverMedia
+              src={consultant.mapImageUrl || consultant.heroUrl}
+              name={consultant.name}
+              className="booking-card__media"
+              eyebrow="Консултация"
+              title={consultant.city || "Онлайн достъп"}
+              subtitle={consultant.sessionModes.join(" · ") || "Онлайн"}
+            />
+          </aside>
+        </div>
+      </section>
+
+      <section className="section section--tight">
+        <div className="container consultant-detail-grid consultant-detail-grid--profile">
+          <div className="panel-stack">
+            <article className="panel consultant-detail-panel consultant-detail-panel--wide">
+              <h2>За консултанта</h2>
+              <p>{consultant.bio}</p>
+            </article>
+
+            {consultant.experienceSummary || (consultant.experienceHighlights || []).length ? (
+              <article className="panel consultant-detail-panel consultant-detail-panel--wide">
+                <h2>Професионален опит</h2>
+                {consultant.experienceSummary ? <p>{consultant.experienceSummary}</p> : null}
+                {(consultant.experienceHighlights || []).length ? (
+                  <ul className="feature-list">
+                    {(consultant.experienceHighlights || []).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
+            ) : null}
+
+            <div className="consultant-detail-cards">
+              <article className="panel consultant-detail-panel">
+                <h2>Подходящо за</h2>
+                <div className="chip-row">
+                  {getConsultantIdealFor(consultant).map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+
+              <article className="panel consultant-detail-panel">
+                <h2>Теми на консултацията</h2>
+                <div className="chip-row">
+                  {getConsultationTopics(consultant).map((item) => (
+                    <span className="chip" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+
+              <article className="panel consultant-detail-panel">
+                <h2>Езици, формати и професионален контекст</h2>
+                <div className="chip-row">
+                  {consultant.languages.map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                  {consultant.sessionModes.map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                  {consultant.tags.map((item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+
+              <article className="panel consultant-detail-panel">
+                <h2>Как протича работата</h2>
+                <p>{getConsultantWorkApproach(consultant)}</p>
+              </article>
+
+              {(consultant.educationHighlights || []).length ? (
+                <article className="panel consultant-detail-panel">
+                  <h2>Образование и сертификати</h2>
+                  <div className="chip-row">
+                    {(consultant.educationHighlights || []).map((item) => (
+                      <span className="chip chip--soft" key={item}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ) : null}
+            </div>
+          </div>
+
+          <form className="panel booking-panel" onSubmit={submitBooking}>
+            <h2>Заяви консултация</h2>
+            <p className="section-caption">
+              Избери свободен час и изпрати кратък контекст, за да започне разговорът по-лесно.
+            </p>
+            {isDemoConsultant ? (
+              <div className="panel panel--subtle role-guard-panel">
+                <strong>Заявките за този профил ще бъдат активни скоро.</strong>
+                <p>
+                  Профилът вече е публикуван в каталога, а резервациите ще станат
+                  достъпни след следващата активация на графика.
+                </p>
+              </div>
+            ) : null}
+            {visibleAvailability.length ? (
+              <div className="availability-calendar" id="availability-calendar">
+                {availabilityCalendar.map((day) => (
+                  <article className="availability-calendar__day" key={day.key}>
+                    <div className="availability-calendar__day-header">
+                      <strong>{day.label}</strong>
+                      <span>{day.slots.length} часа</span>
+                    </div>
+                    <div className="availability-calendar__slots">
+                      {day.slots.map((slot) => (
+                        <button
+                          className={`slot-button slot-button--compact ${
+                            selectedSlot === slot ? "slot-button--active" : ""
+                          }`}
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedSlot(slot)}
+                        >
+                          {formatAvailabilityTimeLabel(slot)}
+                        </button>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="panel panel--subtle">
+                <strong>Свободните часове се подготвят.</strong>
+                <p>
+                  Профилът вече е активен, но консултантът още не е добавил конкретни
+                  часове за резервация.
+                </p>
+              </div>
+            )}
+            {isConsultantViewer ? (
+              <div className="panel panel--subtle role-guard-panel">
+                <strong>Тази стъпка е активна за потребители.</strong>
+                <p>
+                  CareerLane съпоставя консултантите с потребители, а не с други
+                  консултанти. Подходящите професионалисти за теб се показват в профила и таблото ти.
+                </p>
+                <Link className="ghost-button" to={bookingCtaTo}>
+                  {user ? "Отвори таблото си" : "Отвори профила си"}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <label>
+                  Кратка бележка
+                  <textarea
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    rows={5}
+                    placeholder="Например: искам преглед на LinkedIn, интервю подготовка и позициониране за leadership роли."
+                  />
+                </label>
+              </>
+            )}
+
+            {message ? <div className="panel panel--success">{message}</div> : null}
+            {error ? <div className="panel panel--error">{error}</div> : null}
+
+            {!isConsultantViewer && !isDemoConsultant ? (
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={viewerProfileLoading || !visibleAvailability.length || !selectedSlot}
+              >
+                {user ? "Изпрати заявка" : "Влез и изпрати заявка"}
+              </button>
+            ) : null}
+          </form>
+        </div>
+      </section>
+    </>
+  );
+}
+
+export function AuthPage() {
+  const {
+    configured,
+    socialConfigured,
+    availableSocialProviders,
+    user,
+    token,
+    loading,
+    register: registerWithAuth,
+    confirm: confirmWithAuth,
+    login: loginWithAuth,
+    loginWithProvider,
+    requestPasswordReset,
+    completePasswordReset
+  } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const resolvedRedirect = params.get("redirect") || "/dashboard";
+  const initialTab = params.get("tab") === "register" ? "register" : "login";
+  const initialRole = params.get("role") === "consultant" ? "consultant" : "client";
+  const isSocialOnboarding = params.get("social") === "1";
+
+  const [screen, setScreen] = useState<AuthScreen>(initialTab);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: initialRole as UserRole,
+    plan: "free" as PlanTier,
+    city: "",
+    occupation: "",
+    headline: "",
+    consultantProfileType: "consultant" as ConsultantProfileType,
+    code: "",
+    newPassword: ""
+  });
+
+  useEffect(() => {
+    setScreen(initialTab);
+    setForm((current) => ({
+      ...current,
+      role: initialRole as UserRole,
+      plan: "free"
+    }));
+  }, [initialRole, initialTab]);
+
+  useEffect(() => {
+    if (!isSocialOnboarding || !user) {
+      return;
+    }
+
+    setScreen("register");
+    setForm((current) => ({
+      ...current,
+      name: current.name || user.name || "",
+      email: current.email || user.email || ""
+    }));
+  }, [isSocialOnboarding, user]);
+
+  if (!loading && user && !isSocialOnboarding) {
+    return <Navigate to={resolvedRedirect} replace />;
+  }
+
+  const activeTab =
+    screen === "register" || screen === "confirm" ? "register" : "login";
+  const registrationSummary = getRolePlanSummary(form.role, form.plan);
+  const registrationHighlights =
+    form.role === "consultant"
+      ? [
+          "Публичен профил с отделна страница в CareerLane",
+          "Редакция на снимка, CV, специализации и свободни слотове",
+          "Възможност профилът да бъде намиран, отварян и споделян"
+        ]
+      : [
+          "Личен профил с професионален контекст и цели",
+          "Достъп до активните консултанти и ментори",
+          "CV качване, заявки за консултации и история на сесиите"
+        ];
+  const authStageTitle =
+    screen === "register"
+      ? "Създаваш нов профил"
+      : screen === "confirm"
+        ? "Завършваш регистрацията"
+        : screen === "forgot-request"
+          ? "Изпращаш заявка за нова парола"
+          : screen === "forgot-confirm"
+            ? "Задаваш нова парола"
+            : "Влизаш в профила си";
+  const authStageDescription =
+    screen === "register"
+      ? "Създаваш акаунт според ролята си и подреждаш достъпа си до кариерни консултанти, документите и консултациите."
+      : screen === "confirm"
+        ? "Потвърждаваш регистрацията и продължаваш директно към профила и членството си."
+        : screen === "forgot-request"
+          ? "Изпращаме код за сигурно възстановяване само към посочения имейл."
+          : screen === "forgot-confirm"
+            ? "Задаваш нова парола и веднага възстановяваш достъпа до профила си."
+            : "Влизаш бързо в своя профил и продължаваш към документите, консултантите и следващите си стъпки.";
+  const canRegister = isSocialOnboarding && user
+    ? Boolean((form.name.trim() || user.name) && (form.email.trim() || user.email))
+    : Boolean(
+        form.name.trim() &&
+          form.email.trim() &&
+          form.password.trim().length >= 8 &&
+          form.city.trim() &&
+          form.headline.trim()
+      );
+
+  function clearFeedback() {
+    setMessage("");
+    setError("");
+  }
+
+  async function handleSocialProvider(providerKey: (typeof socialProviders)[number]["key"]) {
+    clearFeedback();
+
+    if (!socialConfigured) {
+      setError("Входът с външен профил още не е активиран за тази среда.");
+      return;
+    }
+
+    const isRegisterFlow = activeTab === "register";
+
+    if (isRegisterFlow) {
+      writePendingBootstrap({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        plan: "free",
+        city: form.city.trim(),
+        occupation: form.occupation.trim(),
+        headline: form.headline.trim(),
+        consultantProfileType:
+          form.role === "consultant" ? form.consultantProfileType : undefined
+      });
+    } else {
+      clearPendingBootstrap();
+    }
+
+    writeSocialAuthIntent({
+      provider: providerKey,
+      mode: isRegisterFlow ? "register" : "login",
+      redirect: resolvedRedirect,
+      createdAt: new Date().toISOString()
+    });
+
+    try {
+      await loginWithProvider(providerKey);
+    } catch (value) {
+      setError(
+        value instanceof Error ? value.message : "Неуспешно пренасочване към външен вход."
+      );
+    }
+  }
+
+  async function handleRegister(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!canRegister) {
+      setError("Попълни нужните полета, за да продължиш.");
+      return;
+    }
+
+    if (isSocialOnboarding && user) {
+      if (!token) {
+        setError("Подготвяме сесията ти. Опитай отново след миг.");
+        return;
+      }
+
+      try {
+        await api.bootstrapUser(token, {
+          name: form.name.trim() || user.name,
+          email: form.email.trim() || user.email,
+          role: form.role,
+          plan: "free",
+          avatarUrl: user.avatarUrl || "",
+          city: form.city.trim(),
+          occupation: form.occupation.trim(),
+          headline: form.headline.trim(),
+          consultantProfileType:
+            form.role === "consultant" ? form.consultantProfileType : undefined
+        });
+        clearPendingBootstrap();
+        navigate(resolvedRedirect);
+      } catch (value) {
+        setError(value instanceof Error ? value.message : "Неуспешно довършване на профила.");
+      }
+
+      return;
+    }
+
+    if (!configured) {
+      setError("Системата за регистрация не е конфигурирана.");
+      return;
+    }
+
+    try {
+      await registerWithAuth({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password.trim(),
+        role: form.role,
+        plan: "free"
+      });
+
+      writePendingBootstrap({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        role: form.role,
+        plan: "free",
+        city: form.city.trim(),
+        occupation: form.occupation.trim(),
+        headline: form.headline.trim(),
+        consultantProfileType:
+          form.role === "consultant" ? form.consultantProfileType : undefined
+      });
+
+      setScreen("confirm");
+      setMessage("Изпратихме код за потвърждение на посочения имейл.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешна регистрация.");
+    }
+  }
+
+  async function handleConfirm(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!configured) {
+      setError("Системата за регистрация не е конфигурирана.");
+      return;
+    }
+
+    if (!form.password.trim()) {
+      setError("Въведи паролата си, за да завършиш регистрацията.");
+      return;
+    }
+
+    try {
+      await confirmWithAuth(form.email.trim(), form.code.trim());
+      const token = await loginWithAuth(form.email.trim(), form.password.trim());
+      const pendingBootstrap = readPendingBootstrap();
+
+      if (pendingBootstrap && pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()) {
+        await api.bootstrapUser(token, pendingBootstrap);
+        clearPendingBootstrap();
+      }
+
+      navigate(resolvedRedirect);
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно потвърждение.");
+    }
+  }
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!form.password.trim()) {
+      setError("Въведи паролата си, за да продължиш.");
+      return;
+    }
+
+    if (!configured) {
+      setError("Системата за вход не е конфигурирана.");
+      return;
+    }
+
+    try {
+      const token = await loginWithAuth(form.email.trim(), form.password.trim());
+      const pendingBootstrap = readPendingBootstrap();
+
+      if (pendingBootstrap && pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()) {
+        await api.bootstrapUser(token, pendingBootstrap);
+        clearPendingBootstrap();
+      }
+
+      navigate(resolvedRedirect);
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешен вход.");
+    }
+  }
+
+  async function handlePasswordResetRequest(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!configured) {
+      setError("Системата за вход не е конфигурирана.");
+      return;
+    }
+
+    try {
+      await requestPasswordReset(form.email.trim());
+      setScreen("forgot-confirm");
+      setMessage("Изпратихме код за нова парола. Въведи го заедно с новата си парола.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно изпращане на код.");
+    }
+  }
+
+  async function handlePasswordResetConfirm(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!form.code.trim() || !form.newPassword.trim()) {
+      setError("Попълни кода и новата парола.");
+      return;
+    }
+
+    if (!configured) {
+      setError("Системата за вход не е конфигурирана.");
+      return;
+    }
+
+    try {
+      await completePasswordReset(
+        form.email.trim(),
+        form.code.trim(),
+        form.newPassword.trim()
+      );
+      setScreen("login");
+      setForm((current) => ({ ...current, code: "", newPassword: "", password: "" }));
+      setMessage("Паролата е обновена успешно. Можеш да влезеш отново.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно обновяване на паролата.");
+    }
+  }
+
+  return (
+    <section className="section auth-section">
+      <div className="container auth-layout">
+        <div className="auth-copy">
+          <p className="eyebrow">Вход и регистрация</p>
+          <h1>Влез в CareerLane и управлявай професионалния си профил, консултации и следващи стъпки на едно място.</h1>
+          <p>
+            Оттук започва достъпът до платформата. Можеш да влезеш с имейл или
+            с външен профил, а CareerLane подрежда регистрацията, потвърждението
+            и възстановяването на парола в един ясен, професионален поток.
+          </p>
+
+          <div className="panel auth-side-panel">
+            <h2>{authStageTitle}</h2>
+            <p className="section-heading__copy">{authStageDescription}</p>
+            <ul>
+              <li>Потребителски профил с по-точно съвпадение към консултанти</li>
+              <li>Консултантски профил с отделна публична страница</li>
+              <li>Единен достъп до профил, документи и консултации</li>
+            </ul>
+            {screen === "register" ? (
+              <div className="panel panel--subtle">
+                <strong>
+                  {form.role === "consultant"
+                    ? `Избран тип: ${
+                        form.consultantProfileType === "mentor" ? "Ментор" : "Консултант"
+                      }`
+                    : "Избран тип: Потребител"}
+                </strong>
+                <p>{registrationSummary}</p>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="panel auth-card">
+          <div className="tab-row">
+            <button
+              type="button"
+              className={activeTab === "login" ? "tab-row__active" : ""}
+              onClick={() => {
+                clearFeedback();
+                setScreen("login");
+              }}
+            >
+              Вход
+            </button>
+            <button
+              type="button"
+              className={activeTab === "register" ? "tab-row__active" : ""}
+              onClick={() => {
+                clearFeedback();
+                setScreen("register");
+              }}
+            >
+              Регистрация
+            </button>
+          </div>
+
+          {message ? <div className="panel panel--success">{message}</div> : null}
+          {error ? <div className="panel panel--error">{error}</div> : null}
+
+          {isSocialOnboarding && user ? (
+            <div className="panel panel--subtle">
+              <strong>Профилът ти е разпознат.</strong>
+              <p>
+                Прехвърлихме наличните име, имейл и снимка от външния профил.
+                Довърши ролята си и запази първата версия на профила си в CareerLane.
+              </p>
+            </div>
+          ) : (
+            <div className="social-auth">
+              <span className="search-shortcuts__label">Вход с външен профил</span>
+              <div className="social-auth__grid">
+                {socialProviders.map((provider) => (
+                  <button
+                    className="social-auth__button"
+                    key={provider.key}
+                    type="button"
+                    disabled={!availableSocialProviders.includes(provider.key)}
+                    onClick={() => {
+                      void handleSocialProvider(provider.key);
+                    }}
+                  >
+                    <span className="social-auth__button-content">
+                      {renderSocialProviderIcon(provider.key)}
+                      <span>{provider.label}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <p className="form-note">
+                {socialConfigured
+                  ? "При първи вход ще прехвърлим наличните име, имейл и снимка от избрания профил и ще довършиш само липсващата информация."
+                  : "Входът с външен профил ще се появи тук веднага след свързване на доставчиците в Cognito."}
+              </p>
+            </div>
+          )}
+
+          {screen === "login" ? (
+            <form className="form-stack" onSubmit={handleLogin}>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  required
+                />
+              </label>
+              <label>
+                Парола
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  autoComplete="current-password"
+                  placeholder="Въведи паролата си"
+                  required
+                />
+              </label>
+              <div className="auth-inline-actions">
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    clearFeedback();
+                    setScreen("forgot-request");
+                  }}
+                >
+                  Забравена парола?
+                </button>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    clearFeedback();
+                    setScreen("register");
+                  }}
+                >
+                  Нямаш акаунт?
+                </button>
+              </div>
+              <button className="primary-button" type="submit">
+                Вход
+              </button>
+            </form>
+          ) : null}
+
+          {screen === "register" ? (
+            <form className="form-stack" onSubmit={handleRegister}>
+              <label>
+                Име и фамилия
+                <input
+                  value={form.name}
+                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  autoComplete="name"
+                  placeholder="Например: Елица Маринова"
+                  required
+                />
+              </label>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  required
+                  readOnly={isSocialOnboarding}
+                />
+              </label>
+              <div className="two-column">
+                <label>
+                  Град
+                  <input
+                    value={form.city}
+                    onChange={(event) => setForm({ ...form, city: event.target.value })}
+                    placeholder="Например: София"
+                    required={!isSocialOnboarding}
+                  />
+                </label>
+                <label>
+                  Професия / роля
+                  <input
+                    value={form.occupation}
+                    onChange={(event) => setForm({ ...form, occupation: event.target.value })}
+                    placeholder="Например: Product manager"
+                  />
+                </label>
+              </div>
+              <div className="two-column">
+                <label>
+                  Тип акаунт
+                  <select
+                    value={form.role}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        role: event.target.value as UserRole
+                      })
+                    }
+                  >
+                    <option value="client">Потребител</option>
+                    <option value="consultant">Консултант / ментор</option>
+                  </select>
+                </label>
+              </div>
+              {form.role === "consultant" ? (
+                <label>
+                  Тип профил
+                  <select
+                    value={form.consultantProfileType}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        consultantProfileType: event.target.value as ConsultantProfileType
+                      })
+                    }
+                  >
+                    <option value="consultant">Консултант</option>
+                    <option value="mentor">Ментор</option>
+                  </select>
+                </label>
+              ) : null}
+              <label>
+                Професионално headline
+                <input
+                  value={form.headline}
+                  onChange={(event) => setForm({ ...form, headline: event.target.value })}
+                  placeholder="Например: Product manager в преход към leadership роля"
+                  required={!isSocialOnboarding}
+                />
+              </label>
+              {!isSocialOnboarding ? (
+                <label>
+                  Парола
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(event) => setForm({ ...form, password: event.target.value })}
+                    autoComplete="new-password"
+                    placeholder="Минимум 8 символа"
+                    minLength={8}
+                    required
+                  />
+                </label>
+              ) : null}
+
+              {form.role === "consultant" ? (
+                <div className="panel panel--subtle">
+                  <strong>Стартираш с активен публичен профил.</strong>
+                  <p>
+                    След регистрация ще можеш да добавиш снимка, CV, специализации,
+                    теми и свободни часове, така че профилът ти да се появява в търсенето
+                    и да бъде достъпен за потребителите.
+                  </p>
+                </div>
+              ) : (
+                <div className="panel panel--subtle">
+                  <strong>Потребителският достъп е безплатен.</strong>
+                  <p>
+                    Потребителите не плащат членство на този етап и могат да създадат
+                    профил, да разглеждат активните профили и да заявяват консултации.
+                  </p>
+                </div>
+              )}
+
+              <div className="panel panel--subtle">
+                <strong>Какво включва</strong>
+                <ul className="feature-list">
+                  {registrationHighlights.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <p className="form-note">
+                {isSocialOnboarding
+                  ? "Запази ролята и основния професионален контекст. След това ще продължиш директно към профила си."
+                  : "След регистрация ще продължиш директно към профила си, настройките и следващите стъпки в CareerLane."}
+              </p>
+              <div className="panel panel--subtle">
+                <strong>Подготвен старт</strong>
+                <p>{registrationSummary}</p>
+              </div>
+              <button className="primary-button" type="submit" disabled={!canRegister}>
+                {isSocialOnboarding ? "Запази профила" : "Създай профил"}
+              </button>
+            </form>
+          ) : null}
+
+          {screen === "confirm" ? (
+            <form className="form-stack auth-state-panel" onSubmit={handleConfirm}>
+              <div className="auth-state-header">
+                <h2>Потвърждение на регистрацията</h2>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    clearFeedback();
+                    setScreen("register");
+                  }}
+                >
+                  Назад
+                </button>
+              </div>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  required
+                />
+              </label>
+              <label>
+                Код за потвърждение
+                <input
+                  value={form.code}
+                  onChange={(event) => setForm({ ...form, code: event.target.value })}
+                  placeholder="Въведи получения код"
+                  required
+                />
+              </label>
+              <label>
+                Парола
+                <input
+                  type="password"
+                  value={form.password}
+                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  autoComplete="current-password"
+                  placeholder="Въведи паролата, с която се регистрира"
+                  required
+                />
+              </label>
+              <button className="primary-button" type="submit">
+                Потвърди и влез
+              </button>
+            </form>
+          ) : null}
+
+          {screen === "forgot-request" ? (
+            <form className="form-stack auth-state-panel" onSubmit={handlePasswordResetRequest}>
+              <div className="auth-state-header">
+                <h2>Забравена парола</h2>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    clearFeedback();
+                    setScreen("login");
+                  }}
+                >
+                  Назад към вход
+                </button>
+              </div>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  required
+                />
+              </label>
+              <button className="primary-button" type="submit">
+                Изпрати код
+              </button>
+            </form>
+          ) : null}
+
+          {screen === "forgot-confirm" ? (
+            <form className="form-stack auth-state-panel" onSubmit={handlePasswordResetConfirm}>
+              <div className="auth-state-header">
+                <h2>Нова парола</h2>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => {
+                    clearFeedback();
+                    setScreen("login");
+                  }}
+                >
+                  Назад към вход
+                </button>
+              </div>
+              <label>
+                Имейл
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  autoComplete="email"
+                  required
+                />
+              </label>
+              <label>
+                Код
+                <input
+                  value={form.code}
+                  onChange={(event) => setForm({ ...form, code: event.target.value })}
+                  required
+                />
+              </label>
+              <label>
+                Нова парола
+                <input
+                  type="password"
+                  value={form.newPassword}
+                  onChange={(event) => setForm({ ...form, newPassword: event.target.value })}
+                  autoComplete="new-password"
+                  placeholder="Минимум 8 символа"
+                  minLength={8}
+                  required
+                />
+              </label>
+              <button className="primary-button" type="submit">
+                Запази новата парола
+              </button>
+            </form>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function AccountPage() {
+  return <Navigate to="/dashboard" replace />;
+}
+
+export function DashboardPage() {
+  const { user, token, loading } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [consultantProfile, setConsultantProfile] = useState<ConsultantProfile | null>(null);
+  const [directoryConsultants, setDirectoryConsultants] = useState<ConsultantProfile[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [consultantAvailability, setConsultantAvailability] = useState<string[]>([]);
+  const [availabilityDate, setAvailabilityDate] = useState(getRelativeDateInputValue(1));
+  const [availabilityTime, setAvailabilityTime] = useState("09:00");
+  const [activeProfileSection, setActiveProfileSection] = useState("identity");
+  const [activeConsultantSection, setActiveConsultantSection] = useState("presentation");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth?redirect=/dashboard");
+    }
+  }, [loading, navigate, user]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let mounted = true;
+
+    Promise.all([
+      api.getMyProfile(token),
+      api.listBookings(token),
+      api
+        .getMyConsultantProfile(token)
+        .then((value) => value)
+        .catch(() => null),
+      api.listConsultants().catch(() => [])
+    ])
+      .then(
+        ([
+          nextProfile,
+          nextBookings,
+          nextConsultantProfile,
+          nextDirectoryConsultants
+        ]) => {
+        if (!mounted) {
+          return;
+        }
+
+        setProfile(nextProfile);
+        setBookings(nextBookings);
+        setConsultantProfile(nextConsultantProfile);
+        setDirectoryConsultants(nextDirectoryConsultants);
+        }
+      )
+      .catch((value) => {
+        if (mounted) {
+          setError(value instanceof Error ? value.message : "Неуспешно зареждане на таблото.");
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    setConsultantAvailability(getUpcomingAvailabilitySlots(consultantProfile?.availability || []));
+  }, [consultantProfile]);
+
+  if (loading || !user) {
+    return (
+      <section className="section">
+        <div className="container">
+          <div className="panel">Зареждаме таблото...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <section className="section">
+        <div className="container">
+          {error ? (
+            <div className="panel panel--error">{error}</div>
+          ) : (
+            <div className="panel">Зареждаме профила...</div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  async function saveProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    const formData = new FormData(event.currentTarget);
+    const avatarLink = String(formData.get("avatarUrl") || "").trim();
+    const avatarFile = formData.get("avatarFile");
+    let avatarUrl = avatarLink || profile.avatarUrl || "";
+    let avatarStorageKey = avatarLink ? "" : profile.avatarStorageKey;
+
+    try {
+      if (avatarFile instanceof File && avatarFile.name) {
+        const avatarUpload = await api.createUserAvatarUpload(token, avatarFile);
+        await uploadFileToSignedUrl(avatarUpload.uploadUrl, avatarFile, "профилната снимка");
+        avatarStorageKey = avatarUpload.storageKey;
+      }
+
+      const updated = await api.updateMyProfile(token, {
+        name: String(formData.get("name") || ""),
+        avatarUrl,
+        avatarStorageKey,
+        city: String(formData.get("city") || ""),
+        occupation: String(formData.get("occupation") || ""),
+        age: Number(formData.get("age") || 0) || null,
+        headline: String(formData.get("headline") || ""),
+        bio: String(formData.get("bio") || ""),
+        experienceSummary: String(formData.get("experienceSummary") || ""),
+        experienceHighlights: parseListValue(formData.get("experienceHighlights")),
+        educationHighlights: parseListValue(formData.get("educationHighlights")),
+        skills: parseListValue(formData.get("skills")),
+        interests: parseListValue(formData.get("interests")),
+        keywords: parseListValue(formData.get("keywords")),
+        goals: String(formData.get("goals") || ""),
+        preferredSessionModes: parseListValue(formData.get("preferredSessionModes")),
+        plan: profile.plan
+      });
+      setProfile(updated);
+      setMessage("Профилът е записан.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно записване.");
+    }
+  }
+
+  async function uploadCv(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    const formData = new FormData(event.currentTarget);
+    const file = formData.get("cv") as File | null;
+
+    if (!file || !file.name) {
+      setError("Избери файл за качване.");
+      return;
+    }
+
+    try {
+      const result = await api.createCvUpload(token, file);
+
+      await uploadFileToSignedUrl(result.uploadUrl, file, "документа");
+
+      const updated = await api.updateMyProfile(token, {
+        cvDocument: result.document as UploadedDocument
+      });
+
+      setProfile(updated);
+      setMessage("Основният документ е обновен.");
+      event.currentTarget.reset();
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно качване.");
+    }
+  }
+
+  async function saveConsultantProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      const avatarLink = String(formData.get("avatarUrl") || "").trim();
+      const heroLink = String(formData.get("heroUrl") || "").trim();
+      const avatarFile = formData.get("avatarFile");
+      const heroFile = formData.get("heroFile");
+      const availability = getUpcomingAvailabilitySlots(consultantAvailability);
+      let avatarUrl = avatarLink || consultantProfile?.avatarUrl || "";
+      let heroUrl = heroLink || consultantProfile?.heroUrl || "";
+      let avatarStorageKey = avatarLink ? "" : consultantProfile?.avatarStorageKey;
+      let heroStorageKey = heroLink ? "" : consultantProfile?.heroStorageKey;
+
+      async function uploadConsultantMedia(
+        fileValue: FormDataEntryValue | null,
+        kind: ConsultantMediaKind,
+        failureLabel: string
+      ) {
+        if (!(fileValue instanceof File) || !fileValue.name) {
+          return null;
+        }
+
+        const result = await api.createConsultantMediaUpload(token, fileValue, kind);
+        await uploadFileToSignedUrl(result.uploadUrl, fileValue, failureLabel);
+        return result;
+      }
+
+      const avatarUpload = await uploadConsultantMedia(
+        avatarFile,
+        "avatar",
+        "профилната снимка"
+      );
+      const heroUpload = await uploadConsultantMedia(
+        heroFile,
+        "hero",
+        "снимката за корицата"
+      );
+
+      if (avatarUpload) {
+        avatarStorageKey = avatarUpload.storageKey;
+      }
+
+      if (heroUpload) {
+        heroStorageKey = heroUpload.storageKey;
+      }
+
+      const updated = await api.updateMyConsultantProfile(token, {
+        slug: String(formData.get("slug") || consultantProfile?.slug || ""),
+        name: String(formData.get("displayName") || consultantProfile?.name || ""),
+        profileType: String(
+          formData.get("consultantProfileType") || consultantProfile?.profileType || "consultant"
+        ) as ConsultantProfileType,
+        headline: String(
+          formData.get("consultantHeadline") || consultantProfile?.headline || ""
+        ),
+        bio: String(formData.get("consultantBio") || consultantProfile?.bio || ""),
+        experienceSummary: String(
+          formData.get("consultantExperienceSummary") || consultantProfile?.experienceSummary || ""
+        ),
+        experienceHighlights: parseListValue(formData.get("consultantExperienceHighlights")),
+        educationHighlights: parseListValue(formData.get("consultantEducationHighlights")),
+        city: String(formData.get("consultantCity") || consultantProfile?.city || ""),
+        experienceYears: Number(
+          formData.get("experienceYears") || consultantProfile?.experienceYears || 0
+        ),
+        languages: String(formData.get("languages") || "")
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        specializations: String(formData.get("specializations") || "")
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        sessionModes: String(formData.get("sessionModes") || "")
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        tags: String(formData.get("tags") || "")
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        avatarUrl,
+        heroUrl,
+        avatarStorageKey,
+        heroStorageKey,
+        idealFor: parseListValue(formData.get("idealFor")),
+        consultationTopics: parseListValue(formData.get("consultationTopics")),
+        workApproach: String(formData.get("workApproach") || ""),
+        sessionLengthMinutes: Number(formData.get("sessionLengthMinutes") || 60) || 60,
+        availability
+      });
+
+      setConsultantProfile(updated);
+      setConsultantAvailability(getUpcomingAvailabilitySlots(updated.availability || []));
+      setMessage("Консултантският профил е обновен.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно записване.");
+    }
+  }
+
+  const membershipNote =
+    profile.role === "consultant"
+      ? "Публичният ти профил, свободните слотове и съвпаденията с професионалисти се управляват оттук."
+      : "Профилът, документите и достъпът до кариерни консултанти се управляват оттук.";
+  const profileCompletion = getProfileCompletion(profile, consultantProfile);
+  const nextBooking = getNextBooking(bookings);
+  const consultantNextAvailable =
+    profile.role === "consultant"
+      ? getUpcomingAvailabilitySlots(consultantAvailability, 1)[0] || consultantProfile?.nextAvailable || ""
+      : "";
+  const setupChecklist =
+    profile.role === "consultant"
+      ? [
+          "Подреди headline и биографията си така, че да звучат уверено и конкретно.",
+          "Добави езици, теми, подход и свободни слотове за по-лесно резервиране.",
+          "Прегледай публичния си профил така, както ще го виждат потребителите."
+        ]
+      : [
+          "Добави професия, интереси и ключови думи, за да имаш по-точно съвпадение.",
+          "Качи основното си CV, за да държиш материалите си на едно място.",
+          "Разгледай кариерните консултанти и запази следващата консултация директно от профила на консултанта."
+        ];
+  const dashboardMatchedConsultants =
+    profile.role === "client"
+      ? directoryConsultants
+          .map((consultant) => ({
+            consultant,
+            match: getConsultantMatch(profile, consultant)
+          }))
+          .sort((left, right) => (right.match?.score || 0) - (left.match?.score || 0))
+          .slice(0, 3)
+      : [];
+  const availabilityPresetOptions = [
+    buildAvailabilityPreset(1, 9),
+    buildAvailabilityPreset(1, 14),
+    buildAvailabilityPreset(2, 11),
+    buildAvailabilityPreset(3, 16)
+  ];
+  const firstName = profile.name.split(" ")[0] || profile.name;
+  const consultantPublicSlug =
+    consultantProfile?.slug || slugifyValue(consultantProfile?.name || profile.name);
+  const consultantPublicUrl =
+    profile.role === "consultant" && consultantPublicSlug
+      ? typeof window !== "undefined"
+        ? `${window.location.origin}${import.meta.env.BASE_URL}#/consultants/${consultantPublicSlug}`
+        : `/consultants/${consultantPublicSlug}`
+      : "";
+  const dashboardSections = [
+    {
+      id: "profile-basics",
+      label: profile.role === "consultant" ? "Личен профил" : "Моят профил"
+    },
+    { id: "documents", label: "Документи" },
+    profile.role === "consultant"
+      ? { id: "consultant-profile", label: "Публична страница" }
+      : { id: "matches", label: "Подходящи профили" },
+    { id: "sessions", label: "Сесии" }
+  ];
+  const consultantReadiness =
+    profile.role === "consultant"
+      ? [
+          {
+            label: "Снимка",
+            ready: Boolean(consultantProfile?.avatarUrl || consultantProfile?.avatarStorageKey)
+          },
+          {
+            label: "Описание",
+            ready: Boolean((consultantProfile?.bio || "").trim())
+          },
+          {
+            label: "Теми",
+            ready: Boolean((consultantProfile?.consultationTopics || []).length)
+          },
+          {
+            label: "Часове",
+            ready: Boolean(consultantAvailability.length)
+          }
+        ]
+      : [];
+  const userSnapshotChips = [
+    profile.occupation,
+    profile.city,
+    ...(profile.skills || []).slice(0, 3)
+  ].filter(Boolean) as string[];
+  const consultantSnapshotChips = [
+    consultantProfile?.city,
+    ...(consultantProfile?.specializations || []).slice(0, 2),
+    ...(consultantProfile?.experienceHighlights || []).slice(0, 2)
+  ].filter(Boolean) as string[];
+  const profileSetupSections = [
+    {
+      id: "identity",
+      step: "01",
+      label: "Основа",
+      title: "Кой си в момента?",
+      hint: "Основните данни дават контекст.",
+      ready: Boolean(
+        profile.name.trim() &&
+          (profile.occupation || profile.city || profile.age || profile.avatarUrl || profile.avatarStorageKey)
+      )
+    },
+    {
+      id: "direction",
+      step: "02",
+      label: "Посока",
+      title: "Към каква следваща стъпка се движиш?",
+      hint: "Заглавие и цел.",
+      ready: Boolean((profile.headline || "").trim() || (profile.goals || "").trim())
+    },
+    {
+      id: "experience",
+      step: "03",
+      label: "Опит",
+      title: "Опит и професионален контекст",
+      hint: "Кратко, подредено представяне в стил LinkedIn.",
+      ready: Boolean(
+        (profile.bio || "").trim() ||
+          (profile.experienceSummary || "").trim() ||
+          (profile.experienceHighlights || []).length ||
+          (profile.educationHighlights || []).length
+      )
+    },
+    {
+      id: "fit",
+      step: "04",
+      label: "Съвпадение",
+      title: "Умения, теми и предпочитан формат",
+      hint: "Това помага на платформата да те свързва по-точно.",
+      ready: Boolean(
+        (profile.skills || []).length ||
+          (profile.interests || []).length ||
+          (profile.keywords || []).length ||
+          (profile.preferredSessionModes || []).length
+      )
+    }
+  ];
+  const consultantSetupSections = [
+    {
+      id: "presentation",
+      step: "01",
+      label: "Визия",
+      title: "Как изглеждаш публично?",
+      hint: "Име, заглавие и снимка.",
+      ready: Boolean(
+        (consultantProfile?.slug || "").trim() &&
+          (consultantProfile?.name || profile.name).trim() &&
+          (consultantProfile?.headline || "").trim() &&
+          (consultantProfile?.city || "").trim()
+      )
+    },
+    {
+      id: "audience",
+      step: "02",
+      label: "Теми",
+      title: "С кого работиш и по какви теми?",
+      hint: "Това определя търсенето.",
+      ready: Boolean(
+        (consultantProfile?.specializations || []).length ||
+          (consultantProfile?.consultationTopics || []).length ||
+          (consultantProfile?.idealFor || []).length
+      )
+    },
+    {
+      id: "practice",
+      step: "03",
+      label: "Доверие",
+      title: "Опит, практика и подход",
+      hint: "Това е публичната част, която създава доверие.",
+      ready: Boolean(
+        (consultantProfile?.bio || "").trim() ||
+          (consultantProfile?.experienceSummary || "").trim() ||
+          (consultantProfile?.workApproach || "").trim()
+      )
+    },
+    {
+      id: "booking",
+      step: "04",
+      label: "Часове",
+      title: "Как и кога могат да те резервират?",
+      hint: "Езици, формат и свободни часове.",
+      ready: Boolean(
+        (consultantProfile?.languages || []).length ||
+          (consultantProfile?.sessionModes || []).length ||
+          consultantAvailability.length
+      )
+    }
+  ];
+  const activeProfileSectionIndex = Math.max(
+    0,
+    profileSetupSections.findIndex((section) => section.id === activeProfileSection)
+  );
+  const activeConsultantSectionIndex = Math.max(
+    0,
+    consultantSetupSections.findIndex((section) => section.id === activeConsultantSection)
+  );
+  const activeProfileSetup = profileSetupSections[activeProfileSectionIndex];
+  const activeConsultantSetup = consultantSetupSections[activeConsultantSectionIndex];
+  const upgradePreview =
+    profile.role === "consultant"
+      ? {
+          eyebrow: "Pro за консултанти",
+          title: "Подготвяме следващ слой видимост за профила ти.",
+          description:
+            "Pro абонаментът ще добави по-силно позициониране, по-богат публичен профил и още инструменти за представяне.",
+          points: [
+            "По-силно присъствие и приоритетно показване в подходящи списъци",
+            "Разширени секции за материали, визия и представяне на практиката",
+            "По-добро профилно изживяване за споделяне и професионално позициониране"
+          ]
+        }
+      : {
+          eyebrow: "Разширен профил",
+          title: "Подготвяме по-силен работен слой за потребителския профил.",
+          description:
+            "Разширеният профил ще събере повече документи, по-добра организация и по-ясно проследяване на следващите стъпки.",
+          points: [
+            "Повече място за CV, дипломи и допълнителни материали",
+            "Лични бележки и по-подредена подготовка около консултациите",
+            "По-ясно работно табло за кариерни задачи, профили и решения"
+          ]
+        };
+
+  function addAvailabilitySlot(slot: string) {
+    if (!slot) {
+      setError("Избери дата и час, за да добавиш свободен слот.");
+      return;
+    }
+
+    setError("");
+    setConsultantAvailability((current) => getUpcomingAvailabilitySlots([...current, slot]));
+  }
+
+  function addManualAvailabilitySlot() {
+    addAvailabilitySlot(buildAvailabilitySlot(availabilityDate, availabilityTime));
+  }
+
+  function removeAvailabilitySlot(slot: string) {
+    setConsultantAvailability((current) => current.filter((item) => item !== slot));
+  }
+
+  function jumpToDashboardSection(sectionId: string) {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  function moveProfileSection(direction: -1 | 1) {
+    const nextIndex = activeProfileSectionIndex + direction;
+
+    if (nextIndex < 0 || nextIndex >= profileSetupSections.length) {
+      return;
+    }
+
+    setActiveProfileSection(profileSetupSections[nextIndex].id);
+  }
+
+  function moveConsultantSection(direction: -1 | 1) {
+    const nextIndex = activeConsultantSectionIndex + direction;
+
+    if (nextIndex < 0 || nextIndex >= consultantSetupSections.length) {
+      return;
+    }
+
+    setActiveConsultantSection(consultantSetupSections[nextIndex].id);
+  }
+
+  return (
+    <section className="section">
+      <div className={`container dashboard-grid dashboard-grid--${profile.role}`}>
+        <aside className={`panel dashboard-sidebar dashboard-sidebar--${profile.role}`}>
+          <p className="eyebrow">Табло</p>
+          <AvatarMedia
+            src={profile.avatarUrl}
+            name={profile.name}
+            className="dashboard-sidebar__avatar"
+          />
+          <h2>{profile.name}</h2>
+          <p>{profile.headline || "Допълни кратък професионален текст за по-силно присъствие."}</p>
+
+          <div className="dashboard-metrics">
+            <div>
+              <strong>{formatRoleLabel(profile.role)}</strong>
+              <span>роля</span>
+            </div>
+            <div>
+              <strong>{formatPlanLabel(profile.plan)}</strong>
+              <span>статус</span>
+            </div>
+            <div>
+              <strong>
+                {profile.role === "consultant"
+                  ? consultantAvailability.length || "0"
+                  : bookings.length}
+              </strong>
+              <span>{profile.role === "consultant" ? "свободни часа" : "сесии"}</span>
+            </div>
+          </div>
+
+          <div className="chip-row">
+            <span className="chip chip--soft">{profile.email}</span>
+            <span className="chip chip--soft">{profile.city || "Добави град"}</span>
+          </div>
+
+          <p className="form-note">{membershipNote}</p>
+        </aside>
+
+        <div className="dashboard-content">
+          {message ? <div className="panel panel--success">{message}</div> : null}
+          {error ? <div className="panel panel--error">{error}</div> : null}
+
+          <section
+            className={`panel dashboard-overview dashboard-overview--${profile.role}`}
+            id="overview"
+          >
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Работно табло</p>
+                <h2>Добре дошъл, {firstName}.</h2>
+                <p className="section-heading__copy">
+                  Всичко важно е събрано на едно място: профил, документи, публично
+                  представяне и предстоящи сесии.
+                </p>
+              </div>
+            </div>
+
+            <div className="summary-grid summary-grid--compact">
+              <article className="summary-card">
+                <span className="plan-pill">Завършеност</span>
+                <strong>{profileCompletion}%</strong>
+                <p>
+                  {profileCompletion >= 80
+                    ? "Профилът ти вече изглежда добре структуриран."
+                    : "Остава още малко, за да изглежда профилът ти по-пълен и професионален."}
+                </p>
+              </article>
+              {profile.role === "consultant" ? (
+                <>
+                  <article className="summary-card">
+                    <span className="plan-pill">Публичен профил</span>
+                    <strong>{consultantProfile ? "Активен" : "Подготвя се"}</strong>
+                    <p>
+                      {consultantProfile
+                        ? "Провери снимката, темите и свободните часове, за да изглежда страницата ти завършена."
+                        : "След първото запазване профилът ти ще бъде достъпен за преглед и резервации."}
+                    </p>
+                  </article>
+                  <article className="summary-card">
+                    <span className="plan-pill">Свободни часове</span>
+                    <strong>
+                      {consultantNextAvailable ? formatDate(consultantNextAvailable) : "Няма добавени"}
+                    </strong>
+                    <p>
+                      {consultantAvailability.length
+                        ? `${consultantAvailability.length} активни слота за резервация`
+                        : "Добави поне няколко часа, за да могат хората да резервират веднага."}
+                    </p>
+                  </article>
+                </>
+              ) : (
+                <>
+                  <article className="summary-card">
+                    <span className="plan-pill">Документи</span>
+                    <strong>{profile.cvDocument ? "1 активен файл" : "Няма качен файл"}</strong>
+                    <p>{getDocumentCapacityNote(profile.plan)}</p>
+                  </article>
+                  <article className="summary-card">
+                    <span className="plan-pill">Следваща сесия</span>
+                    <strong>{nextBooking ? formatDate(nextBooking.scheduledAt) : "Все още няма"}</strong>
+                    <p>
+                      {nextBooking
+                        ? `С ${nextBooking.consultantName}`
+                        : "След като резервираш консултация, тя ще се покаже тук."}
+                    </p>
+                  </article>
+                </>
+              )}
+              <article className="summary-card">
+                <span className="plan-pill">Акаунт</span>
+                <strong>{formatRoleLabel(profile.role)} · {formatPlanLabel(profile.plan)}</strong>
+                <p>{getRolePlanSummary(profile.role, profile.plan)}</p>
+              </article>
+            </div>
+
+            <div className="dashboard-section-nav" aria-label="Секции в профила">
+              {dashboardSections.map((section) => (
+                <button
+                  className="ghost-button"
+                  key={section.id}
+                  type="button"
+                  onClick={() => jumpToDashboardSection(section.id)}
+                >
+                  {section.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="panel panel--subtle dashboard-checklist">
+              <div>
+                <strong>Фокус за днес</strong>
+                <ul className="dashboard-checklist__list">
+                  {setupChecklist.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              {consultantReadiness.length ? (
+                <div className="dashboard-status-grid">
+                  {consultantReadiness.map((item) => (
+                    <span
+                      className={item.ready ? "status-badge status-badge--success" : "plan-pill"}
+                      key={item.label}
+                    >
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="dashboard-actions">
+              <Link
+                className="primary-button"
+                to={
+                  profile.role === "consultant" && consultantProfile
+                    ? `/consultants/${consultantProfile.slug}`
+                    : "/users"
+                }
+              >
+                {profile.role === "consultant" && consultantProfile
+                  ? "Виж страницата"
+                  : "Търси консултант"}
+              </Link>
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={() => jumpToDashboardSection("profile-basics")}
+              >
+                Редактирай профила
+              </button>
+            </div>
+          </section>
+
+          <section className="helper-grid helper-grid--dashboard">
+            <article className="helper-card profile-snapshot-card">
+              <span className="plan-pill">
+                {profile.role === "consultant" ? "Публичен прочит" : "Профилен прочит"}
+              </span>
+              <strong>
+                {profile.role === "consultant"
+                  ? consultantProfile?.headline || "Добави ясно професионално заглавие."
+                  : profile.headline || "Добави кратко заглавие за профила си."}
+              </strong>
+              <p>
+                {profile.role === "consultant"
+                  ? consultantProfile?.experienceSummary ||
+                    consultantProfile?.bio ||
+                    "Опиши накратко опита, темите и начина си на работа, за да звучи профилът уверено."
+                  : profile.experienceSummary ||
+                    profile.bio ||
+                    "Добави кратко описание на опита и посоката си, за да е по-ясно какъв тип консултант търсиш."}
+              </p>
+              <div className="chip-row">
+                {(profile.role === "consultant" ? consultantSnapshotChips : userSnapshotChips).map(
+                  (item) => (
+                    <span className="chip chip--soft" key={item}>
+                      {item}
+                    </span>
+                  )
+                )}
+              </div>
+            </article>
+            <article
+              className={`helper-card upgrade-preview-card upgrade-preview-card--${profile.role}`}
+            >
+              <span className="status-badge">{upgradePreview.eyebrow}</span>
+              <strong>{upgradePreview.title}</strong>
+              <p>{upgradePreview.description}</p>
+              <div className="upgrade-preview-card__benefits">
+                {upgradePreview.points.map((point) => (
+                  <span className="chip chip--soft" key={point}>
+                    {point}
+                  </span>
+                ))}
+              </div>
+              <div className="upgrade-preview-card__footer">
+                <span>Статус: очаквай скоро</span>
+                <button className="ghost-button" type="button" disabled>
+                  Очаквай скоро
+                </button>
+              </div>
+            </article>
+          </section>
+
+          {profile.role === "client" ? (
+            <section className="panel" id="matches">
+              <p className="eyebrow">Подходящи консултанти</p>
+              <h2>Профили с най-добро съвпадение и видими свободни часове</h2>
+              {dashboardMatchedConsultants.length ? (
+                <div className="info-grid info-grid--match">
+                  {dashboardMatchedConsultants.map(({ consultant, match }) => (
+                    <article className="info-card match-card" key={consultant.consultantId}>
+                      <div className="match-card__header">
+                        <AvatarMedia
+                          src={consultant.avatarUrl}
+                          name={consultant.name}
+                          className="match-card__avatar"
+                        />
+                        <div className="match-card__content">
+                          <span
+                            className={match ? "status-badge status-badge--success" : "plan-pill"}
+                          >
+                            {match ? `${match.score}% съвпадение` : "Профил"}
+                          </span>
+                          <h3>{consultant.name}</h3>
+                          <p>{consultant.headline}</p>
+                        </div>
+                      </div>
+                      <p>{match?.note || "Подходящ консултант според профила ти."}</p>
+                      <div className="match-card__meta">
+                        <span>{getConsultantLocationLabel(consultant)}</span>
+                        <span>{getSessionLengthLabel(consultant)}</span>
+                        <span>{consultant.sessionModes[0] || "Онлайн"}</span>
+                      </div>
+                      <div className="match-card__slots">
+                        {getUpcomingAvailabilitySlots(consultant.availability, 3).length ? (
+                          getUpcomingAvailabilitySlots(consultant.availability, 3).map((slot) => (
+                            <span className="chip chip--soft" key={slot}>
+                              {formatAvailabilityShortLabel(slot)}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="chip chip--soft">Часовете ще се покажат скоро</span>
+                        )}
+                      </div>
+                      <div className="match-card__actions">
+                        <Link className="primary-button" to={`/consultants/${consultant.slug}`}>
+                          Виж профила
+                        </Link>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="panel empty-state">
+                  Все още няма активни публични консултанти, които да бъдат предложени според
+                  профила ти.
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          {profile.role === "consultant" ? (
+            <section className="panel" id="signals">
+              <p className="eyebrow">Сигнали и интерес</p>
+              <h2>Тук ще виждаш интереса към профила си</h2>
+              <p className="section-caption">
+                Когато започнат реални резервации и прегледи на профила, в тази зона ще
+                се показват най-търсените теми, формати и полезни сигнали за практиката ти.
+              </p>
+            </section>
+          ) : null}
+
+          <form className="panel form-stack" id="profile-basics" noValidate onSubmit={saveProfile}>
+            <QuestionFlowIntro
+              eyebrow="Основен профил"
+              title="Подреди профила си ясно и професионално."
+              description="Най-важни са няколко точни детайла: кой си, какво търсиш и какъв тип консултация предпочиташ."
+              completion={profileCompletion}
+            />
+            <div className="profile-setup-shell">
+              <div className="profile-setup-shell__header">
+                <div>
+                  <span className="plan-pill">
+                    {activeProfileSectionIndex + 1} от {profileSetupSections.length}
+                  </span>
+                  <strong>{activeProfileSetup.title}</strong>
+                  <p>{activeProfileSetup.hint}</p>
+                </div>
+                <span
+                  className={
+                    activeProfileSetup.ready
+                      ? "status-badge status-badge--success"
+                      : "plan-pill"
+                  }
+                >
+                  {activeProfileSetup.ready ? "Попълнено" : "В процес"}
+                </span>
+              </div>
+
+              <div
+                className="profile-setup-nav"
+                aria-label="Секции в основния профил"
+                role="tablist"
+              >
+                {profileSetupSections.map((section) => (
+                  <button
+                    key={section.id}
+                    className={`profile-setup-nav__button ${
+                      activeProfileSection === section.id ? "profile-setup-nav__button--active" : ""
+                    } ${section.ready ? "profile-setup-nav__button--ready" : ""}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeProfileSection === section.id}
+                    onClick={() => setActiveProfileSection(section.id)}
+                  >
+                    <span className="profile-setup-nav__step">{section.step}</span>
+                    <span className="profile-setup-nav__label">{section.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="question-grid question-grid--profile">
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "identity" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
+                step="01"
+                title="Кой си в момента?"
+                hint="Основните данни дават контекст."
+              >
+                <div className="two-column">
+                  <label>
+                    Качи профилна снимка
+                    <input name="avatarFile" type="file" accept="image/*" />
+                    <span className="form-note">
+                      Профилната снимка се показва в таблото ти и в потребителските изгледи.
+                    </span>
+                  </label>
+                  <label>
+                    Външен линк към снимка
+                    <input
+                      name="avatarUrl"
+                      defaultValue={profile.avatarStorageKey ? "" : profile.avatarUrl || ""}
+                      placeholder="https://..."
+                    />
+                    <span className="form-note">
+                      Остави празно, ако използваш качен файл.
+                    </span>
+                  </label>
+                </div>
+                <div className="media-preview-grid">
+                  <article className="media-preview-card">
+                    <span className="search-shortcuts__label">Профилна снимка</span>
+                    {profile.avatarUrl ? (
+                      <AvatarMedia
+                        src={profile.avatarUrl}
+                        name={profile.name}
+                        className="media-preview-card__image"
+                      />
+                    ) : (
+                      <div className="media-preview-card__placeholder">
+                        Добави снимка, за да изглежда профилът ти по-пълен и професионален.
+                      </div>
+                    )}
+                  </article>
+                </div>
+                <div className="two-column">
+                  <label>
+                    Име
+                    <input
+                      name="name"
+                      defaultValue={profile.name}
+                      placeholder="Име и фамилия"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Имейл
+                    <input value={profile.email} readOnly />
+                    <span className="form-note">
+                      Имейлът идва от входа в акаунта и не се редактира тук.
+                    </span>
+                  </label>
+                </div>
+                <div className="three-column">
+                  <label>
+                    Град
+                    <input
+                      name="city"
+                      defaultValue={profile.city || ""}
+                      placeholder="Например: София"
+                    />
+                  </label>
+                  <label>
+                    Професия / роля
+                    <input
+                      name="occupation"
+                      defaultValue={profile.occupation || ""}
+                      placeholder="Например: Product manager"
+                    />
+                  </label>
+                  <label>
+                    Възраст
+                    <input
+                      name="age"
+                      type="number"
+                      min="16"
+                      defaultValue={profile.age || ""}
+                      placeholder="Например: 32"
+                    />
+                  </label>
+                </div>
+                <SuggestionPills
+                  label="Бърз старт"
+                  fieldName="occupation"
+                  mode="replace"
+                  options={[
+                    "Product manager",
+                    "Маркетинг специалист",
+                    "Software engineer",
+                    "HR business partner"
+                  ]}
+                />
+                  </QuestionBlock>
+                </div>
+
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "direction" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
+                step="02"
+                title="Към каква следваща стъпка се движиш?"
+                hint="Заглавие и цел."
+              >
+                <label>
+                  Профилно заглавие
+                  <input
+                    name="headline"
+                    defaultValue={profile.headline || ""}
+                    placeholder="Например: Product manager в преход към leadership роля"
+                    required
+                  />
+                </label>
+                <SuggestionPills
+                  label="Примерни посоки"
+                  fieldName="headline"
+                  mode="replace"
+                  options={[
+                    "Product manager в преход към leadership роля",
+                    "Маркетинг специалист, подготвящ международен преход",
+                    "Софтуерен инженер, ориентиран към senior позиции"
+                  ]}
+                />
+                <label>
+                  Какво търсиш в момента
+                  <textarea
+                    name="goals"
+                    rows={4}
+                    defaultValue={profile.goals || ""}
+                    placeholder="Например: Искам помощ с CV, интервю подготовка и смяна на посоката."
+                  />
+                </label>
+                <SuggestionPills
+                  label="Често търсени теми"
+                  fieldName="goals"
+                  mode="replace"
+                  options={[
+                    "Търся помощ с CV, LinkedIn и интервю подготовка за следващата си роля.",
+                    "Искам да подредя стратегия за кариерен преход и по-силно позициониране.",
+                    "Търся по-ясна посока за leadership роля и подготовка за разговори с работодатели."
+                  ]}
+                />
+                  </QuestionBlock>
+                </div>
+
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "experience" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
+                step="03"
+                title="Опит и професионален контекст"
+                hint="Кратко, подредено представяне в стил LinkedIn."
+                wide
+              >
+                <div className="two-column">
+                  <label>
+                    Професионално описание
+                    <textarea
+                      name="bio"
+                      rows={5}
+                      defaultValue={profile.bio || ""}
+                      placeholder="Разкажи накратко за посоката си, опита си и какво търсиш."
+                      required
+                    />
+                  </label>
+                  <label>
+                    Професионален опит
+                    <textarea
+                      name="experienceSummary"
+                      rows={5}
+                      defaultValue={profile.experienceSummary || ""}
+                      placeholder="Например: 7 години опит в продуктови екипи, управление на roadmap, растеж на SaaS продукти и работа с международни stakeholders."
+                    />
+                  </label>
+                </div>
+                <div className="two-column">
+                  <label>
+                    Акценти от опита
+                    <input
+                      name="experienceHighlights"
+                      defaultValue={(profile.experienceHighlights || []).join(", ")}
+                      placeholder="B2B SaaS, Product strategy, Team leadership"
+                    />
+                  </label>
+                  <label>
+                    Образование и сертификати
+                    <input
+                      name="educationHighlights"
+                      defaultValue={(profile.educationHighlights || []).join(", ")}
+                      placeholder="MBA, Product School, Google Analytics"
+                    />
+                  </label>
+                </div>
+                <SuggestionPills
+                  label="Подсказки за тона"
+                  fieldName="bio"
+                  mode="replace"
+                  options={[
+                    "Имам няколко години опит в динамична среда и търся по-ясно позициониране за следващата роля.",
+                    "Работя в международен контекст и искам по-силен профил за нова кариерна стъпка.",
+                    "Искам да представя по-ясно опита си и да подготвя уверен разказ за интервюта и кандидатстване."
+                  ]}
+                />
+                <SuggestionPills
+                  label="Акценти от опита"
+                  fieldName="experienceHighlights"
+                  options={[
+                    "Team leadership",
+                    "B2B SaaS",
+                    "International teams",
+                    "Go-to-market"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Образование и сертификати"
+                  fieldName="educationHighlights"
+                  options={[
+                    "MBA",
+                    "Scrum certification",
+                    "Google Analytics",
+                    "Product School"
+                  ]}
+                />
+                  </QuestionBlock>
+                </div>
+
+                <div
+                  className={`profile-setup-panel ${
+                    activeProfileSection === "fit" ? "profile-setup-panel--active" : ""
+                  }`}
+                >
+                  <QuestionBlock
+                step="04"
+                title="Умения, теми и предпочитан формат"
+                hint="Това помага на платформата да те свързва по-точно."
+              >
+                <div className="three-column">
+                  <label>
+                    Основни умения
+                    <input
+                      name="skills"
+                      defaultValue={(profile.skills || []).join(", ")}
+                      placeholder="Stakeholder management, CV writing, Interview prep"
+                    />
+                  </label>
+                  <label>
+                    Интереси
+                    <input
+                      name="interests"
+                      defaultValue={(profile.interests || []).join(", ")}
+                      placeholder="Leadership roles, international teams, salary negotiation"
+                    />
+                  </label>
+                  <label>
+                    Ключови думи
+                    <input
+                      name="keywords"
+                      defaultValue={(profile.keywords || []).join(", ")}
+                      placeholder="Product, leadership, career transition"
+                    />
+                  </label>
+                </div>
+                <label>
+                  Предпочитан формат
+                  <input
+                    name="preferredSessionModes"
+                    defaultValue={(profile.preferredSessionModes || []).join(", ")}
+                    placeholder="Онлайн, В офис"
+                  />
+                </label>
+                <SuggestionPills
+                  label="Добави умения"
+                  fieldName="skills"
+                  options={[
+                    "Leadership",
+                    "Product strategy",
+                    "Interview preparation",
+                    "CV writing"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Добави теми"
+                  fieldName="interests"
+                  options={[
+                    "Leadership roles",
+                    "Career transition",
+                    "Interview preparation",
+                    "Salary negotiation"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Добави ключови думи"
+                  fieldName="keywords"
+                  options={[
+                    "Product",
+                    "Leadership",
+                    "International teams",
+                    "Promotion"
+                  ]}
+                />
+                <SuggestionPills
+                  label="Предпочитан формат"
+                  fieldName="preferredSessionModes"
+                  options={["Онлайн", "В офис", "Хибридно"]}
+                />
+                  </QuestionBlock>
+                </div>
+              </div>
+            </div>
+            <div className="question-form__footer question-form__footer--setup">
+              <div className="question-form__pager">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  disabled={activeProfileSectionIndex === 0}
+                  onClick={() => moveProfileSection(-1)}
+                >
+                  Назад
+                </button>
+                <button
+                  className="ghost-button"
+                  type="button"
+                  disabled={activeProfileSectionIndex === profileSetupSections.length - 1}
+                  onClick={() => moveProfileSection(1)}
+                >
+                  Напред
+                </button>
+              </div>
+              <p className="form-note">
+                Подреденият профил прави търсенето по-ясно и съвпаденията по-полезни.
+              </p>
+              <button className="primary-button" type="submit">
+                Запази
+              </button>
+            </div>
+          </form>
+
+          <form className="panel form-stack" id="documents" onSubmit={uploadCv}>
+            <h2>Основен документ</h2>
+            <p className="section-caption">
+              Дръж CV-то си на едно място, за да е лесно за обновяване и споделяне.
+            </p>
+            <p className="form-note">
+              {getDocumentCapacityNote(profile.plan)}
+            </p>
+            <label>
+              Качи CV или резюме
+              <input name="cv" type="file" />
+            </label>
+            {profile.cvDocument ? (
+              <div className="panel">
+                Активен документ: <strong>{profile.cvDocument.fileName}</strong>
+              </div>
+            ) : null}
+            <button className="primary-button" type="submit">
+              Качи CV
+            </button>
+          </form>
+
+          {profile.role === "consultant" ? (
+            <form
+              className="panel form-stack"
+              id="consultant-profile"
+              noValidate
+              onSubmit={saveConsultantProfile}
+            >
+              <QuestionFlowIntro
+                eyebrow="Публичен профил"
+                title="Подготви страницата, която хората ще намират и резервират."
+                description="Фокусът е върху ясно позициониране, добър портрет и реални свободни часове."
+                completion={profileCompletion}
+              />
+              <div className="profile-setup-shell">
+                <div className="profile-setup-shell__header">
+                  <div>
+                    <span className="plan-pill">
+                      {activeConsultantSectionIndex + 1} от {consultantSetupSections.length}
+                    </span>
+                    <strong>{activeConsultantSetup.title}</strong>
+                    <p>{activeConsultantSetup.hint}</p>
+                  </div>
+                  <span
+                    className={
+                      activeConsultantSetup.ready
+                        ? "status-badge status-badge--success"
+                        : "plan-pill"
+                    }
+                  >
+                    {activeConsultantSetup.ready ? "Попълнено" : "В процес"}
+                  </span>
+                </div>
+
+                <div
+                  className="profile-setup-nav"
+                  aria-label="Секции в публичния профил"
+                  role="tablist"
+                >
+                  {consultantSetupSections.map((section) => (
+                    <button
+                      key={section.id}
+                      className={`profile-setup-nav__button ${
+                        activeConsultantSection === section.id
+                          ? "profile-setup-nav__button--active"
+                          : ""
+                      } ${section.ready ? "profile-setup-nav__button--ready" : ""}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeConsultantSection === section.id}
+                      onClick={() => setActiveConsultantSection(section.id)}
+                    >
+                      <span className="profile-setup-nav__step">{section.step}</span>
+                      <span className="profile-setup-nav__label">{section.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="question-grid question-grid--profile">
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "presentation"
+                        ? "profile-setup-panel--active"
+                        : ""
+                    }`}
+                  >
+                    <QuestionBlock
+                  step="01"
+                  title="Как изглеждаш публично?"
+                  hint="Име, заглавие и снимка."
+                >
+                  <div className="two-column">
+                    <label>
+                      Адрес на профила
+                      <input
+                        name="slug"
+                        defaultValue={consultantProfile?.slug || ""}
+                        placeholder="ivan-petrov"
+                        required
+                      />
+                      <span className="form-note">
+                        Публична страница: {consultantPublicUrl || "Ще се създаде след записване"}
+                      </span>
+                    </label>
+                    <label>
+                      Публично име
+                      <input
+                        name="displayName"
+                        defaultValue={consultantProfile?.name || profile.name}
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div className="three-column">
+                    <label>
+                      Тип профил
+                      <select
+                        name="consultantProfileType"
+                        defaultValue={consultantProfile?.profileType || "consultant"}
+                      >
+                        <option value="consultant">Консултант</option>
+                        <option value="mentor">Ментор</option>
+                      </select>
+                    </label>
+                    <label>
+                      Град
+                      <input
+                        name="consultantCity"
+                        defaultValue={consultantProfile?.city || ""}
+                        placeholder="Например: София"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Години опит
+                      <input
+                        name="experienceYears"
+                        type="number"
+                        min="0"
+                        defaultValue={consultantProfile?.experienceYears || 1}
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Качи профилна снимка
+                      <input name="avatarFile" type="file" accept="image/*" />
+                      <span className="form-note">
+                        Портретна снимка, която ще се показва в каталога и профила ти.
+                      </span>
+                    </label>
+                    <label>
+                      Качи снимка за корицата
+                      <input name="heroFile" type="file" accept="image/*" />
+                      <span className="form-note">
+                        По-широка снимка за публичната страница на профила.
+                      </span>
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Външен линк към профилна снимка
+                      <input
+                        name="avatarUrl"
+                        defaultValue={
+                          consultantProfile?.avatarStorageKey ? "" : consultantProfile?.avatarUrl || ""
+                        }
+                        placeholder="https://..."
+                      />
+                      <span className="form-note">
+                        Остави празно, ако използваш качен файл.
+                      </span>
+                    </label>
+                    <label>
+                      Външен линк към снимка за корицата
+                      <input
+                        name="heroUrl"
+                        defaultValue={
+                          consultantProfile?.heroStorageKey ? "" : consultantProfile?.heroUrl || ""
+                        }
+                        placeholder="https://..."
+                      />
+                      <span className="form-note">
+                        Остави празно, ако използваш качен файл.
+                      </span>
+                    </label>
+                  </div>
+                  <div className="media-preview-grid">
+                    <article className="media-preview-card">
+                      <span className="search-shortcuts__label">Профилна снимка</span>
+                      <AvatarMedia
+                        src={consultantProfile?.avatarUrl}
+                        name={consultantProfile?.name || profile.name}
+                        className="media-preview-card__image"
+                      />
+                    </article>
+                    <article className="media-preview-card">
+                      <span className="search-shortcuts__label">Корица на профила</span>
+                      <CoverMedia
+                        src={consultantProfile?.heroUrl || consultantProfile?.avatarUrl}
+                        name={consultantProfile?.name || profile.name}
+                        className="media-preview-card__cover"
+                        eyebrow="Публичен профил"
+                        title={consultantProfile?.name || profile.name}
+                        subtitle={consultantProfile?.headline || "Добави корица и заглавие за по-силно първо впечатление."}
+                      />
+                    </article>
+                  </div>
+                  <label>
+                    Заглавие
+                    <input
+                      name="consultantHeadline"
+                      defaultValue={consultantProfile?.headline || ""}
+                      placeholder="Например: Стратег за leadership преходи и executive позициониране"
+                      required
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Стартови идеи"
+                    fieldName="consultantHeadline"
+                    mode="replace"
+                    options={[
+                      "Консултант за leadership преходи и executive позициониране",
+                      "Кариерен консултант за интервю подготовка и професионално представяне",
+                      "Консултант по кариерни преходи и международно позициониране"
+                    ]}
+                  />
+                    </QuestionBlock>
+                  </div>
+
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "audience"
+                        ? "profile-setup-panel--active"
+                        : ""
+                    }`}
+                  >
+                    <QuestionBlock
+                  step="02"
+                  title="С кого работиш и по какви теми?"
+                  hint="Това определя търсенето."
+                >
+                  <label>
+                    Специализации
+                    <input
+                      name="specializations"
+                      defaultValue={consultantProfile?.specializations.join(", ") || ""}
+                      placeholder="Executive CV, интервю подготовка, leadership"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Основни теми на консултацията
+                    <input
+                      name="consultationTopics"
+                      defaultValue={
+                        consultantProfile ? getConsultationTopics(consultantProfile).join(", ") : ""
+                      }
+                      placeholder="Кариерна стратегия, CV review, interview preparation"
+                    />
+                  </label>
+                  <label>
+                    Подходящо за
+                    <input
+                      name="idealFor"
+                      defaultValue={
+                        consultantProfile ? getConsultantIdealFor(consultantProfile).join(", ") : ""
+                      }
+                      placeholder="Mid-senior professionals, leadership roles, career transition"
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Добави специализации"
+                    fieldName="specializations"
+                    options={[
+                      "Executive CV",
+                      "Interview preparation",
+                      "Leadership",
+                      "Career transition"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Добави теми"
+                    fieldName="consultationTopics"
+                    options={[
+                      "Кариерна стратегия",
+                      "LinkedIn позициониране",
+                      "Интервю подготовка",
+                      "Executive CV"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Подходящо за"
+                    fieldName="idealFor"
+                    options={[
+                      "Mid-senior professionals",
+                      "Leadership moves",
+                      "Career transition",
+                      "International roles"
+                    ]}
+                  />
+                    </QuestionBlock>
+                  </div>
+
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "practice" ? "profile-setup-panel--active" : ""
+                    }`}
+                  >
+                    <QuestionBlock
+                      step="03"
+                      title="Опит, практика и подход"
+                      hint="Това е публичната част, която създава доверие."
+                      wide
+                    >
+                  <div className="two-column">
+                    <label>
+                      Биография
+                      <textarea
+                        name="consultantBio"
+                        rows={5}
+                        defaultValue={consultantProfile?.bio || ""}
+                        placeholder="Опиши с кого работиш, по какви теми и какъв резултат постигате."
+                        required
+                      />
+                    </label>
+                    <label>
+                      Опит и практика
+                      <textarea
+                        name="consultantExperienceSummary"
+                        rows={5}
+                        defaultValue={consultantProfile?.experienceSummary || ""}
+                        placeholder="Например: 10+ години работа с mid-senior и leadership профили, международни компании и стратегически кариерни преходи."
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Акценти от практиката
+                      <input
+                        name="consultantExperienceHighlights"
+                        defaultValue={(consultantProfile?.experienceHighlights || []).join(", ")}
+                        placeholder="Executive search, Leadership coaching, CV positioning"
+                      />
+                    </label>
+                    <label>
+                      Образование и сертификати
+                      <input
+                        name="consultantEducationHighlights"
+                        defaultValue={(consultantProfile?.educationHighlights || []).join(", ")}
+                        placeholder="ICF certification, MBA, HR specialization"
+                      />
+                    </label>
+                  </div>
+                  <label>
+                    Работен подход
+                    <textarea
+                      name="workApproach"
+                      rows={4}
+                      defaultValue={consultantProfile?.workApproach || ""}
+                      placeholder="Например: Първо подреждаме целите, после профила и подготовката."
+                    />
+                  </label>
+                  <SuggestionPills
+                    label="Примерен подход"
+                    fieldName="workApproach"
+                    mode="replace"
+                    options={[
+                      "Първо подреждаме целта и текущия профил, след това работим върху позиционирането и подготовката за следващата стъпка.",
+                      "Работя на етапи: анализ на профила, конкретни насоки и практическа подготовка за разговори и кандидатстване.",
+                      "Всяка консултация започва с ясен контекст и завършва с конкретен план за действие."
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Акценти от практиката"
+                    fieldName="consultantExperienceHighlights"
+                    options={[
+                      "Executive positioning",
+                      "Interview preparation",
+                      "Leadership coaching",
+                      "Career transitions"
+                    ]}
+                  />
+                  <SuggestionPills
+                    label="Образование и сертификати"
+                    fieldName="consultantEducationHighlights"
+                    options={[
+                      "ICF certification",
+                      "MBA",
+                      "Psychology background",
+                      "HR specialization"
+                    ]}
+                  />
+                    </QuestionBlock>
+                  </div>
+
+                  <div
+                    className={`profile-setup-panel ${
+                      activeConsultantSection === "booking" ? "profile-setup-panel--active" : ""
+                    }`}
+                  >
+                    <QuestionBlock
+                  step="04"
+                  title="Как и кога могат да те резервират?"
+                  hint="Езици, формат и свободни часове."
+                >
+                  <div className="two-column">
+                    <label>
+                      Езици
+                      <input
+                        name="languages"
+                        defaultValue={consultantProfile?.languages.join(", ") || ""}
+                        placeholder="Български, English"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Формати на работа
+                      <input
+                        name="sessionModes"
+                        defaultValue={consultantProfile?.sessionModes.join(", ") || ""}
+                        placeholder="Онлайн, В офис"
+                      />
+                    </label>
+                  </div>
+                  <div className="two-column">
+                    <label>
+                      Тагове
+                      <input
+                        name="tags"
+                        defaultValue={consultantProfile?.tags.join(", ") || ""}
+                        placeholder="Leadership, Product, Promotions"
+                      />
+                    </label>
+                    <label>
+                      Продължителност на сесия
+                      <input
+                        name="sessionLengthMinutes"
+                        type="number"
+                        min="30"
+                        step="15"
+                        defaultValue={consultantProfile?.sessionLengthMinutes || 60}
+                      />
+                    </label>
+                  </div>
+                  <input
+                    name="availability"
+                    type="hidden"
+                    value={consultantAvailability.join("\n")}
+                    readOnly
+                  />
+                  <div className="availability-composer">
+                    <div className="availability-composer__header">
+                      <div>
+                        <strong>Свободни часове</strong>
+                        <p>
+                          Показвай само реални часове, в които можеш да поемеш нова
+                          консултация.
+                        </p>
+                      </div>
+                      <span
+                        className={
+                          consultantAvailability.length
+                            ? "status-badge status-badge--success"
+                            : "plan-pill"
+                        }
+                      >
+                        {consultantAvailability.length
+                          ? `${consultantAvailability.length} активни`
+                          : "Няма слотове"}
+                      </span>
+                    </div>
+
+                    <div className="availability-composer__controls">
+                      <label>
+                        Дата
+                        <input
+                          type="date"
+                          value={availabilityDate}
+                          onChange={(event) => setAvailabilityDate(event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Час
+                        <input
+                          type="time"
+                          value={availabilityTime}
+                          onChange={(event) => setAvailabilityTime(event.target.value)}
+                        />
+                      </label>
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        onClick={addManualAvailabilitySlot}
+                      >
+                        Добави слот
+                      </button>
+                    </div>
+
+                    <div className="answer-suggestions">
+                      <span className="answer-suggestions__label">Бързи предложения</span>
+                      <div className="answer-suggestions__grid">
+                        {availabilityPresetOptions.map((option) => (
+                          <button
+                            className="suggestion-pill"
+                            key={option.value}
+                            type="button"
+                            onClick={() => addAvailabilitySlot(option.value)}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {consultantAvailability.length ? (
+                      <div className="availability-list">
+                        {consultantAvailability.map((slot) => (
+                          <article className="availability-item" key={slot}>
+                            <div>
+                              <strong>{formatAvailabilityDayLabel(slot)}</strong>
+                              <p>{formatAvailabilityTimeLabel(slot)}</p>
+                            </div>
+                            <button
+                              className="text-button"
+                              type="button"
+                              onClick={() => removeAvailabilitySlot(slot)}
+                            >
+                              Премахни
+                            </button>
+                          </article>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="panel panel--subtle">
+                        <strong>Все още няма свободни часове.</strong>
+                        <p>
+                          Добави поне няколко слота за следващите дни, за да могат хората
+                          да изпращат заявки директно през профила ти.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                    </QuestionBlock>
+                  </div>
+                </div>
+              </div>
+              <div className="question-form__footer question-form__footer--setup">
+                <div className="question-form__pager">
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    disabled={activeConsultantSectionIndex === 0}
+                    onClick={() => moveConsultantSection(-1)}
+                  >
+                    Назад
+                  </button>
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    disabled={
+                      activeConsultantSectionIndex === consultantSetupSections.length - 1
+                    }
+                    onClick={() => moveConsultantSection(1)}
+                  >
+                    Напред
+                  </button>
+                </div>
+                <p className="form-note">
+                  Подреденият профил и свободните часове правят резервацията по-лесна.
+                </p>
+                <button className="primary-button" type="submit">
+                  Запази профила
+                </button>
+              </div>
+            </form>
+          ) : null}
+
+          <section className="panel" id="sessions">
+            <h2>Предстоящи сесии</h2>
+            <p className="section-caption">
+              Всички заявки и потвърдени срещи са събрани тук.
+            </p>
+            {bookings.length === 0 ? (
+              <div className="empty-state">
+                <p>Все още няма заявки или потвърдени консултации.</p>
+                <Link className="ghost-button" to={profile.role === "consultant" ? "/consultants" : "/users"}>
+                  {profile.role === "consultant"
+                    ? "Виж как изглежда списъкът"
+                    : "Разгледай консултантите"}
+                </Link>
+              </div>
+            ) : (
+              <div className="booking-list">
+                {bookings.map((booking) => (
+                  <article className="booking-item" key={booking.bookingId}>
+                    <div>
+                      <strong>{booking.consultantName}</strong>
+                      <p>{formatDate(booking.scheduledAt)}</p>
+                    </div>
+                    <span className={`status-badge status-badge--${booking.status}`}>
+                      {formatBookingStatusLabel(booking.status)}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PlanSection({
+  eyebrow,
+  title,
+  description,
+  plans
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  plans: MarketingPlan[];
+}) {
+  return (
+    <section className="section">
+      <div className="container">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">{eyebrow}</p>
+            <h2>{title}</h2>
+            <p className="section-heading__copy">{description}</p>
+          </div>
+        </div>
+
+        <div className="pricing-grid">
+          {plans.map((plan) => (
+            <article
+              className={`pricing-card ${plan.featured ? "pricing-card--featured" : ""} ${
+                plan.disabled ? "pricing-card--coming-soon" : ""
+              }`}
+              key={`${eyebrow}-${plan.name}`}
+            >
+              <span className={plan.featured ? "status-badge" : "plan-pill"}>
+                {plan.badge}
+              </span>
+              <h3>{plan.name}</h3>
+              {plan.price ? <strong>{plan.price}</strong> : null}
+              <p className="plan-card__note">{plan.note}</p>
+              <ul>
+                {plan.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+              {plan.disabled ? (
+                <button
+                  className={plan.featured ? "primary-button" : "ghost-button"}
+                  type="button"
+                  disabled
+                >
+                  {plan.ctaLabel}
+                </button>
+              ) : (
+                <Link className={plan.featured ? "primary-button" : "ghost-button"} to={plan.ctaTo}>
+                  {plan.ctaLabel}
+                </Link>
+              )}
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ConsultantCard({
+  consultant,
+  match
+}: {
+  consultant: ConsultantProfile;
+  match?: MatchInsight | null;
+}) {
+  const summary = getConsultantDirectorySummary(consultant);
+  const profileSignals = Array.from(
+    new Set([
+      ...getConsultantSummaryTags(consultant),
+      ...getConsultationTopics(consultant).slice(0, 2)
+    ])
+  ).slice(0, 2);
+
+  return (
+    <Link className="consultant-card consultant-card--link" to={`/consultants/${consultant.slug}`}>
+      <div className="consultant-card__body">
+        <div className="consultant-card__header">
+          <AvatarMedia
+            className="consultant-card__avatar"
+            src={consultant.avatarUrl}
+            name={consultant.name}
+          />
+
+          <div className="consultant-card__identity">
+            <div className="chip-row consultant-card__status-row">
+              <span className="plan-pill">
+                {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
+              </span>
+              <span className={consultant.featured ? "status-badge" : "plan-pill"}>
+                {consultant.featured ? "Подбран профил" : "Активен профил"}
+              </span>
+              {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
+            </div>
+            <h3>{consultant.name}</h3>
+            <p>{consultant.headline}</p>
+          </div>
+
+          <div className="consultant-card__rating">
+            <span className="rating-pill">
+              {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
+            </span>
+            <small>
+              {consultant.reviewCount ? `${consultant.reviewCount} мнения` : "нов профил"}
+            </small>
+          </div>
+        </div>
+
+        {match ? <p className="consultant-card__match">{match.note}</p> : null}
+        <p className="consultant-card__summary">{summary}</p>
+
+        <div className="consultant-card__meta">
+          <span>{getConsultantLocationLabel(consultant)}</span>
+          <span>{consultant.experienceYears} години опит</span>
+          <span>{formatDate(consultant.nextAvailable)}</span>
+        </div>
+
+        <div className="chip-row consultant-card__topics">
+          {profileSignals.map((item) => (
+            <span className="chip" key={item}>
+              {item}
+            </span>
+          ))}
+        </div>
+
+        <div className="consultant-card__footer">
+          <div className="consultant-card__footer-copy">
+            <strong>{getConsultantPriceLabel(consultant)}</strong>
+            <span>
+              {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
+            </span>
+          </div>
+          <span className="consultant-card__link-label">Отвори профила</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
+  return (
+    <Link className="hero-spotlight-card" to={`/consultants/${consultant.slug}`}>
+      <CoverMedia
+        src={consultant.heroUrl}
+        name={consultant.name}
+        className="hero-spotlight-card__media"
+        eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
+        title={consultant.name}
+        subtitle={consultant.headline}
+      />
+      <div className="hero-spotlight-card__body">
+        <div className="hero-spotlight-card__header">
+          <AvatarMedia
+            className="hero-spotlight-card__avatar"
+            src={consultant.avatarUrl}
+            name={consultant.name}
+          />
+          <div>
+            <span className="status-badge status-badge--success">Подбран профил</span>
+            <h3>{consultant.name}</h3>
+            <p>{consultant.headline}</p>
+          </div>
+        </div>
+
+        <div className="consultant-card__meta">
+          <span>{getConsultantLocationLabel(consultant)}</span>
+          <span>{consultant.experienceYears} години</span>
+          <span>{formatDate(consultant.nextAvailable)}</span>
+        </div>
+
+        <div className="hero-spotlight-card__footer">
+          <strong>{getConsultantPriceLabel(consultant)}</strong>
+          <span>Отвори профила</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function DirectorySpotlightCard({
+  consultant,
+  index
+}: {
+  consultant: ConsultantProfile;
+  index: number;
+}) {
+  return (
+    <Link className="directory-spotlight" to={`/consultants/${consultant.slug}`}>
+      <AvatarMedia
+        className="directory-spotlight__avatar"
+        src={consultant.avatarUrl}
+        name={consultant.name}
+      />
+
+      <div className="directory-spotlight__body">
+        <span className="directory-spotlight__label">
+          {consultant.featured
+            ? "Подбран профил"
+            : `Профил ${String(index + 1).padStart(2, "0")}`}
+        </span>
+        <strong>{consultant.name}</strong>
+        <p>{consultant.headline}</p>
+        <div className="directory-spotlight__meta">
+          <span>{getConsultantLocationLabel(consultant)}</span>
+          <span>{consultant.experienceYears} години</span>
+        </div>
+      </div>
+
+      <span className="directory-spotlight__arrow">Виж</span>
+    </Link>
+  );
+}
+
+function DemoUserProfileCard({
+  profile,
+  isActive,
+  onSelect
+}: {
+  profile: UserProfile;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <article className={`demo-user-card ${isActive ? "demo-user-card--active" : ""}`}>
+      <div className="demo-user-card__header">
+        <div>
+          <span className="role-experience-card__eyebrow">Профил</span>
+          <h3>{profile.name}</h3>
+        </div>
+        <button
+          className={isActive ? "primary-button" : "ghost-button"}
+          type="button"
+          onClick={onSelect}
+        >
+          {isActive ? "Избран профил" : "Избери профил"}
+        </button>
+      </div>
+
+      <p>{profile.headline || profile.experienceSummary}</p>
+
+      <div className="demo-user-card__meta">
+        <span>{profile.occupation || "Потребителски профил"}</span>
+        <span>{profile.city || "Онлайн"}</span>
+      </div>
+
+      <div className="chip-row">
+        {(profile.interests || []).slice(0, 4).map((item) => (
+          <span className="chip chip--soft" key={item}>
+            {item}
+          </span>
+        ))}
+      </div>
+
+      {profile.goals ? <p className="demo-user-card__goal">{profile.goals}</p> : null}
+    </article>
+  );
+}

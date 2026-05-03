@@ -1,0 +1,1620 @@
+.builder-main {
+  padding-bottom: clamp(4.5rem, 8vw, 7.5rem);
+}
+
+.blueprint-visual {
+  position: relative;
+  min-height: min(72vh, 680px);
+}
+
+.blueprint-surface {
+  position: absolute;
+  inset: 0;
+  border-radius: 38px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at 16% 14%, rgba(240, 138, 93, 0.2), transparent 26%),
+    radial-gradient(circle at 84% 18%, rgba(255, 216, 170, 0.16), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)),
+    rgba(15, 17, 19, 0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -26px 58px rgba(0, 0, 0, 0.22),
+    0 34px 120px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(28px) saturate(175%);
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
+}
+
+.blueprint-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.98), transparent 94%);
+}
+
+.blueprint-stack,
+.blueprint-pane,
+.blueprint-card,
+.blueprint-node,
+.blueprint-link,
+.blueprint-pulse {
+  position: absolute;
+}
+
+.blueprint-stack {
+  inset: 0;
+  perspective: 1700px;
+}
+
+.blueprint-pane {
+  inset: 19% 12%;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03)),
+    rgba(18, 20, 22, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.blueprint-pane-back {
+  transform: rotateX(72deg) translateZ(-120px);
+  opacity: 0.25;
+}
+
+.blueprint-pane-mid {
+  inset: 21% 15%;
+  transform: rotateX(72deg) translateZ(-22px);
+  opacity: 0.36;
+}
+
+.blueprint-pane-front {
+  inset: 24% 18%;
+  transform: rotateX(72deg) translateZ(54px);
+  opacity: 0.54;
+}
+
+.blueprint-card {
+  z-index: 3;
+  width: min(40%, 240px);
+  padding: 1rem 1.05rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+    rgba(16, 18, 20, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 22px 48px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+}
+
+.blueprint-card-primary {
+  top: 12%;
+  left: 10%;
+}
+
+.blueprint-card-secondary {
+  right: 11%;
+  bottom: 14%;
+}
+
+.blueprint-card-label {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.blueprint-card strong {
+  display: block;
+  margin-top: 0.42rem;
+  font-size: 1rem;
+  line-height: 1.24;
+}
+
+.blueprint-card span:last-child {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.blueprint-node {
+  z-index: 4;
+  min-width: 8rem;
+  padding: 0.66rem 0.88rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
+    rgba(18, 20, 22, 0.34);
+  color: var(--text);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 18px 38px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(20px) saturate(165%);
+  -webkit-backdrop-filter: blur(20px) saturate(165%);
+}
+
+.blueprint-node::before {
+  content: "";
+  position: absolute;
+  inset: -1px auto -1px -1px;
+  width: 1.75rem;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 216, 170, 0.82), rgba(240, 138, 93, 0.2));
+}
+
+.blueprint-node-channels {
+  top: 24%;
+  left: 13%;
+}
+
+.blueprint-node-edge {
+  top: 36%;
+  right: 18%;
+}
+
+.blueprint-node-network {
+  top: 53%;
+  left: 18%;
+}
+
+.blueprint-node-services {
+  top: 54%;
+  right: 20%;
+}
+
+.blueprint-node-ops {
+  bottom: 14%;
+  left: 40%;
+}
+
+.blueprint-link {
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 216, 170, 0), rgba(255, 216, 170, 0.96), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 20px rgba(255, 216, 170, 0.2);
+}
+
+.blueprint-link-a {
+  top: 33%;
+  left: 31%;
+  width: 22%;
+  transform: rotate(-12deg);
+}
+
+.blueprint-link-b {
+  top: 47%;
+  left: 35%;
+  width: 22%;
+  transform: rotate(11deg);
+}
+
+.blueprint-link-c {
+  bottom: 24%;
+  left: 39%;
+  width: 20%;
+  transform: rotate(-18deg);
+}
+
+.blueprint-pulse {
+  z-index: 5;
+  left: 49%;
+  top: 45%;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 170, 1), rgba(240, 138, 93, 0.28));
+  box-shadow: 0 0 22px rgba(255, 216, 170, 0.36);
+  animation: blueprintPulse 4.2s ease-in-out infinite;
+}
+
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.76fr);
+  gap: clamp(1.7rem, 4vw, 3.1rem);
+  align-items: start;
+}
+
+.builder-form {
+  display: grid;
+  gap: 1.8rem;
+}
+
+.builder-summary-card {
+  gap: 1.25rem;
+}
+
+.builder-summary-value {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.48;
+}
+
+.builder-summary-actions {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.builder-help-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.62;
+}
+
+.field-hint {
+  margin: -0.12rem 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.builder-output {
+  display: grid;
+  gap: 1.8rem;
+}
+
+.architecture-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.architecture-summary-card {
+  min-height: 10rem;
+  padding: 1.15rem;
+  display: grid;
+  gap: 0.68rem;
+  align-content: start;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(12, 14, 16, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 20px 46px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.architecture-summary-card span {
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.architecture-summary-card strong {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.25;
+}
+
+.architecture-summary-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.architecture-workbench {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.architecture-tools {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(1.2rem, 3vw, 1.8rem);
+  align-items: start;
+}
+
+.architecture-stage,
+.editor-card {
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(12, 14, 16, 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 28px 74px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+}
+
+.architecture-stage {
+  padding: clamp(1.3rem, 3vw, 1.8rem);
+}
+
+.architecture-stage-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.architecture-stage-title,
+.inspector-title {
+  margin: 0.12rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.15;
+}
+
+.architecture-stage-copy {
+  max-width: 42rem;
+}
+
+.architecture-stage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.architecture-preview-shell {
+  position: relative;
+  margin-top: 1.3rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.95rem;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at 14% 16%, rgba(240, 138, 93, 0.12), transparent 24%),
+    radial-gradient(circle at 88% 18%, rgba(255, 216, 170, 0.11), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(8, 10, 12, 0.56);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 22px 50px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.architecture-preview-shell:hover,
+.architecture-preview-shell:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(255, 216, 170, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 28px 70px rgba(0, 0, 0, 0.22);
+}
+
+.architecture-preview-shell[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.architecture-preview-shell[aria-disabled="true"]:hover,
+.architecture-preview-shell[aria-disabled="true"]:focus-visible {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 22px 50px rgba(0, 0, 0, 0.18);
+}
+
+.architecture-preview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.architecture-preview-label {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.architecture-preview-head strong {
+  display: block;
+  margin-top: 0.28rem;
+  font-size: 1rem;
+  line-height: 1.15;
+}
+
+.architecture-preview-note {
+  max-width: 16rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.architecture-board-wrap {
+  position: relative;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(240, 138, 93, 0.14), transparent 22%),
+    radial-gradient(circle at 85% 18%, rgba(255, 216, 170, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    rgba(7, 9, 11, 0.56);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.architecture-board-wrap-preview {
+  min-height: clamp(18rem, 46vw, 28rem);
+}
+
+.architecture-preview-viewport,
+.architecture-modal-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.architecture-preview-viewport {
+  min-height: inherit;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.architecture-modal-viewport {
+  overflow: auto;
+  min-height: 100%;
+  padding: 1rem;
+}
+
+.architecture-modal-viewport::-webkit-scrollbar,
+.terraform-code::-webkit-scrollbar {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.architecture-modal-viewport::-webkit-scrollbar-thumb,
+.terraform-code::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(255, 216, 170, 0.3);
+  background-clip: padding-box;
+}
+
+.architecture-modal-viewport::-webkit-scrollbar-track,
+.terraform-code::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.architecture-diagram-scale {
+  position: relative;
+  display: block;
+  margin-inline: auto;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.architecture-board-canvas {
+  position: relative;
+  min-width: 82rem;
+  width: max-content;
+  min-height: 42rem;
+  padding: 1.2rem;
+  transform-origin: top left;
+}
+
+.architecture-board-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96), transparent 94%);
+  pointer-events: none;
+}
+
+.architecture-links {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.architecture-links path {
+  fill: none;
+  stroke: rgba(255, 216, 170, 0.68);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px rgba(255, 216, 170, 0.24));
+}
+
+.architecture-board {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  min-width: 96rem;
+  min-height: 46rem;
+}
+
+.architecture-placeholder {
+  min-height: 34rem;
+  padding: 1.4rem;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.architecture-placeholder-inner {
+  max-width: 28rem;
+  padding: 1.8rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(12, 14, 16, 0.42);
+}
+
+.architecture-placeholder h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.architecture-placeholder p {
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.architecture-diagram {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 44rem;
+}
+
+.architecture-actors-zone,
+.architecture-region-shell,
+.architecture-zone-panel,
+.architecture-managed-zone,
+.architecture-external-zone,
+.architecture-module {
+  position: relative;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(10, 12, 15, 0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 44px rgba(0, 0, 0, 0.16);
+}
+
+.architecture-actors-zone,
+.architecture-region-shell,
+.architecture-zone-panel,
+.architecture-managed-zone,
+.architecture-external-zone {
+  padding: 1rem;
+}
+
+.architecture-region-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.architecture-zone-head,
+.architecture-region-head,
+.architecture-boundary-head,
+.architecture-module-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.architecture-zone-kicker,
+.architecture-module-kicker {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.architecture-zone-title,
+.architecture-region-title {
+  margin: 0.26rem 0 0;
+  font-size: 1.12rem;
+  line-height: 1.14;
+}
+
+.architecture-zone-note,
+.architecture-module-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.architecture-region-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.architecture-region-pill,
+.architecture-az-chip,
+.architecture-module-count {
+  min-height: 1.95rem;
+  padding: 0.2rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.architecture-diagram-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1rem;
+  align-items: start;
+}
+
+.architecture-vpc-shell {
+  padding: 1rem;
+  border-radius: 26px;
+  border: 1px dashed rgba(120, 175, 255, 0.56);
+  background:
+    linear-gradient(180deg, rgba(120, 175, 255, 0.09), rgba(255, 255, 255, 0.02)),
+    rgba(8, 10, 14, 0.42);
+  box-shadow: inset 0 0 0 1px rgba(120, 175, 255, 0.08);
+}
+
+.architecture-diagram[data-provider="aws"] .architecture-vpc-shell {
+  border-color: rgba(120, 175, 255, 0.58);
+}
+
+.architecture-diagram[data-provider="azure"] .architecture-vpc-shell {
+  border-color: rgba(102, 205, 255, 0.54);
+}
+
+.architecture-diagram[data-provider="google_cloud"] .architecture-vpc-shell,
+.architecture-diagram[data-provider="gcp"] .architecture-vpc-shell {
+  border-color: rgba(123, 201, 255, 0.5);
+}
+
+.architecture-az-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.architecture-vpc-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.architecture-private-zone {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.architecture-managed-zone {
+  min-height: 100%;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(10, 12, 15, 0.46);
+}
+
+.architecture-external-zone {
+  border-style: dashed;
+  border-color: rgba(120, 175, 255, 0.42);
+  background:
+    linear-gradient(180deg, rgba(120, 175, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(9, 11, 13, 0.42);
+}
+
+.architecture-zone-panel-access {
+  background:
+    linear-gradient(180deg, rgba(166, 211, 255, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(9, 11, 13, 0.42);
+}
+
+.architecture-node-stack {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.architecture-node-stack-horizontal {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.architecture-node-stack-empty {
+  min-height: 6rem;
+  place-items: center;
+}
+
+.architecture-module {
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.architecture-module[data-tone="compute"] {
+  border-color: rgba(255, 216, 170, 0.18);
+}
+
+.architecture-module[data-tone="data"],
+.architecture-module[data-tone="regional"] {
+  border-color: rgba(169, 207, 255, 0.18);
+}
+
+.architecture-module[data-tone="identity"] {
+  border-color: rgba(255, 197, 144, 0.2);
+}
+
+.architecture-module[data-tone="async"] {
+  border-color: rgba(255, 233, 190, 0.18);
+}
+
+.architecture-module-empty {
+  min-height: 10rem;
+  align-content: center;
+}
+
+.architecture-node {
+  position: relative;
+  z-index: 2;
+  min-height: 7.9rem;
+  padding: 0.85rem 0.9rem 0.85rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03)),
+    rgba(13, 16, 19, 0.68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.14);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+.architecture-node:hover,
+.architecture-node:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(255, 216, 170, 0.32);
+}
+
+.architecture-node.is-selected {
+  border-color: rgba(255, 216, 170, 0.56);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(255, 216, 170, 0.22),
+    0 28px 60px rgba(0, 0, 0, 0.26);
+}
+
+.architecture-node::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.35rem;
+  border-radius: 18px 0 0 18px;
+  background: linear-gradient(180deg, rgba(255, 216, 170, 0.9), rgba(240, 138, 93, 0.3));
+}
+
+.architecture-node[data-kind="security"]::before {
+  background: linear-gradient(180deg, rgba(255, 206, 135, 0.96), rgba(201, 114, 61, 0.34));
+}
+
+.architecture-node[data-kind="compute"]::before {
+  background: linear-gradient(180deg, rgba(255, 216, 170, 0.96), rgba(240, 138, 93, 0.36));
+}
+
+.architecture-node[data-kind="data"]::before,
+.architecture-node[data-kind="integration"]::before {
+  background: linear-gradient(180deg, rgba(255, 236, 193, 0.94), rgba(255, 165, 118, 0.32));
+}
+
+.architecture-node[data-kind="ops"]::before,
+.architecture-node[data-kind="enablement"]::before {
+  background: linear-gradient(180deg, rgba(255, 229, 175, 0.94), rgba(218, 125, 83, 0.32));
+}
+
+.architecture-node-head {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+
+.architecture-node-glyph {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.28), rgba(240, 138, 93, 0.08)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.architecture-node[data-kind="security"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(255, 206, 135, 0.34), rgba(201, 114, 61, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node[data-kind="compute"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.36), rgba(240, 138, 93, 0.12)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node[data-kind="data"] .architecture-node-glyph,
+.architecture-node[data-kind="integration"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(169, 207, 255, 0.32), rgba(120, 175, 255, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node[data-kind="ops"] .architecture-node-glyph,
+.architecture-node[data-kind="enablement"] .architecture-node-glyph {
+  background:
+    linear-gradient(180deg, rgba(215, 209, 255, 0.3), rgba(152, 138, 240, 0.1)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.architecture-node-title-wrap {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.architecture-node-title {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.18;
+}
+
+.architecture-node-chip {
+  width: max-content;
+  min-height: 1.45rem;
+  padding: 0.16rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted-strong);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.architecture-node-meta {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.architecture-node-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.42;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.architecture-node-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: auto;
+}
+
+.architecture-node-group {
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.architecture-node-state {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.architecture-node-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.architecture-node-tags span {
+  padding: 0.32rem 0.58rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.architecture-board-preview,
+.architecture-board-preview * {
+  pointer-events: none;
+}
+
+.architecture-preview-overlay {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
+    rgba(8, 10, 12, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px) saturate(165%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
+  pointer-events: none;
+}
+
+.architecture-preview-overlay-title {
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.architecture-preview-overlay-copy {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.architecture-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  display: grid;
+  place-items: center;
+}
+
+.architecture-modal[hidden] {
+  display: none;
+}
+
+.architecture-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 6, 8, 0.76);
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+}
+
+.architecture-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(96vw, 1560px);
+  height: min(92svh, 980px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(10, 12, 14, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 40px 120px rgba(0, 0, 0, 0.34);
+}
+
+.architecture-modal-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.architecture-modal-title {
+  margin: 0.12rem 0 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  line-height: 1.04;
+}
+
+.architecture-modal-copy {
+  max-width: 46rem;
+}
+
+.architecture-modal-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.architecture-zoom-readout {
+  min-width: 4.3rem;
+  min-height: 2.6rem;
+  padding: 0.2rem 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.architecture-modal-body {
+  min-height: 0;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 12% 14%, rgba(240, 138, 93, 0.14), transparent 22%),
+    radial-gradient(circle at 85% 18%, rgba(255, 216, 170, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+    rgba(7, 9, 11, 0.66);
+  overflow: hidden;
+}
+
+.architecture-board-canvas-modal {
+  min-width: 94rem;
+  min-height: 48rem;
+}
+
+.terraform-panel {
+  padding: 1.2rem;
+  display: grid;
+  gap: 1rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(12, 14, 16, 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 28px 74px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+}
+
+html.architecture-modal-open,
+body.architecture-modal-open {
+  overflow: hidden;
+}
+
+.architecture-inspector {
+  display: grid;
+  gap: 1rem;
+}
+
+.terraform-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.terraform-code {
+  margin: 0;
+  min-height: 32rem;
+  max-height: 58rem;
+  overflow: auto;
+  padding: 1.2rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    rgba(7, 9, 11, 0.76);
+  color: #f5f0e6;
+  font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  white-space: pre;
+}
+
+.terraform-code code {
+  display: block;
+}
+
+.tf-line {
+  display: block;
+  white-space: pre;
+}
+
+.tf-line-empty {
+  min-height: 1.3rem;
+}
+
+.tf-keyword {
+  color: #ffcf8e;
+}
+
+.tf-key {
+  color: #9dd7ff;
+}
+
+.tf-operator,
+.tf-punctuation {
+  color: rgba(245, 240, 230, 0.78);
+}
+
+.tf-string {
+  color: #d5f2bb;
+}
+
+.tf-reference {
+  color: #ffdfb1;
+}
+
+.tf-boolean {
+  color: #ffb6a0;
+}
+
+.tf-number {
+  color: #b3d4ff;
+}
+
+.tf-comment {
+  color: rgba(187, 195, 210, 0.72);
+}
+
+.tf-comment-title {
+  color: #ffd49e;
+}
+
+.tf-comment-section {
+  color: #c7d7f8;
+}
+
+.tf-comment-inline {
+  color: #f1b48a;
+}
+
+.tf-comment-inventory {
+  color: #a9d7ff;
+}
+
+.tf-comment-todo {
+  color: #ffb98b;
+}
+
+.editor-card {
+  padding: 1.2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.node-editor-form,
+.node-add-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.inventory-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.inventory-group {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.82rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    rgba(8, 10, 12, 0.34);
+}
+
+.inventory-group-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.inventory-group-head strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.inventory-group-head em {
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.inventory-group-count {
+  min-width: 1.9rem;
+  min-height: 1.9rem;
+  padding: 0.16rem 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.inventory-group-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.inventory-item {
+  width: 100%;
+  position: relative;
+  padding: 0.9rem 0.95rem 0.9rem 1rem;
+  display: grid;
+  gap: 0.35rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+    rgba(12, 14, 17, 0.54);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.12);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.inventory-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.28rem;
+  border-radius: 18px 0 0 18px;
+  background: linear-gradient(180deg, rgba(255, 216, 170, 0.88), rgba(240, 138, 93, 0.28));
+}
+
+.inventory-item[data-kind="security"]::before {
+  background: linear-gradient(180deg, rgba(255, 206, 135, 0.94), rgba(201, 114, 61, 0.28));
+}
+
+.inventory-item[data-kind="data"]::before,
+.inventory-item[data-kind="integration"]::before {
+  background: linear-gradient(180deg, rgba(169, 207, 255, 0.92), rgba(120, 175, 255, 0.24));
+}
+
+.inventory-item[data-kind="ops"]::before,
+.inventory-item[data-kind="enablement"]::before {
+  background: linear-gradient(180deg, rgba(214, 209, 255, 0.92), rgba(152, 138, 240, 0.24));
+}
+
+.inventory-item:hover,
+.inventory-item:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255, 216, 170, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 18px 34px rgba(0, 0, 0, 0.16);
+}
+
+.inventory-item.is-selected {
+  border-color: rgba(255, 216, 170, 0.56);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(255, 216, 170, 0.18),
+    0 20px 42px rgba(0, 0, 0, 0.2);
+}
+
+.inventory-item-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+
+.inventory-item strong {
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.inventory-item-state {
+  color: var(--muted-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.inventory-item-meta {
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.inventory-item-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.46;
+}
+
+.inventory-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.inventory-item-tags span {
+  padding: 0.26rem 0.52rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.builder-dual-cta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dual-cta-card {
+  padding: clamp(1.4rem, 3vw, 1.8rem);
+  display: grid;
+  gap: 1rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(12, 14, 16, 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 28px 74px rgba(0, 0, 0, 0.2);
+}
+
+.dual-cta-card h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  line-height: 0.98;
+}
+
+.dual-cta-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.68;
+}
+
+@keyframes blueprintPulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.58;
+  }
+
+  50% {
+    transform: scale(1.26);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1180px) {
+  .builder-layout,
+  .architecture-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-summary-card,
+  .summary-card {
+    position: static;
+    padding-left: 0;
+    border-left: 0;
+    padding-top: 0;
+  }
+
+  .architecture-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .architecture-diagram {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-diagram-grid,
+  .architecture-vpc-grid,
+  .architecture-private-zone {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-region-pills,
+  .architecture-az-strip {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 860px) {
+  .blueprint-visual {
+    min-height: 28rem;
+  }
+
+  .architecture-summary-grid,
+  .builder-dual-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-stage-head {
+    flex-direction: column;
+  }
+
+  .architecture-preview-head,
+  .architecture-modal-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .architecture-preview-note {
+    max-width: none;
+    text-align: left;
+  }
+
+  .architecture-zone-head,
+  .architecture-region-head,
+  .architecture-boundary-head,
+  .architecture-module-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .terraform-panel-head {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 760px) {
+  .blueprint-card {
+    width: min(44%, 210px);
+  }
+
+  .blueprint-node {
+    min-width: auto;
+    padding-inline: 0.78rem;
+    font-size: 0.6rem;
+  }
+
+  .builder-layout {
+    gap: 1.4rem;
+  }
+
+  .architecture-stage,
+  .editor-card,
+  .terraform-panel,
+  .architecture-modal-dialog {
+    padding: 1rem;
+    border-radius: 24px;
+  }
+
+  .architecture-board-wrap-preview {
+    min-height: 17rem;
+  }
+
+  .architecture-board {
+    min-width: 74rem;
+    min-height: 34rem;
+  }
+
+  .architecture-board-canvas,
+  .architecture-board-canvas-modal {
+    min-width: 72rem;
+    min-height: 34rem;
+    padding: 0.85rem;
+  }
+
+  .architecture-preview-overlay {
+    left: 0.7rem;
+    right: 0.7rem;
+    bottom: 0.7rem;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .architecture-modal {
+    padding: 0.7rem;
+  }
+
+  .architecture-modal-dialog {
+    width: 100%;
+    height: min(95svh, 900px);
+  }
+
+  .architecture-modal-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .architecture-modal-viewport {
+    padding: 0.7rem;
+  }
+
+  .architecture-node-stack-horizontal {
+    grid-template-columns: 1fr;
+  }
+}

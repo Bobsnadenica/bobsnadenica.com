@@ -1,0 +1,1033 @@
+/* Dedicated art direction for the showcase pages. */
+
+.showcase-hero {
+  position: relative;
+  min-height: calc(100svh - var(--header-height));
+  display: grid;
+  align-items: center;
+  overflow: clip;
+}
+
+.showcase-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 22%, rgba(240, 138, 93, 0.16), transparent 24%),
+    radial-gradient(circle at 78% 18%, rgba(255, 216, 170, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 32%);
+  pointer-events: none;
+}
+
+.showcase-hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: clamp(2rem, 5vw, 4.8rem);
+  align-items: center;
+}
+
+.showcase-intro {
+  max-width: 38rem;
+}
+
+.showcase-cosmos {
+  position: relative;
+  min-height: min(74vh, 680px);
+  perspective: 1900px;
+  transform-style: preserve-3d;
+  --cosmos-tilt-x: 0deg;
+  --cosmos-tilt-y: 0deg;
+  transform: rotateX(var(--cosmos-tilt-x)) rotateY(var(--cosmos-tilt-y));
+  transition: transform 220ms ease-out;
+}
+
+.cosmos-grid,
+.cosmos-plane,
+.cosmos-ring,
+.cosmos-node,
+.cosmos-beam,
+.cosmos-browser,
+.cosmos-phone,
+.cosmos-monitor {
+  position: absolute;
+}
+
+.cosmos-grid {
+  inset: 9% 2%;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.98), transparent 92%);
+  transform: rotateX(74deg) translateZ(-50px);
+}
+
+.cosmos-plane {
+  inset: 14% 8%;
+  border-radius: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+}
+
+.cosmos-plane-back {
+  transform: rotateX(74deg) translateZ(-130px);
+  opacity: 0.14;
+}
+
+.cosmos-plane-mid {
+  inset: 18% 12%;
+  transform: rotateX(74deg) translateZ(-34px);
+  opacity: 0.22;
+}
+
+.cosmos-plane-front {
+  inset: 23% 18%;
+  transform: rotateX(74deg) translateZ(42px);
+  opacity: 0.34;
+}
+
+.cosmos-ring {
+  border-radius: 50%;
+  border: 1px solid rgba(255, 216, 170, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: orbitRotate 14s linear infinite;
+}
+
+.cosmos-ring-a {
+  inset: 21% 24% auto auto;
+  width: 280px;
+  height: 280px;
+  transform: translateZ(30px);
+}
+
+.cosmos-ring-b {
+  inset: auto auto 11% 8%;
+  width: 220px;
+  height: 220px;
+  animation-direction: reverse;
+  animation-duration: 18s;
+  transform: translateZ(16px);
+}
+
+.cosmos-node {
+  min-width: 7rem;
+  padding: 0.62rem 0.82rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(10, 11, 11, 0.78);
+  backdrop-filter: blur(14px);
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+  animation: nodeDrift 7s ease-in-out infinite;
+}
+
+.cosmos-node-analysis {
+  top: 18%;
+  left: 8%;
+}
+
+.cosmos-node-web {
+  top: 35%;
+  left: 26%;
+  animation-delay: 220ms;
+}
+
+.cosmos-node-seo {
+  top: 18%;
+  right: 18%;
+  animation-delay: 420ms;
+}
+
+.cosmos-node-app {
+  top: 52%;
+  left: 14%;
+  animation-delay: 620ms;
+}
+
+.cosmos-node-cloud {
+  top: 52%;
+  right: 10%;
+  animation-delay: 820ms;
+}
+
+.cosmos-node-monitoring {
+  right: 26%;
+  bottom: 8%;
+  animation-delay: 1040ms;
+}
+
+.cosmos-beam {
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 216, 170, 0), rgba(255, 216, 170, 0.9), rgba(255, 216, 170, 0));
+  box-shadow: 0 0 24px rgba(255, 216, 170, 0.2);
+  animation: beamPulse 5.8s ease-in-out infinite;
+}
+
+.cosmos-beam-a {
+  top: 29%;
+  left: 18%;
+  width: 24%;
+  transform: rotate(12deg);
+}
+
+.cosmos-beam-b {
+  top: 32%;
+  right: 22%;
+  width: 18%;
+  transform: rotate(-16deg);
+  animation-delay: 260ms;
+}
+
+.cosmos-beam-c {
+  top: 58%;
+  left: 24%;
+  width: 24%;
+  transform: rotate(-8deg);
+  animation-delay: 520ms;
+}
+
+.cosmos-beam-d {
+  top: 62%;
+  right: 18%;
+  width: 26%;
+  transform: rotate(10deg);
+  animation-delay: 760ms;
+}
+
+.cosmos-browser {
+  top: 24%;
+  left: 31%;
+  width: 300px;
+  height: 186px;
+  padding: 0.9rem;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(10, 11, 11, 0.72);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.22);
+  transform: translateZ(44px) rotate(-4deg);
+}
+
+.cosmos-browser::before {
+  content: "";
+  position: absolute;
+  inset: 18px 18px auto;
+  height: 10px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow: 0 28px 0 rgba(255, 255, 255, 0.08), 0 56px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cosmos-browser::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  width: 104px;
+  height: 56px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.18), rgba(240, 138, 93, 0.05)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.cosmos-phone {
+  right: 26%;
+  bottom: 16%;
+  width: 124px;
+  height: 228px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(8, 9, 9, 0.88);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.24);
+  transform: translateZ(56px) rotate(10deg);
+}
+
+.cosmos-phone::before {
+  content: "";
+  position: absolute;
+  inset: 14px 14px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(240, 138, 93, 0.28), rgba(255, 255, 255, 0.05)),
+    rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 -26px 0 rgba(255, 255, 255, 0.06);
+}
+
+.cosmos-monitor {
+  left: 12%;
+  bottom: 14%;
+  width: 170px;
+  padding: 0.9rem 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(10, 11, 11, 0.72);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.22);
+  transform: translateZ(48px) rotate(-6deg);
+}
+
+.cosmos-monitor-label {
+  display: block;
+  color: rgba(223, 212, 195, 0.72);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cosmos-monitor-value {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.showcase-lifecycle {
+  border-top: 1px solid var(--line);
+  padding-block: clamp(4rem, 8vw, 6rem);
+}
+
+.lifecycle-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(1.6rem, 4vw, 4rem);
+  align-items: start;
+}
+
+.story-list {
+  display: grid;
+  gap: 0;
+}
+
+.story-step {
+  padding: 1.25rem 0 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.46;
+  transform: translateX(0);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    color 260ms ease;
+}
+
+.story-step:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.story-step.is-active {
+  opacity: 1;
+  transform: translateX(12px);
+}
+
+.story-step h3 {
+  margin: 0.4rem 0 0;
+  font-size: 1.5rem;
+  line-height: 1.08;
+}
+
+.story-step p {
+  max-width: 34rem;
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  line-height: 1.72;
+}
+
+.showcase-stage-wrap {
+  position: relative;
+}
+
+.showcase-stage {
+  position: sticky;
+  top: calc(var(--header-height) + 1.25rem);
+  min-height: 540px;
+  border-radius: 36px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(240, 138, 93, 0.14), transparent 24%),
+    radial-gradient(circle at 82% 22%, rgba(255, 216, 170, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow);
+  perspective: 1800px;
+  transform-style: preserve-3d;
+  --stage-rx: 0deg;
+  --stage-ry: 0deg;
+  transform: perspective(1800px) rotateX(var(--stage-rx)) rotateY(var(--stage-ry));
+  transition: transform 220ms ease-out;
+}
+
+.stage-grid,
+.stage-core,
+.scene-group,
+.scene-browser,
+.scene-phone,
+.scene-panel,
+.scene-node,
+.scene-line,
+.scene-chip,
+.scene-metric,
+.scene-ring {
+  position: absolute;
+}
+
+.stage-grid {
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.98), transparent 92%);
+}
+
+.stage-core {
+  inset: 12%;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transform: rotateX(72deg) translateZ(-32px);
+}
+
+.scene-group {
+  inset: 0;
+  opacity: 0.16;
+  filter: blur(3px);
+  transform: translateY(20px) scale(0.96);
+  transition:
+    opacity 520ms ease,
+    filter 520ms ease,
+    transform 520ms ease;
+}
+
+.showcase-stage[data-scene="analysis"] .scene-group-analysis,
+.showcase-stage[data-scene="web"] .scene-group-web,
+.showcase-stage[data-scene="app"] .scene-group-app,
+.showcase-stage[data-scene="cloud"] .scene-group-cloud {
+  opacity: 1;
+  filter: none;
+  transform: translateY(0) scale(1);
+}
+
+.scene-node,
+.scene-chip,
+.scene-metric,
+.scene-panel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(10, 11, 11, 0.74);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.2);
+}
+
+.scene-node,
+.scene-chip {
+  padding: 0.62rem 0.82rem;
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.scene-line {
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 216, 170, 0), rgba(255, 216, 170, 0.92), rgba(255, 216, 170, 0));
+}
+
+.scene-group-analysis .scene-node:nth-child(1) {
+  top: 18%;
+  left: 11%;
+}
+
+.scene-group-analysis .scene-node:nth-child(2) {
+  top: 42%;
+  left: 28%;
+}
+
+.scene-group-analysis .scene-node:nth-child(3) {
+  top: 26%;
+  right: 14%;
+}
+
+.scene-group-analysis .scene-node:nth-child(4) {
+  right: 22%;
+  bottom: 18%;
+}
+
+.scene-group-analysis .scene-line-a {
+  top: 29%;
+  left: 18%;
+  width: 25%;
+  transform: rotate(12deg);
+}
+
+.scene-group-analysis .scene-line-b {
+  top: 44%;
+  left: 34%;
+  width: 28%;
+  transform: rotate(-10deg);
+}
+
+.scene-group-analysis .scene-line-c {
+  top: 55%;
+  right: 22%;
+  width: 18%;
+  transform: rotate(18deg);
+}
+
+.scene-browser {
+  top: 18%;
+  left: 15%;
+  width: 62%;
+  height: 48%;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02)),
+    rgba(9, 10, 10, 0.8);
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.22);
+}
+
+.scene-browser::before {
+  content: "";
+  position: absolute;
+  inset: 20px 20px auto;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 34px 0 rgba(255, 255, 255, 0.08), 0 68px 0 rgba(255, 255, 255, 0.08);
+}
+
+.scene-browser::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  width: 130px;
+  height: 72px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.2), rgba(240, 138, 93, 0.06)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.scene-metric {
+  padding: 0.72rem 0.8rem;
+  border-radius: 18px;
+}
+
+.scene-metric span {
+  display: block;
+  color: rgba(223, 212, 195, 0.72);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.scene-metric strong {
+  display: block;
+  margin-top: 0.28rem;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.scene-metric-a {
+  top: 20%;
+  right: 12%;
+}
+
+.scene-metric-b {
+  left: 18%;
+  bottom: 14%;
+}
+
+.scene-phone {
+  top: 16%;
+  left: 36%;
+  width: 150px;
+  height: 290px;
+  border-radius: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(8, 9, 9, 0.92);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.24);
+}
+
+.scene-phone::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(240, 138, 93, 0.3), rgba(255, 255, 255, 0.05)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.scene-phone::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  height: 50px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.scene-chip-release {
+  top: 24%;
+  left: 14%;
+}
+
+.scene-chip-rating {
+  top: 52%;
+  right: 14%;
+}
+
+.scene-chip-api {
+  left: 18%;
+  bottom: 16%;
+}
+
+.scene-group-cloud .scene-node-edge {
+  top: 18%;
+  left: 16%;
+}
+
+.scene-group-cloud .scene-node-api {
+  top: 30%;
+  right: 20%;
+}
+
+.scene-group-cloud .scene-node-data {
+  left: 24%;
+  bottom: 22%;
+}
+
+.scene-group-cloud .scene-node-runtime {
+  right: 18%;
+  bottom: 16%;
+}
+
+.scene-group-cloud .scene-line-a {
+  top: 30%;
+  left: 24%;
+  width: 28%;
+  transform: rotate(8deg);
+}
+
+.scene-group-cloud .scene-line-b {
+  top: 42%;
+  right: 23%;
+  width: 20%;
+  transform: rotate(-24deg);
+}
+
+.scene-group-cloud .scene-line-c {
+  left: 31%;
+  bottom: 30%;
+  width: 26%;
+  transform: rotate(-8deg);
+}
+
+.scene-panel-monitor {
+  left: 12%;
+  top: 15%;
+  width: 160px;
+  padding: 0.86rem 0.95rem;
+  border-radius: 22px;
+}
+
+.scene-panel-monitor span {
+  display: block;
+  color: rgba(223, 212, 195, 0.72);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.scene-panel-monitor strong {
+  display: block;
+  margin-top: 0.32rem;
+  font-size: 1rem;
+}
+
+.scene-ring {
+  right: 18%;
+  top: 18%;
+  width: 138px;
+  height: 138px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 216, 170, 0.2);
+  box-shadow: inset 0 0 0 18px rgba(255, 255, 255, 0.03);
+}
+
+.scene-ring::after {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 216, 170, 0.96), rgba(240, 138, 93, 0.2));
+  animation: monitoringPulse 2.8s ease-in-out infinite;
+}
+
+.folio-list {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+.folio-case {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  gap: clamp(1.4rem, 4vw, 4rem);
+  align-items: center;
+  padding-top: 1.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.folio-case:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.folio-copy h2 {
+  margin: 0.4rem 0 0;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 0.98;
+}
+
+.folio-copy p {
+  max-width: 32rem;
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  line-height: 1.72;
+}
+
+.folio-visual {
+  position: relative;
+  min-height: 380px;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(240, 138, 93, 0.12), transparent 22%),
+    radial-gradient(circle at 82% 16%, rgba(255, 216, 170, 0.1), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  box-shadow: var(--shadow);
+}
+
+.folio-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.96), transparent 90%);
+}
+
+.folio-web-browser,
+.folio-app-device,
+.folio-cloud-panel,
+.folio-chip,
+.folio-node,
+.folio-line {
+  position: absolute;
+}
+
+.folio-web-browser {
+  inset: 18% 16% 20%;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(9, 10, 10, 0.76);
+}
+
+.folio-web-browser::before {
+  content: "";
+  position: absolute;
+  inset: 18px 18px auto;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 32px 0 rgba(255, 255, 255, 0.08), 0 64px 0 rgba(255, 255, 255, 0.08);
+}
+
+.folio-web-browser::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  width: 132px;
+  height: 76px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 216, 170, 0.2), rgba(240, 138, 93, 0.08)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.folio-chip {
+  padding: 0.68rem 0.86rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(10, 11, 11, 0.76);
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.folio-chip-web-a {
+  top: 12%;
+  left: 10%;
+}
+
+.folio-chip-web-b {
+  right: 10%;
+  bottom: 12%;
+}
+
+.folio-app-device {
+  top: 12%;
+  left: 34%;
+  width: 144px;
+  height: 276px;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(8, 9, 9, 0.9);
+}
+
+.folio-app-device::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(240, 138, 93, 0.28), rgba(255, 255, 255, 0.05)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.folio-app-device::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.folio-chip-app-a {
+  top: 16%;
+  left: 14%;
+}
+
+.folio-chip-app-b {
+  right: 14%;
+  bottom: 18%;
+}
+
+.folio-cloud-panel {
+  top: 18%;
+  left: 12%;
+  right: 12%;
+  bottom: 16%;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(9, 10, 10, 0.76);
+}
+
+.folio-node {
+  padding: 0.62rem 0.82rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(10, 11, 11, 0.76);
+  color: var(--text);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.folio-node-edge {
+  top: 18%;
+  left: 12%;
+}
+
+.folio-node-api {
+  top: 18%;
+  right: 12%;
+}
+
+.folio-node-data {
+  left: 18%;
+  bottom: 18%;
+}
+
+.folio-node-monitor {
+  right: 16%;
+  bottom: 18%;
+}
+
+.folio-line {
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 216, 170, 0), rgba(255, 216, 170, 0.9), rgba(255, 216, 170, 0));
+}
+
+.folio-line-a {
+  top: 26%;
+  left: 24%;
+  width: 24%;
+  transform: rotate(10deg);
+}
+
+.folio-line-b {
+  top: 52%;
+  right: 20%;
+  width: 20%;
+  transform: rotate(-20deg);
+}
+
+.folio-line-c {
+  left: 28%;
+  bottom: 26%;
+  width: 24%;
+  transform: rotate(-8deg);
+}
+
+@media (max-width: 1100px) {
+  .showcase-hero-grid,
+  .lifecycle-shell,
+  .folio-case {
+    grid-template-columns: 1fr;
+  }
+
+  .showcase-cosmos {
+    min-height: 520px;
+  }
+
+  .showcase-stage {
+    position: relative;
+    top: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .showcase-cosmos {
+    min-height: 380px;
+  }
+
+  .cosmos-node,
+  .scene-node,
+  .scene-chip,
+  .folio-chip,
+  .folio-node {
+    font-size: 0.58rem;
+    min-width: auto;
+  }
+
+  .cosmos-browser {
+    top: 24%;
+    left: 12%;
+    width: 220px;
+    height: 150px;
+  }
+
+  .cosmos-phone {
+    width: 96px;
+    height: 188px;
+    right: 14%;
+  }
+
+  .cosmos-monitor {
+    width: 136px;
+    left: 6%;
+  }
+
+  .showcase-stage {
+    min-height: 420px;
+  }
+
+  .scene-phone {
+    left: 28%;
+    width: 122px;
+    height: 232px;
+  }
+
+  .folio-visual {
+    min-height: 300px;
+  }
+
+  .folio-app-device {
+    left: 28%;
+    width: 124px;
+    height: 228px;
+  }
+}
+
+@keyframes orbitRotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nodeDrift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes beamPulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}

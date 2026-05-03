@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">MyCompany mark</title>
+  <desc id="desc">Rounded dark square with a geometric M built from orange and cream lines.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#171b1d" />
+      <stop offset="100%" stop-color="#090a0b" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd8aa" />
+      <stop offset="100%" stop-color="#f08a5d" />
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#bg)" />
+  <path
+    d="M144 352V160h44l68 92 68-92h44v192h-44V228l-54 74h-28l-54-74v124z"
+    fill="none"
+    stroke="url(#accent)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="28"
+  />
+  <circle cx="396" cy="130" r="18" fill="#ffd8aa" opacity="0.9" />
+</svg>
