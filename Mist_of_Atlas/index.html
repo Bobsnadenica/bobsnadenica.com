@@ -6,8 +6,40 @@
   <title>Mist of Atlas: World of Fog</title>
   <meta
     name="description"
-    content="Mist of Atlas: World of Fog turns real-world movement into a premium fantasy-style exploration map with personal progress, shared expeditions, landmark memories, and hidden discoveries."
+    content="Mist of Atlas: World of Fog turns real-world movement into a premium fantasy-style exploration map with personal progress, shared expeditions, and hidden discoveries."
   />
+  <link rel="canonical" href="https://bobsnadenica.com/Mist_of_Atlas/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bobsnadenica.com/Mist_of_Atlas/" />
+  <meta property="og:title" content="Mist of Atlas: World of Fog" />
+  <meta property="og:description" content="Turn your real-world movement into a premium fantasy exploration map. Footsteps write the atlas." />
+  <meta property="og:image" content="https://bobsnadenica.com/Mist_of_Atlas/icon.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://bobsnadenica.com/Mist_of_Atlas/" />
+  <meta property="twitter:title" content="Mist of Atlas: World of Fog" />
+  <meta property="twitter:description" content="Turn your real-world movement into a premium fantasy exploration map. Footsteps write the atlas." />
+  <meta property="twitter:image" content="https://bobsnadenica.com/Mist_of_Atlas/icon.png" />
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Mist of Atlas: World of Fog",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "GameApplication, TravelApplication",
+      "description": "Mist of Atlas turns real-world movement into a fantasy-style exploration map with shared expeditions and landmark memories.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -21,6 +53,10 @@
     crossorigin=""
   />
   <link rel="stylesheet" href="styles.css?v=20260312e" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#08111a" />
 </head>
 <body>
   <div class="site-backdrop"></div>
@@ -405,7 +441,12 @@
         <a href="#modes">Modes</a>
         <a href="#features">Features</a>
         <a href="#download">Download</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
       </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Mist of Atlas. All rights reserved.</p>
     </div>
   </footer>
 
@@ -415,5 +456,12 @@
     crossorigin=""
   ></script>
   <script src="script.js?v=20260312e"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+      });
+    }
+  </script>
 </body>
 </html>

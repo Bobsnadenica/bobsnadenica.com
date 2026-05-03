@@ -89,6 +89,7 @@ select {
   z-index: -4;
   filter: blur(56px);
   opacity: 0.48;
+  will-change: transform;
 }
 
 .mist-one {
@@ -1468,13 +1469,38 @@ h3,
   }
   50% {
     opacity: 0.3;
-    transform: scale(1.04);
+    transform: scale(1.05);
   }
   100% {
     opacity: 0.18;
     transform: scale(1);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .mist {
+    animation: none !important;
+  }
+}
+
 
 @keyframes beacon-ping {
   0% {
