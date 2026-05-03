@@ -204,7 +204,7 @@ function initLockScreen() {
 
 // ── Urgency tiers ────────────────────────────────────────────────────────────
 const TIERS = [
-    { max: 0,    label: 'Expired',  badge: 'bg-slate-700 text-slate-400',   ring: 'border-slate-600/60',   bg: 'bg-slate-800/60',      num: 'text-slate-400',   bar: 'bg-slate-500',   glow: '' },
+    { max: -1,   label: 'Expired',  badge: 'bg-slate-700 text-slate-400',   ring: 'border-slate-600/60',   bg: 'bg-slate-800/60',      num: 'text-slate-400',   bar: 'bg-slate-500',   glow: '' },
     { max: 60,   label: 'Critical', badge: 'bg-red-500/20 text-red-400',     ring: 'border-red-500/50',     bg: 'bg-red-950/40',        num: 'text-red-400',     bar: 'bg-red-500',     glow: 'glow-red' },
     { max: 180,  label: 'Soon',     badge: 'bg-orange-500/20 text-orange-400', ring: 'border-orange-500/40', bg: 'bg-orange-950/30',   num: 'text-orange-400',  bar: 'bg-orange-500',  glow: 'glow-orange' },
     { max: 365,  label: 'Upcoming', badge: 'bg-yellow-500/15 text-yellow-400', ring: 'border-yellow-500/30', bg: 'bg-yellow-950/20',   num: 'text-yellow-400',  bar: 'bg-yellow-400',  glow: '' },
@@ -212,7 +212,7 @@ const TIERS = [
 ];
 
 function tier(days) {
-    if (days <= 0)   return TIERS[0];
+    if (days < 0)    return TIERS[0];
     if (days <= 60)  return TIERS[1];
     if (days <= 180) return TIERS[2];
     if (days <= 365) return TIERS[3];
@@ -236,10 +236,12 @@ function humanTime(days) {
     return { big: n + 'd', small: '~' + months.toLocaleString('en-US') + ' ' + label + ' left' };
 }
 
-// Bar = % of time remaining over a 3-year horizon (reversed: full = lots left)
+// Bar = % filled as we approach the date (full = very close or expired)
 function barWidth(days) {
-    if (days <= 0) return 0;
-    return Math.min(100, Math.max(3, (days / 1095) * 100));
+    if (days <= 0) return 100;
+    const horizon = 1095; // 3-year horizon
+    const progress = ((horizon - days) / horizon) * 100;
+    return Math.min(100, Math.max(3, progress));
 }
 
 // ── Parser ───────────────────────────────────────────────────────────────────
@@ -446,7 +448,7 @@ function paymentCardHTML(item) {
     const dueSmall = due.daysLeft === null
         ? item.schedule
         : due.daysLeft === 0
-            ? `Due ${due.dueLabel}`
+            ? `Due today (${due.dueLabel})`
             : `Due ${due.dueLabel}`;
 
     return `
