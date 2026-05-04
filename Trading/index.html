@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Market Pulse</h1>
+            <p class="subtitle">Real-time signals & predictions</p>
+        </header>
+
+        <main class="grid">
+            <!-- S&P 500 Card -->
+            <section class="card" id="sp500-card">
+                <div class="card-header">
+                    <h2>S&P 500</h2>
+                    <span class="symbol">SPX</span>
+                </div>
+                <div class="price-container">
+                    <span class="price" id="sp500-price">Loading...</span>
+                    <span class="change" id="sp500-change">--</span>
+                </div>
+                <div class="predictions">
+                    <div class="prediction-item">
+                        <span class="timeframe">24H</span>
+                        <span class="signal" id="sp500-24h">---</span>
+                    </div>
+                    <div class="prediction-item">
+                        <span class="timeframe">7D</span>
+                        <span class="signal" id="sp500-7d">---</span>
+                    </div>
+                    <div class="prediction-item">
+                        <span class="timeframe">1Y</span>
+                        <span class="signal" id="sp500-1y">---</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bitcoin Card -->
+            <section class="card" id="btc-card">
+                <div class="card-header">
+                    <h2>Bitcoin</h2>
+                    <span class="symbol">BTC</span>
+                </div>
+                <div class="price-container">
+                    <span class="price" id="btc-price">Loading...</span>
+                    <span class="change" id="btc-change">--</span>
+                </div>
+                <div class="predictions">
+                    <div class="prediction-item">
+                        <span class="timeframe">24H</span>
+                        <span class="signal" id="btc-24h">---</span>
+                    </div>
+                    <div class="prediction-item">
+                        <span class="timeframe">7D</span>
+                        <span class="signal" id="btc-7d">---</span>
+                    </div>
+                    <div class="prediction-item">
+                        <span class="timeframe">1Y</span>
+                        <span class="signal" id="btc-1y">---</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Simulated data for prototype visualization.</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

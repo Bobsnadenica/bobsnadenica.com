@@ -4053,6 +4053,7 @@ button {
 .offer-visual-cloud,
 .offer-visual-analysis,
 .offer-visual-monitoring,
+.offer-visual-data,
 .offer-visual-integrations {
   position: relative;
   min-height: 132px;
@@ -4081,6 +4082,8 @@ button {
 .offer-visual-analysis::after,
 .offer-visual-monitoring::before,
 .offer-visual-monitoring::after,
+.offer-visual-data::before,
+.offer-visual-data::after,
 .offer-visual-integrations::before,
 .offer-visual-integrations::after {
   content: none;
@@ -4960,6 +4963,7 @@ button {
 .offer-line:hover .offer-cloud-mini,
 .offer-line:hover .offer-analysis-mini,
 .offer-line:hover .offer-monitor-mini,
+.offer-line:hover .offer-data-mini,
 .offer-line:hover .offer-integration-mini {
   transform: translateY(-2px);
 }
@@ -4996,6 +5000,7 @@ button {
   .offer-visual-cloud,
   .offer-visual-analysis,
   .offer-visual-monitoring,
+  .offer-visual-data,
   .offer-visual-integrations {
     min-height: 124px;
   }
@@ -5442,6 +5447,27 @@ button {
   }
 }
 
+@keyframes dataFlow1 {
+  0% { transform: translate3d(2.6rem, 0.7rem, 0) scale(0.8); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(7.4rem, 2.1rem, 0) scale(1.1); opacity: 0; }
+}
+
+@keyframes dataFlow2 {
+  0% { transform: translate3d(3rem, 2.45rem, 0) scale(0.8); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(7.4rem, 2.45rem, 0) scale(1.1); opacity: 0; }
+}
+
+@keyframes dataFlow3 {
+  0% { transform: translate3d(2.6rem, 4.2rem, 0) scale(0.8); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(7.4rem, 2.8rem, 0) scale(1.1); opacity: 0; }
+}
+
 /* Core services artwork refinement */
 .offer-visual-platform,
 .offer-visual-seo,
@@ -5449,6 +5475,7 @@ button {
 .offer-visual-cloud,
 .offer-visual-analysis,
 .offer-visual-monitoring,
+.offer-visual-data,
 .offer-visual-integrations {
   min-height: 152px;
   border-color: rgba(255, 255, 255, 0.18);
@@ -5472,6 +5499,7 @@ button {
 .offer-visual-cloud::before,
 .offer-visual-analysis::before,
 .offer-visual-monitoring::before,
+.offer-visual-data::before,
 .offer-visual-integrations::before {
   content: "";
   position: absolute;
@@ -5492,6 +5520,7 @@ button {
 .offer-visual-cloud::after,
 .offer-visual-analysis::after,
 .offer-visual-monitoring::after,
+.offer-visual-data::after,
 .offer-visual-integrations::after {
   content: "";
   position: absolute;
@@ -5846,6 +5875,90 @@ button {
   opacity: 0.54;
 }
 
+.offer-visual-data::before {
+  background:
+    radial-gradient(circle at 30% 28%, rgba(240, 138, 93, 0.18), transparent 22%),
+    radial-gradient(circle at 72% 70%, rgba(255, 216, 170, 0.14), transparent 20%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.08), transparent 30%);
+}
+
+.offer-data-mini {
+  inset: 1.05rem 0.95rem 1rem;
+  transform: perspective(1000px) rotateY(12deg) rotateX(7deg);
+  transform-style: preserve-3d;
+}
+
+.offer-data-mini::before {
+  content: "";
+  position: absolute;
+  inset: 0.12rem;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+    radial-gradient(circle at 20% 50%, rgba(240, 138, 93, 0.12), transparent 42%);
+  opacity: 0.62;
+}
+
+.offer-data-node {
+  position: absolute;
+  padding: 0.38rem 0.54rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    rgba(15, 17, 19, 0.36);
+  color: var(--muted-strong);
+  font-size: 0.46rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: 
+    0 14px 26px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+
+.offer-data-node-input-1 { left: 0; top: 0.4rem; }
+.offer-data-node-input-2 { left: 0.4rem; top: 1.85rem; }
+.offer-data-node-input-3 { left: 0; top: 3.3rem; }
+
+.offer-data-node-lake {
+  right: 0.4rem;
+  top: 1.25rem;
+  padding: 0.82rem 1rem;
+  border-radius: 20px;
+  background: radial-gradient(circle, rgba(255, 216, 170, 0.22), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2);
+  transform: translateZ(12px);
+}
+
+.offer-data-link {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 216, 170, 0.92), rgba(255, 255, 255, 0.05));
+  transform-origin: left center;
+  animation: railSweep 6.6s linear infinite;
+}
+
+.offer-data-link-1 { left: 3.8rem; top: 0.95rem; width: 4.8rem; transform: rotate(15deg); }
+.offer-data-link-2 { left: 4.2rem; top: 2.45rem; width: 3.6rem; transform: rotate(0deg); }
+.offer-data-link-3 { left: 3.8rem; top: 3.95rem; width: 4.8rem; transform: rotate(-15deg); }
+
+.offer-data-pulse {
+  position: absolute;
+  z-index: 3;
+  width: 0.52rem;
+  height: 0.52rem;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  box-shadow: 0 0 16px rgba(255, 216, 170, 0.32);
+}
+
+.offer-data-pulse-1 { animation: dataFlow1 3.4s ease-in-out infinite; }
+.offer-data-pulse-2 { animation: dataFlow2 3.8s ease-in-out infinite; animation-delay: 600ms; }
+.offer-data-pulse-3 { animation: dataFlow3 3.6s ease-in-out infinite; animation-delay: 1200ms; }
+
 .offer-visual-integrations::before {
   background:
     radial-gradient(circle at 52% 48%, rgba(255, 216, 170, 0.16), transparent 24%),
@@ -5973,6 +6086,7 @@ button {
   .offer-visual-cloud,
   .offer-visual-analysis,
   .offer-visual-monitoring,
+  .offer-visual-data,
   .offer-visual-integrations {
     min-height: 142px;
   }
@@ -5985,6 +6099,7 @@ button {
   .offer-visual-cloud,
   .offer-visual-analysis,
   .offer-visual-monitoring,
+  .offer-visual-data,
   .offer-visual-integrations {
     min-height: 132px;
   }
