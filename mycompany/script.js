@@ -49,7 +49,6 @@ function initAll() {
 const menuToggle = document.querySelector(".menu-toggle");
 const headerPanel = document.querySelector(".header-panel");
 const navLinks = document.querySelectorAll(".site-nav a");
-const languageLinks = document.querySelectorAll("[data-language]");
 const autoMaterializeSelector = [
   ".flow-step",
   ".page-hero-grid > *",
@@ -99,17 +98,6 @@ if (menuToggle && siteHeader && headerPanel) {
       menuToggle.setAttribute("aria-expanded", "false");
     });
   });
-}
-
-languageLinks.forEach((link) => {
-  link.addEventListener("click", () => {
-    safeStorage.set("mycompany-language", link.dataset.language);
-  });
-});
-
-const savedLanguage = safeStorage.get("mycompany-language");
-if (savedLanguage) {
-  root.dataset.preferredLanguage = savedLanguage;
 }
 
 document.querySelectorAll(".reveal").forEach((element) => {
@@ -225,519 +213,262 @@ if (!reduceMotion.matches) {
 const architectureForm = document.querySelector("[data-architecture-form]");
 
 if (architectureForm) {
-  const pageLanguage = document.body.dataset.pageLanguage === "bg" ? "bg" : "en";
+  const pageLanguage = "en";
   const strings = {
-    en: {
-      pending: "To be defined",
-      none: "Not selected yet",
-      generated: "Generated",
-      custom: "Custom",
-      systemFallback: "Architecture draft",
-      copied: "Brief copied.",
-      buildLabel: "Build architecture",
-      lanes: {
-        channels: {
-          label: "Channels",
-          note: "Who or what enters the platform.",
-        },
-        edge: {
-          label: "Edge and access",
-          note: "Traffic control, ingress, and protective layers.",
-        },
-        network: {
-          label: "Network",
-          note: "Cloud, on-prem, VPC, zones, and connectivity.",
-        },
-        services: {
-          label: "Services",
-          note: "Application runtimes, workers, jobs, and compute.",
-        },
-        data: {
-          label: "Data and integrations",
-          note: "Databases, cache, messaging, and external systems.",
-        },
-        operations: {
-          label: "Operations and governance",
-          note: "Identity, monitoring, recovery, delivery, and AI enablement.",
-        },
+    pending: "To be defined",
+    none: "Not selected yet",
+    generated: "Generated",
+    custom: "Custom",
+    systemFallback: "Architecture draft",
+    copied: "Brief copied.",
+    buildLabel: "Build architecture",
+    lanes: {
+      channels: {
+        label: "Channels",
+        note: "Who or what enters the platform.",
       },
-      summary: {
-        deployment: "Deployment",
+      edge: {
+        label: "Edge and access",
+        note: "Traffic control, ingress, and protective layers.",
+      },
+      network: {
+        label: "Network",
+        note: "Cloud, on-prem, VPC, zones, and connectivity.",
+      },
+      services: {
+        label: "Services",
+        note: "Application runtimes, workers, jobs, and compute.",
+      },
+      data: {
+        label: "Databases, cache, messaging, and external systems.",
+        note: "Databases, cache, messaging, and external systems.",
+      },
+      operations: {
+        label: "Operations and governance",
+        note: "Identity, monitoring, recovery, delivery, and AI enablement.",
+      },
+    },
+    summary: {
+      deployment: "Deployment",
+      network: "Network",
+      compute: "Compute",
+      data: "Data",
+      operations: "Operations",
+      ai: "AI and training",
+    },
+    inspector: {
+      emptyTitle: "Select a component",
+      emptyBody:
+        "Build the architecture, then click any component to rename it, explain what it does, or add more context for stakeholders.",
+      inventoryEmpty: "No components yet. Build the architecture first.",
+    },
+    placeholder: {
+      title: "Build the architecture from the answers.",
+      body:
+        "Answer the questions a senior architect would normally ask, then press Build. You can edit names, notes, and add more components after generation.",
+    },
+    stageStatus:
+      "Build the architecture to generate a live preview. Open the full diagram to inspect zones, dependencies, and platform layers in detail.",
+    actions: {
+      editAnswers: "Edit answers",
+      copyBrief: "Copy brief",
+      removeComponent: "Remove component",
+      addComponent: "Add component",
+    },
+    options: {
+      business_goal: {
+        sales: "Sales and lead generation",
+        product: "Customer product or platform",
+        ops: "Internal operations",
+        data: "Analytics and reporting",
+        ai: "AI-enabled experience",
+        modernization: "Modernization or rescue",
+      },
+      deployment_model: {
+        cloud: "Cloud",
+        "on-prem": "On-prem",
+        hybrid: "Hybrid",
+        "saas-heavy": "SaaS-heavy",
+      },
+      primary_cloud: {
+        aws: "AWS",
+        azure: "Azure",
+        gcp: "Google Cloud",
+        oci: "OCI",
+        private: "Private cloud",
+        none: "No preferred cloud",
+      },
+      channels: {
+        "public-site": "Public website",
+        "web-app": "Web application",
+        "ios-app": "iOS app",
+        "android-app": "Android app",
+        "internal-admin": "Internal admin",
+        "partner-portal": "Partner portal",
+        "public-api": "Public API",
+        "ai-assistant": "AI assistant",
+      },
+      environments: {
+        dev: "Dev",
+        test: "Test",
+        staging: "Staging",
+        prod: "Production",
+        dr: "DR",
+      },
+      network_topology: {
+        "single-vpc": "Single VPC",
+        "segmented-vpc": "Segmented VPC",
+        "multi-vpc": "Multi-VPC",
+        "hub-spoke": "Hub and spoke",
+        "on-prem-core": "On-prem core",
+        "hybrid-mesh": "Hybrid mesh",
+      },
+      subnet_pattern: {
+        "public-private": "Public and private subnets",
+        "private-only": "Private-only application subnets",
+        "three-tier": "Three-tier segmentation",
+        custom: "Custom segmentation",
+      },
+      ingress: {
+        cdn: "CDN",
+        waf: "WAF",
+        "load-balancer": "Load balancer",
+        "api-gateway": "API gateway",
+        vpn: "VPN",
+        "direct-connect": "Private link",
+        bastion: "Bastion",
+      },
+      hosting: {
+        vm: "EC2 or VMs",
+        containers: "Containers",
+        kubernetes: "Kubernetes",
+        serverless: "Serverless",
+        "managed-runtime": "Managed app platform",
+      },
+      autoscaling: {
+        manual: "Manual scaling",
+        scheduled: "Scheduled scaling",
+        auto: "Autoscaling",
+        mixed: "Mixed scaling model",
+      },
+      relational_db: {
+        none: "No relational database",
+        postgres: "Postgres",
+        mysql: "MySQL",
+        "sql-server": "SQL Server",
+        oracle: "Oracle",
+        aurora: "Aurora",
+        "managed-mix": "Managed database mix",
+      },
+      cache_layer: {
+        none: "No cache layer",
+        redis: "Redis",
+        memcached: "Memcached",
+        "managed-cache": "Managed cache",
+      },
+      object_storage: {
+        yes: "Object storage",
+        no: "No object storage",
+      },
+      messaging: {
+        queue: "Queue",
+        "event-bus": "Event bus",
+        stream: "Streaming",
+      },
+      data_services: {
+        search: "Search",
+        warehouse: "Warehouse",
+        "bi-feed": "BI feeds",
+      },
+      identity: {
+        sso: "SSO / IdP",
+        iam: "IAM",
+        rbac: "RBAC",
+        secrets: "Secrets management",
+      },
+      ops: {
+        monitoring: "Monitoring",
+        logging: "Logging",
+        tracing: "Tracing",
+        siem: "SIEM",
+        backup: "Backups",
+        cicd: "CI/CD",
+      },
+      recovery_tier: {
+        basic: "Basic recovery",
+        standard: "Standard recovery",
+        "active-passive": "Active-passive DR",
+        "active-active": "Active-active",
+      },
+      ai_focus: {
+        assistant: "AI assistant",
+        rag: "RAG or retrieval",
+        training: "AI training",
+        governance: "AI governance",
+      },
+    },
+    labels: {
+      channelUsers: {
+        "public-site": "Public visitors",
+        "web-app": "Web users",
+        "ios-app": "iOS users",
+        "android-app": "Android users",
+        "internal-admin": "Internal team",
+        "partner-portal": "Partners",
+        "public-api": "API consumers",
+        "ai-assistant": "AI assistant",
+      },
+      chip: {
+        channels: "Entry",
+        edge: "Edge",
         network: "Network",
-        compute: "Compute",
+        services: "Runtime",
         data: "Data",
-        operations: "Operations",
-        ai: "AI and training",
+        operations: "Ops",
       },
-      inspector: {
-        emptyTitle: "Select a component",
-        emptyBody:
-          "Build the architecture, then click any component to rename it, explain what it does, or add more context for stakeholders.",
-        inventoryEmpty: "No components yet. Build the architecture first.",
-      },
-      placeholder: {
-        title: "Build the architecture from the answers.",
-        body:
-          "Answer the questions a senior architect would normally ask, then press Build. You can edit names, notes, and add more components after generation.",
-      },
-      stageStatus:
-        "Build the architecture to generate a live preview. Open the full diagram to inspect zones, dependencies, and platform layers in detail.",
-      actions: {
-        editAnswers: "Edit answers",
-        copyBrief: "Copy brief",
-        removeComponent: "Remove component",
-        addComponent: "Add component",
-      },
-      options: {
-        business_goal: {
-          sales: "Sales and lead generation",
-          product: "Customer product or platform",
-          ops: "Internal operations",
-          data: "Analytics and reporting",
-          ai: "AI-enabled experience",
-          modernization: "Modernization or rescue",
-        },
-        deployment_model: {
-          cloud: "Cloud",
-          "on-prem": "On-prem",
-          hybrid: "Hybrid",
-          "saas-heavy": "SaaS-heavy",
-        },
-        primary_cloud: {
-          aws: "AWS",
-          azure: "Azure",
-          gcp: "Google Cloud",
-          oci: "OCI",
-          private: "Private cloud",
-          none: "No preferred cloud",
-        },
-        channels: {
-          "public-site": "Public website",
-          "web-app": "Web application",
-          "ios-app": "iOS app",
-          "android-app": "Android app",
-          "internal-admin": "Internal admin",
-          "partner-portal": "Partner portal",
-          "public-api": "Public API",
-          "ai-assistant": "AI assistant",
-        },
-        environments: {
-          dev: "Dev",
-          test: "Test",
-          staging: "Staging",
-          prod: "Production",
-          dr: "DR",
-        },
-        network_topology: {
-          "single-vpc": "Single VPC",
-          "segmented-vpc": "Segmented VPC",
-          "multi-vpc": "Multi-VPC",
-          "hub-spoke": "Hub and spoke",
-          "on-prem-core": "On-prem core",
-          "hybrid-mesh": "Hybrid mesh",
-        },
-        subnet_pattern: {
-          "public-private": "Public and private subnets",
-          "private-only": "Private-only application subnets",
-          "three-tier": "Three-tier segmentation",
-          custom: "Custom segmentation",
-        },
-        ingress: {
-          cdn: "CDN",
-          waf: "WAF",
-          "load-balancer": "Load balancer",
-          "api-gateway": "API gateway",
-          vpn: "VPN",
-          "direct-connect": "Private link",
-          bastion: "Bastion",
-        },
-        hosting: {
-          vm: "EC2 or VMs",
-          containers: "Containers",
-          kubernetes: "Kubernetes",
-          serverless: "Serverless",
-          "managed-runtime": "Managed app platform",
-        },
-        autoscaling: {
-          manual: "Manual scaling",
-          scheduled: "Scheduled scaling",
-          auto: "Autoscaling",
-          mixed: "Mixed scaling model",
-        },
-        relational_db: {
-          none: "No relational database",
-          postgres: "Postgres",
-          mysql: "MySQL",
-          "sql-server": "SQL Server",
-          oracle: "Oracle",
-          aurora: "Aurora",
-          "managed-mix": "Managed database mix",
-        },
-        cache_layer: {
-          none: "No cache layer",
-          redis: "Redis",
-          memcached: "Memcached",
-          "managed-cache": "Managed cache",
-        },
-        object_storage: {
-          yes: "Object storage",
-          no: "No object storage",
-        },
-        messaging: {
-          queue: "Queue",
-          "event-bus": "Event bus",
-          stream: "Streaming",
-        },
-        data_services: {
-          search: "Search",
-          warehouse: "Warehouse",
-          "bi-feed": "BI feeds",
-        },
-        identity: {
-          sso: "SSO / IdP",
-          iam: "IAM",
-          rbac: "RBAC",
-          secrets: "Secrets management",
-        },
-        ops: {
-          monitoring: "Monitoring",
-          logging: "Logging",
-          tracing: "Tracing",
-          siem: "SIEM",
-          backup: "Backups",
-          cicd: "CI/CD",
-        },
-        recovery_tier: {
-          basic: "Basic recovery",
-          standard: "Standard recovery",
-          "active-passive": "Active-passive DR",
-          "active-active": "Active-active",
-        },
-        ai_focus: {
-          assistant: "AI assistant",
-          rag: "RAG or retrieval",
-          training: "AI training",
-          governance: "AI governance",
-        },
-      },
-      labels: {
-        channelUsers: {
-          "public-site": "Public visitors",
-          "web-app": "Web users",
-          "ios-app": "iOS users",
-          "android-app": "Android users",
-          "internal-admin": "Internal team",
-          "partner-portal": "Partners",
-          "public-api": "API consumers",
-          "ai-assistant": "AI assistant",
-        },
-        chip: {
-          channels: "Entry",
-          edge: "Edge",
-          network: "Network",
-          services: "Runtime",
-          data: "Data",
-          operations: "Ops",
-        },
-        groups: {
-          customerChannels: "Customer touchpoints",
-          internalChannels: "Internal and partner access",
-          programmaticChannels: "Programmatic entry",
-          publicIngress: "Ingress and delivery",
-          protectedAccess: "Protected access",
-          networkCore: "Core network zone",
-          hybridAccess: "Hybrid and private links",
-          appTier: "Application tier",
-          asyncWorkloads: "Jobs and async workloads",
-          platformRuntime: "Platform runtime",
-          transactionalData: "Transactional data",
-          asyncData: "Messaging and flow",
-          externalSystems: "External systems",
-          analyticsAi: "Analytics and AI data",
-          securityIdentity: "Security and identity",
-          observability: "Observability",
-          deliveryRecovery: "Delivery and resilience",
-          aiEnablement: "AI enablement",
-        },
-      },
-      brief: {
-        title: "High-level architecture brief",
-        system: "System",
-        goal: "Goal",
-        deployment: "Deployment",
-        channels: "Channels",
-        network: "Network",
-        compute: "Compute",
-        data: "Data and integrations",
-        operations: "Operations",
-        ai: "AI enablement",
-        constraints: "Constraints",
-        context: "Business context",
-      },
-      terraform: {
-        statusEmpty: "Build the architecture to generate an example Terraform starter.",
-        statusReady: "Example Terraform starter generated from the current answers and component inventory.",
-        copy: "Copy Terraform",
-        copied: "Terraform copied.",
-        placeholder: "# Build the architecture to generate Terraform.\n",
+      groups: {
+        customerChannels: "Customer touchpoints",
+        internalChannels: "Internal and partner access",
+        programmaticChannels: "Programmatic entry",
+        publicIngress: "Ingress and delivery",
+        protectedAccess: "Protected access",
+        networkCore: "Core network zone",
+        hybridAccess: "Hybrid and private links",
+        appTier: "Application tier",
+        asyncWorkloads: "Jobs and async workloads",
+        platformRuntime: "Platform runtime",
+        transactionalData: "Transactional data",
+        asyncData: "Messaging and flow",
+        externalSystems: "External systems",
+        analyticsAi: "Analytics and AI data",
+        securityIdentity: "Security and identity",
+        observability: "Observability",
+        deliveryRecovery: "Delivery and resilience",
+        aiEnablement: "AI enablement",
       },
     },
-    bg: {
-      pending: "Ще се уточни",
-      none: "Все още не е избрано",
-      generated: "Генериран",
-      custom: "Ръчен",
-      systemFallback: "Архитектурен проект",
-      copied: "Резюмето е копирано.",
-      buildLabel: "Изгради архитектура",
-      lanes: {
-        channels: {
-          label: "Канали",
-          note: "Кой или какво влиза в платформата.",
-        },
-        edge: {
-          label: "Достъп и защита",
-          note: "Трафик, входни точки и защитни слоеве.",
-        },
-        network: {
-          label: "Мрежа",
-          note: "Cloud, on-prem, VPC, зони и свързаност.",
-        },
-        services: {
-          label: "Услуги",
-          note: "Приложения, workers, jobs и compute слоеве.",
-        },
-        data: {
-          label: "Данни и интеграции",
-          note: "Бази, cache, messaging и външни системи.",
-        },
-        operations: {
-          label: "Операции и управление",
-          note: "Идентичност, мониторинг, recovery, delivery и AI enablement.",
-        },
-      },
-      summary: {
-        deployment: "Модел",
-        network: "Мрежа",
-        compute: "Изпълнение",
-        data: "Данни",
-        operations: "Операции",
-        ai: "AI и обучение",
-      },
-      inspector: {
-        emptyTitle: "Изберете компонент",
-        emptyBody:
-          "Изградете архитектурата и после натиснете върху компонент, за да промените името му, да опишете какво прави или да добавите контекст за заинтересованите страни.",
-        inventoryEmpty: "Все още няма компоненти. Първо изградете архитектурата.",
-      },
-      placeholder: {
-        title: "Изградете архитектурата от отговорите.",
-        body:
-          "Отговорете на въпросите, които senior архитект би задал, после натиснете Build. След това можете да редактирате имена, бележки и да добавяте нови компоненти.",
-      },
-      stageStatus:
-        "Изградете архитектурата, за да генерирате live preview. Отворете пълната диаграма, за да разгледате зоните, зависимостите и платформените слоеве в детайл.",
-      actions: {
-        editAnswers: "Редактирайте отговорите",
-        copyBrief: "Копирайте резюмето",
-        removeComponent: "Премахнете компонента",
-        addComponent: "Добавете компонент",
-      },
-      options: {
-        business_goal: {
-          sales: "Продажби и запитвания",
-          product: "Клиентски продукт или платформа",
-          ops: "Вътрешни операции",
-          data: "Анализи и отчети",
-          ai: "AI функционалност",
-          modernization: "Модернизация или rescue",
-        },
-        deployment_model: {
-          cloud: "Cloud",
-          "on-prem": "On-prem",
-          hybrid: "Хибридно",
-          "saas-heavy": "SaaS-heavy",
-        },
-        primary_cloud: {
-          aws: "AWS",
-          azure: "Azure",
-          gcp: "Google Cloud",
-          oci: "OCI",
-          private: "Private cloud",
-          none: "Без предпочитан cloud",
-        },
-        channels: {
-          "public-site": "Публичен сайт",
-          "web-app": "Уеб приложение",
-          "ios-app": "iOS приложение",
-          "android-app": "Android приложение",
-          "internal-admin": "Вътрешен admin",
-          "partner-portal": "Партньорски портал",
-          "public-api": "Публично API",
-          "ai-assistant": "AI асистент",
-        },
-        environments: {
-          dev: "Dev",
-          test: "Test",
-          staging: "Staging",
-          prod: "Production",
-          dr: "DR",
-        },
-        network_topology: {
-          "single-vpc": "Един VPC",
-          "segmented-vpc": "Сегментиран VPC",
-          "multi-vpc": "Multi-VPC",
-          "hub-spoke": "Hub and spoke",
-          "on-prem-core": "On-prem core",
-          "hybrid-mesh": "Хибридна mesh мрежа",
-        },
-        subnet_pattern: {
-          "public-private": "Публични и частни subnet-и",
-          "private-only": "Само частни приложни subnet-и",
-          "three-tier": "Тристепенна сегментация",
-          custom: "Custom сегментация",
-        },
-        ingress: {
-          cdn: "CDN",
-          waf: "WAF",
-          "load-balancer": "Load balancer",
-          "api-gateway": "API gateway",
-          vpn: "VPN",
-          "direct-connect": "Private link",
-          bastion: "Bastion",
-        },
-        hosting: {
-          vm: "EC2 или VM",
-          containers: "Контейнери",
-          kubernetes: "Kubernetes",
-          serverless: "Serverless",
-          "managed-runtime": "Managed app платформа",
-        },
-        autoscaling: {
-          manual: "Ръчно scaling",
-          scheduled: "Планирано scaling",
-          auto: "Autoscaling",
-          mixed: "Смесен модел",
-        },
-        relational_db: {
-          none: "Без релационна база",
-          postgres: "Postgres",
-          mysql: "MySQL",
-          "sql-server": "SQL Server",
-          oracle: "Oracle",
-          aurora: "Aurora",
-          "managed-mix": "Managed database mix",
-        },
-        cache_layer: {
-          none: "Без cache слой",
-          redis: "Redis",
-          memcached: "Memcached",
-          "managed-cache": "Managed cache",
-        },
-        object_storage: {
-          yes: "Object storage",
-          no: "Без object storage",
-        },
-        messaging: {
-          queue: "Queue",
-          "event-bus": "Event bus",
-          stream: "Streaming",
-        },
-        data_services: {
-          search: "Search",
-          warehouse: "Warehouse",
-          "bi-feed": "BI feeds",
-        },
-        identity: {
-          sso: "SSO / IdP",
-          iam: "IAM",
-          rbac: "RBAC",
-          secrets: "Secrets management",
-        },
-        ops: {
-          monitoring: "Monitoring",
-          logging: "Logging",
-          tracing: "Tracing",
-          siem: "SIEM",
-          backup: "Backups",
-          cicd: "CI/CD",
-        },
-        recovery_tier: {
-          basic: "Базово възстановяване",
-          standard: "Стандартно възстановяване",
-          "active-passive": "Active-passive DR",
-          "active-active": "Active-active",
-        },
-        ai_focus: {
-          assistant: "AI асистент",
-          rag: "RAG или retrieval",
-          training: "AI обучение",
-          governance: "AI governance",
-        },
-      },
-      labels: {
-        channelUsers: {
-          "public-site": "Публични посетители",
-          "web-app": "Уеб потребители",
-          "ios-app": "iOS потребители",
-          "android-app": "Android потребители",
-          "internal-admin": "Вътрешен екип",
-          "partner-portal": "Партньори",
-          "public-api": "API клиенти",
-          "ai-assistant": "AI асистент",
-        },
-        chip: {
-          channels: "Вход",
-          edge: "Достъп",
-          network: "Мрежа",
-          services: "Runtime",
-          data: "Данни",
-          operations: "Ops",
-        },
-        groups: {
-          customerChannels: "Клиентски точки на достъп",
-          internalChannels: "Вътрешен и партньорски достъп",
-          programmaticChannels: "Програмен вход",
-          publicIngress: "Вход и доставка",
-          protectedAccess: "Защитен достъп",
-          networkCore: "Основна мрежова зона",
-          hybridAccess: "Хибридни и частни връзки",
-          appTier: "Приложен слой",
-          asyncWorkloads: "Jobs и async слоеве",
-          platformRuntime: "Платформен runtime",
-          transactionalData: "Транзакционни данни",
-          asyncData: "Messaging и потоци",
-          externalSystems: "Външни системи",
-          analyticsAi: "Аналитични и AI данни",
-          securityIdentity: "Сигурност и идентичност",
-          observability: "Наблюдаемост",
-          deliveryRecovery: "Delivery и устойчивост",
-          aiEnablement: "AI enablement",
-        },
-      },
-      brief: {
-        title: "High-level архитектурно резюме",
-        system: "Система",
-        goal: "Цел",
-        deployment: "Модел",
-        channels: "Канали",
-        network: "Мрежа",
-        compute: "Изпълнение",
-        data: "Данни и интеграции",
-        operations: "Операции",
-        ai: "AI enablement",
-        constraints: "Ограничения",
-        context: "Бизнес контекст",
-      },
-      terraform: {
-        statusEmpty: "Изградете архитектурата, за да генерирате примерен Terraform starter.",
-        statusReady: "Примерният Terraform starter е генериран от текущите отговори и component inventory-то.",
-        copy: "Копирайте Terraform",
-        copied: "Terraform е копиран.",
-        placeholder: "# Изградете архитектурата, за да генерирате Terraform.\n",
-      },
+    brief: {
+      title: "High-level architecture brief",
+      system: "System",
+      goal: "Goal",
+      deployment: "Deployment",
+      channels: "Channels",
+      network: "Network",
+      compute: "Compute",
+      data: "Data and integrations",
+      operations: "Operations",
+      ai: "AI enablement",
+      constraints: "Constraints",
+      context: "Business context",
     },
-  }[pageLanguage];
+    terraform: {
+      statusEmpty: "Build the architecture to generate an example Terraform starter.",
+      statusReady: "Example Terraform starter generated from the current answers and component inventory.",
+      copy: "Copy Terraform",
+      copied: "Terraform copied.",
+      placeholder: "# Build the architecture to generate Terraform.\n",
+    },
+  };
 
   const storageKey = "mycompany-architecture-builder";
   const laneOrder = ["channels", "edge", "network", "services", "data", "operations"];
@@ -852,7 +583,7 @@ if (architectureForm) {
       .replaceAll(/^_+|_+$/g, "")
       .replaceAll(/_{2,}/g, "_") || fallback;
   const quoteList = (items) => `[${items.map((item) => hclString(item)).join(", ")}]`;
-  const firstRegion = (answers) => parseList(answers.regions)[0] || (pageLanguage === "bg" ? "eu-central-1" : "eu-central-1");
+  const firstRegion = (answers) => parseList(answers.regions)[0] || "eu-central-1";
   const createId = (prefix = "node") => {
     nodeCounter += 1;
     return `${prefix}-${nodeCounter}`;
@@ -1178,11 +909,9 @@ if (architectureForm) {
         createNode({
           lane: config.lane,
           title: `${config.baseTitle} +${extra}`,
-          meta: pageLanguage === "bg" ? "Допълнителни компоненти" : "Additional components",
+          meta: "Additional components",
           note:
-            pageLanguage === "bg"
-              ? `Още ${extra} компонента извън видимата high-level група.`
-              : `${extra} more components beyond the visible high-level group.`,
+            `${extra} more components beyond the visible high-level group.`,
           tags: config.tags,
           kind: config.kind,
         })
@@ -1212,12 +941,8 @@ if (architectureForm) {
           meta: labelFor("channels", channel),
           note:
             channel === "public-site"
-              ? pageLanguage === "bg"
-                ? "Публично съдържание, доверие и запитвания."
-                : "Public-facing content, credibility, and lead capture."
-              : pageLanguage === "bg"
-                ? "Клиентски или оперативен вход в системата."
-                : "User-facing or operational entry point into the platform.",
+              ? "Public-facing content, credibility, and lead capture."
+              : "User-facing or operational entry point into the platform.",
           tags: environmentLabels,
           kind: "channel",
         })
@@ -1228,65 +953,51 @@ if (architectureForm) {
       const edgeMap = {
         cdn: {
           title: "CDN",
-          meta: pageLanguage === "bg" ? "Публичен edge слой" : "Public edge delivery",
+          meta: "Public edge delivery",
           note:
-            pageLanguage === "bg"
-              ? "Кеширане, по-бърз достъп и географска близост."
-              : "Caching, faster access, and geographic proximity.",
+            "Caching, faster access, and geographic proximity.",
           kind: "edge",
         },
         waf: {
           title: "WAF",
-          meta: pageLanguage === "bg" ? "Защита на входа" : "Ingress protection",
+          meta: "Ingress protection",
           note:
-            pageLanguage === "bg"
-              ? "Контролира публичния трафик и web рисковете."
-              : "Protects public traffic and common web threats.",
+            "Protects public traffic and common web threats.",
           kind: "security",
         },
         "load-balancer": {
-          title: pageLanguage === "bg" ? "Load balancer" : "Load balancer",
-          meta: pageLanguage === "bg" ? "Маршрутизира към услугите" : "Routes traffic into services",
+          title: "Load balancer",
+          meta: "Routes traffic into services",
           note:
-            pageLanguage === "bg"
-              ? "Поддържа health checks и разпределение на трафика."
-              : "Handles health checks and traffic distribution.",
+            "Handles health checks and traffic distribution.",
           kind: "edge",
         },
         "api-gateway": {
           title: "API gateway",
-          meta: pageLanguage === "bg" ? "API вход и политики" : "API ingress and policy layer",
+          meta: "API ingress and policy layer",
           note:
-            pageLanguage === "bg"
-              ? "Versioning, auth и routing за API потоци."
-              : "Versioning, auth, and routing for API flows.",
+            "Versioning, auth, and routing for API flows.",
           kind: "edge",
         },
         vpn: {
           title: "VPN access",
-          meta: pageLanguage === "bg" ? "Частен достъп" : "Private access",
+          meta: "Private access",
           note:
-            pageLanguage === "bg"
-              ? "Сигурен достъп за екипи, офиси или вътрешни системи."
-              : "Secure access for teams, offices, or internal systems.",
+            "Secure access for teams, offices, or internal systems.",
           kind: "security",
         },
         "direct-connect": {
-          title: pageLanguage === "bg" ? "Private link" : "Private link",
-          meta: pageLanguage === "bg" ? "Hybrid connectivity" : "Hybrid connectivity",
+          title: "Private link",
+          meta: "Hybrid connectivity",
           note:
-            pageLanguage === "bg"
-              ? "Ниска латентност между cloud и on-prem."
-              : "Low-latency connectivity between cloud and on-prem.",
+            "Low-latency connectivity between cloud and on-prem.",
           kind: "network",
         },
         bastion: {
-          title: pageLanguage === "bg" ? "Bastion host" : "Bastion host",
-          meta: pageLanguage === "bg" ? "Административен достъп" : "Administrative access",
+          title: "Bastion host",
+          meta: "Administrative access",
           note:
-            pageLanguage === "bg"
-              ? "Контролиран достъп до чувствителни слоеве."
-              : "Controlled operational entry into sensitive layers.",
+            "Controlled operational entry into sensitive layers.",
           kind: "security",
         },
       };
@@ -1301,7 +1012,7 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "network",
-          title: `${cloudLabel || "Cloud"} ${pageLanguage === "bg" ? "основа" : "foundation"}`,
+          title: `${cloudLabel || "Cloud"} ${"foundation"}`,
           meta: [labelFor("network_topology", answers.networkTopology), `${answers.azCount} AZ`].filter(Boolean).join(" • "),
           note: [labelFor("subnet_pattern", answers.subnetPattern), answers.regions, answers.vpcNotes].filter(Boolean).join(" • ") || strings.pending,
           tags: environmentLabels,
@@ -1314,13 +1025,11 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "network",
-          title: pageLanguage === "bg" ? "On-prem среда" : "On-prem estate",
-          meta: pageLanguage === "bg" ? "Мрежа, VM-и и legacy зависимости" : "Network, VMs, and legacy dependencies",
+          title: "On-prem estate",
+          meta: "Network, VMs, and legacy dependencies",
           note:
             answers.vpcNotes ||
-            (pageLanguage === "bg"
-              ? "Включва on-prem сегменти, вътрешни системи и частни зависимости."
-              : "Includes on-prem segments, internal systems, and private dependencies."),
+            ("Includes on-prem segments, internal systems, and private dependencies."),
           tags: ["On-prem"],
           kind: "network",
         })
@@ -1331,19 +1040,13 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "network",
-          title: pageLanguage === "bg" ? "Hybrid connectivity" : "Hybrid connectivity",
+          title: "Hybrid connectivity",
           meta: ingressValues.includes("direct-connect")
-            ? pageLanguage === "bg"
-              ? "Dedicated private link"
-              : "Dedicated private link"
-            : pageLanguage === "bg"
-              ? "VPN или site-to-site"
-              : "VPN or site-to-site",
+            ? "Dedicated private link"
+            : "VPN or site-to-site",
           note:
             answers.constraints ||
-            (pageLanguage === "bg"
-              ? "Синхронизация на трафик, идентичност и data потоци."
-              : "Synchronizes traffic, identity, and data flows between estates."),
+            ("Synchronizes traffic, identity, and data flows between estates."),
           tags: ["Hybrid"],
           kind: "network",
         })
@@ -1354,7 +1057,7 @@ if (architectureForm) {
       addNumberedNodes(nodes, {
         lane: "services",
         baseTitle: `${prefix}${usesCloud ? "app-ec2" : "app-vm"}`,
-        meta: pageLanguage === "bg" ? "Приложен слой" : "Application tier",
+        meta: "Application tier",
         note: answers.computeNotes || strings.pending,
         tags: [labelFor("autoscaling", answers.autoscaling)].filter(Boolean),
         kind: "compute",
@@ -1366,7 +1069,7 @@ if (architectureForm) {
         addNumberedNodes(nodes, {
           lane: "services",
           baseTitle: `${prefix}worker`,
-          meta: pageLanguage === "bg" ? "Фонови задачи" : "Background jobs",
+          meta: "Background jobs",
           note: answers.computeNotes || strings.pending,
           tags: ["Jobs"],
           kind: "compute",
@@ -1379,7 +1082,7 @@ if (architectureForm) {
         addNumberedNodes(nodes, {
           lane: "services",
           baseTitle: `${prefix}utility`,
-          meta: pageLanguage === "bg" ? "Админ или scheduler слой" : "Admin or scheduler tier",
+          meta: "Admin or scheduler tier",
           note: answers.computeNotes || strings.pending,
           tags: ["Ops"],
           kind: "compute",
@@ -1393,12 +1096,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "services",
-          title: `${prefix}${pageLanguage === "bg" ? "container-services" : "container-services"}`,
-          meta: pageLanguage === "bg" ? "Container runtime" : "Container runtime",
+          title: `${prefix}${"container-services"}`,
+          meta: "Container runtime",
           note:
-            pageLanguage === "bg"
-              ? "Контейнеризирани услуги и release потоци."
-              : "Containerized services and rollout flows.",
+            "Containerized services and rollout flows.",
           tags: [cloudLabel].filter(Boolean),
           kind: "compute",
         })
@@ -1409,12 +1110,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "services",
-          title: `${prefix}${pageLanguage === "bg" ? "kubernetes-cluster" : "kubernetes-cluster"}`,
-          meta: pageLanguage === "bg" ? "Kubernetes orchestration" : "Kubernetes orchestration",
+          title: `${prefix}${"kubernetes-cluster"}`,
+          meta: "Kubernetes orchestration",
           note:
-            pageLanguage === "bg"
-              ? "Контролира scaling, services и container workloads."
-              : "Controls scaling, services, and container workloads.",
+            "Controls scaling, services, and container workloads.",
           tags: [cloudLabel, ...environmentLabels].filter(Boolean),
           kind: "compute",
         })
@@ -1425,12 +1124,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "services",
-          title: `${prefix}${pageLanguage === "bg" ? "serverless-functions" : "serverless-functions"}`,
-          meta: pageLanguage === "bg" ? "Събитийни функции" : "Event-driven functions",
+          title: `${prefix}${"serverless-functions"}`,
+          meta: "Event-driven functions",
           note:
-            pageLanguage === "bg"
-              ? "Подходящо за burst трафик и async процеси."
-              : "Useful for bursty traffic and async processing.",
+            "Useful for bursty traffic and async processing.",
           tags: ["Serverless"],
           kind: "compute",
         })
@@ -1441,12 +1138,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "services",
-          title: `${prefix}${pageLanguage === "bg" ? "managed-runtime" : "managed-runtime"}`,
-          meta: pageLanguage === "bg" ? "Managed application platform" : "Managed application platform",
+          title: `${prefix}${"managed-runtime"}`,
+          meta: "Managed application platform",
           note:
-            pageLanguage === "bg"
-              ? "Поддържа release-и с по-малка инфраструктурна тежест."
-              : "Supports releases with less infrastructure overhead.",
+            "Supports releases with less infrastructure overhead.",
           tags: [cloudLabel].filter(Boolean),
           kind: "compute",
         })
@@ -1457,8 +1152,8 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "services",
-          title: `${prefix}${pageLanguage === "bg" ? "application-service" : "application-service"}`,
-          meta: pageLanguage === "bg" ? "Основен приложен слой" : "Primary application service",
+          title: `${prefix}${"application-service"}`,
+          meta: "Primary application service",
           note: answers.computeNotes || strings.pending,
           tags: environmentLabels,
           kind: "compute",
@@ -1471,11 +1166,9 @@ if (architectureForm) {
         createNode({
           lane: "data",
           title: `${prefix}${answers.relationalDb}-primary`,
-          meta: pageLanguage === "bg" ? "Основна транзакционна база" : "Primary transactional database",
+          meta: "Primary transactional database",
           note:
-            pageLanguage === "bg"
-              ? "Основната база данни за платформата."
-              : "Primary transactional database for the platform.",
+            "Primary transactional database for the platform.",
           tags: environmentLabels.slice(0, 2),
           kind: "data",
         })
@@ -1485,11 +1178,9 @@ if (architectureForm) {
         addNumberedNodes(nodes, {
           lane: "data",
           baseTitle: `${prefix}${answers.relationalDb}-replica`,
-          meta: pageLanguage === "bg" ? "Replica или HA слой" : "Replica or HA layer",
+          meta: "Replica or HA layer",
           note:
-            pageLanguage === "bg"
-              ? "Използва се за read scaling, failover или reporting."
-              : "Used for read scaling, failover, or reporting.",
+            "Used for read scaling, failover, or reporting.",
           tags: ["HA"],
           kind: "data",
           count: answers.relationalDbCount - 1,
@@ -1503,11 +1194,9 @@ if (architectureForm) {
         createNode({
           lane: "data",
           title: `${prefix}${answers.cacheLayer}-cache`,
-          meta: pageLanguage === "bg" ? "Performance cache" : "Performance cache",
+          meta: "Performance cache",
           note:
-            pageLanguage === "bg"
-              ? "Намалява latency и натиск върху базата."
-              : "Reduces latency and pressure on the database.",
+            "Reduces latency and pressure on the database.",
           tags: ["Cache"],
           kind: "data",
         })
@@ -1518,12 +1207,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "data",
-          title: `${prefix}${pageLanguage === "bg" ? "object-storage" : "object-storage"}`,
-          meta: pageLanguage === "bg" ? "Файлове, assets и exports" : "Files, assets, and exports",
+          title: `${prefix}${"object-storage"}`,
+          meta: "Files, assets, and exports",
           note:
-            pageLanguage === "bg"
-              ? "Покрива uploads, media, exports и архиви."
-              : "Supports uploads, media, exports, and archives.",
+            "Supports uploads, media, exports, and archives.",
           tags: ["Storage"],
           kind: "data",
         })
@@ -1537,9 +1224,7 @@ if (architectureForm) {
           title: `${prefix}${entry}`,
           meta: labelFor("messaging", entry),
           note:
-            pageLanguage === "bg"
-              ? "Координира async потоци и системни събития."
-              : "Coordinates async flows and system events.",
+            "Coordinates async flows and system events.",
           tags: ["Async"],
           kind: "data",
         })
@@ -1553,9 +1238,7 @@ if (architectureForm) {
           title: `${prefix}${entry}`,
           meta: labelFor("data_services", entry),
           note:
-            pageLanguage === "bg"
-              ? "Служи за search, analytics или BI изходи."
-              : "Supports search, analytics, or BI outputs.",
+            "Supports search, analytics, or BI outputs.",
           tags: ["Analytics"],
           kind: "integration",
         })
@@ -1567,11 +1250,9 @@ if (architectureForm) {
         createNode({
           lane: "data",
           title: integration,
-          meta: pageLanguage === "bg" ? "Външна система" : "External system",
+          meta: "External system",
           note:
-            pageLanguage === "bg"
-              ? "Интеграция, която влияе на основния бизнес поток."
-              : "External integration that affects the main business flow.",
+            "External integration that affects the main business flow.",
           tags: ["External"],
           kind: "integration",
         })
@@ -1582,12 +1263,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "data",
-          title: `${prefix}${pageLanguage === "bg" ? "vector-store" : "vector-store"}`,
-          meta: pageLanguage === "bg" ? "Retrieval слой за AI" : "Retrieval layer for AI",
+          title: `${prefix}${"vector-store"}`,
+          meta: "Retrieval layer for AI",
           note:
-            pageLanguage === "bg"
-              ? "Knowledge слой за AI search или assistant flow."
-              : "Knowledge layer for AI search or assistant flows.",
+            "Knowledge layer for AI search or assistant flows.",
           tags: ["AI"],
           kind: "data",
         })
@@ -1598,12 +1277,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "sso" : "sso"}`,
-          meta: pageLanguage === "bg" ? "Identity provider" : "Identity provider",
+          title: `${prefix}${"sso"}`,
+          meta: "Identity provider",
           note:
-            pageLanguage === "bg"
-              ? "SSO вход за екипи, партньори и вътрешни роли."
-              : "SSO entry point for teams, partners, and internal roles.",
+            "SSO entry point for teams, partners, and internal roles.",
           tags: ["Identity"],
           kind: "security",
         })
@@ -1614,12 +1291,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "iam-rbac" : "iam-rbac"}`,
-          meta: pageLanguage === "bg" ? "Контрол на роли и достъп" : "Role and access control",
+          title: `${prefix}${"iam-rbac"}`,
+          meta: "Role and access control",
           note:
-            pageLanguage === "bg"
-              ? "Политики за роли, права и operational boundaries."
-              : "Policies for roles, permissions, and operational boundaries.",
+            "Policies for roles, permissions, and operational boundaries.",
           tags: ["Security"],
           kind: "security",
         })
@@ -1630,12 +1305,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "secrets" : "secrets"}`,
-          meta: pageLanguage === "bg" ? "Секрети, ключове и certs" : "Secrets, keys, and certificates",
+          title: `${prefix}${"secrets"}`,
+          meta: "Secrets, keys, and certificates",
           note:
-            pageLanguage === "bg"
-              ? "Покрива credentials, rotations и secure configuration."
-              : "Covers credentials, rotations, and secure configuration.",
+            "Covers credentials, rotations, and secure configuration.",
           tags: ["Security"],
           kind: "security",
         })
@@ -1650,12 +1323,8 @@ if (architectureForm) {
           meta: labelFor("ops", entry),
           note:
             entry === "monitoring"
-              ? pageLanguage === "bg"
-                ? "Следи availability, latency и business-critical сигнали."
-                : "Tracks availability, latency, and business-critical signals."
-              : pageLanguage === "bg"
-                ? "Поддържа operational visibility и delivery дисциплина."
-                : "Supports operational visibility and delivery discipline.",
+              ? "Tracks availability, latency, and business-critical signals."
+              : "Supports operational visibility and delivery discipline.",
           tags: [entry === "backup" ? "Recovery" : "Ops"],
           kind: entry === "siem" ? "security" : "ops",
         })
@@ -1666,12 +1335,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "disaster-recovery" : "disaster-recovery"}`,
+          title: `${prefix}${"disaster-recovery"}`,
           meta: labelFor("recovery_tier", answers.recoveryTier),
           note:
-            pageLanguage === "bg"
-              ? "Подготвя failover и recovery сценарии."
-              : "Prepares failover and recovery scenarios.",
+            "Prepares failover and recovery scenarios.",
           tags: ["DR"],
           kind: "ops",
         })
@@ -1682,12 +1349,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "compliance-controls" : "compliance-controls"}`,
+          title: `${prefix}${"compliance-controls"}`,
           meta: answers.compliance,
           note:
-            pageLanguage === "bg"
-              ? "Регулации, audit изисквания или вътрешни политики."
-              : "Regulatory, audit, or internal policy requirements.",
+            "Regulatory, audit, or internal policy requirements.",
           tags: ["Compliance"],
           kind: "security",
         })
@@ -1698,12 +1363,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "ai-assistant-flow" : "ai-assistant-flow"}`,
-          meta: pageLanguage === "bg" ? "AI experience layer" : "AI experience layer",
+          title: `${prefix}${"ai-assistant-flow"}`,
+          meta: "AI experience layer",
           note:
-            pageLanguage === "bg"
-              ? "AI слой за чат, support или knowledge помощ."
-              : "AI layer for chat, support, or knowledge assistance.",
+            "AI layer for chat, support, or knowledge assistance.",
           tags: ["AI"],
           kind: "enablement",
         })
@@ -1714,12 +1377,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "ai-governance" : "ai-governance"}`,
-          meta: pageLanguage === "bg" ? "Policy и guardrails" : "Policy and guardrails",
+          title: `${prefix}${"ai-governance"}`,
+          meta: "Policy and guardrails",
           note:
-            pageLanguage === "bg"
-              ? "Контролира usage boundaries, prompting и data access."
-              : "Controls usage boundaries, prompting, and data access.",
+            "Controls usage boundaries, prompting, and data access.",
           tags: ["AI"],
           kind: "enablement",
         })
@@ -1730,12 +1391,10 @@ if (architectureForm) {
       nodes.push(
         createNode({
           lane: "operations",
-          title: `${prefix}${pageLanguage === "bg" ? "ai-training" : "ai-training"}`,
-          meta: answers.trainingAudience || (pageLanguage === "bg" ? "Екипно обучение" : "Team training"),
+          title: `${prefix}${"ai-training"}`,
+          meta: answers.trainingAudience || ("Team training"),
           note:
-            pageLanguage === "bg"
-              ? "Практически AI training за sales, operations, leadership и technical teams."
-              : "Practical AI training for sales, operations, leadership, and technical teams.",
+            "Practical AI training for sales, operations, leadership, and technical teams.",
           tags: ["Training"],
           kind: "enablement",
         })
@@ -1820,12 +1479,12 @@ if (architectureForm) {
       },
       {
         label: strings.summary.compute,
-        value: services.length ? `${services.length} ${pageLanguage === "bg" ? "компонента" : "components"}` : strings.pending,
+        value: services.length ? `${services.length} ${"components"}` : strings.pending,
         note: joinLabels(labelsFor("hosting", answers.hosting)) || strings.pending,
       },
       {
         label: strings.summary.data,
-        value: data.length ? `${data.length} ${pageLanguage === "bg" ? "слоя" : "layers"}` : strings.pending,
+        value: data.length ? `${data.length} ${"layers"}` : strings.pending,
         note:
           [
             answers.relationalDb !== "none" ? labelFor("relational_db", answers.relationalDb) : "",
@@ -1836,13 +1495,13 @@ if (architectureForm) {
       },
       {
         label: strings.summary.operations,
-        value: operations.length ? `${operations.length} ${pageLanguage === "bg" ? "контроли" : "controls"}` : strings.pending,
+        value: operations.length ? `${operations.length} ${"controls"}` : strings.pending,
         note: joinLabels(labelsFor("ops", answers.ops)) || strings.none,
       },
       {
         label: strings.summary.ai,
         value: joinLabels(labelsFor("ai_focus", answers.aiFocus)) || strings.none,
-        note: answers.trainingAudience || (pageLanguage === "bg" ? "По заявка" : "Available on request"),
+        note: answers.trainingAudience || ("Available on request"),
       },
     ];
 
@@ -2864,18 +2523,12 @@ if (architectureForm) {
     const region = firstRegion(model.answers);
     const providerLabel =
       model.answers.deploymentModel === "on-prem"
-        ? pageLanguage === "bg"
-          ? "Частна среда"
-          : "Private estate"
-        : `${labelFor("primary_cloud", model.answers.primaryCloud) || "Cloud"} ${pageLanguage === "bg" ? "регион" : "region"}`;
+        ? "Private estate"
+        : `${labelFor("primary_cloud", model.answers.primaryCloud) || "Cloud"} ${"region"}`;
     const boundaryLabel =
       model.answers.deploymentModel === "on-prem"
-        ? pageLanguage === "bg"
-          ? "Частна мрежова граница"
-          : "Private network boundary"
-        : pageLanguage === "bg"
-          ? "VPC / мрежова граница"
-          : "VPC / network boundary";
+        ? "Private network boundary"
+        : "VPC / network boundary";
     const regionMeta = [
       labelFor("deployment_model", model.answers.deploymentModel),
       labelFor("network_topology", model.answers.networkTopology),
@@ -2886,7 +2539,7 @@ if (architectureForm) {
     const hostingLabel = joinLabels(labelsFor("hosting", model.answers.hosting));
     const azChips = Array.from({ length: Math.max(model.answers.azCount || 0, 0) }, (_, index) => {
       const label =
-        pageLanguage === "bg" ? `AZ ${index + 1}` : `AZ ${index + 1}`;
+        `AZ ${index + 1}`;
       return `<span class="architecture-az-chip">${escapeHtml(label)}</span>`;
     }).join("");
 
@@ -2934,8 +2587,8 @@ if (architectureForm) {
     );
     const regionalMarkup =
       buildModuleMarkup({
-        title: pageLanguage === "bg" ? "Regional services" : "Regional services",
-        note: pageLanguage === "bg" ? "Managed messaging, storage, analytics, monitoring и recovery контроли." : "Managed messaging, storage, analytics, monitoring, and recovery controls.",
+        title: "Regional services",
+        note: "Managed messaging, storage, analytics, monitoring, and recovery controls.",
         nodes: regionalServiceNodes,
         interactive,
         tone: "regional",
@@ -2944,8 +2597,8 @@ if (architectureForm) {
         <article class="architecture-module architecture-module-empty">
           <div class="architecture-module-head">
             <div>
-              <span class="architecture-module-kicker">${escapeHtml(pageLanguage === "bg" ? "Regional services" : "Regional services")}</span>
-              <p class="architecture-module-note">${escapeHtml(pageLanguage === "bg" ? "Тук ще се появят managed services слоевете, след като изберете storage, messaging, analytics или ops контроли." : "Managed services will appear here after you select storage, messaging, analytics, or operations controls.")}</p>
+              <span class="architecture-module-kicker">${escapeHtml("Regional services")}</span>
+              <p class="architecture-module-note">${escapeHtml("Managed services will appear here after you select storage, messaging, analytics, or operations controls.")}</p>
             </div>
           </div>
         </article>
@@ -2956,10 +2609,10 @@ if (architectureForm) {
         <aside class="architecture-actors-zone">
           <div class="architecture-zone-head">
             <div>
-              <span class="architecture-zone-kicker">${escapeHtml(pageLanguage === "bg" ? "Канали" : "Channels")}</span>
-              <h3 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "Потребители и входни точки" : "Users and entry points")}</h3>
+              <span class="architecture-zone-kicker">${escapeHtml("Channels")}</span>
+              <h3 class="architecture-zone-title">${escapeHtml("Users and entry points")}</h3>
             </div>
-            <p class="architecture-zone-note">${escapeHtml(pageLanguage === "bg" ? "Откъде трафикът, екипите и интеграциите влизат в системата." : "Where traffic, teams, and integrations enter the platform.")}</p>
+            <p class="architecture-zone-note">${escapeHtml("Where traffic, teams, and integrations enter the platform.")}</p>
           </div>
           ${buildNodeStackMarkup(channels, interactive)}
         </aside>
@@ -2984,48 +2637,48 @@ if (architectureForm) {
               <div class="architecture-boundary-head">
                 <div>
                   <span class="architecture-zone-kicker">${escapeHtml(boundaryLabel)}</span>
-                  <h3 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "Приложна и data среда" : "Application and data estate")}</h3>
+                  <h3 class="architecture-zone-title">${escapeHtml("Application and data estate")}</h3>
                 </div>
-                <div class="architecture-az-strip">${azChips || `<span class="architecture-az-chip">${escapeHtml(pageLanguage === "bg" ? "Сегментирана среда" : "Segmented estate")}</span>`}</div>
+                <div class="architecture-az-strip">${azChips || `<span class="architecture-az-chip">${escapeHtml("Segmented estate")}</span>`}</div>
               </div>
 
               <div class="architecture-vpc-grid">
                 <section class="architecture-zone-panel architecture-zone-panel-access">
                   <div class="architecture-zone-head">
                     <div>
-                      <span class="architecture-zone-kicker">${escapeHtml(pageLanguage === "bg" ? "Достъп" : "Access zone")}</span>
-                      <h4 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "Публичен и защитен вход" : "Public and protected ingress")}</h4>
+                      <span class="architecture-zone-kicker">${escapeHtml("Access zone")}</span>
+                      <h4 class="architecture-zone-title">${escapeHtml("Public and protected ingress")}</h4>
                     </div>
-                    <p class="architecture-zone-note">${escapeHtml(pageLanguage === "bg" ? "Load balancer-и, API вход, VPN и мрежова основа." : "Load balancers, API entry, VPN, and network foundation.")}</p>
+                    <p class="architecture-zone-note">${escapeHtml("Load balancers, API entry, VPN, and network foundation.")}</p>
                   </div>
                   ${buildNodeStackMarkup([...edgeNodes, ...networkCoreNodes], interactive)}
                 </section>
 
                 <div class="architecture-private-zone">
                   ${buildModuleMarkup({
-                    title: pageLanguage === "bg" ? "Идентичност и контрол" : "Identity and control plane",
-                    note: pageLanguage === "bg" ? "SSO, IAM, secrets и достъп до критичните слоеве." : "SSO, IAM, secrets, and controlled access into critical layers.",
+                    title: "Identity and control plane",
+                    note: "SSO, IAM, secrets, and controlled access into critical layers.",
                     nodes: identityNodes,
                     interactive,
                     tone: "identity",
                   })}
                   ${buildModuleMarkup({
-                    title: pageLanguage === "bg" ? "Приложен слой" : "Application services",
-                    note: pageLanguage === "bg" ? "Основни уеб, API, container или Kubernetes workloads." : "Primary web, API, container, or Kubernetes workloads.",
+                    title: "Application services",
+                    note: "Primary web, API, container, or Kubernetes workloads.",
                     nodes: appNodes,
                     interactive,
                     tone: "compute",
                   })}
                   ${buildModuleMarkup({
-                    title: pageLanguage === "bg" ? "Async и jobs" : "Async and background workloads",
-                    note: pageLanguage === "bg" ? "Workers, schedulers и асинхронни потоци." : "Workers, schedulers, and asynchronous processing flows.",
+                    title: "Async and background workloads",
+                    note: "Workers, schedulers, and asynchronous processing flows.",
                     nodes: asyncNodes,
                     interactive,
                     tone: "async",
                   })}
                   ${buildModuleMarkup({
-                    title: pageLanguage === "bg" ? "Частни data слоеве" : "Private data services",
-                    note: pageLanguage === "bg" ? "Транзакционни бази, cache и вътрешни data зависимости." : "Transactional databases, cache, and internal data dependencies.",
+                    title: "Private data services",
+                    note: "Transactional databases, cache, and internal data dependencies.",
                     nodes: privateDataNodes,
                     interactive,
                     tone: "data",
@@ -3045,10 +2698,10 @@ if (architectureForm) {
                 <section class="architecture-external-zone">
                   <div class="architecture-zone-head">
                     <div>
-                      <span class="architecture-zone-kicker">${escapeHtml(pageLanguage === "bg" ? "Външни зависимости" : "External resources")}</span>
-                      <h3 class="architecture-zone-title">${escapeHtml(pageLanguage === "bg" ? "On-prem и свързани системи" : "On-prem and connected systems")}</h3>
+                      <span class="architecture-zone-kicker">${escapeHtml("External resources")}</span>
+                      <h3 class="architecture-zone-title">${escapeHtml("On-prem and connected systems")}</h3>
                     </div>
-                    <p class="architecture-zone-note">${escapeHtml(pageLanguage === "bg" ? "Хибридни връзки, customer-managed ресурси и бизнес системи." : "Hybrid links, customer-managed resources, and business systems.")}</p>
+                    <p class="architecture-zone-note">${escapeHtml("Hybrid links, customer-managed resources, and business systems.")}</p>
                   </div>
                   ${buildNodeStackMarkup(externalNodes, interactive, "architecture-node-stack-horizontal")}
                 </section>
@@ -3530,7 +3183,7 @@ if (!motionPreference.matches && showcaseCosmos) {
 const projectForm = document.querySelector("[data-project-form]");
 
 if (projectForm) {
-  const pageLanguage = document.body.dataset.pageLanguage === "bg" ? "bg" : "en";
+  const pageLanguage = document.body.dataset."en";
   const recipient = projectForm.dataset.recipient || "hello@mycompany.com";
   const mailPreview = document.querySelector("[data-mail-preview]");
   const summaryTargets = {
