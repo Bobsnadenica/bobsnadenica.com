@@ -71,6 +71,30 @@ h1 {
     margin-bottom: 4rem;
 }
 
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes priceUpdate {
+    0% { background: rgba(255, 255, 255, 0); }
+    50% { background: rgba(255, 255, 255, 0.05); }
+    100% { background: rgba(255, 255, 255, 0); }
+}
+
 .card {
     background: var(--card-bg);
     backdrop-filter: blur(12px);
@@ -80,110 +104,14 @@ h1 {
     position: relative;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--card-border), transparent);
-}
+#btc-card { animation-delay: 0.2s; }
 
-.card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.card-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-
-.symbol {
-    background-color: rgba(255, 255, 255, 0.05);
-    padding: 0.4rem 1rem;
-    border-radius: 0.75rem;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-    font-weight: 600;
-    border: 1px solid var(--card-border);
-}
-
-.price-container {
-    margin-bottom: 2.5rem;
-}
-
-.price {
-    font-size: 3.5rem;
-    font-weight: 800;
-    display: block;
-    letter-spacing: -0.05em;
-    font-family: var(--font-mono);
-    line-height: 1;
-    margin-bottom: 0.5rem;
-}
-
-.change {
-    font-size: 1rem;
-    font-weight: 600;
-    font-family: var(--font-mono);
-    padding: 0.25rem 0.75rem;
+.price-container.updating {
+    animation: priceUpdate 0.4s ease-out;
     border-radius: 0.5rem;
-    display: inline-block;
-}
-
-.change.up { 
-    color: var(--accent-buy);
-    background: var(--glow-buy);
-}
-
-.change.down { 
-    color: var(--accent-sell);
-    background: var(--glow-sell);
-}
-
-.predictions {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    border-top: 1px solid var(--card-border);
-    padding-top: 2rem;
-}
-
-.prediction-item {
-    text-align: left;
-}
-
-.timeframe {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.75rem;
-}
-
-.signal {
-    font-weight: 800;
-    font-size: 1.1rem;
-    letter-spacing: 0.05em;
-    display: block;
-    position: relative;
-    padding-left: 1.25rem;
 }
 
 .signal::before {
@@ -195,7 +123,9 @@ h1 {
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    animation: pulse-glow 2s infinite ease-in-out;
 }
+
 
 .signal.buy { color: var(--accent-buy); }
 .signal.buy::before { background: var(--accent-buy); box-shadow: 0 0 10px var(--accent-buy); }

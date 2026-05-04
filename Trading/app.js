@@ -27,6 +27,7 @@ const cryptoFormatter = new Intl.NumberFormat('en-US', {
 // DOM Elements
 const elements = {
     sp500: {
+        container: document.getElementById('sp500-card').querySelector('.price-container'),
         price: document.getElementById('sp500-price'),
         change: document.getElementById('sp500-change'),
         '24h': document.getElementById('sp500-24h'),
@@ -34,6 +35,7 @@ const elements = {
         '1y': document.getElementById('sp500-1y'),
     },
     btc: {
+        container: document.getElementById('btc-card').querySelector('.price-container'),
         price: document.getElementById('btc-price'),
         change: document.getElementById('btc-change'),
         '24h': document.getElementById('btc-24h'),
@@ -52,7 +54,16 @@ function updateUI() {
     elements.btc.price.textContent = cryptoFormatter.format(state.btc.price);
     updateChangeElement(elements.btc.change, state.btc.change);
     updatePredictions('btc');
+    
+    // Trigger update animations
+    elements.sp500.container.classList.remove('updating');
+    elements.btc.container.classList.remove('updating');
+    void elements.sp500.container.offsetWidth; // Trigger reflow
+    void elements.btc.container.offsetWidth;
+    elements.sp500.container.classList.add('updating');
+    elements.btc.container.classList.add('updating');
 }
+
 
 function updateChangeElement(el, change) {
     const isUp = change >= 0;
