@@ -1,0 +1,97 @@
+<section class="architecture-canvas">
+    <header class="section-header">
+        <span class="label">System Visualization</span>
+        <h1>Architecture Canvas.</h1>
+        <p>Interactive planning for high-scale environments. Define your requirements across the critical layers of the modern IT stack.</p>
+    </header>
+
+    <div class="canvas-grid">
+        <div class="layer-card" data-layer="edge">
+            <h3>Edge</h3>
+            <p>CDN, DDoS Mitigation, WAF</p>
+            <div class="status-indicator"></div>
+        </div>
+        <div class="layer-card" data-layer="compute">
+            <h3>Compute</h3>
+            <p>Serverless, K8s, EC2</p>
+            <div class="status-indicator"></div>
+        </div>
+        <div class="layer-card" data-layer="data">
+            <h3>Data</h3>
+            <p>RDBMS, NoSQL, Data Lake</p>
+            <div class="status-indicator"></div>
+        </div>
+        <div class="layer-card" data-layer="security">
+            <h3>Security</h3>
+            <p>IAM, Zero Trust, Encryption</p>
+            <div class="status-indicator"></div>
+        </div>
+    </div>
+
+    <div class="canvas-details">
+        <div id="details-content">
+            <h2>Select a layer to analyze.</h2>
+            <p>Hover over or tap a system layer to see our empirical engineering approach.</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .architecture-canvas {
+        padding: 4rem 0;
+    }
+    .canvas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 4rem;
+    }
+    .layer-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        cursor: pointer;
+        transition: all var(--transition-speed);
+        position: relative;
+    }
+    .layer-card:hover {
+        border-color: var(--accent-metal);
+        background: var(--bg-tertiary);
+        transform: translateY(-5px);
+    }
+    .layer-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    .layer-card p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        background: var(--border-color);
+        border-radius: 50%;
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+    }
+    .layer-card:hover .status-indicator {
+        background: var(--accent-metal-light);
+        box-shadow: 0 0 10px var(--accent-metal);
+    }
+    .canvas-details {
+        min-height: 300px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    #details-content h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+</style>

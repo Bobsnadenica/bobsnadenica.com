@@ -1,0 +1,106 @@
+<section class="data-engine">
+    <header class="section-header">
+        <span class="label">Empirical Engineering</span>
+        <h1>The Data Engine.</h1>
+        <p>Our solutions aren't based on industry trends. They are forged from the empirical data patterns we observe across our global application ecosystem.</p>
+    </header>
+
+    <div class="data-grid">
+        <div class="data-card">
+            <div class="card-header">
+                <span class="stat">2.4 PB</span>
+                <h4>Telemetry Analyzed</h4>
+            </div>
+            <p>Processing massive streams of performance and security data to identify architectural bottlenecks before they manifest.</p>
+        </div>
+        <div class="data-card">
+            <div class="card-header">
+                <span class="stat">99.999%</span>
+                <h4>Availability Baseline</h4>
+            </div>
+            <p>Our data-informed deployment strategies ensure zero-downtime migrations for even the most complex legacy systems.</p>
+        </div>
+        <div class="data-card">
+            <div class="card-header">
+                <span class="stat">Real-time</span>
+                <h4>Threat Detection</h4>
+            </div>
+            <p>Using pattern recognition to neutralize security breaches before they penetrate the perimeter.</p>
+        </div>
+    </div>
+
+    <div class="cta-area">
+        <p>We build on facts. Not guesses.</p>
+        <a href="/architecture" data-link class="btn-metal">Visualize Your Architecture</a>
+    </div>
+</section>
+
+<style>
+    .data-engine {
+        padding: 4rem 0;
+    }
+    .section-header {
+        margin-bottom: 6rem;
+        max-width: 800px;
+    }
+    .label {
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-size: 0.75rem;
+        color: var(--accent-metal);
+        margin-bottom: 1rem;
+    }
+    .section-header h1 {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-header p {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+    }
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 6rem;
+    }
+    .data-card {
+        background: var(--bg-secondary);
+        padding: 3rem;
+        border: 1px solid var(--border-color);
+        transition: border-color var(--transition-speed);
+    }
+    .data-card:hover {
+        border-color: var(--accent-metal);
+    }
+    .card-header {
+        margin-bottom: 2rem;
+    }
+    .stat {
+        display: block;
+        font-family: var(--font-authority);
+        font-size: 2.5rem;
+        color: var(--accent-metal-light);
+        margin-bottom: 0.5rem;
+    }
+    .data-card h4 {
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .data-card p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+    .cta-area {
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+        padding-top: 4rem;
+    }
+    .cta-area p {
+        font-family: var(--font-authority);
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+</style>

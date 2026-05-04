@@ -1,42 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml"
->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mycompany.com/</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mycompany.com/what-we-can/</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://mycompany.com/showcase/</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mycompany.com/contact/</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://mycompany.com/data-engine</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mycompany.com/faq/</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://mycompany.com/b2b</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mycompany.com/personal-it</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mycompany.com/architecture</loc>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mycompany.com/privacy/</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
+    <loc>https://mycompany.com/Tech_Tools/index.html</loc>
+    <priority>0.5</priority>
   </url>
 </urlset>

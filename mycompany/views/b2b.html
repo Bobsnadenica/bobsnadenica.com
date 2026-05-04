@@ -1,0 +1,118 @@
+<section class="b2b-solutions">
+    <header class="section-header">
+        <span class="label">High-Scale Engineering</span>
+        <h1>Enterprise Architecture.</h1>
+        <p>We architect, build, and scale the digital infrastructure that powers high-growth organizations.</p>
+    </header>
+
+    <div class="service-list">
+        <div class="service-item">
+            <div class="service-info">
+                <h2>Cloud Infrastructure</h2>
+                <p>Expert-level AWS and Multi-Cloud orchestration. We don't just move you to the cloud; we optimize every layer for performance and cost-efficiency.</p>
+                <ul class="tag-list">
+                    <li>AWS Well-Architected</li>
+                    <li>Terraform / IaC</li>
+                    <li>Kubernetes (EKS)</li>
+                </ul>
+            </div>
+            <div class="service-visual">
+                <!-- Visual placeholder: Gradient mask -->
+                <div class="visual-box"></div>
+            </div>
+        </div>
+
+        <div class="service-item reverse">
+            <div class="service-info">
+                <h2>Custom Platform Engineering</h2>
+                <p>Developing proprietary platforms that integrate seamlessly with your existing stack while providing the flexibility for future expansion.</p>
+                <ul class="tag-list">
+                    <li>Modular ES6+</li>
+                    <li>Microservices</li>
+                    <li>API-First Design</li>
+                </ul>
+            </div>
+            <div class="service-visual">
+                <div class="visual-box"></div>
+            </div>
+        </div>
+
+        <div class="service-item">
+            <div class="service-info">
+                <h2>Security & Scale</h2>
+                <p>Zero-trust architectures designed to withstand the most aggressive attack vectors while maintaining peak performance under massive load.</p>
+                <ul class="tag-list">
+                    <li>Zero-Trust Networking</li>
+                    <li>DDoS Mitigation</li>
+                    <li>Auto-Scaling Groups</li>
+                </ul>
+            </div>
+            <div class="service-visual">
+                <div class="visual-box"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .b2b-solutions {
+        padding: 4rem 0;
+    }
+    .service-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8rem;
+    }
+    .service-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+    }
+    .service-item.reverse {
+        direction: rtl;
+    }
+    .service-item.reverse .service-info {
+        direction: ltr;
+    }
+    .service-info h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .service-info p {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+    }
+    .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        list-style: none;
+    }
+    .tag-list li {
+        padding: 0.4rem 1rem;
+        border: 1px solid var(--border-color);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--accent-metal);
+    }
+    .visual-box {
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: linear-gradient(45deg, #080808, #1a1a1a);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+    .visual-box::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(136, 136, 136, 0.1) 0%, transparent 70%);
+    }
+</style>
