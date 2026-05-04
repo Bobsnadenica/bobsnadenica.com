@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="styles.css">
     
     <!-- SEO / Schema.org -->
     <script type="application/ld+json">
@@ -54,20 +54,22 @@
 <body>
     <div id="app-shell">
         <header>
-            <div class="logo"><a href="/" data-link>MyCompany</a></div>
+            <div class="logo"><a href="./" data-link>MyCompany</a></div>
             <nav>
                 <ul id="main-nav">
-                    <li><a href="/" data-link>Hub</a></li>
-                    <li><a href="/data-engine" data-link>Intelligence</a></li>
-                    <li><a href="/b2b" data-link>Engineering</a></li>
-                    <li><a href="/personal-it" data-link>Concierge</a></li>
-                    <li><a href="/Tech_Tools/index.html" class="btn-metal">Tech Tools</a></li>
+                    <li><a href="./" data-link>Hub</a></li>
+                    <li><a href="data-engine" data-link>Intelligence</a></li>
+                    <li><a href="b2b" data-link>Engineering</a></li>
+                    <li><a href="personal-it" data-link>Concierge</a></li>
+                    <li><a href="Tech_Tools/index.html" class="btn-metal">Tech Tools</a></li>
                 </ul>
             </nav>
         </header>
 
         <main id="app-root">
-            <!-- Dynamic view content will be injected here -->
+            <div class="view-container">
+                <p>Initializing Signal...</p>
+            </div>
         </main>
 
         <footer>
@@ -75,6 +77,6 @@
         </footer>
     </div>
 
-    <script type="module" src="/script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
