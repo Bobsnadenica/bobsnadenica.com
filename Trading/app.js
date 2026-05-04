@@ -70,12 +70,18 @@ function updatePredictions(asset) {
 }
 
 function simulateMarket() {
-    // Randomly fluctuate prices
-    state.sp500.price += (Math.random() - 0.5) * 2;
-    state.btc.price += (Math.random() - 0.5) * 50;
+    // Smoother price fluctuations
+    const sp500Change = (Math.random() - 0.5) * 1.5;
+    const btcChange = (Math.random() - 0.5) * 40;
+
+    state.sp500.price += sp500Change;
+    state.sp500.change += sp500Change;
+    
+    state.btc.price += btcChange;
+    state.btc.change += btcChange;
 
     // Occasionally change predictions for "live" feel
-    if (Math.random() > 0.98) {
+    if (Math.random() > 0.95) {
         const signals = ['BUY', 'SELL', 'HOLD'];
         const assets = ['sp500', 'btc'];
         const timeframes = ['24h', '7d', '1y'];
@@ -93,5 +99,6 @@ function simulateMarket() {
 // Initial render
 updateUI();
 
-// Simulation loop
-setInterval(simulateMarket, 2000);
+// Simulation loop - faster for "live" feel
+setInterval(simulateMarket, 1000);
+
