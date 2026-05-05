@@ -53,4 +53,4 @@ The portal is optimized for static hosting on GitHub Pages:
 - **Absolute Optimization:** Optimized for "Time to Interactive" and zero Layout Shift.
 
 ---
-*Empirical Engineering. Zero Dead Ends. © 2026 MyCompany.*
+*Empirical Engineering. Absolute Resolution. © 2026 MyCompany.*

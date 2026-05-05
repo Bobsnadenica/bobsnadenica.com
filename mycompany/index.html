@@ -86,7 +86,7 @@
                 <section class="monolith-advert">
                     <div class="advert-text reveal-mask">
                         <span class="label">The Mission</span>
-                        <h2 data-scramble>Zero Dead Ends.</h2>
+                        <h2 data-scramble>Absolute Resolution.</h2>
                         <p>We are a high-agility engineering powerhouse: ultra-lean, high-signal, and AI-amplified. We solve the most complex technical challenges, deliver at scale, and protect your digital footprint with absolute discretion.</p>
                         <div style="margin-top:4rem;">
                             <a href="who-are-we" data-link class="btn-hud">Our Pedigree</a>
@@ -100,11 +100,14 @@
 
         <!-- System Health Dashboard -->
         <div id="health-dashboard">
-            <div class="health-header">
+            <div class="health-header" id="health-header-toggle" style="cursor: pointer;">
                 <span class="health-title">System Diagnostics</span>
-                <span class="status-pulse"></span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="status-pulse"></span>
+                    <button id="minimize-dashboard" style="background:none; border:none; color:var(--c-dim); cursor:pointer;">&#9660;</button>
+                </div>
             </div>
-            <div class="health-grid">
+            <div class="health-grid" id="health-grid-content">
                 <div class="health-node">
                     <span class="node-label">Neural Engine</span>
                     <span class="node-status" id="status-neural"><div class="status-dot pulse"></div> ONLINE</span>
@@ -120,6 +123,22 @@
                 <div class="health-node">
                     <span class="node-label">Privacy Shield</span>
                     <span class="node-status" id="status-shield"><div class="status-dot"></div> ACTIVE</span>
+                </div>
+                <div class="health-node">
+                    <span class="node-label">Quantum Cipher</span>
+                    <span class="node-status" id="status-cipher"><div class="status-dot pulse"></div> SYNCING</span>
+                </div>
+                <div class="health-node">
+                    <span class="node-label">Edge Node Latency</span>
+                    <span class="node-status" id="status-latency"><div class="status-dot"></div> 12ms</span>
+                </div>
+                <div class="health-node">
+                    <span class="node-label">Zero-Trust Matrix</span>
+                    <span class="node-status" id="status-ztm"><div class="status-dot pulse"></div> ENFORCED</span>
+                </div>
+                <div class="health-node">
+                    <span class="node-label">Threat Heuristics</span>
+                    <span class="node-status" id="status-threat"><div class="status-dot"></div> CLEAR</span>
                 </div>
             </div>
         </div>

@@ -366,6 +366,18 @@ body::before {
     z-index: 1000;
 }
 
+#health-dashboard.minimized .health-grid {
+    display: none;
+}
+#health-dashboard.minimized .health-header {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+#health-dashboard.minimized #minimize-dashboard {
+    transform: rotate(-90deg);
+}
+
 .health-header {
     display: flex;
     justify-content: space-between;

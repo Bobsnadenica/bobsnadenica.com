@@ -176,12 +176,16 @@ class ScrambleText {
  * System Health Simulation
  */
 const initHealthCheck = () => {
-    const nodes = ['neural', 'ingress', 'seo', 'shield'];
-    const statuses = ['ONLINE', 'ACTIVE', 'STABLE', 'READY', 'SYNCED'];
-    
+    const nodes = ['neural', 'ingress', 'seo', 'shield', 'cipher', 'latency', 'ztm', 'threat'];
+    const statuses = ['ONLINE', 'ACTIVE', 'STABLE', 'READY', 'SYNCED', 'ENFORCED', 'CLEAR', 'SECURE'];
+
     setInterval(() => {
         const node = nodes[Math.floor(Math.random() * nodes.length)];
-        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        let status = statuses[Math.floor(Math.random() * statuses.length)];
+        if (node === 'latency') {
+             status = Math.floor(Math.random() * 20 + 5) + 'ms';
+        }
+
         const el = document.getElementById(`status-${node}`);
         if (el) {
             el.innerHTML = `<div class="status-dot pulse"></div> ${status}`;
@@ -190,7 +194,15 @@ const initHealthCheck = () => {
                 if (dot) dot.classList.remove('pulse');
             }, 1000);
         }
-    }, 4000);
+    }, 3000);
+
+    const toggleBtn = document.getElementById('health-header-toggle');
+    const dashboard = document.getElementById('health-dashboard');
+    if (toggleBtn && dashboard) {
+        toggleBtn.addEventListener('click', () => {
+            dashboard.classList.toggle('minimized');
+        });
+    }
 };
 
 /**
