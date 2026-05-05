@@ -6,6 +6,7 @@
 const routes = {
     '': { title: 'Sovereign', view: 'home.html', isStatic: true },
     'solutions': { title: 'Manifest', view: 'solutions.html' },
+    'who-are-we': { title: 'Pedigree', view: 'who-are-we.html' },
     'data-engine': { title: 'Intelligence', view: 'data-engine.html' },
     'b2b': { title: 'Architecture', view: 'b2b.html' },
     'personal-it': { title: 'Private', view: 'personal-it.html' },
@@ -78,6 +79,28 @@ const router = async () => {
     initMagnetic();
     new ScrambleText('[data-scramble]');
     initArchitectureCanvas();
+    initTabs();
+};
+
+/**
+ * Tab Switching Logic
+ */
+const initTabs = () => {
+    const triggers = document.querySelectorAll('.tab-trigger');
+    const contents = document.querySelectorAll('.tab-content');
+    if (!triggers.length) return;
+
+    triggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const tab = trigger.dataset.tab;
+            triggers.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.style.display = 'none');
+
+            trigger.classList.add('active');
+            const target = document.getElementById(`tab-${tab}`);
+            if (target) target.style.display = 'block';
+        });
+    });
 };
 
 /**
