@@ -122,7 +122,8 @@ class NodeEngine {
     }
 
     animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#080808';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.particles.forEach(p => {
             p.x += p.vx; p.y += p.vy;
             if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
@@ -190,5 +191,8 @@ window.addEventListener('popstate', router);
 document.addEventListener('DOMContentLoaded', () => {
     new NodeEngine('bg-canvas');
     initGlows();
+    router();
+});
+   initGlows();
     router();
 });
