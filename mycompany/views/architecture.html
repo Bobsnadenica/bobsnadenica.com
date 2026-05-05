@@ -6,92 +6,93 @@
     </header>
 
     <div class="canvas-grid">
-        <div class="layer-card" data-layer="edge">
+        <div class="layer-card glass-card" data-layer="edge">
             <h3>Edge</h3>
             <p>CDN, DDoS Mitigation, WAF</p>
             <div class="status-indicator"></div>
         </div>
-        <div class="layer-card" data-layer="compute">
+        <div class="layer-card glass-card" data-layer="compute">
             <h3>Compute</h3>
             <p>Serverless, K8s, EC2</p>
             <div class="status-indicator"></div>
         </div>
-        <div class="layer-card" data-layer="data">
+        <div class="layer-card glass-card" data-layer="data">
             <h3>Data</h3>
             <p>RDBMS, NoSQL, Data Lake</p>
             <div class="status-indicator"></div>
         </div>
-        <div class="layer-card" data-layer="security">
+        <div class="layer-card glass-card" data-layer="security">
             <h3>Security</h3>
             <p>IAM, Zero Trust, Encryption</p>
             <div class="status-indicator"></div>
         </div>
     </div>
 
-    <div class="canvas-details">
+    <div class="canvas-details glass-card">
         <div id="details-content">
-            <h2>Select a layer to analyze.</h2>
-            <p>Hover over or tap a system layer to see our empirical engineering approach.</p>
+            <h2>System Analysis Pending.</h2>
+            <p>Select a structural layer above to initiate empirical engineering analysis.</p>
         </div>
     </div>
 </section>
 
 <style>
     .architecture-canvas {
-        padding: 4rem 0;
+        padding: 2rem 0;
     }
     .canvas-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 4rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
     .layer-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        padding: 2rem;
         cursor: pointer;
-        transition: all var(--transition-speed);
-        position: relative;
-    }
-    .layer-card:hover {
-        border-color: var(--accent-metal);
-        background: var(--bg-tertiary);
-        transform: translateY(-5px);
+        padding: 2.5rem;
     }
     .layer-card h3 {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+        margin-bottom: 0.8rem;
+        color: var(--accent-metal-light);
     }
     .layer-card p {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: var(--text-muted);
+        line-height: 1.4;
     }
     .status-indicator {
-        width: 10px;
-        height: 10px;
-        background: var(--border-color);
+        width: 8px;
+        height: 8px;
+        background: var(--accent-metal);
         border-radius: 50%;
         position: absolute;
-        top: 2rem;
-        right: 2rem;
+        top: 2.5rem;
+        right: 2.5rem;
+        opacity: 0.3;
+        transition: all 0.3s var(--transition-ease);
     }
     .layer-card:hover .status-indicator {
-        background: var(--accent-metal-light);
-        box-shadow: 0 0 10px var(--accent-metal);
+        opacity: 1;
+        background: #fff;
+        box-shadow: 0 0 15px #fff;
     }
     .canvas-details {
-        min-height: 300px;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        padding: 4rem;
+        min-height: 400px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
+        border-style: dashed;
     }
     #details-content h2 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--accent-metal-light);
+    }
+    #details-content p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
     }
 </style>

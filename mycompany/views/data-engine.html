@@ -6,21 +6,21 @@
     </header>
 
     <div class="data-grid">
-        <div class="data-card">
+        <div class="data-card glass-card">
             <div class="card-header">
                 <span class="stat">2.4 PB</span>
                 <h4>Telemetry Analyzed</h4>
             </div>
             <p>Processing massive streams of performance and security data to identify architectural bottlenecks before they manifest.</p>
         </div>
-        <div class="data-card">
+        <div class="data-card glass-card">
             <div class="card-header">
                 <span class="stat">99.999%</span>
                 <h4>Availability Baseline</h4>
             </div>
             <p>Our data-informed deployment strategies ensure zero-downtime migrations for even the most complex legacy systems.</p>
         </div>
-        <div class="data-card">
+        <div class="data-card glass-card">
             <div class="card-header">
                 <span class="stat">Real-time</span>
                 <h4>Threat Detection</h4>
@@ -30,77 +30,71 @@
     </div>
 
     <div class="cta-area">
-        <p>We build on facts. Not guesses.</p>
-        <a href="/architecture" data-link class="btn-metal">Visualize Your Architecture</a>
+        <p>Fact-Based Engineering.</p>
+        <a href="architecture" data-link class="btn-metal">Visualize Infrastructure</a>
     </div>
 </section>
 
 <style>
     .data-engine {
-        padding: 4rem 0;
+        padding: 2rem 0;
     }
     .section-header {
-        margin-bottom: 6rem;
+        margin-bottom: 5rem;
         max-width: 800px;
     }
     .label {
         display: block;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-size: 0.75rem;
+        letter-spacing: 0.3em;
+        font-size: 0.7rem;
         color: var(--accent-metal);
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        font-weight: 800;
     }
     .section-header h1 {
-        font-size: 4rem;
+        font-size: 4.5rem;
         margin-bottom: 1.5rem;
+        line-height: 1;
     }
     .section-header p {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         color: var(--text-muted);
+        line-height: 1.4;
     }
     .data-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 2rem;
         margin-bottom: 6rem;
-    }
-    .data-card {
-        background: var(--bg-secondary);
-        padding: 3rem;
-        border: 1px solid var(--border-color);
-        transition: border-color var(--transition-speed);
-    }
-    .data-card:hover {
-        border-color: var(--accent-metal);
-    }
-    .card-header {
-        margin-bottom: 2rem;
     }
     .stat {
         display: block;
         font-family: var(--font-authority);
-        font-size: 2.5rem;
+        font-size: 3rem;
         color: var(--accent-metal-light);
         margin-bottom: 0.5rem;
+        letter-spacing: -0.05em;
     }
     .data-card h4 {
-        font-size: 1.1rem;
+        font-size: 1rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
+        color: var(--text-main);
     }
     .data-card p {
         color: var(--text-muted);
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
     .cta-area {
         text-align: center;
         border-top: 1px solid var(--border-color);
-        padding-top: 4rem;
+        padding-top: 5rem;
     }
     .cta-area p {
         font-family: var(--font-authority);
-        font-size: 1.5rem;
+        font-size: 2rem;
         margin-bottom: 2rem;
+        color: var(--accent-metal-light);
     }
 </style>
