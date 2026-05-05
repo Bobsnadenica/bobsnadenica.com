@@ -8,34 +8,35 @@ dalisipedal.com
 -Честно казано нз, работи си, може би малко оптимизация да го дам на claude 
 ======
 PEDAL app
--So far nothing, works fine
+-Нз и тук и тва си работи
 =====
 bobsnadenica.com
--nothing
+-И тука нищо топ си е
 =====
 istinskiguru.com 
 - Да добавя още гуруто разбира се
 =====
 Malkokote.com
 - По някое време искам да има плащане с карта
+- Да го дам на claude или codex да оптимизира scholl-а
 =====
 Mist of Atlass
 - Играта работи има и backend ама UI-a куца геройчета е малко смотано
 ======
-My Company - 
+My Company - Тука още доста има да се работи
 ======
-Spesti - 
+Spesti - Тука има да се работи над това как да взимаме data-та
 ======
-Trading bot - 
+Trading bot - Тук също проблема е - от къде да взимам data?
 ======
-Рецептите на мама - 
+Рецептите на мама - Евентуално някога когато жената реши да седне да ги напише/снима
 ======
-Who wants to be smart (kids) - 
+Who wants to be smart (kids) - Трябва да оправя гласа и визуално да е по-детско
 ======
-How we name things (kids) - 
+How we name things (kids) - Трябва да оправя гласа да е по-нежен
 ======
-Internet Archive - 
+Internet Archive - Да добавя още неща
 ======
-Career consult - 
+Career consult - Тука има много ще ги напиша после
 ======
-Tech Tools - 
+Tech Tools - И тука има много ще ги напиша после ама едно от главните е да спра да ползвам толкова aws billing tool щот струва пари
