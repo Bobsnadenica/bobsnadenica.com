@@ -3,56 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyCompany | Data-Informed IT Powerhouse</title>
-    <meta name="description" content="MyCompany operates at the intersection of high-scale enterprise engineering and elite personal digital advisory. Data-backed insights for B2B and White-Glove Personal IT.">
+    <title>MyCompany | The Final Boss of IT</title>
+    <meta name="description" content="MyCompany: Data-informed IT powerhouse and elite digital advisory. High-scale engineering meets absolute digital privacy.">
     
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22none%22 stroke=%22%23888%22 stroke-width=%225%22/><circle cx=%2250%22 cy=%2250%22 r=%2210%22 fill=%22%23888%22/><path d=%22M50 5 L50 95 M5 50 L95 50%22 stroke=%22%23888%22 stroke-width=%222%22/></svg>">
+
     <!-- Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- SEO / Schema.org -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "ProfessionalService",
-        "name": "MyCompany",
-        "image": "https://mycompany.com/assets/seo/mycompany-mark.png",
-        "@id": "https://mycompany.com",
-        "url": "https://mycompany.com",
-        "telephone": "",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "",
-            "addressLocality": "",
-            "postalCode": "",
-            "addressCountry": "US"
-        },
-        "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": 0,
-            "longitude": 0
-        },
-        "openingHoursSpecification": {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": [
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday"
-            ],
-            "opens": "09:00",
-            "closes": "18:00"
-        },
-        "sameAs": []
-    }
-    </script>
 </head>
 <body>
     <canvas id="bg-canvas"></canvas>
+    
     <div id="app-shell">
         <header>
             <div class="logo">
@@ -74,19 +39,69 @@
                     <li><a href="data-engine" data-link>Intelligence</a></li>
                     <li><a href="b2b" data-link>Engineering</a></li>
                     <li><a href="personal-it" data-link>Concierge</a></li>
-                    <li><a href="Tech Tools/index.html" class="btn-metal">Tech Tools</a></li>
+                    <li><a href="Tech_Tools/index.html" class="btn-metal">Tech Tools</a></li>
                 </ul>
             </nav>
         </header>
 
         <main id="app-root">
-            <div class="view-container">
-                <p>Initializing Signal...</p>
+            <!-- Hub content is here by default for instant load -->
+            <div id="hub-view" class="view-container">
+                <section class="hero">
+                    <div class="glitch-wrapper">
+                        <h1 class="glitch" data-text="Engineering the Infinite.">Engineering the Infinite.</h1>
+                    </div>
+                    <p class="subtitle">MyCompany operates at the intersection of high-scale enterprise engineering and elite personal digital advisory. We are the final boss of IT.</p>
+                    
+                    <div class="pillars">
+                        <div class="pillar glass-card">
+                            <div class="card-glow"></div>
+                            <h3>Enterprise Scale</h3>
+                            <p>Architecting high-scale cloud environments and proprietary platforms with absolute precision. No legacy is too complex; no scale is too large.</p>
+                            <a href="b2b" data-link class="btn-link">Analyze Solutions &rarr;</a>
+                        </div>
+                        <div class="pillar glass-card">
+                            <div class="card-glow"></div>
+                            <h3>Empirical Intelligence</h3>
+                            <p>Our engineering is informed by massive telemetry datasets aggregated across our ecosystem. We don't guess—we build on facts.</p>
+                            <a href="data-engine" data-link class="btn-link">Open Data Engine &rarr;</a>
+                        </div>
+                        <div class="pillar glass-card">
+                            <div class="card-glow"></div>
+                            <h3>Elite Resolution</h3>
+                            <p>Zero dead ends. We neutralize complex breaches and provide white-glove digital security for high-net-worth individuals.</p>
+                            <a href="personal-it" data-link class="btn-link">Private Advisory &rarr;</a>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="marvel-advert">
+                    <div class="advert-content glass-card">
+                        <h2>Senior Engineering AI Powerhouse.</h2>
+                        <p>We don't just build websites; we build technological marvels. From high-end adult platforms to complex civil reporting systems and location-based games—we have seen every edge case and solved every bottleneck.</p>
+                        <div class="stats-mini">
+                            <div class="stat-mini"><span>99.99%</span> Uptime</div>
+                            <div class="stat-mini"><span>Zero</span> Dead Ends</div>
+                            <div class="stat-mini"><span>Elite</span> Security</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Dynamic view container (hidden by default) -->
+            <div id="dynamic-view" class="view-container" style="display: none;">
+                <!-- Content injected by script.js -->
             </div>
         </main>
 
         <footer>
-            <p>&copy; 2026 MyCompany. Empirical Engineering. Zero Dead Ends.</p>
+            <div class="footer-content">
+                <p>&copy; 2026 MyCompany. Empirical Engineering. The Final Boss.</p>
+                <div class="footer-links">
+                    <a href="privacy" data-link>Privacy</a>
+                    <a href="faq" data-link>FAQ</a>
+                </div>
+            </div>
         </footer>
     </div>
 
