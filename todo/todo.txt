@@ -3,12 +3,14 @@ Everydaylilly.com
 ======
 Everyday Lilly app
 -Да направя по-хубав и по-интересен timelapse
+!!!!!! Da build-na нов release
 ======
 dalisipedal.com 
 -Честно казано нз, работи си, може би малко оптимизация да го дам на claude 
 ======
 PEDAL app
 -Нз и тук и тва си работи
+!!!!!! Da build-na нов release
 =====
 bobsnadenica.com
 -И тука нищо топ си е
