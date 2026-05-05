@@ -16,9 +16,15 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="is-loading">
+    <!-- Architectural Grid -->
+    <div class="grid-overlay"></div>
+    
     <!-- Atmospheric Physics -->
     <canvas id="bg-canvas"></canvas>
     
+    <!-- Transition Mask -->
+    <div id="transition-mask"></div>
+
     <!-- Custom Cursor -->
     <div id="cursor"></div>
     <div id="cursor-follower"></div>
@@ -34,11 +40,11 @@
             
             <nav class="hud-nav">
                 <ul id="main-nav">
-                    <li><a href="solutions" data-link data-magnetic><span class="nav-idx">01</span> Manifest</a></li>
-                    <li><a href="data-engine" data-link data-magnetic><span class="nav-idx">02</span> Intelligence</a></li>
-                    <li><a href="b2b" data-link data-magnetic><span class="nav-idx">03</span> Architecture</a></li>
-                    <li><a href="personal-it" data-link data-magnetic><span class="nav-idx">04</span> Private</a></li>
-                    <li><a href="Tech_Tools/index.html" class="btn-hud" data-magnetic>Root Access</a></li>
+                    <li><a href="solutions" data-link data-magnetic data-scramble><span class="nav-idx">01</span> Manifest</a></li>
+                    <li><a href="data-engine" data-link data-magnetic data-scramble><span class="nav-idx">02</span> Intelligence</a></li>
+                    <li><a href="b2b" data-link data-magnetic data-scramble><span class="nav-idx">03</span> Architecture</a></li>
+                    <li><a href="personal-it" data-link data-magnetic data-scramble><span class="nav-idx">04</span> Private</a></li>
+                    <li><a href="Tech_Tools/index.html" class="btn-hud" data-magnetic data-scramble>Root Access</a></li>
                 </ul>
             </nav>
 
@@ -53,7 +59,7 @@
                 <section class="monolith-hero">
                     <div class="hero-content">
                         <div class="reveal-mask">
-                            <h1 class="display-huge">Computational Sovereignty.</h1>
+                            <h1 class="display-huge" data-scramble>Computational Sovereignty.</h1>
                         </div>
                         <div class="reveal-mask">
                             <p class="hero-lead">Architectural dominance for high-scale enterprise engineering and elite personal digital advisory.</p>
@@ -90,6 +96,12 @@
             
             <div id="dynamic-view" class="view-container" style="display: none;"></div>
         </main>
+
+        <!-- Live Telemetry HUD -->
+        <div id="telemetry-hud">
+            <div class="telemetry-label">Telemetry Feed [Live]</div>
+            <div id="telemetry-log"></div>
+        </div>
 
         <footer id="main-footer">
             <div class="footer-left">
