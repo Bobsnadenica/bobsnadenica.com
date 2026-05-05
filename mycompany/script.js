@@ -77,6 +77,36 @@ const router = async () => {
     // Re-init view specific logic
     initMagnetic();
     new ScrambleText('[data-scramble]');
+    initArchitectureCanvas();
+};
+
+/**
+ * Architecture Canvas V2 Interactivity
+ */
+const initArchitectureCanvas = () => {
+    const layers = document.querySelectorAll('.canvas-layer');
+    const details = document.getElementById('layer-details-v2');
+    if (!layers.length || !details) return;
+
+    const data = {
+        edge: { title: 'Edge Protocol', body: 'Global ingress management. We utilize terraformed CloudFront and WAF configurations to neutralize threats at the perimeter while delivering sub-50ms latency globally.' },
+        compute: { title: 'Compute Engine', body: 'Elastic workload orchestration. Our Kubernetes and Serverless clusters are engineered for zero-touch scaling, automatically adjusting to massive traffic spikes.' },
+        data: { title: 'Data Sovereign', body: 'Distributed data integrity. We architect RDBMS and NoSQL systems that utilize multi-region replication and automated failover for zero-loss operations.' },
+        security: { title: 'Zero Trust', body: 'Complete environment hardening. We implement granular IAM, rotatable secret management, and end-to-end encryption for both data-at-rest and data-in-transit.' }
+    };
+
+    layers.forEach(layer => {
+        layer.addEventListener('click', () => {
+            const key = layer.dataset.layer;
+            const info = data[key];
+            details.innerHTML = `
+                <div class="details-content">
+                    <h2 style="font-family: var(--f-display); font-size: 3rem; margin-bottom: 2rem; color: var(--c-accent);">${info.title}</h2>
+                    <p style="font-size: 1.2rem; color: var(--c-fg); line-height: 1.4;">${info.body}</p>
+                </div>
+            `;
+        });
+    });
 };
 
 /**
@@ -85,7 +115,8 @@ const router = async () => {
 class ScrambleText {
     constructor(selector) {
         this.elements = document.querySelectorAll(selector);
-        this.chars = '!<>-_\\/[]{}—=+*^?#________';
+        // Use a set of characters that have similar widths to reduce "jerk"
+        this.chars = 'ABCDEF0123456789!@#$%^&*()_+';
         this.init();
     }
 
@@ -99,15 +130,30 @@ class ScrambleText {
     }
 
     scramble(el, original) {
+        if (el.scrambling) return;
+        el.scrambling = true;
+
+        // Lock current dimensions
+        const rect = el.getBoundingClientRect();
+        el.style.width = `${rect.width}px`;
+        el.style.height = `${rect.height}px`;
+        el.classList.add('is-scrambling');
+
         let iteration = 0;
-        let interval = setInterval(() => {
+        const interval = setInterval(() => {
             el.innerText = original.split('').map((char, index) => {
                 if (index < iteration) return original[index];
                 return this.chars[Math.floor(Math.random() * this.chars.length)];
             }).join('');
 
-            if (iteration >= original.length) clearInterval(interval);
-            iteration += 1 / 3;
+            if (iteration >= original.length) {
+                clearInterval(interval);
+                el.scrambling = false;
+                el.classList.remove('is-scrambling');
+                el.style.width = ''; // Release lock
+                el.style.height = '';
+            }
+            iteration += 1 / 2;
         }, 30);
     }
 }
@@ -222,7 +268,7 @@ class QuantumWeb {
             if (p.y < 0) p.y = this.canvas.height;
             if (p.y > this.canvas.height) p.y = 0;
 
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            this.ctx.fillStyle = 'rgba(255, 157, 0, 0.1)'; // More subtle particles
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
@@ -236,8 +282,8 @@ class QuantumWeb {
                 const dy = this.particles[i].y - this.particles[j].y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < 150) {
-                    const alpha = (1 - dist / 150) * 0.08;
-                    this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                    const alpha = (1 - dist / 150) * 0.05; // Fainter connections
+                    this.ctx.strokeStyle = `rgba(255, 157, 0, ${alpha})`;
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
                     this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
@@ -255,16 +301,17 @@ class QuantumWeb {
 const initTelemetry = () => {
     const log = document.getElementById('telemetry-log');
     if (!log) return;
+    const actions = ['FETCH', 'PUSH', 'SCRAMBLE', 'REVEAL', 'SYNC', 'HARDEN', 'INIT', 'HARVEST', 'SCALE'];
     const addEntry = () => {
         const entry = document.createElement('div');
         entry.className = 'log-entry';
         const hex = Math.random().toString(16).substring(2, 10).toUpperCase();
-        const action = ['FETCH', 'PUSH', 'SCRAMBLE', 'REVEAL', 'SYNC', 'HARDEN', 'INIT'][Math.floor(Math.random() * 7)];
+        const action = actions[Math.floor(Math.random() * actions.length)];
         entry.innerHTML = `<span class="log-hex">[${hex}]</span> ${action} protocol active...`;
         log.prepend(entry);
-        if (log.childNodes.length > 10) log.lastChild.remove();
+        while (log.childNodes.length > 6) log.lastChild.remove();
     };
-    setInterval(addEntry, 2000);
+    setInterval(addEntry, 2500);
 };
 
 /**

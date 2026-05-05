@@ -1,102 +1,48 @@
-<section class="architecture-canvas">
-    <header class="section-header">
+<section class="monolith-view">
+    <header class="view-header reveal-mask">
         <span class="label">System Visualization</span>
-        <h1>Architecture Canvas.</h1>
-        <p>Interactive planning for high-scale environments. Define your requirements across the critical layers of the modern IT stack.</p>
+        <h1 class="display-huge" data-scramble>The Canvas.</h1>
+        <p class="view-lead">Interactive planning for high-scale environments. We architect across the four critical layers of the modern IT stack.</p>
     </header>
 
-    <div class="canvas-grid">
-        <div class="layer-card glass-card" data-layer="edge">
-            <div class="card-glow"></div>
-            <h3>Edge</h3>
-            <p>CDN, DDoS Mitigation, WAF</p>
-            <div class="status-indicator"></div>
+    <div class="architecture-canvas-v2">
+        <div class="canvas-layers">
+            <div class="canvas-layer" data-layer="edge" data-magnetic>
+                <span class="layer-idx">01</span>
+                <h3>Edge Layer</h3>
+                <p>Global delivery and perimeter hardening. High-performance CDN nodes, Integrated WAF, and automated DDoS mitigation.</p>
+            </div>
+            <div class="canvas-layer" data-layer="compute" data-magnetic>
+                <span class="layer-idx">02</span>
+                <h3>Compute Layer</h3>
+                <p>Dynamic orchestration of containerized workloads and serverless functions. Designed for linear, infinite scale.</p>
+            </div>
+            <div class="canvas-layer" data-layer="data" data-magnetic>
+                <span class="layer-idx">03</span>
+                <h3>Data Layer</h3>
+                <p>Highly available database systems with automated failover and regional replication. Absolute data integrity.</p>
+            </div>
+            <div class="canvas-layer" data-layer="security" data-magnetic>
+                <span class="layer-idx">04</span>
+                <h3>Security Layer</h3>
+                <p>Zero-trust architecture. Granular IAM policies, end-to-end encryption, and continuous monitoring.</p>
+            </div>
         </div>
-        <div class="layer-card glass-card" data-layer="compute">
-            <div class="card-glow"></div>
-            <h3>Compute</h3>
-            <p>Serverless, K8s, EC2</p>
-            <div class="status-indicator"></div>
-        </div>
-        <div class="layer-card glass-card" data-layer="data">
-            <div class="card-glow"></div>
-            <h3>Data</h3>
-            <p>RDBMS, NoSQL, Data Lake</p>
-            <div class="status-indicator"></div>
-        </div>
-        <div class="layer-card glass-card" data-layer="security">
-            <div class="card-glow"></div>
-            <h3>Security</h3>
-            <p>IAM, Zero Trust, Encryption</p>
-            <div class="status-indicator"></div>
-        </div>
-    </div>
-
-    <div class="canvas-details glass-card">
-        <div id="details-content">
-            <h2>System Analysis Pending.</h2>
-            <p>Select a structural layer above to initiate empirical engineering analysis.</p>
+        
+        <div id="layer-details-v2" class="reveal-mask">
+            <div class="details-placeholder">Select a layer to initiate deep architectural analysis.</div>
         </div>
     </div>
 </section>
 
 <style>
-    .architecture-canvas {
-        padding: 2rem 0;
-    }
-    .canvas-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    .layer-card {
-        cursor: pointer;
-        padding: 2.5rem;
-    }
-    .layer-card h3 {
-        font-size: 1.4rem;
-        margin-bottom: 0.8rem;
-        color: var(--accent-metal-light);
-    }
-    .layer-card p {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.4;
-    }
-    .status-indicator {
-        width: 8px;
-        height: 8px;
-        background: var(--accent-metal);
-        border-radius: 50%;
-        position: absolute;
-        top: 2.5rem;
-        right: 2.5rem;
-        opacity: 0.3;
-        transition: all 0.3s var(--transition-ease);
-    }
-    .layer-card:hover .status-indicator {
-        opacity: 1;
-        background: #fff;
-        box-shadow: 0 0 15px #fff;
-    }
-    .canvas-details {
-        min-height: 400px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        border-style: dashed;
-    }
-    #details-content h2 {
-        font-size: 2.5rem;
-        margin-bottom: 1.5rem;
-        color: var(--accent-metal-light);
-    }
-    #details-content p {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        max-width: 600px;
-        margin: 0 auto;
-    }
+    .architecture-canvas-v2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 4rem; min-height: 60vh; }
+    .canvas-layers { display: flex; flex-direction: column; gap: 1rem; }
+    .canvas-layer { padding: 2rem; border: 1px solid var(--c-dim); transition: all 0.3s; cursor: pointer; position: relative; }
+    .canvas-layer:hover { border-color: var(--c-accent); background: rgba(255, 157, 0, 0.05); }
+    .layer-idx { font-size: 0.6rem; color: var(--c-accent); position: absolute; top: 1rem; left: 1rem; }
+    .canvas-layer h3 { font-family: var(--f-display); margin-bottom: 0.5rem; font-size: 1.5rem; }
+    .canvas-layer p { font-size: 0.8rem; color: var(--c-muted); }
+    #layer-details-v2 { border-left: 1px solid var(--c-dim); padding-left: 4rem; display: flex; align-items: center; }
+    .details-placeholder { font-family: var(--f-display); font-size: 2rem; color: var(--c-dim); }
 </style>
