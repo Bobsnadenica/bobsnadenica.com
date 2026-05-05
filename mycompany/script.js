@@ -133,12 +133,6 @@ class ScrambleText {
         if (el.scrambling) return;
         el.scrambling = true;
 
-        // Lock current dimensions
-        const rect = el.getBoundingClientRect();
-        el.style.width = `${rect.width}px`;
-        el.style.height = `${rect.height}px`;
-        el.classList.add('is-scrambling');
-
         let iteration = 0;
         const interval = setInterval(() => {
             el.innerText = original.split('').map((char, index) => {
@@ -149,14 +143,32 @@ class ScrambleText {
             if (iteration >= original.length) {
                 clearInterval(interval);
                 el.scrambling = false;
-                el.classList.remove('is-scrambling');
-                el.style.width = ''; // Release lock
-                el.style.height = '';
             }
             iteration += 1 / 2;
         }, 30);
     }
 }
+
+/**
+ * System Health Simulation
+ */
+const initHealthCheck = () => {
+    const nodes = ['neural', 'ingress', 'seo', 'shield'];
+    const statuses = ['ONLINE', 'ACTIVE', 'STABLE', 'READY', 'SYNCED'];
+    
+    setInterval(() => {
+        const node = nodes[Math.floor(Math.random() * nodes.length)];
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        const el = document.getElementById(`status-${node}`);
+        if (el) {
+            el.innerHTML = `<div class="status-dot pulse"></div> ${status}`;
+            setTimeout(() => {
+                const dot = el.querySelector('.status-dot');
+                if (dot) dot.classList.remove('pulse');
+            }, 1000);
+        }
+    }, 4000);
+};
 
 /**
  * Custom Cursor Logic
@@ -335,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new QuantumWeb('bg-canvas');
     initCursor();
     initMagnetic();
-    initTelemetry();
+    initHealthCheck();
     new ScrambleText('[data-scramble]');
     router();
 });

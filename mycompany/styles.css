@@ -231,14 +231,7 @@ body::before {
     display: inline-block;
     vertical-align: bottom;
     will-change: contents;
-    overflow: hidden; /* Contain the 'jerk' visually */
-    max-height: 1.2em; /* Lock vertical space */
-    line-height: 1;
-}
-
-/* Force monospace for the actual scramble process in JS to keep width stable */
-.is-scrambling {
-    font-family: monospace !important;
+    position: relative;
 }
 
 .hero-lead {
@@ -360,46 +353,52 @@ body::before {
     font-size: 1.1rem;
 }
 
-/* Live Telemetry HUD */
-#telemetry-hud {
+/* Simulated Health Dashboard */
+#health-dashboard {
     position: fixed;
     bottom: 2rem;
     left: var(--gap);
-    width: 250px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
+    width: 280px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(15px);
     border: 1px solid var(--c-dim);
-    padding: 1rem;
+    padding: 1.2rem;
     z-index: 1000;
-    font-family: monospace;
 }
 
-.telemetry-label {
-    font-size: 0.5rem;
-    color: var(--c-accent);
+.health-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--c-dim);
+    padding-bottom: 0.5rem;
+}
+
+.health-title {
+    font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    margin-bottom: 0.5rem;
-    border-bottom: 1px solid var(--c-dim);
-    padding-bottom: 0.3rem;
+    color: var(--c-accent);
+    font-weight: 800;
 }
 
-#telemetry-log {
-    font-size: 0.6rem;
-    color: var(--c-muted);
-    height: 72px; /* 6 entries * 1.2 line-height * approx font-size */
-    overflow: hidden;
-    line-height: 1.2;
+.health-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.health-node {
     display: flex;
     flex-direction: column;
+    gap: 0.2rem;
 }
 
-.log-entry {
-    margin-bottom: 0.2rem;
-    white-space: nowrap;
-}
-
-.log-hex { color: var(--c-accent); opacity: 0.8; }
+.node-label { font-size: 0.5rem; color: var(--c-muted); text-transform: uppercase; }
+.node-status { font-size: 0.6rem; font-family: monospace; display: flex; align-items: center; gap: 0.4rem; color: var(--c-fg); }
+.status-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--c-accent); }
+.status-dot.pulse { animation: pulse 1s infinite; }
 
 /* Footer */
 #main-footer {
