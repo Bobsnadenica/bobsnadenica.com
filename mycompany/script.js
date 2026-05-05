@@ -263,8 +263,8 @@ class QuantumWeb {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this.particles = [];
-        const count = Math.floor((this.canvas.width * this.canvas.height) / 12000);
-        for (let i = 0; i < Math.min(count, 150); i++) {
+        const count = Math.floor((this.canvas.width * this.canvas.height) / 4000);
+        for (let i = 0; i < Math.min(count, 500); i++) {
             this.particles.push({
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
@@ -303,7 +303,7 @@ class QuantumWeb {
             if (p.y < 0) p.y = this.canvas.height;
             if (p.y > this.canvas.height) p.y = 0;
 
-            this.ctx.fillStyle = 'rgba(255, 157, 0, 0.1)'; // More subtle particles
+            this.ctx.fillStyle = 'rgba(255, 157, 0, 0.6)'; // Increased dot intensity
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
@@ -317,7 +317,7 @@ class QuantumWeb {
                 const dy = this.particles[i].y - this.particles[j].y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < 150) {
-                    const alpha = (1 - dist / 150) * 0.05; // Fainter connections
+                    const alpha = (1 - dist / 150) * 0.2; // Stronger connections
                     this.ctx.strokeStyle = `rgba(255, 157, 0, ${alpha})`;
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
