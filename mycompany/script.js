@@ -5,7 +5,7 @@
 
 const routes = {
     '': { title: 'Sovereign', view: 'home.html', isStatic: true },
-    'solutions': { title: 'Manifest', view: 'solutions.html' },
+    'manifest': { title: 'Manifest', view: 'manifest.html' },
     'who-are-we': { title: 'Pedigree', view: 'who-are-we.html' },
     'data-engine': { title: 'Intelligence', view: 'data-engine.html' },
     'b2b': { title: 'Architecture', view: 'b2b.html' },

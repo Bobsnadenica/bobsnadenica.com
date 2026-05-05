@@ -40,7 +40,9 @@ The portal is optimized for static hosting on GitHub Pages:
 │   ├── home.html       # The Hub
 │   ├── data-engine.html # Empirical Engineering
 │   ├── b2b.html        # Enterprise Solutions
+│   ├── manifest.html   # Sovereign Capabilities
 │   ├── personal-it.html # Private Advisory
+│   ├── who-are-we.html  # Sovereign Pedigree
 │   └── architecture.html # Interactive Canvas
 └── Tech_Tools/         # Legacy/External Tool Suite (Linked)
 ```
