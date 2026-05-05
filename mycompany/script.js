@@ -1,5 +1,5 @@
 /**
- * MyCompany Monolith Engine
+ * MyCompany Monolith Engine [Final Boss Tier]
  * Senior Engineering Standard.
  */
 
@@ -15,6 +15,7 @@ const routes = {
 
 const hubView = document.getElementById('hub-view');
 const dynamicView = document.getElementById('dynamic-view');
+const transitionMask = document.getElementById('transition-mask');
 const cursor = document.getElementById('cursor');
 const follower = document.getElementById('cursor-follower');
 
@@ -29,12 +30,16 @@ const getRouteKey = () => {
 };
 
 /**
- * SPA Router
+ * SPA Router with Cinematic Transitions
  */
 const router = async () => {
     const key = getRouteKey();
     const route = routes[key];
     
+    // Start Transition Mask
+    transitionMask.classList.add('is-active');
+    await new Promise(r => setTimeout(r, 800));
+
     // Update active state in nav
     document.querySelectorAll('#main-nav a').forEach(link => {
         link.classList.remove('active');
@@ -47,40 +52,65 @@ const router = async () => {
     if (key === '') {
         dynamicView.style.display = 'none';
         hubView.style.display = 'block';
-        document.title = `MyCompany | ${route.title}`;
-        document.body.classList.remove('is-loading');
-        return;
+    } else {
+        hubView.style.display = 'none';
+        dynamicView.style.display = 'block';
+        
+        try {
+            const response = await fetch(`views/${route.view}`);
+            if (!response.ok) throw new Error(`Status ${response.status}`);
+            const html = await response.text();
+            dynamicView.innerHTML = html;
+        } catch (error) {
+            console.error('Portal Error:', error);
+            dynamicView.innerHTML = `<div style="padding: 10rem; text-align: center;"><h2>Connection Interrupted</h2></div>`;
+        }
     }
 
-    hubView.style.display = 'none';
-    dynamicView.style.display = 'block';
-    document.body.classList.add('is-loading'); // Reset reveals
+    document.title = `MyCompany | ${route.title}`;
+    window.scrollTo(0, 0);
 
-    try {
-        const response = await fetch(`views/${route.view}`);
-        if (!response.ok) throw new Error(`Status ${response.status}`);
-        const html = await response.text();
-        
-        dynamicView.innerHTML = html;
-        document.title = `MyCompany | ${route.title}`;
-        
-        // Trigger reveal after injection
-        setTimeout(() => {
-            document.body.classList.remove('is-loading');
-        }, 100);
-
-        window.scrollTo(0, 0);
-
-    } catch (error) {
-        console.error('Portal Error:', error);
-        dynamicView.innerHTML = `
-            <div style="padding: 10rem var(--gap); text-align: center;">
-                <h2 style="font-family: var(--f-display); font-size: 3rem; margin-bottom: 2rem;">Connection Interrupted</h2>
-                <a href="./" data-link class="btn-hud">Return to Hub</a>
-            </div>`;
-        document.body.classList.remove('is-loading');
-    }
+    // End Transition Mask
+    transitionMask.classList.remove('is-active');
+    document.body.classList.remove('is-loading');
+    
+    // Re-init view specific logic
+    initMagnetic();
+    new ScrambleText('[data-scramble]');
 };
+
+/**
+ * Scramble Text Engine
+ */
+class ScrambleText {
+    constructor(selector) {
+        this.elements = document.querySelectorAll(selector);
+        this.chars = '!<>-_\\/[]{}—=+*^?#________';
+        this.init();
+    }
+
+    init() {
+        this.elements.forEach(el => {
+            if (el.dataset.scrambled) return;
+            el.dataset.scrambled = "true";
+            const originalText = el.innerText;
+            el.addEventListener('mouseenter', () => this.scramble(el, originalText));
+        });
+    }
+
+    scramble(el, original) {
+        let iteration = 0;
+        let interval = setInterval(() => {
+            el.innerText = original.split('').map((char, index) => {
+                if (index < iteration) return original[index];
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }).join('');
+
+            if (iteration >= original.length) clearInterval(interval);
+            iteration += 1 / 3;
+        }, 30);
+    }
+}
 
 /**
  * Custom Cursor Logic
@@ -92,16 +122,10 @@ const initCursor = () => {
     window.addEventListener('mousemove', e => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-        
         cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
         
-        // Check for hover
         const target = e.target.closest('a, button, [data-magnetic]');
-        if (target) {
-            document.body.classList.add('cursor-hover');
-        } else {
-            document.body.classList.remove('cursor-hover');
-        }
+        document.body.classList.toggle('cursor-hover', !!target);
     });
 
     const loop = () => {
@@ -131,29 +155,39 @@ const initMagnetic = () => {
 };
 
 /**
- * Atmospheric Data Field
+ * Quantum Web Canvas
  */
-class DataField {
+class QuantumWeb {
     constructor(id) {
         this.canvas = document.getElementById(id);
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
+        this.mouse = { x: null, y: null, vx: 0, vy: 0 };
+        this.lastMouse = { x: 0, y: 0 };
         this.init();
         this.animate();
         window.addEventListener('resize', () => this.init());
+        window.addEventListener('mousemove', e => {
+            this.mouse.vx = e.clientX - this.lastMouse.x;
+            this.mouse.vy = e.clientY - this.lastMouse.y;
+            this.mouse.x = e.clientX;
+            this.mouse.y = e.clientY;
+            this.lastMouse.x = e.clientX;
+            this.lastMouse.y = e.clientY;
+        });
     }
 
     init() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this.particles = [];
-        const count = Math.floor((this.canvas.width * this.canvas.height) / 10000);
+        const count = Math.floor((this.canvas.width * this.canvas.height) / 12000);
         for (let i = 0; i < Math.min(count, 150); i++) {
             this.particles.push({
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
-                z: Math.random() * 0.5 + 0.5,
+                ox: 0, oy: 0, // Offset for mouse wake
                 vx: (Math.random() - 0.5) * 0.2,
                 vy: (Math.random() - 0.5) * 0.2,
                 size: Math.random() * 2 + 0.5
@@ -166,22 +200,35 @@ class DataField {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.particles.forEach(p => {
-            p.x += p.vx * p.z;
-            p.y += p.vy * p.z;
+            // Apply mouse wake
+            const dx = p.x - this.mouse.x;
+            const dy = p.y - this.mouse.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 200) {
+                const force = (200 - dist) / 200;
+                p.ox += this.mouse.vx * force * 0.1;
+                p.oy += this.mouse.vy * force * 0.1;
+            }
+
+            // Dampen offset
+            p.ox *= 0.95;
+            p.oy *= 0.95;
+
+            p.x += p.vx + p.ox;
+            p.y += p.vy + p.oy;
 
             if (p.x < 0) p.x = this.canvas.width;
             if (p.x > this.canvas.width) p.x = 0;
             if (p.y < 0) p.y = this.canvas.height;
             if (p.y > this.canvas.height) p.y = 0;
 
-            const opacity = 0.1 * p.z;
-            this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             this.ctx.beginPath();
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
         });
 
-        // Subtle web
+        // Web connections
         this.ctx.lineWidth = 0.5;
         for (let i = 0; i < this.particles.length; i++) {
             for (let j = i + 1; j < this.particles.length; j++) {
@@ -189,7 +236,7 @@ class DataField {
                 const dy = this.particles[i].y - this.particles[j].y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < 150) {
-                    const alpha = (1 - dist / 150) * 0.05;
+                    const alpha = (1 - dist / 150) * 0.08;
                     this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
@@ -201,6 +248,24 @@ class DataField {
         requestAnimationFrame(() => this.animate());
     }
 }
+
+/**
+ * Telemetry Log Engine
+ */
+const initTelemetry = () => {
+    const log = document.getElementById('telemetry-log');
+    if (!log) return;
+    const addEntry = () => {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        const hex = Math.random().toString(16).substring(2, 10).toUpperCase();
+        const action = ['FETCH', 'PUSH', 'SCRAMBLE', 'REVEAL', 'SYNC', 'HARDEN', 'INIT'][Math.floor(Math.random() * 7)];
+        entry.innerHTML = `<span class="log-hex">[${hex}]</span> ${action} protocol active...`;
+        log.prepend(entry);
+        if (log.childNodes.length > 10) log.lastChild.remove();
+    };
+    setInterval(addEntry, 2000);
+};
 
 /**
  * Event Interceptor
@@ -220,8 +285,10 @@ document.addEventListener('click', e => {
 window.addEventListener('popstate', router);
 
 document.addEventListener('DOMContentLoaded', () => {
-    new DataField('bg-canvas');
+    new QuantumWeb('bg-canvas');
     initCursor();
     initMagnetic();
+    initTelemetry();
+    new ScrambleText('[data-scramble]');
     router();
 });

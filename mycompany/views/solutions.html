@@ -1,15 +1,15 @@
 <section class="monolith-manifest">
     <header class="manifest-header reveal-mask">
         <span class="label">Manifest 2026</span>
-        <h1 class="display-huge">Capabilities.</h1>
+        <h1 class="display-huge" data-scramble>Capabilities.</h1>
     </header>
 
     <div class="manifest-list">
         <article class="manifest-item reveal-mask">
             <span class="idx">01</span>
             <div class="manifest-content">
-                <h2>Architectural Sovereignty</h2>
-                <p>We build monolithic digital infrastructures. From high-end adult platforms to mission-critical civil reporting engines. We specialized in systems that scale beyond the 1%.</p>
+                <h2 data-scramble>Architectural Sovereignty</h2>
+                <p>We build monolithic digital infrastructures. From high-end adult platforms to mission-critical civil reporting engines. We specialize in systems that scale beyond the 1%.</p>
                 <div class="manifest-meta">
                     <span>Modular ES6+</span>
                     <span>Zero Bloat</span>
@@ -21,7 +21,7 @@
         <article class="manifest-item reveal-mask">
             <span class="idx">02</span>
             <div class="manifest-content">
-                <h2>Computational Intelligence</h2>
+                <h2 data-scramble>Computational Intelligence</h2>
                 <p>Telemetry as a weapon. We architect the harvesting engines that process 2.4PB+ of cross-ecosystem data into empirical engineering dominance.</p>
                 <div class="manifest-meta">
                     <span>Data Harvesting</span>
@@ -34,7 +34,7 @@
         <article class="manifest-item reveal-mask">
             <span class="idx">03</span>
             <div class="manifest-content">
-                <h2>Technical Dominance</h2>
+                <h2 data-scramble>Technical Dominance</h2>
                 <p>Search isn't a strategy; it's a byproduct of structural superiority. We engineer rankings through architectural optimization and semantic dominance.</p>
                 <div class="manifest-meta">
                     <span>Technical SEO</span>
@@ -47,7 +47,7 @@
         <article class="manifest-item reveal-mask">
             <span class="idx">04</span>
             <div class="manifest-content">
-                <h2>Private Infrastructure</h2>
+                <h2 data-scramble>Private Infrastructure</h2>
                 <p>White-glove digital security for the elite. We build personal digital fortresses with absolute privacy, end-to-end encryption, and zero-trust protocols.</p>
                 <div class="manifest-meta">
                     <span>Personal Security</span>
@@ -59,8 +59,8 @@
     </div>
 
     <div class="manifest-footer reveal-mask">
-        <p>Ready to initiate the protocol?</p>
-        <a href="mailto:architect@mycompany.com" class="magnetic-btn" data-magnetic>
+        <p data-scramble>Ready to initiate the protocol?</p>
+        <a href="mailto:architect@mycompany.com" class="magnetic-btn" data-magnetic data-scramble>
             <span class="btn-text">Contact</span>
             <svg viewBox="0 0 100 100" class="btn-circle"><circle cx="50" cy="50" r="48" /></svg>
         </a>
@@ -95,12 +95,14 @@
         font-size: 3rem;
         margin-bottom: 2rem;
         line-height: 1;
+        color: #fff;
     }
     .manifest-content p {
         font-size: 1.2rem;
         color: var(--c-muted);
         max-width: 600px;
         margin-bottom: 3rem;
+        font-weight: 300;
     }
     .manifest-meta {
         display: flex;
@@ -110,7 +112,8 @@
         font-size: 0.6rem;
         text-transform: uppercase;
         letter-spacing: 0.2em;
-        color: var(--c-dim);
+        color: var(--c-accent);
+        opacity: 0.5;
     }
     .manifest-footer {
         padding: 10rem 0;
@@ -119,8 +122,9 @@
     }
     .manifest-footer p {
         font-family: var(--f-display);
-        font-size: 2rem;
+        font-size: 2.5rem;
         margin-bottom: 4rem;
+        color: #fff;
     }
 
     @media (max-width: 768px) {

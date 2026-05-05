@@ -45,10 +45,36 @@ body::before {
     z-index: 9999;
 }
 
+.grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(136, 136, 136, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(136, 136, 136, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 0;
+    pointer-events: none;
+}
+
 #bg-canvas {
     position: fixed;
     inset: 0;
     z-index: -1;
+}
+
+/* Transition Mask */
+#transition-mask {
+    position: fixed;
+    inset: 0;
+    background: var(--c-bg);
+    z-index: 99999;
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    transition: clip-path 0.8s var(--ease-in-out);
+    pointer-events: none;
+}
+
+#transition-mask.is-active {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
 /* Custom Cursor */
@@ -310,6 +336,45 @@ body::before {
     font-size: 1.1rem;
 }
 
+/* Live Telemetry HUD */
+#telemetry-hud {
+    position: fixed;
+    bottom: 2rem;
+    left: var(--gap);
+    width: 250px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--c-dim);
+    padding: 1rem;
+    z-index: 1000;
+    font-family: monospace;
+}
+
+.telemetry-label {
+    font-size: 0.5rem;
+    color: var(--c-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--c-dim);
+    padding-bottom: 0.3rem;
+}
+
+#telemetry-log {
+    font-size: 0.6rem;
+    color: var(--c-muted);
+    height: 80px;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.log-entry {
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+}
+
+.log-hex { color: #fff; opacity: 0.5; }
+
 /* Footer */
 #main-footer {
     padding: 4rem var(--gap);
@@ -321,6 +386,9 @@ body::before {
     text-transform: uppercase;
     letter-spacing: 0.2em;
     color: var(--c-dim);
+    background: var(--c-bg);
+    position: relative;
+    z-index: 100;
 }
 
 .footer-right {
