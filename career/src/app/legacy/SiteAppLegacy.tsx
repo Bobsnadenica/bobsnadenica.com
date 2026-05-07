@@ -464,6 +464,33 @@ function formatConsultantTypeLabel(profileType?: ConsultantProfileType) {
   return profileType === "mentor" ? "Ментор" : "Консултант";
 }
 
+function getDirectoryKindLabel(kind: string) {
+  if (kind === "mentor" || kind === "consultant") {
+    return formatConsultantTypeLabel(kind);
+  }
+
+  return "";
+}
+
+function buildDirectoryFilterLabels({
+  query,
+  city,
+  kind,
+  topOnly
+}: {
+  query: string;
+  city: string;
+  kind: string;
+  topOnly: boolean;
+}) {
+  return [
+    query ? `Търсене: ${query}` : "",
+    city ? `Град: ${city}` : "",
+    getDirectoryKindLabel(kind),
+    topOnly ? "Само водещи профили" : ""
+  ].filter(Boolean);
+}
+
 function getConsultantProfileType(consultant: ConsultantProfile) {
   return consultant.profileType || "consultant";
 }
@@ -1571,6 +1598,7 @@ export function UsersPage() {
   const visibleConsultants = rankedConsultants;
   const hiddenCount = Math.max(rankedConsultants.length - visibleConsultants.length, 0);
   const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
+  const activeFilterLabels = buildDirectoryFilterLabels({ query, city, kind, topOnly });
   const topMatch = rankedConsultants.find((item) => item.match)?.consultant || null;
   const topMatchDetails = topMatch ? getConsultantMatch(matchingProfile, topMatch) : null;
   const profileCtaTo = user ? "/dashboard" : "/auth?tab=register";
@@ -1781,76 +1809,106 @@ export function UsersPage() {
             </div>
           </div>
 
-          <div className="filter-bar">
-            <label>
-              Ключова дума
-              <input
-                value={query}
-                onChange={(event) =>
-                  applyPresetQuery(event.target.value)
-                }
-                placeholder="Executive CV, интервю, leadership, кариерна промяна..."
-              />
-            </label>
-            <label>
-              Град
-              <input
-                value={city}
-                onChange={(event) =>
-                  applyDirectoryFilters({ city: event.target.value })
-                }
-                placeholder="София, Берлин, Лондон, Виена"
-              />
-            </label>
-          </div>
-
-          <div className="search-shortcuts directory-switches">
-            <span className="search-shortcuts__label">Тип профил</span>
-            <div className="search-shortcuts__list">
-              {(
-                [
-                  { value: "all", label: "Всички" },
-                  { value: "consultant", label: "Консултанти" },
-                  { value: "mentor", label: "Ментори" }
-                ] as const
-              ).map((option) => (
-                <button
-                  className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
-                  key={option.value}
-                  type="button"
-                  onClick={() => applyDirectoryFilters({ kind: option.value })}
-                >
-                  {option.label}
-                </button>
-              ))}
-              <button
-                className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
-                type="button"
-                onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
-              >
-                Само водещи профили
-              </button>
+          <div className="directory-controls">
+            <div className="directory-controls__header">
+              <div>
+                <strong>Намери подходящия човек</strong>
+                <span>
+                  Търси по тема, град и тип профил. Подреждането отчита избрания потребителски контекст.
+                </span>
+              </div>
+              <div className="directory-results-indicator">
+                <strong>{loading ? "..." : visibleConsultants.length}</strong>
+                <span>{visibleConsultants.length === 1 ? "показан профил" : "показани профила"}</span>
+              </div>
             </div>
-          </div>
 
-          <div className="filter-actions">
-            <button
-              className="ghost-button"
-              type="button"
-              onClick={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })}
-              disabled={!hasActiveFilters}
-            >
-              Изчисти филтрите
-            </button>
-            <Link className="ghost-button" to={profileCtaTo}>
-              {isConsultantViewer
-                ? user
-                  ? "Към таблото"
-                  : "Отвори профила си"
-                : profile
-                  ? "Отвори профила си"
-                  : "Влез за персонален достъп"}
-            </Link>
+            <div className="filter-bar directory-filter-bar">
+              <label>
+                Ключова дума
+                <input
+                  value={query}
+                  onChange={(event) =>
+                    applyPresetQuery(event.target.value)
+                  }
+                  placeholder="Executive CV, интервю, leadership, кариерна промяна..."
+                />
+              </label>
+              <label>
+                Град
+                <input
+                  value={city}
+                  onChange={(event) =>
+                    applyDirectoryFilters({ city: event.target.value })
+                  }
+                  placeholder="София, Берлин, Лондон, Виена"
+                />
+              </label>
+            </div>
+
+            <div className="search-shortcuts directory-switches">
+              <span className="search-shortcuts__label">Тип профил</span>
+              <div className="search-shortcuts__list">
+                {(
+                  [
+                    { value: "all", label: "Всички" },
+                    { value: "consultant", label: "Консултанти" },
+                    { value: "mentor", label: "Ментори" }
+                  ] as const
+                ).map((option) => (
+                  <button
+                    className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
+                    key={option.value}
+                    type="button"
+                    onClick={() => applyDirectoryFilters({ kind: option.value })}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+                <button
+                  className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
+                  type="button"
+                  onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
+                >
+                  Само водещи профили
+                </button>
+              </div>
+            </div>
+
+            <div className="directory-filter-summary">
+              <div className="directory-filter-chips" aria-label="Активни филтри">
+                {activeFilterLabels.length ? (
+                  activeFilterLabels.map((item) => (
+                    <span className="directory-filter-chip" key={item}>
+                      {item}
+                    </span>
+                  ))
+                ) : (
+                  <span className="directory-filter-chip directory-filter-chip--muted">
+                    Без активни филтри
+                  </span>
+                )}
+              </div>
+              <div className="filter-actions directory-filter-actions">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })}
+                  disabled={!hasActiveFilters}
+                >
+                  Изчисти филтрите
+                </button>
+                <Link className="ghost-button" to={profileCtaTo}>
+                  {isConsultantViewer
+                    ? user
+                      ? "Към таблото"
+                      : "Отвори профила си"
+                    : profile
+                      ? "Отвори профила си"
+                      : "Влез за персонален достъп"}
+                </Link>
+              </div>
+            </div>
           </div>
 
           {isConsultantViewer ? (
@@ -1866,23 +1924,50 @@ export function UsersPage() {
             </div>
           ) : null}
 
-          {viewerLoading ? <div className="panel">Проверяваме достъпа на акаунта...</div> : null}
-          {loading ? <div className="panel">Зареждаме консултантите...</div> : null}
+          {viewerLoading ? (
+            <DirectoryFeedbackState
+              tone="neutral"
+              title="Проверяваме профила"
+              message="След проверката каталогът ще покаже дали има персонален контекст за подреждане."
+            />
+          ) : null}
+          {loading ? (
+            <>
+              <DirectoryFeedbackState
+                tone="loading"
+                title="Зареждаме консултантите"
+                message="Подготвяме активните профили, теми и наличности."
+              />
+              <div className="consultant-grid consultant-grid--directory consultant-grid--loading">
+                {[0, 1, 2, 3].map((item) => (
+                  <ConsultantCardSkeleton key={item} />
+                ))}
+              </div>
+            </>
+          ) : null}
           {error ? <div className="panel panel--error">{error}</div> : null}
 
           {!loading && !error && visibleConsultants.length === 0 ? (
-            <div className="panel">Няма съвпадения за избраните филтри.</div>
+            <DirectoryFeedbackState
+              tone="empty"
+              title="Няма съвпадения за избраните филтри"
+              message="Разшири търсенето или изчисти филтрите, за да видиш повече активни консултанти и ментори."
+              actionLabel="Изчисти филтрите"
+              onAction={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })}
+            />
           ) : null}
 
-          <div className="consultant-grid">
-            {visibleConsultants.map(({ consultant, match }) => (
-              <ConsultantCard
-                key={consultant.consultantId}
-                consultant={consultant}
-                match={match}
-              />
-            ))}
-          </div>
+          {!loading && !error && visibleConsultants.length ? (
+            <div className="consultant-grid consultant-grid--directory">
+              {visibleConsultants.map(({ consultant, match }) => (
+                <ConsultantCard
+                  key={consultant.consultantId}
+                  consultant={consultant}
+                  match={match}
+                />
+              ))}
+            </div>
+          ) : null}
 
         </div>
       </section>
@@ -1987,6 +2072,7 @@ export function ConsultantsPage() {
     (consultant) => getConsultantProfileType(consultant) === "consultant"
   ).length;
   const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
+  const activeFilterLabels = buildDirectoryFilterLabels({ query, city, kind, topOnly });
 
   function applyPresetQuery(nextQuery: string) {
     setSearchParams(
@@ -2103,94 +2189,140 @@ export function ConsultantsPage() {
             </div>
           </div>
 
-          <div className="filter-bar">
-            <label>
-              Ключова дума
-              <input
-                value={query}
-                onChange={(event) => applyPresetQuery(event.target.value)}
-                placeholder="Leadership, интервю, кариерна промяна, LinkedIn..."
-              />
-            </label>
-            <label>
-              Град
-              <input
-                list="consultant-directory-cities"
-                value={city}
-                onChange={(event) => applyDirectoryFilters({ city: event.target.value })}
-                placeholder="София, Пловдив, Варна, Онлайн"
-              />
-              <datalist id="consultant-directory-cities">
-                {citySuggestions.map((item) => (
-                  <option key={item} value={item} />
+          <div className="directory-controls">
+            <div className="directory-controls__header">
+              <div>
+                <strong>Каталог за бърз преглед</strong>
+                <span>
+                  Филтрите се пазят в адреса, за да можеш да споделяш точен изглед към каталога.
+                </span>
+              </div>
+              <div className="directory-results-indicator">
+                <strong>{loading ? "..." : visibleConsultants.length}</strong>
+                <span>
+                  {topProfileCount ? `${topProfileCount} водещи профила` : "активни профили"}
+                </span>
+              </div>
+            </div>
+
+            <div className="filter-bar directory-filter-bar">
+              <label>
+                Ключова дума
+                <input
+                  value={query}
+                  onChange={(event) => applyPresetQuery(event.target.value)}
+                  placeholder="Leadership, интервю, кариерна промяна, LinkedIn..."
+                />
+              </label>
+              <label>
+                Град
+                <input
+                  list="consultant-directory-cities"
+                  value={city}
+                  onChange={(event) => applyDirectoryFilters({ city: event.target.value })}
+                  placeholder="София, Пловдив, Варна, Онлайн"
+                />
+                <datalist id="consultant-directory-cities">
+                  {citySuggestions.map((item) => (
+                    <option key={item} value={item} />
+                  ))}
+                </datalist>
+              </label>
+            </div>
+
+            <div className="search-shortcuts directory-switches">
+              <span className="search-shortcuts__label">Тип профил</span>
+              <div className="search-shortcuts__list">
+                {(
+                  [
+                    { value: "all", label: "Всички профили" },
+                    { value: "consultant", label: "Консултанти" },
+                    { value: "mentor", label: "Ментори" }
+                  ] as const
+                ).map((option) => (
+                  <button
+                    className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
+                    key={option.value}
+                    type="button"
+                    onClick={() => applyDirectoryFilters({ kind: option.value })}
+                  >
+                    {option.label}
+                  </button>
                 ))}
-              </datalist>
-            </label>
-          </div>
-
-          <div className="search-shortcuts directory-switches">
-            <span className="search-shortcuts__label">Тип профил</span>
-            <div className="search-shortcuts__list">
-              {(
-                [
-                  { value: "all", label: "Всички профили" },
-                  { value: "consultant", label: "Консултанти" },
-                  { value: "mentor", label: "Ментори" }
-                ] as const
-              ).map((option) => (
                 <button
-                  className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
-                  key={option.value}
+                  className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
                   type="button"
-                  onClick={() => applyDirectoryFilters({ kind: option.value })}
+                  onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
                 >
-                  {option.label}
+                  Само водещи профили
                 </button>
-              ))}
-              <button
-                className={`shortcut-chip ${topOnly ? "shortcut-chip--active" : ""}`}
-                type="button"
-                onClick={() => applyDirectoryFilters({ topOnly: !topOnly })}
-              >
-                Само водещи профили
-              </button>
+              </div>
+            </div>
+
+            <div className="directory-filter-summary">
+              <div className="directory-filter-chips" aria-label="Активни филтри">
+                {activeFilterLabels.length ? (
+                  activeFilterLabels.map((item) => (
+                    <span className="directory-filter-chip" key={item}>
+                      {item}
+                    </span>
+                  ))
+                ) : (
+                  <span className="directory-filter-chip directory-filter-chip--muted">
+                    Без активни филтри
+                  </span>
+                )}
+              </div>
+              <div className="filter-actions directory-filter-actions">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() =>
+                    applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })
+                  }
+                  disabled={!hasActiveFilters}
+                >
+                  Изчисти филтрите
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="filter-actions">
-            <button
-              className="ghost-button"
-              type="button"
-              onClick={() =>
-                applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })
-              }
-              disabled={!hasActiveFilters}
-            >
-              Изчисти филтрите
-            </button>
-            <div className="directory-results-indicator">
-              <strong>{visibleConsultants.length}</strong>
-              <span>
-                {topProfileCount ? `${topProfileCount} водещи профила` : "всички активни профили"}
-              </span>
-            </div>
-          </div>
-
-          {loading ? <div className="panel">Зареждаме публичните профили...</div> : null}
+          {loading ? (
+            <>
+              <DirectoryFeedbackState
+                tone="loading"
+                title="Зареждаме публичните профили"
+                message="Подготвяме каталога, водещите профили и следващите свободни часове."
+              />
+              <div className="consultant-grid consultant-grid--directory consultant-grid--loading">
+                {[0, 1, 2, 3].map((item) => (
+                  <ConsultantCardSkeleton key={item} />
+                ))}
+              </div>
+            </>
+          ) : null}
           {error ? <div className="panel panel--error">{error}</div> : null}
 
           {!loading && !error && visibleConsultants.length === 0 ? (
-            <div className="panel empty-state">
-              Не намерихме профили по избраните критерии. Опитай с по-широка ключова дума
-              или изчисти филтрите.
-            </div>
+            <DirectoryFeedbackState
+              tone="empty"
+              title="Няма профили по тези критерии"
+              message="Опитай с по-широка ключова дума, друг град или изчисти филтрите, за да върнеш пълния каталог."
+              actionLabel="Изчисти филтрите"
+              onAction={() =>
+                applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })
+              }
+            />
           ) : null}
 
-          <div className="consultant-grid consultant-grid--directory">
-            {visibleConsultants.map((consultant) => (
-              <ConsultantCard key={consultant.consultantId} consultant={consultant} />
-            ))}
-          </div>
+          {!loading && !error && visibleConsultants.length ? (
+            <div className="consultant-grid consultant-grid--directory">
+              {visibleConsultants.map((consultant) => (
+                <ConsultantCard key={consultant.consultantId} consultant={consultant} />
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -5769,6 +5901,7 @@ function ConsultantCard({
   match?: MatchInsight | null;
 }) {
   const summary = getConsultantDirectorySummary(consultant);
+  const upcomingSlots = getUpcomingAvailabilitySlots(consultant.availability, 2);
   const profileSignals = Array.from(
     new Set([
       ...getConsultantSummaryTags(consultant),
@@ -5813,10 +5946,23 @@ function ConsultantCard({
         {match ? <p className="consultant-card__match">{match.note}</p> : null}
         <p className="consultant-card__summary">{summary}</p>
 
-        <div className="consultant-card__meta">
-          <span>{getConsultantLocationLabel(consultant)}</span>
-          <span>{consultant.experienceYears} години опит</span>
-          <span>{formatDate(consultant.nextAvailable)}</span>
+        <div className="consultant-card__fact-grid consultant-card__fact-grid--compact">
+          <article>
+            <span>Локация</span>
+            <strong>{getConsultantLocationLabel(consultant)}</strong>
+          </article>
+          <article>
+            <span>Опит</span>
+            <strong>{consultant.experienceYears} години</strong>
+          </article>
+          <article>
+            <span>Следващ час</span>
+            <strong>{formatDate(consultant.nextAvailable)}</strong>
+          </article>
+          <article>
+            <span>Формат</span>
+            <strong>{consultant.sessionModes[0] || "Онлайн"}</strong>
+          </article>
         </div>
 
         <div className="chip-row consultant-card__topics">
@@ -5826,6 +5972,16 @@ function ConsultantCard({
             </span>
           ))}
         </div>
+
+        {upcomingSlots.length ? (
+          <div className="consultant-card__slots" aria-label="Следващи свободни часове">
+            {upcomingSlots.map((slot) => (
+              <span className="consultant-slot-pill" key={slot}>
+                {formatAvailabilityShortLabel(slot)}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         <div className="consultant-card__footer">
           <div className="consultant-card__footer-copy">
@@ -5838,6 +5994,72 @@ function ConsultantCard({
         </div>
       </div>
     </Link>
+  );
+}
+
+function DirectoryFeedbackState({
+  tone = "neutral",
+  title,
+  message,
+  actionLabel,
+  actionTo,
+  onAction
+}: {
+  tone?: "neutral" | "loading" | "empty";
+  title: string;
+  message: string;
+  actionLabel?: string;
+  actionTo?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className={`panel directory-feedback directory-feedback--${tone}`}>
+      <div>
+        <span className="directory-feedback__marker" aria-hidden="true" />
+      </div>
+      <div className="directory-feedback__copy">
+        <strong>{title}</strong>
+        <p>{message}</p>
+      </div>
+      {actionLabel && actionTo ? (
+        <Link className="ghost-button" to={actionTo}>
+          {actionLabel}
+        </Link>
+      ) : null}
+      {actionLabel && onAction ? (
+        <button className="ghost-button" type="button" onClick={onAction}>
+          {actionLabel}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function ConsultantCardSkeleton() {
+  return (
+    <article className="consultant-card consultant-card--skeleton" aria-hidden="true">
+      <div className="consultant-card__body">
+        <div className="consultant-card__header">
+          <span className="skeleton-block skeleton-block--avatar" />
+          <div className="consultant-card__identity">
+            <span className="skeleton-line skeleton-line--short" />
+            <span className="skeleton-line skeleton-line--title" />
+            <span className="skeleton-line" />
+          </div>
+          <span className="skeleton-block skeleton-block--rating" />
+        </div>
+        <span className="skeleton-line" />
+        <span className="skeleton-line skeleton-line--wide" />
+        <div className="consultant-card__fact-grid consultant-card__fact-grid--compact">
+          {[0, 1, 2, 3].map((item) => (
+            <article key={item}>
+              <span className="skeleton-line skeleton-line--short" />
+              <span className="skeleton-line" />
+            </article>
+          ))}
+        </div>
+      </div>
+    </article>
   );
 }
 

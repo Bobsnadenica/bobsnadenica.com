@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.development.local
+.claude/
 dist
 node_modules
 infra/terraform/.terraform/

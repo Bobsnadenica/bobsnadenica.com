@@ -33,6 +33,7 @@ Status: Completed for this slice.
 - 2026-05-07: Verified production build with `npm run build`.
 - 2026-05-07: Verified `/`, `/users`, and `/auth?tab=register&role=consultant` in the in-app browser. No runtime errors were seen; only React Router v7 future-flag warnings appeared.
 - 2026-05-07: Captured desktop and mobile visual screenshots with headless Chrome fallback because the in-app browser screenshot API timed out. Home desktop looked balanced with the two choices and the top consultant image. Home mobile no longer clipped horizontally and keeps the consultant image visible after the primary choices.
+- 2026-05-07: Added `.claude/` to `.gitignore` and removed the accidentally tracked embedded `.claude/worktrees/romantic-lumiere-dab21a` gitlink from the index. The local folder was kept on disk.
 
 ## Files Changed In This Slice
 
@@ -47,6 +48,8 @@ Status: Completed for this slice.
   - Split the auth link into full and short labels for responsive header fit.
 - `IMPLEMENTATION_TRACKER.md`
   - Added this execution log for resumability.
+- `.gitignore`
+  - Ignores local `.claude/` worktrees so embedded repos are not added again.
 
 ## Current QA Notes
 
@@ -68,3 +71,57 @@ Status: Completed for this slice.
 - Decide whether to opt into React Router v7 future flags or defer until a routing upgrade pass.
 - Add lightweight frontend regression coverage for home route CTAs and auth role preselection.
 - Plan backend hardening after the UI pass: validation contracts, auth/role authorization, persistence boundaries, observability, and deploy readiness.
+
+## Active Slice: Discovery UX Polish
+
+Started: 2026-05-07
+
+Scope:
+
+- Improve `/users` and `/consultants` discovery composition.
+- Make filters and result counts feel like one professional control surface.
+- Replace plain loading/empty panels with clearer directory feedback states.
+- Improve consultant profile card scanability on desktop and mobile.
+- Verify with build and browser QA.
+
+Status: Completed for this slice.
+
+## Discovery UX Polish Change Log
+
+- 2026-05-07: Added a shared directory filter summary pattern to `/users` and `/consultants`, including result counts, active filter chips, and a clearer reset action.
+- 2026-05-07: Replaced plain loading/empty panels with `DirectoryFeedbackState` and visual card skeletons for a more professional loading state.
+- 2026-05-07: Updated consultant cards with a scan-friendly fact grid for location, experience, next available time, and format.
+- 2026-05-07: Added upcoming availability pills to consultant cards when slot data is present.
+- 2026-05-07: Adjusted responsive CSS so directory controls, feedback states, and card fact grids collapse cleanly on tablet/mobile.
+- 2026-05-07: Verified `npm run build` passes.
+- 2026-05-07: Verified `/consultants`, `/consultants?kind=mentor`, and `/users?top=1` with the in-app browser DOM. Browser click/scroll translation was unreliable for below-fold controls, so filter states were also verified through routed URL state.
+- 2026-05-07: Captured Browser screenshots for `/consultants` and `/users`; also captured headless Chrome desktop/tall and mobile screenshots as visual fallback. Only React Router v7 future-flag warnings were observed.
+
+## Discovery UX Polish Files Changed
+
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Added directory filter-label helpers.
+  - Updated `/users` and `/consultants` filter/result sections.
+  - Added `DirectoryFeedbackState` and `ConsultantCardSkeleton`.
+  - Enhanced `ConsultantCard` with fact-grid and availability slot pills.
+- `src/styles/global.css`
+  - Added directory control, active-filter, feedback, skeleton, and responsive card-fact styling.
+
+## Discovery UX QA Notes
+
+- Build: `npm run build` passes.
+- Browser checks:
+  - `/consultants` -> `Каталог на профили | CareerLane`
+  - `/consultants?kind=mentor` renders the mentor filter state.
+  - `/users?top=1` renders the top-profile filter state.
+- Browser warnings:
+  - Existing React Router v7 future-flag warnings remain.
+- Visual QA caveat:
+  - Headless Chrome sometimes failed to fetch remote profile images and showed fallback media blocks. Layout and text remained readable.
+
+## Next Queue After Discovery Polish
+
+- Rework consultant registration into a guided onboarding flow with clearer role context and section progress.
+- Add real async error/loading states to backend-connected dashboard/profile flows.
+- Add regression coverage for directory filter state and profile-card rendering.
+- Decide whether to enable React Router v7 future flags.
