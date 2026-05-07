@@ -30,6 +30,7 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   line-height: 1.5;
   font-family: "Manrope", "Segoe UI", sans-serif;
   color: var(--text);
@@ -539,6 +540,10 @@ main {
   font-weight: 700;
 }
 
+.auth-label--short {
+  display: none;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   color: var(--primary);
@@ -631,11 +636,12 @@ main {
 .auth-copy h1,
 .profile-card h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
-  line-height: 0.96;
-  letter-spacing: -0.07em;
-  max-width: 10.5ch;
+  font-size: clamp(2.35rem, 4.8vw, 4.05rem);
+  line-height: 1.01;
+  letter-spacing: -0.045em;
+  max-width: 13.5ch;
   text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .page-intro,
@@ -827,6 +833,74 @@ textarea {
 .hero-actions {
   margin-top: 24px;
   flex-wrap: wrap;
+}
+
+.hero-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.hero-choice-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(193, 208, 201, 0.94);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 249, 247, 0.96)),
+    var(--surface);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.hero-choice-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(241, 247, 244, 0.98)),
+    white;
+  box-shadow: 0 22px 42px rgba(15, 23, 42, 0.08);
+}
+
+.hero-choice-card span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.hero-choice-card strong {
+  color: var(--text);
+  font-size: 1.12rem;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+}
+
+.hero-choice-card p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.62;
+  font-size: 0.94rem;
+}
+
+.hero-choice-card em {
+  align-self: end;
+  color: var(--primary-dark);
+  font-style: normal;
+  font-weight: 800;
 }
 
 .mock-stepper {
@@ -4226,7 +4300,6 @@ textarea {
     position: static;
   }
 
-  .page-scene--home .hero__card--client,
   .directory-hero__panel {
     order: -1;
   }
@@ -4265,7 +4338,7 @@ textarea {
 
 @media (max-width: 820px) {
   :root {
-    --container: min(100%, calc(100% - 22px));
+    --container: calc(100vw - 22px);
   }
 
   .site-header {
@@ -4323,6 +4396,33 @@ textarea {
 
   .search-card {
     grid-template-columns: 1fr;
+  }
+
+  .hero,
+  .section,
+  .profile-hero {
+    padding-top: 32px;
+  }
+
+  .hero__copy h1,
+  .page-intro h1,
+  .auth-copy h1,
+  .profile-card h1 {
+    font-size: clamp(2rem, 8.6vw, 3.25rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    max-width: 16ch;
+  }
+
+  .page-intro .hero__lede,
+  .auth-copy p,
+  .section-heading__copy {
+    max-width: 62ch;
+  }
+
+  .hero-choice-grid {
+    grid-template-columns: 1fr;
+    margin-top: 22px;
   }
 
   .site-header__inner {
@@ -4473,6 +4573,15 @@ textarea {
 }
 
 @media (max-width: 640px) {
+  :root {
+    --container: min(368px, calc(100vw - 22px));
+  }
+
+  .container {
+    margin-left: 11px;
+    margin-right: auto;
+  }
+
   .site-header {
     box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
   }
@@ -4488,6 +4597,54 @@ textarea {
   .brand-link {
     gap: 10px;
     min-width: 0;
+  }
+
+  .hero,
+  .section,
+  .profile-hero {
+    padding-top: 26px;
+  }
+
+  .hero__copy h1,
+  .page-intro h1,
+  .auth-copy h1,
+  .profile-card h1 {
+    font-size: clamp(1.82rem, 9.2vw, 2.35rem);
+    line-height: 1.05;
+    letter-spacing: -0.018em;
+    max-width: 100%;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  .hero__lede,
+  .auth-copy p,
+  .profile-card__headline,
+  .pricing-track__intro p,
+  .section-heading__copy,
+  .plan-card__note {
+    line-height: 1.58;
+  }
+
+  .hero-choice-card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .hero-choice-card strong {
+    font-size: 1.04rem;
+  }
+
+  .hero-choice-card p {
+    display: none;
+  }
+
+  .page-scene--home .hero-stats {
+    display: none;
+  }
+
+  .hero-stats {
+    margin-top: 18px;
   }
 
   .ad-banner {
@@ -4542,8 +4699,20 @@ textarea {
   }
 
   .site-header__actions .ghost-button {
+    max-width: 88px;
     padding-inline: 12px;
     font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .auth-label--full {
+    display: none;
+  }
+
+  .auth-label--short {
+    display: inline;
   }
 
   .site-nav--mobile {

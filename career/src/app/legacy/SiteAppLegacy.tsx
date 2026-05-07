@@ -181,6 +181,23 @@ const homeJourney = [
   }
 ] as const;
 
+const homeRoleChoices = [
+  {
+    step: "01",
+    title: "Търся консултация или менторство",
+    text: "Разгледай активни профили, сравни фокус, формат и свободни часове и избери правилния човек за следващата си стъпка.",
+    ctaLabel: "Намери консултант",
+    ctaTo: "/users"
+  },
+  {
+    step: "02",
+    title: "Аз съм консултант или ментор",
+    text: "Създай публичен профил с ясна експертиза, снимка, теми и наличности, за да могат хората да те откриват и резервират.",
+    ctaLabel: "Създай профил",
+    ctaTo: "/auth?tab=register&role=consultant"
+  }
+] as const;
+
 const userJourney = [
   {
     step: "01",
@@ -1313,26 +1330,28 @@ export function HomePage() {
       <section className="hero">
         <div className="container hero__grid">
           <div className="hero__copy">
-            <p className="eyebrow">Каталог на консултанти и ментори</p>
-            <h1>Избираш правилния човек още от първия екран.</h1>
+            <p className="eyebrow">Консултации и менторство за кариера</p>
+            <h1>Избери своята следваща кариерна стъпка.</h1>
             <p className="hero__lede">
-              Подбран профил, ясна наличност и директен достъп до личната страница на
-              консултанта или ментора.
+              CareerLane свързва професионалисти с консултанти и ментори в подреден
+              каталог с ясни профили, фокус и свободни часове.
             </p>
 
-            <div className="hero-actions">
-              <Link className="primary-button" to="/consultants">
-                Виж каталога
-              </Link>
-              <Link className="ghost-button" to="/users">
-                Търси по съвпадение
-              </Link>
+            <div className="hero-choice-grid" aria-label="Избери как искаш да използваш CareerLane">
+              {homeRoleChoices.map((choice) => (
+                <Link className="hero-choice-card" key={choice.step} to={choice.ctaTo}>
+                  <span>{choice.step}</span>
+                  <strong>{choice.title}</strong>
+                  <p>{choice.text}</p>
+                  <em>{choice.ctaLabel}</em>
+                </Link>
+              ))}
             </div>
 
             <div className="hero-stats">
               <div>
                 <strong>{directorySource.length} активни профила</strong>
-                <span>в един подреден каталог</span>
+                <span>консултанти и ментори в подреден каталог</span>
               </div>
               <div>
                 <strong>{spotlight ? "Водещ профил" : "Публичен каталог"}</strong>

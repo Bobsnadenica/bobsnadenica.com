@@ -276,7 +276,8 @@ export default function AppShell() {
               </>
             ) : (
               <Link className="ghost-button" to="/auth">
-                Вход / Регистрация
+                <span className="auth-label auth-label--full">Вход / Регистрация</span>
+                <span className="auth-label auth-label--short">Вход</span>
               </Link>
             )}
           </div>
