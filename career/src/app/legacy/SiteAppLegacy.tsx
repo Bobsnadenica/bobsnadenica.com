@@ -252,6 +252,40 @@ const consultantExperienceCards = [
   }
 ] as const;
 
+const authRoleChoices: Record<
+  UserRole,
+  { title: string; text: string; meta: string; badge: string }
+> = {
+  client: {
+    title: "Търся консултация",
+    text: "Създай личен професионален контекст, за да сравняваш профили и да заявяваш консултации по-точно.",
+    meta: "Без членска такса",
+    badge: "Потребител"
+  },
+  consultant: {
+    title: "Създавам експертен профил",
+    text: "Стартирай публична страница като консултант или ментор с ясни теми, формат и първа наличност.",
+    meta: "Публичен профил",
+    badge: "Консултант / ментор"
+  }
+};
+
+const consultantProfileTypeChoices: Record<
+  ConsultantProfileType,
+  { title: string; text: string; meta: string }
+> = {
+  consultant: {
+    title: "Консултант",
+    text: "Подходящо за експертни кариерни, HR, CV, интервю и професионални консултации.",
+    meta: "Експертна услуга"
+  },
+  mentor: {
+    title: "Ментор",
+    text: "Подходящо за по-дългосрочна подкрепа, развитие, лидерство и професионална посока.",
+    meta: "Развитие във времето"
+  }
+};
+
 const aboutHighlights = [
   {
     value: "Публични профили",
@@ -3299,6 +3333,51 @@ export function AuthPage() {
           "Достъп до активните консултанти и ментори",
           "CV качване, заявки за консултации и история на сесиите"
         ];
+  const selectedRoleChoice = authRoleChoices[form.role];
+  const selectedProfileTypeChoice = consultantProfileTypeChoices[form.consultantProfileType];
+  const hasRegistrationContext = Boolean(
+    form.name.trim() && form.city.trim() && form.headline.trim()
+  );
+  const hasRegistrationAccess = isSocialOnboarding
+    ? Boolean(user)
+    : form.password.trim().length >= 8;
+  const registrationProgress = [
+    {
+      label: "Роля",
+      detail:
+        form.role === "consultant"
+          ? selectedProfileTypeChoice.title
+          : selectedRoleChoice.title,
+      complete: true
+    },
+    {
+      label: "Контекст",
+      detail: "Име, град и професионален headline",
+      complete: hasRegistrationContext
+    },
+    {
+      label: "Достъп",
+      detail: isSocialOnboarding ? "Външен профил" : "Парола и потвърждение",
+      complete: hasRegistrationAccess
+    }
+  ];
+  const incompleteRegistrationStepIndex = registrationProgress.findIndex(
+    (item) => !item.complete
+  );
+  const activeRegistrationStepIndex =
+    incompleteRegistrationStepIndex === -1
+      ? registrationProgress.length - 1
+      : incompleteRegistrationStepIndex;
+  const authHeroTitle =
+    screen === "register"
+      ? form.role === "consultant"
+        ? "Създай експертен профил в CareerLane."
+        : "Създай профил в CareerLane."
+      : screen === "confirm"
+        ? "Потвърди регистрацията си."
+        : screen === "forgot-request" || screen === "forgot-confirm"
+          ? "Възстанови достъпа си."
+          : "Влез в CareerLane.";
   const authStageTitle =
     screen === "register"
       ? "Създаваш нов профил"
@@ -3556,7 +3635,7 @@ export function AuthPage() {
       <div className="container auth-layout">
         <div className="auth-copy">
           <p className="eyebrow">Вход и регистрация</p>
-          <h1>Влез в CareerLane и управлявай професионалния си профил, консултации и следващи стъпки на едно място.</h1>
+          <h1>{authHeroTitle}</h1>
           <p>
             Оттук започва достъпът до платформата. Можеш да влезеш с имейл или
             с външен профил, а CareerLane подрежда регистрацията, потвърждението
@@ -3703,127 +3782,218 @@ export function AuthPage() {
           ) : null}
 
           {screen === "register" ? (
-            <form className="form-stack" onSubmit={handleRegister}>
-              <label>
-                Име и фамилия
-                <input
-                  value={form.name}
-                  onChange={(event) => setForm({ ...form, name: event.target.value })}
-                  autoComplete="name"
-                  placeholder="Например: Елица Маринова"
-                  required
-                />
-              </label>
-              <label>
-                Имейл
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
-                  autoComplete="email"
-                  placeholder="name@example.com"
-                  required
-                  readOnly={isSocialOnboarding}
-                />
-              </label>
-              <div className="two-column">
+            <form className="form-stack auth-register-form" onSubmit={handleRegister}>
+              <div className="auth-onboarding-header">
+                <span className="plan-pill">{selectedRoleChoice.badge}</span>
+                <h2>
+                  {form.role === "consultant"
+                    ? "Подреди първата версия на публичния си експертен профил."
+                    : "Създай профил за по-точно търсене на консултация."}
+                </h2>
+                <p>
+                  {form.role === "consultant"
+                    ? "Изборът тук определя как ще започне профилът ти. След регистрация ще добавиш снимка, теми, опит и свободни часове в таблото."
+                    : "Попълни кратък професионален контекст, за да получаваш по-смислени съвпадения и заявки към правилните консултанти."}
+                </p>
+              </div>
+
+              <ol className="auth-progress-list" aria-label="Стъпки на регистрацията">
+                {registrationProgress.map((item, index) => (
+                  <li
+                    className={`auth-progress-list__item${
+                      item.complete ? " auth-progress-list__item--complete" : ""
+                    }${
+                      index === activeRegistrationStepIndex
+                        ? " auth-progress-list__item--active"
+                        : ""
+                    }`}
+                    key={item.label}
+                  >
+                    <span>{index + 1}</span>
+                    <div>
+                      <strong>{item.label}</strong>
+                      <small>{item.detail}</small>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <fieldset className="auth-onboarding-section">
+                <legend>Избери поток</legend>
+                <p>
+                  CareerLane разделя регистрацията според това дали търсиш подкрепа
+                  или създаваш публичен профил като експерт.
+                </p>
+                <div className="auth-choice-grid">
+                  {(Object.entries(authRoleChoices) as Array<
+                    [UserRole, (typeof authRoleChoices)[UserRole]]
+                  >).map(([role, choice]) => (
+                    <button
+                      className={`auth-choice-card${
+                        form.role === role ? " auth-choice-card--active" : ""
+                      }`}
+                      type="button"
+                      aria-pressed={form.role === role}
+                      key={role}
+                      onClick={() => {
+                        clearFeedback();
+                        setForm((current) => ({
+                          ...current,
+                          role,
+                          consultantProfileType:
+                            role === "consultant" ? current.consultantProfileType : "consultant"
+                        }));
+                      }}
+                    >
+                      <span>{choice.badge}</span>
+                      <strong>{choice.title}</strong>
+                      <p>{choice.text}</p>
+                      <em>{choice.meta}</em>
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+
+              {form.role === "consultant" ? (
+                <fieldset className="auth-onboarding-section">
+                  <legend>Какъв профил създаваш?</legend>
+                  <p>
+                    И двете опции могат да бъдат откривани в каталога. Разликата е в
+                    очакването към услугата и начина, по който потребителите ще те
+                    разпознават.
+                  </p>
+                  <div className="auth-choice-grid auth-choice-grid--compact">
+                    {(Object.entries(consultantProfileTypeChoices) as Array<
+                      [
+                        ConsultantProfileType,
+                        (typeof consultantProfileTypeChoices)[ConsultantProfileType]
+                      ]
+                    >).map(([profileType, choice]) => (
+                      <button
+                        className={`auth-choice-card${
+                          form.consultantProfileType === profileType
+                            ? " auth-choice-card--active"
+                            : ""
+                        }`}
+                        type="button"
+                        aria-pressed={form.consultantProfileType === profileType}
+                        key={profileType}
+                        onClick={() => {
+                          clearFeedback();
+                          setForm((current) => ({
+                            ...current,
+                            consultantProfileType: profileType
+                          }));
+                        }}
+                      >
+                        <span>{choice.meta}</span>
+                        <strong>{choice.title}</strong>
+                        <p>{choice.text}</p>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              ) : null}
+
+              <fieldset className="auth-onboarding-section">
+                <legend>Основен професионален контекст</legend>
+                <div className="two-column">
+                  <label>
+                    Име и фамилия
+                    <input
+                      value={form.name}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, name: event.target.value }))
+                      }
+                      autoComplete="name"
+                      placeholder="Например: Елица Маринова"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Имейл
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, email: event.target.value }))
+                      }
+                      autoComplete="email"
+                      placeholder="name@example.com"
+                      required
+                      readOnly={isSocialOnboarding}
+                    />
+                  </label>
+                </div>
+                <div className="two-column">
+                  <label>
+                    Град
+                    <input
+                      value={form.city}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, city: event.target.value }))
+                      }
+                      placeholder="Например: София"
+                      required={!isSocialOnboarding}
+                    />
+                  </label>
+                  <label>
+                    Професия / роля
+                    <input
+                      value={form.occupation}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, occupation: event.target.value }))
+                      }
+                      placeholder="Например: Product manager"
+                    />
+                  </label>
+                </div>
                 <label>
-                  Град
+                  Професионално headline
                   <input
-                    value={form.city}
-                    onChange={(event) => setForm({ ...form, city: event.target.value })}
-                    placeholder="Например: София"
+                    value={form.headline}
+                    onChange={(event) =>
+                      setForm((current) => ({ ...current, headline: event.target.value }))
+                    }
+                    placeholder={
+                      form.role === "consultant"
+                        ? "Например: Кариерен консултант за CV, интервюта и leadership роли"
+                        : "Например: Product manager в преход към leadership роля"
+                    }
                     required={!isSocialOnboarding}
                   />
                 </label>
-                <label>
-                  Професия / роля
-                  <input
-                    value={form.occupation}
-                    onChange={(event) => setForm({ ...form, occupation: event.target.value })}
-                    placeholder="Например: Product manager"
-                  />
-                </label>
-              </div>
-              <div className="two-column">
-                <label>
-                  Тип акаунт
-                  <select
-                    value={form.role}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        role: event.target.value as UserRole
-                      })
-                    }
-                  >
-                    <option value="client">Потребител</option>
-                    <option value="consultant">Консултант / ментор</option>
-                  </select>
-                </label>
-              </div>
-              {form.role === "consultant" ? (
-                <label>
-                  Тип профил
-                  <select
-                    value={form.consultantProfileType}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        consultantProfileType: event.target.value as ConsultantProfileType
-                      })
-                    }
-                  >
-                    <option value="consultant">Консултант</option>
-                    <option value="mentor">Ментор</option>
-                  </select>
-                </label>
-              ) : null}
-              <label>
-                Професионално headline
-                <input
-                  value={form.headline}
-                  onChange={(event) => setForm({ ...form, headline: event.target.value })}
-                  placeholder="Например: Product manager в преход към leadership роля"
-                  required={!isSocialOnboarding}
-                />
-              </label>
+              </fieldset>
+
               {!isSocialOnboarding ? (
-                <label>
-                  Парола
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={(event) => setForm({ ...form, password: event.target.value })}
-                    autoComplete="new-password"
-                    placeholder="Минимум 8 символа"
-                    minLength={8}
-                    required
-                  />
-                </label>
+                <fieldset className="auth-onboarding-section">
+                  <legend>Достъп до профила</legend>
+                  <label>
+                    Парола
+                    <input
+                      type="password"
+                      value={form.password}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, password: event.target.value }))
+                      }
+                      autoComplete="new-password"
+                      placeholder="Минимум 8 символа"
+                      minLength={8}
+                      required
+                    />
+                  </label>
+                </fieldset>
               ) : null}
 
-              {form.role === "consultant" ? (
-                <div className="panel panel--subtle">
-                  <strong>Стартираш с активен публичен профил.</strong>
-                  <p>
-                    След регистрация ще можеш да добавиш снимка, CV, специализации,
-                    теми и свободни часове, така че профилът ти да се появява в търсенето
-                    и да бъде достъпен за потребителите.
-                  </p>
+              <div className="auth-summary-card">
+                <div>
+                  <strong>
+                    {form.role === "consultant"
+                      ? "Следващата стъпка е профилът ти."
+                      : "Следващата стъпка е по-точно търсене."}
+                  </strong>
+                  <p>{registrationSummary}</p>
                 </div>
-              ) : (
-                <div className="panel panel--subtle">
-                  <strong>Потребителският достъп е безплатен.</strong>
-                  <p>
-                    Потребителите не плащат членство на този етап и могат да създадат
-                    профил, да разглеждат активните профили и да заявяват консултации.
-                  </p>
-                </div>
-              )}
-
-              <div className="panel panel--subtle">
-                <strong>Какво включва</strong>
                 <ul className="feature-list">
                   {registrationHighlights.map((item) => (
                     <li key={item}>{item}</li>
@@ -3834,12 +4004,9 @@ export function AuthPage() {
               <p className="form-note">
                 {isSocialOnboarding
                   ? "Запази ролята и основния професионален контекст. След това ще продължиш директно към профила си."
-                  : "След регистрация ще продължиш директно към профила си, настройките и следващите стъпки в CareerLane."}
+                  : "След регистрация ще потвърдиш имейла си и ще продължиш към таблото за довършване на профила."}
               </p>
-              <div className="panel panel--subtle">
-                <strong>Подготвен старт</strong>
-                <p>{registrationSummary}</p>
-              </div>
+
               <button className="primary-button" type="submit" disabled={!canRegister}>
                 {isSocialOnboarding ? "Запази профила" : "Създай профил"}
               </button>

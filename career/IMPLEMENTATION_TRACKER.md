@@ -137,4 +137,51 @@ Scope:
 - Remove brittle sizing where text/date/profile metadata can collide.
 - Verify with build and rendered browser QA.
 
-Status: In progress.
+Status: Completed for this slice.
+
+## Homepage Hero And Overlap Cleanup Change Log
+
+- 2026-05-08: Reworked the homepage hero profile area to show two top consultant/mentor profiles, preserving the liked lead consultant image as the primary profile card.
+- 2026-05-08: Added a compact secondary hero profile card so the first viewport communicates that users can choose between multiple high-quality experts, not just one featured person.
+- 2026-05-08: Added defensive image fallback handling for avatar and cover media so broken remote images collapse into branded visual placeholders instead of exposing alt text or stretching layouts.
+- 2026-05-08: Replaced the previous unused hero consultant visual CSS with scoped `home-hero-profile` styles for the new two-profile layout.
+- 2026-05-08: Hardened overlap-prone header and hero text regions with `min-width: 0`, wrapping, and fixed card/profile spacing so long names, metadata, and CTAs do not collide.
+- 2026-05-08: Changed compact consultant fact grids from four compressed columns to two balanced columns for better desktop and mobile readability.
+- 2026-05-08: Added mobile-specific spacing, avatar sizing, and metadata wrapping rules for the homepage hero profiles.
+- 2026-05-08: Removed redundant old hero CSS selectors that no longer map to rendered markup.
+
+## Homepage Hero And Overlap Cleanup Files Changed
+
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Added two-profile homepage hero selection logic.
+  - Added `HomeHeroProfile` for primary and secondary profile cards.
+  - Added avatar and cover media failure fallbacks.
+- `src/styles/global.css`
+  - Added scoped homepage hero profile styles.
+  - Tightened responsive behavior for hero cards, profile metadata, header actions, and compact consultant fact grids.
+- `IMPLEMENTATION_TRACKER.md`
+  - Recorded the completed implementation and QA notes for resumability.
+
+## Homepage Hero And Overlap Cleanup QA Notes
+
+- Build: `npm run build` passes.
+- Browser DOM checks passed for:
+  - `/` -> homepage hero renders the two-profile area.
+  - `/consultants` -> directory profile cards render without framework overlay errors.
+  - `/users` -> user discovery route renders without framework overlay errors.
+- Visual QA:
+  - In-app browser screenshots confirmed the public routes render cleanly in the available narrow viewport.
+  - Headless Chrome desktop screenshot confirmed the homepage hero keeps the two profiles visible and separated without overlap.
+  - Headless Chrome mobile screenshot confirmed the hero choices, primary profile, and secondary profile stack cleanly without text collisions.
+- Known non-blocking warning:
+  - Existing React Router v7 future-flag warnings remain for `v7_startTransition` and `v7_relativeSplatPath`.
+- Cleanup:
+  - Generated deploy artifacts from local browser QA were restored or removed after verification.
+  - Dev server was stopped after QA.
+
+## Next Queue After Homepage Hero Cleanup
+
+- Rework consultant registration into a guided onboarding flow with clearer consultant/mentor role context, section progress, and form validation states.
+- Continue responsive visual QA on auth, profile, and dashboard routes after the onboarding pass.
+- Add regression coverage for homepage hero rendering, directory cards, and role-specific auth preselection.
+- Decide whether to enable React Router v7 future flags during a routing maintenance pass.
