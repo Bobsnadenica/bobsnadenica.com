@@ -125,3 +125,16 @@ Status: Completed for this slice.
 - Add real async error/loading states to backend-connected dashboard/profile flows.
 - Add regression coverage for directory filter state and profile-card rendering.
 - Decide whether to enable React Router v7 future flags.
+
+## Active Slice: Homepage Hero And Overlap Cleanup
+
+Started: 2026-05-07
+
+Scope:
+
+- Add two top consultant/mentor profiles to the homepage hero while preserving the liked lead hero image.
+- Review overlap-prone CSS in hero, directory cards, chips, and mobile layouts.
+- Remove brittle sizing where text/date/profile metadata can collide.
+- Verify with build and rendered browser QA.
+
+Status: In progress.

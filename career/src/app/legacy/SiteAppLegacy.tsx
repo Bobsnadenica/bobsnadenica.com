@@ -1346,11 +1346,21 @@ export function HomePage() {
         .slice(0, 4),
     [directorySource, topDirectoryType]
   );
-  const spotlight =
-    featured[0] ||
-    directorySource.find((item) => item.featured) ||
-    directorySource[0] ||
-    null;
+  const heroProfiles = useMemo(() => {
+    const seen = new Set<string>();
+    return [...featured, ...directorySource]
+      .filter((item) => {
+        if (seen.has(item.consultantId)) {
+          return false;
+        }
+
+        seen.add(item.consultantId);
+        return true;
+      })
+      .slice(0, 2);
+  }, [directorySource, featured]);
+  const spotlight = heroProfiles[0] || null;
+  const secondarySpotlight = heroProfiles[1] || null;
 
   return (
     <>
@@ -1391,52 +1401,24 @@ export function HomePage() {
             </div>
           </div>
 
-          <aside className="hero__card hero__card--client">
+          <aside className="hero__card hero__card--client hero__card--profiles">
             {spotlight ? (
-              <>
-                <div className="hero__visual">
-                  <CoverMedia
-                    src={spotlight.heroUrl}
-                    name={spotlight.name}
-                    className="hero__visual-image"
-                    eyebrow={spotlight.featured ? "Подбран профил" : "Активен профил"}
-                    title={spotlight.name}
-                    subtitle={spotlight.headline}
-                  />
-                </div>
-                <div className="hero__card-top">
-                  <span className="status-badge status-badge--success">
-                    Подбран {formatConsultantTypeLabel(getConsultantProfileType(spotlight)).toLowerCase()}
-                  </span>
-                  <strong>{spotlight.name}</strong>
-                  <p>{spotlight.headline}</p>
-                </div>
-                <div className="hero__consultant">
-                  <AvatarMedia
-                    src={spotlight.avatarUrl}
-                    name={spotlight.name}
-                    className="hero__consultant-avatar"
-                  />
-                  <div>
-                    <strong>{getConsultantLocationLabel(spotlight)}</strong>
-                    <p>{getConsultantSummaryTags(spotlight).join(" · ") || "Профилът се попълва"}</p>
-                    <span>{getConsultantTrustLabel(spotlight)}</span>
-                  </div>
-                </div>
-                <div className="hero__points">
-                  <div>
-                    <span>Следващ свободен слот</span>
-                    <strong>{formatDate(spotlight.nextAvailable)}</strong>
-                  </div>
-                  <div>
-                    <span>Работен формат</span>
-                    <strong>{spotlight.sessionModes.join(" · ")}</strong>
-                  </div>
-                </div>
-                <Link className="primary-button" to={`/consultants/${spotlight.slug}`}>
-                  Прегледай профила
-                </Link>
-              </>
+              <div className="home-hero-profiles">
+                <HomeHeroProfile consultant={spotlight} variant="primary" />
+                {secondarySpotlight ? (
+                  <HomeHeroProfile consultant={secondarySpotlight} variant="secondary" />
+                ) : (
+                  <Link
+                    className="home-hero-profile home-hero-profile--secondary home-hero-profile--empty"
+                    to="/auth?tab=register&role=consultant"
+                  >
+                    <span className="plan-pill">Следващ профил</span>
+                    <strong>Тук ще се появи втори водещ консултант или ментор.</strong>
+                    <p>Създай публичен профил, за да участваш в каталога.</p>
+                    <em>Създай профил</em>
+                  </Link>
+                )}
+              </div>
             ) : (
               <>
                 <div className="hero__card-top">
@@ -5991,6 +5973,77 @@ function ConsultantCard({
             </span>
           </div>
           <span className="consultant-card__link-label">Отвори профила</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function HomeHeroProfile({
+  consultant,
+  variant
+}: {
+  consultant: ConsultantProfile;
+  variant: "primary" | "secondary";
+}) {
+  const isPrimary = variant === "primary";
+  const profileTypeLabel = formatConsultantTypeLabel(getConsultantProfileType(consultant));
+  const summaryTags = getConsultantSummaryTags(consultant);
+
+  return (
+    <Link
+      className={`home-hero-profile home-hero-profile--${variant}`}
+      to={`/consultants/${consultant.slug}`}
+    >
+      {isPrimary ? (
+        <div className="home-hero-profile__media">
+          <CoverMedia
+            src={consultant.heroUrl}
+            name={consultant.name}
+            className="home-hero-profile__image"
+            eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
+            title={consultant.name}
+            subtitle={consultant.headline}
+          />
+        </div>
+      ) : (
+        <AvatarMedia
+          className="home-hero-profile__avatar"
+          src={consultant.avatarUrl}
+          name={consultant.name}
+        />
+      )}
+
+      <div className="home-hero-profile__body">
+        <div className="home-hero-profile__header">
+          {isPrimary ? (
+            <AvatarMedia
+              className="home-hero-profile__avatar"
+              src={consultant.avatarUrl}
+              name={consultant.name}
+            />
+          ) : null}
+          <div>
+            <span className={consultant.featured ? "status-badge status-badge--success" : "plan-pill"}>
+              {consultant.featured ? `Подбран ${profileTypeLabel.toLowerCase()}` : profileTypeLabel}
+            </span>
+            <h3>{consultant.name}</h3>
+            <p>{consultant.headline}</p>
+          </div>
+        </div>
+
+        {isPrimary ? (
+          <div className="home-hero-profile__details">
+            <span>{getConsultantLocationLabel(consultant)}</span>
+            <span>{summaryTags.join(" · ") || profileTypeLabel}</span>
+            <span>{getConsultantTrustLabel(consultant)}</span>
+          </div>
+        ) : null}
+
+        <div className="home-hero-profile__meta">
+          <span>{formatDate(consultant.nextAvailable)}</span>
+          <span>{getSessionLengthLabel(consultant)}</span>
+          <strong>{getConsultantPriceLabel(consultant)}</strong>
         </div>
       </div>
     </Link>

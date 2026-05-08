@@ -250,6 +250,7 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
 }
 
 .brand-link > div {
@@ -312,6 +313,10 @@ main {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.site-header__actions {
+  min-width: 0;
 }
 
 .chip-row,
@@ -931,6 +936,7 @@ textarea {
 
 .hero-stats > div,
 .hero__points > div {
+  min-width: 0;
   padding: 14px 16px;
   border-radius: 18px;
   background:
@@ -943,12 +949,17 @@ textarea {
 .hero-stats strong,
 .hero__points strong {
   display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 1.12rem;
   letter-spacing: -0.04em;
 }
 
 .hero-stats span,
 .hero__points span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--muted);
   font-size: 0.88rem;
 }
@@ -972,15 +983,6 @@ textarea {
   background: linear-gradient(90deg, rgba(10, 102, 194, 0.26), rgba(15, 118, 110, 0.16), transparent);
 }
 
-.hero__visual {
-  overflow: hidden;
-  border-radius: 24px;
-  aspect-ratio: 1 / 0.88;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.hero__visual-image,
-.hero__visual img,
 .consultant-card__media,
 .profile-card__avatar,
 .booking-card__media,
@@ -992,7 +994,6 @@ textarea {
   height: 100%;
 }
 
-.hero__visual img,
 .profile-card__avatar,
 .booking-card img,
 .consultant-proof-card img {
@@ -1060,31 +1061,168 @@ textarea {
   line-height: 1.6;
 }
 
-.hero__consultant {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  padding: 14px;
-  border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 249, 248, 0.96)),
-    var(--surface-alt);
-  border: 1px solid rgba(213, 222, 233, 0.8);
+.hero__card--profiles {
+  padding: 18px;
 }
 
-.hero__consultant img,
-.hero__consultant-avatar {
+.home-hero-profiles {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+}
+
+.home-hero-profile {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(193, 208, 201, 0.92);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 248, 0.96)),
+    var(--surface);
+  color: var(--text);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.home-hero-profile:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+.home-hero-profile__media {
+  overflow: hidden;
+  aspect-ratio: 1 / 0.7;
+  background: #e8eef6;
+}
+
+.home-hero-profile__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.home-hero-profile__body {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+}
+
+.home-hero-profile__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+
+.home-hero-profile__avatar {
   width: 74px;
   height: 74px;
   border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
 }
 
-.hero__consultant p,
-.hero__consultant span {
-  margin: 4px 0 0;
+.home-hero-profile h3,
+.home-hero-profile p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-hero-profile h3 {
+  margin: 10px 0 0;
+  font-size: 1.32rem;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+.home-hero-profile p {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.home-hero-profile__details,
+.home-hero-profile__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
   color: var(--muted);
-  line-height: 1.5;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.home-hero-profile__details span,
+.home-hero-profile__meta span,
+.home-hero-profile__meta strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.home-hero-profile__meta {
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+
+.home-hero-profile__meta strong {
+  color: var(--text);
+  font-size: 0.98rem;
+}
+
+.home-hero-profile--secondary {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+}
+
+.home-hero-profile--secondary .home-hero-profile__body {
+  padding: 0;
+}
+
+.home-hero-profile--secondary .home-hero-profile__header {
+  display: block;
+}
+
+.home-hero-profile--secondary .home-hero-profile__avatar {
+  width: 78px;
+  height: 78px;
+}
+
+.home-hero-profile--secondary h3 {
+  font-size: 1.12rem;
+}
+
+.home-hero-profile--secondary p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.home-hero-profile--secondary .home-hero-profile__meta {
+  justify-content: flex-start;
+}
+
+.home-hero-profile--empty {
+  grid-template-columns: 1fr;
+  align-items: start;
+  padding: 18px;
+}
+
+.home-hero-profile--empty em {
+  color: var(--primary-dark);
+  font-style: normal;
+  font-weight: 800;
 }
 
 .consultants-hero__grid {
@@ -2679,7 +2817,7 @@ textarea {
 }
 
 .consultant-card__fact-grid--compact {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .consultant-card__fact-grid article,
@@ -4140,7 +4278,7 @@ textarea {
 
 .dashboard-sidebar__avatar.visual-avatar,
 .profile-card__avatar.visual-avatar,
-.hero__consultant-avatar.visual-avatar,
+.home-hero-profile__avatar.visual-avatar,
 .media-preview-card__image.visual-avatar {
   font-size: 1.4rem;
 }
@@ -4432,10 +4570,6 @@ textarea {
   }
 
   .consultant-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .consultant-card__fact-grid--compact {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4859,6 +4993,59 @@ textarea {
 
   .hero-choice-card p {
     display: none;
+  }
+
+  .hero__card--profiles {
+    padding: 14px;
+  }
+
+  .home-hero-profiles {
+    gap: 12px;
+  }
+
+  .home-hero-profile {
+    border-radius: 20px;
+  }
+
+  .home-hero-profile__media {
+    aspect-ratio: 1 / 0.68;
+  }
+
+  .home-hero-profile__body {
+    padding: 16px;
+  }
+
+  .home-hero-profile__header {
+    gap: 12px;
+  }
+
+  .home-hero-profile__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+  }
+
+  .home-hero-profile h3 {
+    font-size: 1.16rem;
+  }
+
+  .home-hero-profile--primary .home-hero-profile__details {
+    display: none;
+  }
+
+  .home-hero-profile--secondary {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .home-hero-profile--secondary .home-hero-profile__body {
+    padding: 0;
+  }
+
+  .home-hero-profile__meta {
+    display: grid;
+    justify-content: stretch;
   }
 
   .directory-controls {
