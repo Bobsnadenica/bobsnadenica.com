@@ -898,8 +898,23 @@ function AvatarMedia({
   name: string;
   className: string;
 }) {
-  if (src) {
-    return <img className={className} src={resolvePublicUrl(src)} alt={name} decoding="async" />;
+  const [failed, setFailed] = useState(false);
+  const resolvedSrc = src && !failed ? resolvePublicUrl(src) : "";
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (resolvedSrc) {
+    return (
+      <img
+        className={className}
+        src={resolvedSrc}
+        alt={name}
+        decoding="async"
+        onError={() => setFailed(true)}
+      />
+    );
   }
 
   return (
@@ -924,8 +939,23 @@ function CoverMedia({
   title: string;
   subtitle: string;
 }) {
-  if (src) {
-    return <img className={className} src={resolvePublicUrl(src)} alt={name} decoding="async" />;
+  const [failed, setFailed] = useState(false);
+  const resolvedSrc = src && !failed ? resolvePublicUrl(src) : "";
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (resolvedSrc) {
+    return (
+      <img
+        className={className}
+        src={resolvedSrc}
+        alt={name}
+        decoding="async"
+        onError={() => setFailed(true)}
+      />
+    );
   }
 
   return (
