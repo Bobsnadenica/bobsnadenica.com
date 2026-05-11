@@ -394,3 +394,33 @@ Status: Completed for this slice.
 - Continue consultant dashboard polish around public profile draft readiness and availability management.
 - Add regression coverage for CV upload validation and dashboard empty-state rendering.
 - Review backend upload error messages and map them to localized frontend copy where needed.
+
+## Recovery Note: Local Plain `/career/` Loading
+
+Date: 2026-05-11
+
+What happened:
+
+- `http://127.0.0.1:5173/career/` could fail or appear stale even while Vite returned `200 OK`.
+- The root cause was the production service worker caching `/career/` and `/career/index.html`, then serving stale HTML before Vite's dev entry could respond.
+- Cache-busted URLs such as `?qa=...` could still work, which made the failure look inconsistent.
+
+Recovery performed:
+
+- Updated `scripts/site-build.mjs` so `npm run dev` / `prepare` writes a development index that unregisters `/career/` service workers and clears `careerlane-*` caches.
+- Kept production builds registering the service worker, but changed registration to a relative `sw.js` URL so it resolves under the deployed `/career/` path.
+- Updated `public/sw.js` and root `sw.js` to `careerlane-v2`, delete old caches on activate, claim clients, and use network-first handling for navigation requests.
+- Replaced hard-coded `/career/...` icon and manifest paths in the source index template with relative paths to avoid `/career/career/...` URLs during Vite dev serving.
+
+QA:
+
+- `curl -I http://127.0.0.1:5173/career/` returns `200 OK`.
+- `curl -L http://127.0.0.1:5173/career/` returns the dev entry with service worker cleanup.
+- Browser QA on plain `http://127.0.0.1:5173/career/` renders the homepage with both hero choices visible and no current console warnings/errors.
+- `npm run build` passes with the updated build script and service worker.
+- Generated build bundle files were restored/removed after verification, then `node scripts/site-build.mjs prepare` was run again so local dev stays in the fixed state.
+
+Guardrail:
+
+- For local dev, always use `npm run dev -- --host 127.0.0.1 --port 5173` and open `http://127.0.0.1:5173/career/`.
+- If `/career/` ever looks stale again, load once after `node scripts/site-build.mjs prepare`; the dev entry should unregister the service worker and clear old `careerlane-*` caches.

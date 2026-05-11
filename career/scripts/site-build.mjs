@@ -10,7 +10,43 @@ const distAssetsDir = path.join(distDir, "assets");
 const rootAssetsDir = path.join(projectDir, "assets");
 const sourceIndexPath = path.join(projectDir, "index.html");
 
-const sourceIndexHtml = `<!DOCTYPE html>
+const serviceWorkerRegisterScript = `      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register(new URL('sw.js', window.location.href));
+        });
+      }`;
+
+const serviceWorkerDevCleanupScript = `      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.getRegistrations()
+            .then((registrations) => Promise.all(
+              registrations
+                .filter((registration) => registration.scope.includes('/career/'))
+                .map((registration) => registration.unregister())
+            ))
+            .catch(() => {});
+        });
+      }
+
+      if ('caches' in window) {
+        window.addEventListener('load', () => {
+          caches.keys()
+            .then((keys) => Promise.all(
+              keys
+                .filter((key) => key.startsWith('careerlane-'))
+                .map((key) => caches.delete(key))
+            ))
+            .catch(() => {});
+        });
+      }`;
+
+function createSourceIndexHtml({ serviceWorkerMode }) {
+  const serviceWorkerScript =
+    serviceWorkerMode === "production"
+      ? serviceWorkerRegisterScript
+      : serviceWorkerDevCleanupScript;
+
+  return `<!DOCTYPE html>
 <html lang="bg">
   <head>
     <meta charset="UTF-8">
@@ -42,26 +78,23 @@ const sourceIndexHtml = `<!DOCTYPE html>
     <meta property="twitter:description" content="Платформа за професионално позициониране и менторство.">
     <meta property="twitter:image" content="https://bobsnadenica.com/career/assets/og-image.png">
 
-    <link rel="icon" type="image/x-icon" href="/career/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/career/apple-touch-icon.png">
-    <link rel="manifest" href="/career/manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
     <script type="module" src="/src/main.tsx"></script>
   </head>
   <body>
     <div id="root"></div>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/career/sw.js');
-        });
-      }
+${serviceWorkerScript}
     </script>
   </body>
 </html>
 `;
+}
 
-async function prepareSourceIndex() {
-  await writeFile(sourceIndexPath, sourceIndexHtml);
+async function prepareSourceIndex({ serviceWorkerMode = "development" } = {}) {
+  await writeFile(sourceIndexPath, createSourceIndexHtml({ serviceWorkerMode }));
 }
 
 async function cleanDir(dirPath) {
@@ -91,7 +124,7 @@ async function copyBuildOutput({ keepDist }) {
 
 async function runBuild({ keepDist = false } = {}) {
   process.chdir(projectDir);
-  await prepareSourceIndex();
+  await prepareSourceIndex({ serviceWorkerMode: "production" });
   await viteBuild();
   await copyBuildOutput({ keepDist });
 }

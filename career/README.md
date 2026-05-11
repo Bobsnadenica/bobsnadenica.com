@@ -713,6 +713,10 @@ When you run `npm run dev`:
 2. Vite starts the local dev server
 3. the app runs with hot reload against source files in `src/`
 
+The dev entry also unregisters the `/career/` service worker and clears
+`careerlane-*` caches. This prevents a previously built GitHub Pages service
+worker from serving stale cached HTML while Vite is running locally.
+
 ## 13. Environment Variables
 
 The key frontend variables are:
@@ -741,6 +745,12 @@ Specifically the `frontend_env_snippet` output is meant to be copied into `.env.
 ```bash
 npm install
 npm run dev
+```
+
+Open the local site at:
+
+```bash
+http://127.0.0.1:5173/career/
 ```
 
 ### Frontend production build
