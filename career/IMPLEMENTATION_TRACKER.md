@@ -589,3 +589,40 @@ Status: Completed for this slice.
 - Add the real paid-plan UI for consultant theme selection in the dashboard after billing/plan rules are finalized.
 - Add an admin/dev-only seed reset path before moving beyond local fallback demo data.
 - Decide whether demo profiles should be hidden automatically when the backend returns enough real public consultants.
+
+## Active Slice: Homepage Second Hero Banner
+
+Started: 2026-05-11
+
+Scope:
+
+- Make the second hero profile on the homepage show its optional top banner image when one is available.
+- Keep the fallback avatar behavior when the second profile has no top banner.
+- Preserve responsive spacing so the second hero card does not crowd text on mobile.
+
+Status: Completed for this slice.
+
+## Homepage Second Hero Banner Change Log
+
+- 2026-05-11: Updated `HomeHeroProfile` so both primary and secondary hero profile cards render `CoverMedia` when `heroUrl` exists.
+- 2026-05-11: Added secondary hero banner sizing in CSS for desktop and compact mobile layouts.
+- 2026-05-11: Rebuilt the GitHub Pages deploy artifact so `career/index.html` points to the latest generated CSS/JS assets.
+
+## Homepage Second Hero Banner QA Notes
+
+- Type check: `./node_modules/.bin/tsc --noEmit` passes.
+- Backend syntax: `node -c backend/api/index.cjs` passes.
+- Build: `npm run build` passes and emits `/career/assets/index-DyMW8EHg.css` plus `/career/assets/index-n3G0VnJm.js`.
+- Static Browser QA:
+  - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html?qa=second-hero-banner#/`.
+  - Homepage title and URL matched the intended static CareerLane page.
+  - The page rendered meaningful app content and no framework error overlay.
+  - `.home-hero-profile` count was `2`.
+  - `.home-hero-profile__media` count was `2`.
+  - `.home-hero-profile--secondary .home-hero-profile__media` count was `1`.
+  - `.home-hero-profile--secondary > .home-hero-profile__avatar` count was `0`, confirming the second hero profile uses its banner image instead of the avatar when a banner exists.
+  - Browser console had no warnings/errors.
+
+## Next Queue After Homepage Second Hero Banner
+
+- Decide whether the hero right column should be compressed further so both hero profile cards are visible above the fold on shorter desktop viewports.

@@ -1212,6 +1212,11 @@ textarea {
   padding: 14px;
 }
 
+.home-hero-profile--secondary.home-hero-profile--has-cover {
+  grid-template-columns: minmax(118px, 0.42fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
 .home-hero-profile--secondary .home-hero-profile__body {
   padding: 0;
 }
@@ -1223,6 +1228,13 @@ textarea {
 .home-hero-profile--secondary .home-hero-profile__avatar {
   width: 78px;
   height: 78px;
+}
+
+.home-hero-profile--secondary .home-hero-profile__media {
+  width: 100%;
+  min-height: 112px;
+  aspect-ratio: auto;
+  border-radius: 18px;
 }
 
 .home-hero-profile--secondary h3 {
@@ -5565,6 +5577,15 @@ textarea {
     grid-template-columns: 64px minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
+  }
+
+  .home-hero-profile--secondary.home-hero-profile--has-cover {
+    grid-template-columns: minmax(94px, 0.38fr) minmax(0, 1fr);
+  }
+
+  .home-hero-profile--secondary .home-hero-profile__media {
+    min-height: 92px;
+    border-radius: 16px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__body {

@@ -6368,13 +6368,17 @@ function HomeHeroProfile({
   return (
     <Link
       className={`home-hero-profile home-hero-profile--${variant} ${
-        isPrimary && !hasBanner ? "home-hero-profile--no-cover" : ""
+        hasBanner ? "home-hero-profile--has-cover" : "home-hero-profile--no-cover"
       } ${themeLabel ? "home-hero-profile--themed" : ""}`}
       style={themeStyle}
       to={`/consultants/${consultant.slug}`}
     >
-      {isPrimary && hasBanner ? (
-        <div className="home-hero-profile__media">
+      {hasBanner ? (
+        <div
+          className={`home-hero-profile__media ${
+            isPrimary ? "" : "home-hero-profile__media--secondary"
+          }`}
+        >
           <CoverMedia
             src={consultant.heroUrl}
             name={consultant.name}
@@ -6384,13 +6388,13 @@ function HomeHeroProfile({
             subtitle={consultant.headline}
           />
         </div>
-      ) : (
+      ) : !isPrimary ? (
         <AvatarMedia
           className="home-hero-profile__avatar"
           src={consultant.avatarUrl}
           name={consultant.name}
         />
-      )}
+      ) : null}
 
       <div className="home-hero-profile__body">
         <div className="home-hero-profile__header">
