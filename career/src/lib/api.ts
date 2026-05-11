@@ -4,6 +4,7 @@ import {
   getFilteredDemoConsultants,
   mergeConsultantLists
 } from "./demo-data";
+import { getCvUploadContentType } from "./uploads";
 import type {
   Booking,
   ConsultantMediaKind,
@@ -216,6 +217,8 @@ export const api = {
   },
 
   async createCvUpload(token: string, file: File) {
+    const contentType = getCvUploadContentType(file);
+
     return request<{
       uploadUrl: string;
       storageKey: string;
@@ -226,7 +229,7 @@ export const api = {
         method: "POST",
         body: JSON.stringify({
           fileName: file.name,
-          contentType: file.type || "application/octet-stream",
+          contentType,
           fileSize: file.size || 0
         })
       },

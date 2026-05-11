@@ -303,3 +303,94 @@ Status: Completed for this slice.
 - Add a lightweight authenticated dashboard test harness or fixture path for loading/error state regression.
 - Continue dashboard polish on empty bookings, empty documents, and consultant profile drafts.
 - Decide whether to address React Router v7 future warnings in a routing maintenance slice.
+
+## Active Slice: Router Warning Cleanup
+
+Started: 2026-05-11
+
+Scope:
+
+- Opt into the React Router v7 future flags that are already supported by the current `HashRouter`.
+- Keep the GitHub Pages compatible hash-routing model unchanged.
+- Reduce console noise so future browser QA can spot real warnings faster.
+
+Status: Completed for this slice.
+
+## Router Warning Cleanup Change Log
+
+- 2026-05-11: Added `v7_relativeSplatPath` and `v7_startTransition` future flags to the top-level `HashRouter`.
+- 2026-05-11: Kept the existing `AuthProvider` and route shell unchanged.
+
+## Router Warning Cleanup Files Changed
+
+- `src/app/App.tsx`
+  - Opted `HashRouter` into the supported React Router v7 future behavior.
+
+## Router Warning Cleanup QA Notes
+
+- Build: `npm run build` passes.
+- Type check: `./node_modules/.bin/tsc --noEmit` passes.
+- Browser QA:
+  - Fresh `/consultants` tab rendered the catalog content.
+  - Fresh signed-out `/dashboard` request redirected to `/auth?redirect=/dashboard`.
+  - Fresh timestamp-filtered console checks showed no current warnings or errors.
+- Cleanup:
+  - Generated root deploy artifacts from `npm run build` were restored/removed.
+  - Dev entry was prepared again with `node scripts/site-build.mjs prepare`.
+
+## Active Slice: Dashboard Documents And Empty States
+
+Started: 2026-05-11
+
+Scope:
+
+- Make the dashboard document upload area match the backend upload contract before calling the API.
+- Improve the dashboard document active/empty states without changing backend behavior.
+- Replace the plain sessions empty state with a clearer role-aware dashboard state.
+- Keep changes small and reusable so the next dashboard pass can build on them.
+
+Status: Completed for this slice.
+
+## Dashboard Documents And Empty States Change Log
+
+- 2026-05-11: Added shared CV upload contract helpers for accepted file types, size limit, content-type inference, and client validation.
+- 2026-05-11: Updated the API client to send the same inferred CV content type that the dashboard uses for the S3 upload request.
+- 2026-05-11: Added client-side CV validation before requesting a signed upload URL, matching the backend PDF/DOC/DOCX and 8 MB limits.
+- 2026-05-11: Replaced the plain document panel with `DashboardDocumentCard` for active and empty document states.
+- 2026-05-11: Added a role-aware `DashboardEmptyState` for the upcoming sessions section.
+- 2026-05-11: Added responsive CSS for dashboard document and empty states so they collapse cleanly on tablet/mobile.
+
+## Dashboard Documents And Empty States Files Changed
+
+- `src/lib/uploads.ts`
+  - Added the shared CV upload contract helpers.
+- `src/lib/api.ts`
+  - Uses the shared CV content-type inference when creating CV upload URLs.
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Validates CV files before backend calls.
+  - Uses the inferred content type for the signed S3 PUT request.
+  - Adds dashboard document and sessions empty-state components.
+- `src/styles/global.css`
+  - Adds dashboard document, upload field, and empty-state styling.
+- `IMPLEMENTATION_TRACKER.md`
+  - Added this execution log and QA notes.
+
+## Dashboard Documents And Empty States QA Notes
+
+- Type check: `./node_modules/.bin/tsc --noEmit` passes.
+- Build: `npm run build` passes.
+- Browser QA:
+  - `/consultants` renders catalog content in a fresh tab with no current console warnings/errors.
+  - Signed-out `/dashboard` redirects to `/auth?redirect=/dashboard` and renders the auth page with no current console warnings/errors.
+- Cleanup:
+  - Generated root deploy artifacts from `npm run build` were restored/removed.
+  - Dev entry was prepared again with `node scripts/site-build.mjs prepare`.
+- Remaining QA gap:
+  - The authenticated dashboard document/session states still need live-account QA or a fixture route because the current browser session is signed out.
+
+## Next Queue After Dashboard Documents And Empty States
+
+- Add a lightweight authenticated dashboard fixture or test harness for profile/document/session states.
+- Continue consultant dashboard polish around public profile draft readiness and availability management.
+- Add regression coverage for CV upload validation and dashboard empty-state rendering.
+- Review backend upload error messages and map them to localized frontend copy where needed.

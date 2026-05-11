@@ -17,6 +17,12 @@ import {
   writePendingBootstrap,
   writeSocialAuthIntent
 } from "../../lib/auth-flow";
+import {
+  CV_UPLOAD_ACCEPT,
+  CV_UPLOAD_FORMAT_LABEL,
+  getCvUploadContentType,
+  getCvUploadValidationError
+} from "../../lib/uploads";
 import { resolvePublicUrl } from "../../lib/url";
 import type {
   Booking,
@@ -32,7 +38,8 @@ import type {
 async function uploadFileToSignedUrl(
   uploadUrl: string,
   file: File,
-  failureLabel: string
+  failureLabel: string,
+  contentType = file.type || "application/octet-stream"
 ) {
   if (!uploadUrl) {
     return;
@@ -41,7 +48,7 @@ async function uploadFileToSignedUrl(
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
     headers: {
-      "Content-Type": file.type || "application/octet-stream"
+      "Content-Type": contentType
     },
     body: file
   });
@@ -462,6 +469,19 @@ function formatDate(date: string) {
 
   if (!date || Number.isNaN(parsed.getTime())) {
     return "По договаряне";
+  }
+
+  return new Intl.DateTimeFormat("bg-BG", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(parsed);
+}
+
+function formatDocumentUploadedAt(date: string) {
+  const parsed = new Date(date);
+
+  if (!date || Number.isNaN(parsed.getTime())) {
+    return "Няма дата";
   }
 
   return new Intl.DateTimeFormat("bg-BG", {
@@ -4342,10 +4362,18 @@ export function DashboardPage() {
       return;
     }
 
+    const validationError = getCvUploadValidationError(file);
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     try {
+      const contentType = getCvUploadContentType(file);
       const result = await api.createCvUpload(token, file);
 
-      await uploadFileToSignedUrl(result.uploadUrl, file, "документа");
+      await uploadFileToSignedUrl(result.uploadUrl, file, "документа", contentType);
 
       const updated = await api.updateMyProfile(token, {
         cvDocument: result.document as UploadedDocument
@@ -5437,18 +5465,17 @@ export function DashboardPage() {
             <p className="section-caption">
               Дръж CV-то си на едно място, за да е лесно за обновяване и споделяне.
             </p>
-            <p className="form-note">
-              {getDocumentCapacityNote(profile.plan)}
-            </p>
-            <label>
-              Качи CV или резюме
-              <input name="cv" type="file" />
+
+            <DashboardDocumentCard document={profile.cvDocument} plan={profile.plan} />
+
+            <label className="dashboard-upload-field">
+              <span>Качи CV или резюме</span>
+              <input name="cv" type="file" accept={CV_UPLOAD_ACCEPT} />
+              <span className="form-note">
+                Поддържани формати: {CV_UPLOAD_FORMAT_LABEL}. Новото качване заменя активния
+                документ.
+              </span>
             </label>
-            {profile.cvDocument ? (
-              <div className="panel">
-                Активен документ: <strong>{profile.cvDocument.fileName}</strong>
-              </div>
-            ) : null}
             <button className="primary-button" type="submit">
               Качи CV
             </button>
@@ -6017,14 +6044,24 @@ export function DashboardPage() {
               Всички заявки и потвърдени срещи са събрани тук.
             </p>
             {bookings.length === 0 ? (
-              <div className="empty-state">
-                <p>Все още няма заявки или потвърдени консултации.</p>
-                <Link className="ghost-button" to={profile.role === "consultant" ? "/consultants" : "/users"}>
-                  {profile.role === "consultant"
-                    ? "Виж как изглежда списъкът"
-                    : "Разгледай консултантите"}
-                </Link>
-              </div>
+              <DashboardEmptyState
+                title={
+                  profile.role === "consultant"
+                    ? "Все още няма заявки към профила ти."
+                    : "Все още нямаш предстоящи консултации."
+                }
+                description={
+                  profile.role === "consultant"
+                    ? "Когато потребител изпрати заявка за свободен час, тя ще се появи тук със статус и дата."
+                    : "След като избереш консултант или ментор и изпратиш заявка, срещата ще се показва в този списък."
+                }
+                actionLabel={
+                  profile.role === "consultant"
+                    ? "Виж публичния каталог"
+                    : "Разгледай консултантите"
+                }
+                actionTo={profile.role === "consultant" ? "/consultants" : "/users"}
+              />
             ) : (
               <div className="booking-list">
                 {bookings.map((booking) => (
@@ -6318,6 +6355,75 @@ function DirectoryFeedbackState({
           {actionLabel}
         </button>
       ) : null}
+    </div>
+  );
+}
+
+function DashboardDocumentCard({
+  document,
+  plan
+}: {
+  document?: UploadedDocument | null;
+  plan: PlanTier;
+}) {
+  if (!document) {
+    return (
+      <div className="dashboard-document-card dashboard-document-card--empty">
+        <span className="dashboard-document-card__marker" aria-hidden="true" />
+        <div className="dashboard-document-card__content">
+          <span className="plan-pill">Няма качен документ</span>
+          <strong>Качи основното си CV, когато си готов.</strong>
+          <p>
+            {getDocumentCapacityNote(plan)} Поддържани формати: {CV_UPLOAD_FORMAT_LABEL},
+            за да избегнем неуспешни качвания след избора на файл.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="dashboard-document-card dashboard-document-card--active">
+      <span className="dashboard-document-card__marker" aria-hidden="true" />
+      <div className="dashboard-document-card__content">
+        <span className="status-badge status-badge--success">Активен документ</span>
+        <strong>{document.fileName}</strong>
+        <dl className="dashboard-document-card__meta">
+          <div>
+            <dt>Качен</dt>
+            <dd>{formatDocumentUploadedAt(document.uploadedAt)}</dd>
+          </div>
+          <div>
+            <dt>Статус</dt>
+            <dd>Готов за обновяване</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+function DashboardEmptyState({
+  title,
+  description,
+  actionLabel,
+  actionTo
+}: {
+  title: string;
+  description: string;
+  actionLabel: string;
+  actionTo: string;
+}) {
+  return (
+    <div className="dashboard-empty-state">
+      <span className="dashboard-empty-state__marker" aria-hidden="true" />
+      <div className="dashboard-empty-state__content">
+        <strong>{title}</strong>
+        <p>{description}</p>
+      </div>
+      <Link className="ghost-button" to={actionTo}>
+        {actionLabel}
+      </Link>
     </div>
   );
 }
