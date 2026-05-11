@@ -1,106 +1,195 @@
 #!/bin/bash
 
-# Kubernetes Environment Setup Script
-# Works on macOS, Linux, and Windows (via WSL)
-# Automates installation of Docker, Kubectl, and Kind
+# ==============================================================================
+# Kubernetes Environment Automator
+# Optimized for: macOS, Ubuntu/Debian, and WSL2
+# ==============================================================================
 
-set -e
+set -euo pipefail
 
+# --- Configuration & Colors ---
+LOG_FILE="k8s_setup.log"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+BOLD='\033[1m'
+NC='\033[0m'
 
-echo -e "${BLUE}==================================================${NC}"
-echo -e "${BLUE}   Kubernetes All-in-One Environment Setup        ${NC}"
-echo -e "${BLUE}==================================================${NC}"
+# --- UI Helpers ---
+log() { echo -e "${BLUE}[INFO]${NC} $1" | tee -a "$LOG_FILE"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $1" | tee -a "$LOG_FILE"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1" | tee -a "$LOG_FILE"; }
+error() { echo -e "${RED}[ERROR]${NC} $1" | tee -a "$LOG_FILE"; exit 1; }
 
-# 1. Detect OS
-OS_TYPE="unknown"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    OS_TYPE="linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    OS_TYPE="mac"
-elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-    OS_TYPE="windows"
-fi
+header() {
+    clear
+    echo -e "${BLUE}${BOLD}==================================================${NC}"
+    echo -e "${BLUE}${BOLD}   KUBERNETES ENVIRONMENT AUTOMATOR v2.0          ${NC}"
+    echo -e "${BLUE}${BOLD}==================================================${NC}"
+    echo -e "System: $(uname -s) | User: $(whoami) | Date: $(date +'%Y-%m-%d')"
+    echo -e "Logging to: $LOG_FILE\n"
+}
 
-echo -e "Detected OS: ${GREEN}$OS_TYPE${NC}"
+# --- Pre-flight Checks ---
+check_os() {
+    case "$(uname -s)" in
+        Darwin)  OS="mac" ;;
+        Linux)   OS="linux" ;;
+        *)       error "Unsupported Operating System." ;;
+    esac
+}
 
-# Function to check dependency
-check_dep() {
-    if command -v $1 &> /dev/null; then
-        return 0
-    else
-        return 1
+check_internet() {
+    log "Checking internet connectivity..."
+    if ! ping -c 1 google.com &>/dev/null; then
+        error "No internet connection detected."
     fi
 }
 
-# 2. Check & Install Docker
-if check_dep docker; then
-    echo -e "${GREEN}✓ Docker is already installed.${NC}"
-else
-    echo -e "${YELLOW}! Docker is missing.${NC}"
-    read -p "Would you like to install Docker? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        if [[ "$OS_TYPE" == "mac" ]]; then
-            echo "Installing Docker Desktop for Mac (via brew)..."
-            brew install --cask docker
-        elif [[ "$OS_TYPE" == "linux" ]]; then
-            echo "Installing Docker for Linux..."
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sudo sh get-docker.sh
-            sudo usermod -aG docker $USER
-            echo -e "${YELLOW}Please log out and back in for Docker group changes to take effect.${NC}"
-        elif [[ "$OS_TYPE" == "windows" ]]; then
-            echo -e "${RED}Please download and install Docker Desktop for Windows manually:${NC}"
-            echo -e "https://www.docker.com/products/docker-desktop"
-        fi
-    fi
-fi
+# --- Dependency Management ---
+is_installed() {
+    command -v "$1" &>/dev/null
+}
 
-# 3. Check & Install Kubectl
-if check_dep kubectl; then
-    echo -e "${GREEN}✓ Kubectl is already installed.${NC}"
-else
-    echo -e "${YELLOW}! Kubectl is missing.${NC}"
-    read -p "Would you like to install Kubectl? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        if [[ "$OS_TYPE" == "mac" ]]; then
-            brew install kubectl
-        elif [[ "$OS_TYPE" == "linux" ]]; then
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        elif [[ "$OS_TYPE" == "windows" ]]; then
-            echo -e "${RED}Please install Kubectl for Windows manually or use WSL.${NC}"
-        fi
-    fi
-fi
+# --- Installation Modules ---
 
-# 4. Check & Install Kind
-if check_dep kind; then
-    echo -e "${GREEN}✓ Kind is already installed.${NC}"
-else
-    echo -e "${YELLOW}! Kind is missing.${NC}"
-    read -p "Would you like to install Kind? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        if [[ "$OS_TYPE" == "mac" ]]; then
-            brew install kind
-        elif [[ "$OS_TYPE" == "linux" ]]; then
-            curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
-            chmod +x ./kind
-            sudo mv ./kind /usr/local/bin/kind
-        elif [[ "$OS_TYPE" == "windows" ]]; then
-             echo -e "${RED}Please install Kind for Windows manually or use WSL.${NC}"
-        fi
+install_docker() {
+    if is_installed docker; then
+        success "Docker is already available."
+        return
     fi
-fi
 
-echo -e "${BLUE}==================================================${NC}"
-echo -e "${GREEN}Setup Complete!${NC}"
-echo -e "To create a cluster, run: ${YELLOW}kind create cluster --name k8s-lab${NC}"
-echo -e "${BLUE}==================================================${NC}"
+    log "Installing Docker..."
+    if [[ "$OS" == "mac" ]]; then
+        brew install --cask docker
+    else
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sudo sh get-docker.sh
+        sudo usermod -aG docker "$USER"
+        warn "Docker installed. You may need to logout/login to run docker without sudo."
+    fi
+}
+
+install_kubectl() {
+    if is_installed kubectl; then
+        success "kubectl is already available."
+        return
+    fi
+
+    log "Installing kubectl..."
+    if [[ "$OS" == "mac" ]]; then
+        brew install kubectl
+    else
+        local latest_version=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+        curl -LO "https://dl.k8s.io/release/$latest_version/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        rm kubectl
+    fi
+}
+
+install_kind() {
+    if is_installed kind; then
+        success "kind is already available."
+        return
+    fi
+
+    log "Installing kind..."
+    if [[ "$OS" == "mac" ]]; then
+        brew install kind
+    else
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+    fi
+}
+
+install_helm() {
+    if is_installed helm; then
+        success "Helm is already available."
+        return
+    fi
+
+    log "Installing Helm..."
+    if [[ "$OS" == "mac" ]]; then
+        brew install helm
+    else
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    fi
+}
+
+install_k9s() {
+    if is_installed k9s; then
+        success "k9s is already available."
+        return
+    fi
+
+    log "Installing k9s (CLI Dashboard)..."
+    if [[ "$OS" == "mac" ]]; then
+        brew install derailed/k9s/k9s
+    else
+        # Install via binary for linux
+        local latest_k9s=$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        curl -Lo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/$latest_k9s/k9s_Linux_amd64.tar.gz"
+        tar -xzf k9s.tar.gz k9s
+        sudo mv k9s /usr/local/bin/
+        rm k9s.tar.gz
+    fi
+}
+
+# --- Main Logic ---
+
+main() {
+    header
+    check_os
+    check_internet
+
+    echo -e "${BOLD}Select components to install/audit:${NC}"
+    echo -e "1) [Mandatory] Docker + kubectl + Kind"
+    echo -e "2) [Recommended] Helm + k9s"
+    echo -e "3) All of the above"
+    echo -e "4) Exit"
+    echo -n "Choice: "
+    read -r choice
+
+    case $choice in
+        1)
+            install_docker
+            install_kubectl
+            install_kind
+            ;;
+        2)
+            install_helm
+            install_k9s
+            ;;
+        3)
+            install_docker
+            install_kubectl
+            install_kind
+            install_helm
+            install_k9s
+            ;;
+        4)
+            exit 0
+            ;;
+        *)
+            error "Invalid selection."
+            ;;
+    esac
+
+    echo -e "\n${BLUE}==================================================${NC}"
+    echo -e "${GREEN}${BOLD}AUDIT COMPLETE${NC}"
+    echo -e "Current versions:"
+    is_installed docker && docker --version
+    is_installed kubectl && kubectl version --client --short 2>/dev/null || kubectl version --client
+    is_installed kind && kind --version
+    is_installed helm && helm version --short
+    is_installed k9s && k9s version | grep "Version"
+    echo -e "${BLUE}==================================================${NC}"
+    log "Setup finished. If this is your first time, RESTART your terminal."
+}
+
+# Trap errors
+trap 'error "An unexpected error occurred at line $LINENO. Check $LOG_FILE for details."' ERR
+
+main
