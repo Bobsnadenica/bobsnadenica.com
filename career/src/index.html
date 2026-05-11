@@ -31,10 +31,42 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
-    <script type="module" crossorigin src="/career/assets/index-DKfQaL8f.js"></script>
-    <link rel="stylesheet" crossorigin href="/career/assets/index-Dj9RudfG.css">
+    <script type="module" src="/main.tsx"></script>
   </head>
   <body>
     <div id="root"></div>
+    <script type="module">
+      function cleanLocalCareerLaneCaches() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations()
+            .then((registrations) => Promise.all(
+              registrations
+                .filter((registration) => registration.scope.includes('/career/'))
+                .map((registration) => registration.unregister())
+            ))
+            .catch(() => {});
+        }
+
+        if ('caches' in window) {
+          caches.keys()
+            .then((keys) => Promise.all(
+              keys
+                .filter((key) => key.startsWith('careerlane-'))
+                .map((key) => caches.delete(key))
+            ))
+            .catch(() => {});
+        }
+      }
+
+      if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register(new URL('sw.js', window.location.href));
+        });
+      }
+
+      if (import.meta.env.DEV) {
+        window.addEventListener('load', cleanLocalCareerLaneCaches);
+      }
+    </script>
   </body>
 </html>

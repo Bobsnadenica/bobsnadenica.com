@@ -407,7 +407,7 @@ What happened:
 
 Recovery performed:
 
-- Updated `scripts/site-build.mjs` so `npm run dev` / `prepare` writes a development index that unregisters `/career/` service workers and clears `careerlane-*` caches.
+- Added development service-worker cleanup to the Vite source HTML so local dev unregisters `/career/` service workers and clears `careerlane-*` caches.
 - Kept production builds registering the service worker, but changed registration to a relative `sw.js` URL so it resolves under the deployed `/career/` path.
 - Updated `public/sw.js` and root `sw.js` to `careerlane-v2`, delete old caches on activate, claim clients, and use network-first handling for navigation requests.
 - Replaced hard-coded `/career/...` icon and manifest paths in the source index template with relative paths to avoid `/career/career/...` URLs during Vite dev serving.
@@ -418,9 +418,49 @@ QA:
 - `curl -L http://127.0.0.1:5173/career/` returns the dev entry with service worker cleanup.
 - Browser QA on plain `http://127.0.0.1:5173/career/` renders the homepage with both hero choices visible and no current console warnings/errors.
 - `npm run build` passes with the updated build script and service worker.
-- Generated build bundle files were restored/removed after verification, then `node scripts/site-build.mjs prepare` was run again so local dev stays in the fixed state.
+- Generated build bundle files were restored/removed after verification, and local dev remained controlled by the Vite source entry.
 
 Guardrail:
 
 - For local dev, always use `npm run dev -- --host 127.0.0.1 --port 5173` and open `http://127.0.0.1:5173/career/`.
-- If `/career/` ever looks stale again, load once after `node scripts/site-build.mjs prepare`; the dev entry should unregister the service worker and clear old `careerlane-*` caches.
+- If `/career/` ever looks stale again in local dev, restart `npm run dev`; the Vite source entry should unregister the service worker and clear old `careerlane-*` caches.
+
+## Recovery Note: GitHub Pages White Page On `/career/index.html`
+
+Date: 2026-05-11
+
+What happened:
+
+- The live URL `https://www.bobsnadenica.com/career/index.html` served a development `index.html`.
+- That file referenced `/src/main.tsx`, which only works when Vite is running locally.
+- GitHub Pages is static, so it cannot compile or serve the Vite TypeScript source entry. The browser received an empty `#root` and no built app bundle, so the page appeared white.
+
+Correct structure:
+
+- `bobsnadenica.com/` is the separate root/main website.
+- `bobsnadenica.com/career/index.html` is the static deploy entry for the nested CareerLane app.
+- `career/src/index.html` is now the Vite source HTML entry.
+- `career/src/main.tsx` is the React mount entry.
+- `career/index.html` and `career/assets/*` are generated deploy artifacts that GitHub Pages serves directly.
+- The AWS backend remains separate and is called by the frontend through the configured API/Cognito environment values.
+
+Recovery performed:
+
+- Added `src/index.html` as the Vite source HTML entry.
+- Updated `vite.config.ts` so Vite uses `career/src` as the frontend root while still building for the `/career/` base path.
+- Updated `scripts/site-build.mjs` so production builds copy Vite output into `career/index.html` and `career/assets/` without ever writing a dev index into the deploy artifact.
+- Changed `npm run dev` so local development uses Vite directly and does not rewrite `career/index.html`.
+- Ran `npm run build`; `career/index.html` now references `/career/assets/index-*.js` and `/career/assets/index-*.css`, not `/src/main.tsx`.
+
+QA:
+
+- `npm run build` passes.
+- Static GitHub-Pages-like QA passed by serving the parent `bobsnadenica.com` folder and opening `http://127.0.0.1:8000/career/index.html`.
+- Browser QA on the static `/career/index.html` rendered the homepage with both hero choices visible and no current console warnings/errors.
+- Dev-server QA on `http://127.0.0.1:5174/career/` rendered the homepage with both hero choices visible and no current console warnings/errors.
+
+Guardrail:
+
+- Before pushing to GitHub Pages, always run `npm run build`.
+- Do not run `node scripts/site-build.mjs prepare` as a deployment step; it is now a compatibility no-op.
+- A deploy-ready `career/index.html` must contain `/career/assets/` script/style references and must not contain `/src/main.tsx`.
