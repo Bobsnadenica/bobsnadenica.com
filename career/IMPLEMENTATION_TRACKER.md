@@ -185,3 +185,121 @@ Status: Completed for this slice.
 - Continue responsive visual QA on auth, profile, and dashboard routes after the onboarding pass.
 - Add regression coverage for homepage hero rendering, directory cards, and role-specific auth preselection.
 - Decide whether to enable React Router v7 future flags during a routing maintenance pass.
+
+## Recovery Note: Local Site Not Loading
+
+Date: 2026-05-11
+
+What happened:
+
+- The in-app browser was pointed at `http://127.0.0.1:5173/career/`, but the Vite dev server was no longer running.
+- README confirms local development requires the Vite server, while `index.html` and `assets/` are GitHub Pages deploy artifacts.
+- Tracker already warns that `npm run build` rewrites root deploy artifacts, so local QA should run `node scripts/site-build.mjs prepare` before serving with Vite when needed.
+
+Recovery performed:
+
+- Restarted local development with `npm run dev -- --host 127.0.0.1 --port 5173`.
+- Verified TypeScript with `./node_modules/.bin/tsc --noEmit`.
+- Verified `/consultants` in the in-app browser at `http://127.0.0.1:5173/career/?qa=1778150001#/consultants`.
+- Confirmed no Vite/framework overlay and no console errors beyond the existing React Router v7 future-flag warnings.
+- Confirmed `career/` git status was clean before this tracker note.
+
+Guardrail:
+
+- If the site shows `ERR_FAILED` or does not load locally, first check that Vite is running on port `5173`.
+- For local browser work after a production build, prepare the dev entry again with `node scripts/site-build.mjs prepare`, then start or restart Vite.
+
+## Active Slice: Consultant Registration Onboarding Polish
+
+Started: 2026-05-11
+
+Scope:
+
+- Continue the consultant registration/onboarding improvement after the load recovery.
+- Preserve the existing auth/backend flow and avoid introducing new auth behavior.
+- Improve the responsive ordering so mobile users see the actual registration card before long explanatory copy.
+- Verify with production build and in-app browser QA.
+
+Status: Completed for this slice.
+
+## Consultant Registration Onboarding Polish Change Log
+
+- 2026-05-11: Kept the guided consultant registration flow intact and focused this pass on responsive usability.
+- 2026-05-11: Changed tablet/mobile auth layout order so `.auth-card` appears before `.auth-copy`, making the usable registration flow visible immediately after the header.
+- 2026-05-11: Preserved the desktop two-column auth layout so the explanatory side panel still supports the form on wider screens.
+- 2026-05-11: Ran `npm run build`; build passed.
+- 2026-05-11: Cleaned generated root deploy artifacts after the build and prepared the dev entry again with `node scripts/site-build.mjs prepare`.
+
+## Consultant Registration Onboarding Polish Files Changed
+
+- `src/styles/global.css`
+  - Added responsive auth-card ordering under the tablet/mobile breakpoint.
+- `IMPLEMENTATION_TRACKER.md`
+  - Added this execution log and QA notes.
+
+## Consultant Registration Onboarding Polish QA Notes
+
+- Build: `npm run build` passes.
+- Browser QA:
+  - Desktop/default viewport `/auth?tab=register&role=consultant` loads with the guided consultant onboarding card and no framework overlay.
+  - Mobile `390x900` viewport loads with the auth card first, before the explanatory copy.
+  - No console errors were observed; existing React Router v7 future-flag warnings remain.
+- Cleanup:
+  - Restored generated deploy artifacts after build verification.
+  - Reset the in-app browser viewport override after mobile QA.
+
+## Next Queue After Consultant Onboarding Polish
+
+- Continue visual QA on the lower portions of the auth form after real registration data is available.
+- Add lightweight regression coverage for the responsive auth ordering and role-specific registration route.
+- Start the next backend-connected quality slice: explicit loading/error states for dashboard/profile flows.
+
+## Active Slice: Dashboard Loading And Error States
+
+Started: 2026-05-11
+
+Scope:
+
+- Improve backend-connected dashboard loading and first-load failure states.
+- Keep existing API calls, auth flow, profile forms, and dashboard data contracts unchanged.
+- Add a clearer retry path when dashboard profile data fails before the dashboard can render.
+- Verify build and signed-out dashboard route behavior in the browser.
+
+Status: Completed for this slice.
+
+## Dashboard Loading And Error States Change Log
+
+- 2026-05-11: Added explicit dashboard data loading state with `dashboardLoading` instead of relying only on `profile === null`.
+- 2026-05-11: Added `dashboardReloadKey` retry flow so first-load dashboard failures can retry API loading without a full browser refresh.
+- 2026-05-11: Added shared `DashboardRouteState` for auth loading, dashboard loading, profile loading, and first-load error states.
+- 2026-05-11: Styled dashboard route states with clear marker, copy hierarchy, responsive layout, and error/loading tones.
+- 2026-05-11: Preserved the parallel dashboard API loading pattern for profile, bookings, consultant profile, and public directory data.
+
+## Dashboard Loading And Error States Files Changed
+
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Added dashboard loading/retry state.
+  - Replaced plain loading/error panels before dashboard render with `DashboardRouteState`.
+- `src/styles/global.css`
+  - Added dashboard route-state styling and mobile stacking.
+- `IMPLEMENTATION_TRACKER.md`
+  - Added this execution log and QA notes.
+
+## Dashboard Loading And Error States QA Notes
+
+- Build: `npm run build` passes.
+- Browser QA:
+  - Signed-out `/dashboard` redirects to `/auth?redirect=/dashboard`.
+  - Auth page renders without a framework overlay after the redirect.
+  - No console errors were observed; existing React Router v7 future-flag warnings remain.
+- Cleanup:
+  - Generated root deploy artifacts from `npm run build` were restored/removed.
+  - Dev entry was prepared again with `node scripts/site-build.mjs prepare`.
+- Remaining QA gap:
+  - Authenticated dashboard first-load success/failure screens still need live-session QA or a lightweight test harness because the current browser session is signed out.
+
+## Next Queue After Dashboard Loading States
+
+- Add a lightweight authenticated dashboard test harness or fixture path for loading/error state regression.
+- Continue dashboard polish on empty bookings, empty documents, and consultant profile drafts.
+- Decide whether to address React Router v7 future warnings in a routing maintenance slice.

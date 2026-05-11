@@ -3153,6 +3153,53 @@ textarea {
     white;
 }
 
+.dashboard-route-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.dashboard-route-state__marker {
+  display: block;
+  width: 16px;
+  height: 58px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+
+.dashboard-route-state--loading .dashboard-route-state__marker {
+  animation: bannerPillPulse 1800ms ease-in-out infinite;
+}
+
+.dashboard-route-state--error .dashboard-route-state__marker {
+  background: linear-gradient(180deg, #991b1b, #ef4444);
+}
+
+.dashboard-route-state__copy {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dashboard-route-state__copy h2,
+.dashboard-route-state__copy p {
+  margin: 0;
+}
+
+.dashboard-route-state__copy h2 {
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  line-height: 1.08;
+}
+
+.dashboard-route-state__copy p:not(.eyebrow) {
+  color: var(--text-soft);
+  line-height: 1.62;
+}
+
 .dashboard-section-nav {
   display: flex;
   flex-wrap: wrap;
@@ -4895,6 +4942,14 @@ textarea {
   .page-side-card {
     position: static;
   }
+
+  .auth-card {
+    order: -1;
+  }
+
+  .auth-copy {
+    order: 0;
+  }
 }
 
 @media (max-width: 820px) {
@@ -5047,8 +5102,18 @@ textarea {
     align-items: start;
   }
 
+  .dashboard-route-state {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
   .directory-feedback__marker {
     width: 52px;
+    height: 8px;
+  }
+
+  .dashboard-route-state__marker {
+    width: 54px;
     height: 8px;
   }
 

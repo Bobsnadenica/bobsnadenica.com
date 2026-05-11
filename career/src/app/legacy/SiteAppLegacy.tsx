@@ -4169,6 +4169,8 @@ export function DashboardPage() {
   const [activeConsultantSection, setActiveConsultantSection] = useState("presentation");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [dashboardReloadKey, setDashboardReloadKey] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -4182,6 +4184,8 @@ export function DashboardPage() {
     }
 
     let mounted = true;
+    setDashboardLoading(true);
+    setError("");
 
     Promise.all([
       api.getMyProfile(token),
@@ -4213,12 +4217,17 @@ export function DashboardPage() {
         if (mounted) {
           setError(value instanceof Error ? value.message : "Неуспешно зареждане на таблото.");
         }
+      })
+      .finally(() => {
+        if (mounted) {
+          setDashboardLoading(false);
+        }
       });
 
     return () => {
       mounted = false;
     };
-  }, [token]);
+  }, [dashboardReloadKey, token]);
 
   useEffect(() => {
     setConsultantAvailability(getUpcomingAvailabilitySlots(consultantProfile?.availability || []));
@@ -4228,7 +4237,25 @@ export function DashboardPage() {
     return (
       <section className="section">
         <div className="container">
-          <div className="panel">Зареждаме таблото...</div>
+          <DashboardRouteState
+            tone="loading"
+            title="Проверяваме достъпа."
+            description="Зареждаме сесията ти, преди да отворим личното табло."
+          />
+        </div>
+      </section>
+    );
+  }
+
+  if (dashboardLoading && !profile) {
+    return (
+      <section className="section">
+        <div className="container">
+          <DashboardRouteState
+            tone="loading"
+            title="Зареждаме таблото."
+            description="Събираме профила, документите, резервациите и публичната информация в един работен изглед."
+          />
         </div>
       </section>
     );
@@ -4239,9 +4266,19 @@ export function DashboardPage() {
       <section className="section">
         <div className="container">
           {error ? (
-            <div className="panel panel--error">{error}</div>
+            <DashboardRouteState
+              tone="error"
+              title="Не успяхме да заредим таблото."
+              description={error}
+              actionLabel="Опитай отново"
+              onAction={() => setDashboardReloadKey((current) => current + 1)}
+            />
           ) : (
-            <div className="panel">Зареждаме профила...</div>
+            <DashboardRouteState
+              tone="loading"
+              title="Зареждаме профила."
+              description="Подготвяме основната информация за акаунта ти."
+            />
           )}
         </div>
       </section>
@@ -6276,6 +6313,36 @@ function DirectoryFeedbackState({
           {actionLabel}
         </Link>
       ) : null}
+      {actionLabel && onAction ? (
+        <button className="ghost-button" type="button" onClick={onAction}>
+          {actionLabel}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function DashboardRouteState({
+  tone = "loading",
+  title,
+  description,
+  actionLabel,
+  onAction
+}: {
+  tone?: "loading" | "error";
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
+  return (
+    <div className={`panel dashboard-route-state dashboard-route-state--${tone}`}>
+      <span className="dashboard-route-state__marker" aria-hidden="true" />
+      <div className="dashboard-route-state__copy">
+        <p className="eyebrow">{tone === "error" ? "Проблем със зареждането" : "Моето табло"}</p>
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
       {actionLabel && onAction ? (
         <button className="ghost-button" type="button" onClick={onAction}>
           {actionLabel}
