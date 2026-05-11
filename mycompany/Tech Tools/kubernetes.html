@@ -1762,14 +1762,11 @@
           <strong id="chapterState">Roadmap</strong>
         </div>
         <nav class="chapter-track">
-          <a class="chapter-link active" data-nav-target="roadmap" href="#roadmap">Roadmap</a>
-          <a class="chapter-link" data-nav-target="mental-model" href="#mental-model">Mental model</a>
-          <a class="chapter-link" data-nav-target="architecture" href="#architecture">Architecture</a>
-          <a class="chapter-link" data-nav-target="objects" href="#objects">Workloads</a>
-          <a class="chapter-link" data-nav-target="platform" href="#platform">Platform</a>
-          <a class="chapter-link" data-nav-target="yaml-blueprint" href="#yaml-blueprint">YAML</a>
+          <a class="chapter-link active" data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
           <a class="chapter-link" data-nav-target="command-atlas" href="#command-atlas">Commands</a>
-          <a class="chapter-link" data-nav-target="labs" href="#labs">Labs</a>
+          <a class="chapter-link" data-nav-target="labs-basic" href="#labs-basic">Basic Labs</a>
+          <a class="chapter-link" data-nav-target="labs-moderate" href="#labs-moderate">Moderate Labs</a>
+          <a class="chapter-link" data-nav-target="labs-senior" href="#labs-senior">Senior Labs</a>
           <a class="chapter-link" data-nav-target="troubleshooting" href="#troubleshooting">Troubleshooting</a>
           <a class="chapter-link" data-nav-target="simulator" href="#simulator">Simulator</a>
           <a class="chapter-link" data-nav-target="cleanup" href="#cleanup">Cleanup</a>
@@ -1784,14 +1781,11 @@
       <div class="rail-block">
         <h2>On this page</h2>
         <nav class="rail-links">
-          <a class="active" data-nav-target="roadmap" href="#roadmap">Roadmap</a>
-          <a data-nav-target="mental-model" href="#mental-model">Mental model</a>
-          <a data-nav-target="architecture" href="#architecture">Architecture</a>
-          <a data-nav-target="objects" href="#objects">Objects and workloads</a>
-          <a data-nav-target="platform" href="#platform">Networking, storage, security</a>
-          <a data-nav-target="yaml-blueprint" href="#yaml-blueprint">YAML blueprint</a>
+          <a class="active" data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
           <a data-nav-target="command-atlas" href="#command-atlas">Command atlas</a>
-          <a data-nav-target="labs" href="#labs">Laptop labs</a>
+          <a data-nav-target="labs-basic" href="#labs-basic">Basic Labs</a>
+          <a data-nav-target="labs-moderate" href="#labs-moderate">Moderate Labs</a>
+          <a data-nav-target="labs-senior" href="#labs-senior">Senior Labs</a>
           <a data-nav-target="troubleshooting" href="#troubleshooting">Troubleshooting</a>
           <a data-nav-target="simulator" href="#simulator">Simulator</a>
           <a data-nav-target="cleanup" href="#cleanup">Cleanup</a>
@@ -1802,12 +1796,12 @@
       <div class="rail-block">
         <h2>Study checklist</h2>
         <div class="checklist">
-          <label class="check-item"><input type="checkbox" data-checkpoint="control-plane" /> I understand the control plane and nodes.</label>
-          <label class="check-item"><input type="checkbox" data-checkpoint="workloads" /> I know when to use a Deployment, StatefulSet, Job, and Service.</label>
-          <label class="check-item"><input type="checkbox" data-checkpoint="networking" /> I can explain Pod IPs, Services, DNS, and Ingress.</label>
-          <label class="check-item"><input type="checkbox" data-checkpoint="ops" /> I can scale, roll out, roll back, and debug a workload.</label>
-          <label class="check-item"><input type="checkbox" data-checkpoint="labs" /> I have run at least two local labs on my own machine.</label>
-          <label class="check-item"><input type="checkbox" data-checkpoint="cleanup" /> I know how to reset a cluster and clean up experiments.</label>
+          <label class="check-item"><input type="checkbox" data-checkpoint="foundations" /> I understand the reconciliation loop and control plane.</label>
+          <label class="check-item"><input type="checkbox" data-checkpoint="workloads" /> I can select the right workload type for any application.</label>
+          <label class="check-item"><input type="checkbox" data-checkpoint="platform" /> I can configure persistence (PVCs) and ingress routing.</label>
+          <label class="check-item"><input type="checkbox" data-checkpoint="scheduling" /> I can control pod scheduling with node affinity and labels.</label>
+          <label class="check-item"><input type="checkbox" data-checkpoint="advanced" /> I can implement basic RBAC and sidecar patterns.</label>
+          <label class="check-item"><input type="checkbox" data-checkpoint="labs" /> I have completed at least one lab from each tier (Basic to Senior).</label>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
         <p class="progress-copy" id="progressCopy">0 / 6 complete</p>
@@ -1815,397 +1809,58 @@
     </aside>
 
     <div class="content">
-      <section class="section" id="roadmap">
-        <div class="section-label">Roadmap</div>
-        <h2>Learn Kubernetes in the right order so it actually sticks</h2>
+      <section class="section" id="core-concepts">
+        <div class="section-label">Core Concepts</div>
+        <h2>The 60-Second Kubernetes Mental Model</h2>
         <p class="section-intro">
-          Most people bounce off Kubernetes because they start with syntax instead of intent. The
-          right path is: understand the reconciliation model, map the core objects, watch traffic
-          and storage behave, then practice commands and failures until the cluster stops feeling
-          magical and starts feeling predictable.
-        </p>
-
-        <div class="stage-grid">
-          <article class="stage">
-            <div class="stage-index">01</div>
-            <h3>Foundation</h3>
-            <p>Kubernetes is a system for keeping declared state true. Learn Pods, Nodes, the API server, and the control loop before anything else.</p>
-          </article>
-          <article class="stage">
-            <div class="stage-index">02</div>
-            <h3>Workloads</h3>
-            <p>Understand when to use a Deployment, StatefulSet, DaemonSet, Job, and CronJob so you pick the right abstraction for the app.</p>
-          </article>
-          <article class="stage">
-            <div class="stage-index">03</div>
-            <h3>Platform</h3>
-            <p>Learn Service types, Ingress, DNS, ConfigMaps, Secrets, PersistentVolumeClaims, and namespaces. This is where apps become platforms.</p>
-          </article>
-          <article class="stage">
-            <div class="stage-index">04</div>
-            <h3>Operations</h3>
-            <p>Practice scaling, rollouts, rollbacks, probes, logs, events, port-forwarding, and basic node maintenance until they feel routine.</p>
-          </article>
-          <article class="stage">
-            <div class="stage-index">05</div>
-            <h3>Production thinking</h3>
-            <p>Add resource requests, limits, RBAC, network policy, autoscaling, and cleanup discipline so experiments do not turn into mystery debt.</p>
-          </article>
-        </div>
-
-        <div class="two-up">
-          <div class="panel">
-            <p class="statement">The shortest honest definition of Kubernetes is: a distributed control system that keeps your application fleet close to the state you declared.</p>
-            <div class="micro-list">
-              <div class="micro-item">
-                <strong>You describe intent</strong>
-                <p>Usually in YAML or through kubectl. You say what should exist, not how every step should be executed.</p>
-              </div>
-              <div class="micro-item">
-                <strong>Controllers compare reality to intent</strong>
-                <p>If a Pod dies, the Deployment notices the count is wrong and asks for a replacement.</p>
-              </div>
-              <div class="micro-item">
-                <strong>Stable interfaces hide churn</strong>
-                <p>Services, DNS names, and PVCs stay predictable while Pods restart, move, and update.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel-plain">
-            <h3>When Kubernetes is worth it</h3>
-            <p>Use it when you need repeatable deployments, multiple services, rolling updates, self-healing, or consistent runtime behavior across environments.</p>
-            <div class="code-note"><code>Not everything needs Kubernetes.</code> A single internal app may be easier with Docker Compose, serverless, or a managed PaaS.</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="mental-model">
-        <div class="section-label">Mental model</div>
-        <h2>See the whole flow before you zoom into YAML</h2>
-        <p class="section-intro">
-          Every Kubernetes topic gets easier once you can picture how a request moves through the
-          cluster. A deployment is not just a file. It is a change to desired state that gets
-          stored, scheduled, executed on nodes, observed, and corrected over time.
+          Kubernetes is a distributed control system that keeps your application fleet close to the state you declared. 
+          You describe **intent** (YAML), and the cluster handles the **execution**.
         </p>
 
         <div class="flow-strip">
-          <div class="flow-step">
-            <span>1</span>
-            You write a manifest or run a kubectl command.
-          </div>
-          <div class="flow-step">
-            <span>2</span>
-            The API server validates and accepts the object.
-          </div>
-          <div class="flow-step">
-            <span>3</span>
-            etcd stores the new desired state.
-          </div>
-          <div class="flow-step">
-            <span>4</span>
-            A controller notices what should exist.
-          </div>
-          <div class="flow-step">
-            <span>5</span>
-            The scheduler picks a worker node.
-          </div>
-          <div class="flow-step">
-            <span>6</span>
-            kubelet starts the Pod through the container runtime.
-          </div>
-          <div class="flow-step">
-            <span>7</span>
-            Services and DNS make the Pod reachable by a stable name.
-          </div>
+          <div class="flow-step"><span>1</span>You apply a manifest (Intent).</div>
+          <div class="flow-step"><span>2</span>API Server validates & etcd stores it.</div>
+          <div class="flow-step"><span>3</span>Scheduler picks a Node for the Pod.</div>
+          <div class="flow-step"><span>4</span>Kubelet starts the containers.</div>
+          <div class="flow-step"><span>5</span>Controllers monitor & heal (Loop).</div>
+          <div class="flow-step"><span>6</span>Services provide stable access.</div>
         </div>
-      </section>
 
-      <section class="section" id="architecture">
-        <div class="section-label">Architecture</div>
-        <h2>Know what each major component is responsible for</h2>
-        <p class="section-intro">
-          When a cluster misbehaves, you debug faster if you know which layer owns the problem.
-          Scheduling, networking, storage, and application health are related, but they are not the
-          same subsystem.
-        </p>
-
-        <div class="architecture-grid">
+        <div class="architecture-grid" style="margin-top: 2rem;">
           <div class="panel">
-            <h3>Control plane components</h3>
+            <h3>Control Plane (The Brain)</h3>
             <div class="stack-list">
-              <div class="stack-item">
-                <strong>API Server</strong>
-                <p>The entry point for kubectl, controllers, and automation. If the API server is unhealthy, the cluster becomes hard to operate.</p>
-              </div>
-              <div class="stack-item">
-                <strong>etcd</strong>
-                <p>The distributed key-value database for cluster state. Backups matter because etcd is where intent and metadata live.</p>
-              </div>
-              <div class="stack-item">
-                <strong>Scheduler</strong>
-                <p>Chooses which node gets each unscheduled Pod based on resources, affinity, taints, and policy.</p>
-              </div>
-              <div class="stack-item">
-                <strong>Controller Manager</strong>
-                <p>Runs the loops that make Deployments, Jobs, StatefulSets, and Nodes converge toward the desired state.</p>
-              </div>
+              <div class="stack-item"><strong>API Server</strong><p>The entry point for kubectl and controllers.</p></div>
+              <div class="stack-item"><strong>etcd</strong><p>Source of truth database for cluster state.</p></div>
+              <div class="stack-item"><strong>Scheduler</strong><p>Decides which node gets which Pod.</p></div>
             </div>
           </div>
-
           <div class="panel">
-            <h3>Worker node components</h3>
+            <h3>Worker Nodes (The Muscle)</h3>
             <div class="stack-list">
-              <div class="stack-item">
-                <strong>kubelet</strong>
-                <p>The node agent. It watches for assigned Pods and makes sure containers really start and stay healthy.</p>
-              </div>
-              <div class="stack-item">
-                <strong>Container runtime</strong>
-                <p>Actually pulls images and runs containers. Think containerd or another CRI-compatible runtime.</p>
-              </div>
-              <div class="stack-item">
-                <strong>kube-proxy or equivalent</strong>
-                <p>Implements Service networking rules so traffic can reach the right backend Pods.</p>
-              </div>
-              <div class="stack-item">
-                <strong>CNI and CSI plugins</strong>
-                <p>CNI handles Pod networking. CSI handles storage attachment and provisioning. They are extensions, not built-in magic.</p>
-              </div>
+              <div class="stack-item"><strong>Kubelet</strong><p>The node agent that ensures containers run.</p></div>
+              <div class="stack-item"><strong>Kube-Proxy</strong><p>Handles Service networking and routing.</p></div>
+              <div class="stack-item"><strong>Container Runtime</strong><p>Actually pulls images and runs containers.</p></div>
             </div>
           </div>
         </div>
-      </section>
 
-      <section class="section" id="objects">
-        <div class="section-label">Objects and workloads</div>
-        <h2>Choose the right Kubernetes object for the job</h2>
-        <p class="section-intro">
-          Kubernetes feels bloated until you realize each object solves a different kind of runtime
-          problem. The real skill is not memorizing every field. It is picking the right abstraction
-          so the platform can help instead of fight you.
-        </p>
-
-        <div class="table-wrap">
+        <div class="table-wrap" style="margin-top: 2rem;">
           <table class="matrix-table">
             <thead>
               <tr>
                 <th>Object</th>
-                <th>Use it for</th>
-                <th>Common mistake</th>
+                <th>Use it for...</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><code>Pod</code></td>
-                <td>A single runtime unit with one or more tightly coupled containers.</td>
-                <td>Running bare Pods for production apps instead of using a controller.</td>
-              </tr>
-              <tr>
-                <td><code>Deployment</code></td>
-                <td>Stateless web apps, APIs, and anything you want to scale and roll out safely.</td>
-                <td>Expecting stable Pod names or stable storage identity.</td>
-              </tr>
-              <tr>
-                <td><code>StatefulSet</code></td>
-                <td>Databases, queues, and systems that need stable identity or persistent storage.</td>
-                <td>Using a Deployment for a stateful system and losing predictable identity.</td>
-              </tr>
-              <tr>
-                <td><code>DaemonSet</code></td>
-                <td>One Pod per node, such as log shippers, security agents, or metrics collectors.</td>
-                <td>Treating it like a normal horizontally scaled service.</td>
-              </tr>
-              <tr>
-                <td><code>Job</code></td>
-                <td>One-time batch work that should finish and stop.</td>
-                <td>Using it for something that should run forever.</td>
-              </tr>
-              <tr>
-                <td><code>CronJob</code></td>
-                <td>Scheduled batch work like backups, reports, or cleanups.</td>
-                <td>Forgetting concurrency policy and letting overlapping jobs pile up.</td>
-              </tr>
-              <tr>
-                <td><code>Service</code></td>
-                <td>A stable virtual endpoint in front of changing Pod IPs.</td>
-                <td>Trying to connect directly to Pod IPs from clients.</td>
-              </tr>
-              <tr>
-                <td><code>Ingress</code></td>
-                <td>HTTP and HTTPS routing into the cluster.</td>
-                <td>Assuming it works by itself without an ingress controller.</td>
-              </tr>
-              <tr>
-                <td><code>ConfigMap</code></td>
-                <td>Non-secret configuration such as feature flags or environment defaults.</td>
-                <td>Storing passwords in plain config.</td>
-              </tr>
-              <tr>
-                <td><code>Secret</code></td>
-                <td>Sensitive values that should be handled separately from regular config.</td>
-                <td>Thinking base64 encoding equals encryption or strong security.</td>
-              </tr>
-              <tr>
-                <td><code>PVC</code></td>
-                <td>Requesting persistent storage for a workload.</td>
-                <td>Assuming storage exists without a StorageClass or provisioner.</td>
-              </tr>
-              <tr>
-                <td><code>Namespace</code></td>
-                <td>Logical isolation for teams, apps, or environments inside one cluster.</td>
-                <td>Using namespaces as a complete security boundary by themselves.</td>
-              </tr>
+              <tr><td><code>Deployment</code></td><td>Stateless apps, scaling, and rolling updates.</td></tr>
+              <tr><td><code>StatefulSet</code></td><td>Databases needing stable identity and storage.</td></tr>
+              <tr><td><code>Service</code></td><td>Stable virtual IP and DNS name for Pods.</td></tr>
+              <tr><td><code>Ingress</code></td><td>External HTTP/HTTPS access to cluster services.</td></tr>
+              <tr><td><code>ConfigMap / Secret</code></td><td>Injecting configuration and sensitive data.</td></tr>
             </tbody>
           </table>
-        </div>
-      </section>
-
-      <section class="section" id="platform">
-        <div class="section-label">Platform pillars</div>
-        <h2>Networking, storage, security, and operations are where clusters become useful</h2>
-        <p class="section-intro">
-          Kubernetes is not just a scheduler. It is a platform surface. The four pillars below are
-          where most production value and most production confusion both come from.
-        </p>
-
-        <div class="pillars">
-          <article class="pillar">
-            <h3>Networking</h3>
-            <p>Every Pod gets an IP. Services give stable access. DNS names let one service call another. Ingress manages HTTP entry from outside.</p>
-            <ul>
-              <li><code>ClusterIP</code> is internal-only traffic.</li>
-              <li><code>NodePort</code> exposes a port on each node.</li>
-              <li><code>LoadBalancer</code> asks the platform for an external balancer.</li>
-              <li><code>NetworkPolicy</code> limits who can talk to whom.</li>
-            </ul>
-            <div class="code-note">Start here: <code>kubectl get svc,endpoints,ingress -n app</code></div>
-          </article>
-          <article class="pillar">
-            <h3>Storage</h3>
-            <p>Container filesystems are ephemeral. If the Pod dies, that writable layer dies too. Use persistent volumes when data must survive restarts.</p>
-            <ul>
-              <li><code>emptyDir</code> lives only for the life of the Pod.</li>
-              <li><code>PVC</code> requests durable storage.</li>
-              <li><code>StorageClass</code> controls how volumes get provisioned.</li>
-              <li>Stateful apps usually need stable storage and stable identity.</li>
-            </ul>
-            <div class="code-note">Start here: <code>kubectl get pvc,pv -n app</code></div>
-          </article>
-          <article class="pillar">
-            <h3>Security</h3>
-            <p>Security in Kubernetes is layered. RBAC controls who can do what. ServiceAccounts define workload identity. SecurityContext constrains process behavior.</p>
-            <ul>
-              <li>Run with least privilege.</li>
-              <li>Avoid mounting secrets you do not need.</li>
-              <li>Prefer read-only filesystems where possible.</li>
-              <li>Use namespaces and network policy together, not alone.</li>
-            </ul>
-            <div class="code-note">Start here: <code>kubectl auth can-i get pods -n app</code></div>
-          </article>
-          <article class="pillar">
-            <h3>Operations</h3>
-            <p>Production clusters reward operational discipline. Requests and limits influence scheduling. Probes govern traffic and restart behavior. Rollouts reduce risk.</p>
-            <ul>
-              <li>Readiness controls traffic eligibility.</li>
-              <li>Liveness controls restart behavior.</li>
-              <li><code>kubectl rollout</code> turns upgrades into a managed workflow.</li>
-              <li>Events and logs are your first responders.</li>
-            </ul>
-            <div class="code-note">Start here: <code>kubectl describe pod &lt;pod&gt; -n app</code></div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="yaml-blueprint">
-        <div class="section-label">Manifest thinking</div>
-        <h2>Read YAML like the cluster reads it</h2>
-        <p class="section-intro">
-          A strong Kubernetes manifest says what should exist, how it should identify itself, how it
-          should be reached, and what healthy runtime behavior looks like. This example is a good
-          baseline for a stateless web service.
-        </p>
-
-        <div class="manifest-layout">
-          <div class="code-block">
-            <div class="code-header">
-              <span>Annotated starter manifest</span>
-              <span>deployment + service</span>
-            </div>
-            <pre><code>apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web
-  namespace: app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: web
-  template:
-    metadata:
-      labels:
-        app: web
-    spec:
-      containers:
-        - name: web
-          image: nginx:1.27
-          ports:
-            - containerPort: 80
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 3
-            periodSeconds: 5
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "256Mi"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: web
-  namespace: app
-spec:
-  selector:
-    app: web
-  ports:
-    - port: 80
-      targetPort: 80
-  type: ClusterIP</code></pre>
-          </div>
-
-          <div class="manifest-notes">
-            <div class="note-block">
-              <span>metadata</span>
-              <p>Name and namespace tell Kubernetes where this object lives. Labels become critical later because Services and selectors depend on them.</p>
-            </div>
-            <div class="note-block">
-              <span>replicas + selector</span>
-              <p>The Deployment promises the replica count. The selector must match the Pod template labels or the controller cannot manage what it creates.</p>
-            </div>
-            <div class="note-block">
-              <span>readinessProbe</span>
-              <p>This is how you stop broken Pods from receiving traffic. Without readiness, your rollout can look healthy while users still fail.</p>
-            </div>
-            <div class="note-block">
-              <span>resources</span>
-              <p>Requests influence scheduling. Limits cap usage. Defining neither is one of the fastest ways to create noisy-neighbor problems.</p>
-            </div>
-            <div class="note-block">
-              <span>service selector</span>
-              <p>The Service sends traffic to Pods with <code>app: web</code>. If labels drift, the service can exist and still have zero usable endpoints.</p>
-            </div>
-            <div class="note-block">
-              <span>Learn faster</span>
-              <p>Use <code>kubectl explain deployment.spec.template.spec.containers</code> whenever a YAML field feels mysterious. It is one of the best built-in teachers.</p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -2415,263 +2070,189 @@ spec:
         <p class="muted-mini">Tip: pair <code>kubectl describe</code>, <code>kubectl logs</code>, and <code>kubectl get events</code> before you start guessing. Kubernetes usually tells you what it is unhappy about.</p>
       </section>
 
-      <section class="section" id="labs">
-        <div class="section-label">Laptop labs</div>
-        <h2>Safe simulation tests you can run on your own PC</h2>
-        <p class="section-intro">
-          These labs are intentionally disposable. The goal is to build instincts without leaving a
-          mess behind. The examples below assume <code>kind</code> plus <code>kubectl</code>, but
-          the workload commands stay mostly the same if you prefer minikube, k3d, or Docker Desktop.
-        </p>
-
-        <div class="option-grid">
-          <article class="option">
-            <span>Recommended</span>
-            <h3>kind</h3>
-            <p>Fast, disposable, cluster-shaped. Excellent for learning and for wiping everything when you are done.</p>
-          </article>
-          <article class="option">
-            <span>Convenient</span>
-            <h3>Docker Desktop</h3>
-            <p>Good if you already use Docker Desktop and want the simplest local toggle-on experience.</p>
-          </article>
-          <article class="option">
-            <span>Feature-rich</span>
-            <h3>minikube</h3>
-            <p>Popular for local clusters with addons and a friendly developer workflow.</p>
-          </article>
-          <article class="option">
-            <span>Lightweight</span>
-            <h3>k3d</h3>
-            <p>Runs lightweight k3s clusters inside Docker and feels great on smaller laptops.</p>
-          </article>
-        </div>
-
+      <section class="section" id="labs-basic">
+        <div class="section-label">Basic Labs</div>
+        <h2>Foundation Drills (Level: Beginner)</h2>
+        <p class="section-intro">Start here to get comfortable with the core kubectl workflow and the life of a Pod.</p>
+        
         <div class="lab-list">
           <details class="lab" open>
             <summary>
-              <div>
-                <span class="lab-kicker">Lab 0</span>
-                <h3>Bootstrap a disposable local cluster</h3>
-                <p>Build the safest possible starting point: one local cluster, one lab namespace, one easy cleanup path.</p>
-              </div>
-              <div class="lab-meta">10 min</div>
+              <div><span class="lab-kicker">Lab 0</span><h3>Bootstrap a Cluster</h3><p>Create a disposable local cluster using <code>kind</code>.</p></div>
+              <div class="lab-meta">5 min</div>
             </summary>
             <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>Cluster bootstrap</span></div>
-                <pre><code>kind create cluster --name k8s-lab
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kind create cluster --name k8s-lab
 kubectl cluster-info
-kubectl get nodes
 kubectl create namespace lab
-kubectl config set-context --current --namespace=lab
-kubectl get ns</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What you learn</h4>
-                  <p>You create a safe learning arena and make <code>lab</code> your default namespace so later commands stay uncluttered.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>kubectl config set-context --current --namespace=default
-kubectl delete namespace lab
-kind delete cluster --name k8s-lab</code></pre>
-                </div>
-              </aside>
+kubectl config set-context --current --namespace=lab</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Goal</h4><p>Set up a safe arena for learning without touching production.</p></div></aside>
             </div>
           </details>
 
           <details class="lab">
             <summary>
-              <div>
-                <span class="lab-kicker">Lab 1</span>
-                <h3>Deploy your first app and reach it locally</h3>
-                <p>Create a Deployment, expose it with a Service, and test it from your browser with port-forward.</p>
-              </div>
-              <div class="lab-meta">10-15 min</div>
-            </summary>
-            <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>Deployment + service</span></div>
-                <pre><code>kubectl create deployment hello --image=nginxdemos/hello
-kubectl expose deployment hello --port=80 --type=ClusterIP
-kubectl get pods,svc
-kubectl port-forward svc/hello 8080:80</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What to notice</h4>
-                  <p>Pods get created by the Deployment, but the Service is the stable address. Open <code>http://localhost:8080</code> while port-forward is running.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>Ctrl+C
-kubectl delete svc/hello deployment/hello</code></pre>
-                </div>
-              </aside>
-            </div>
-          </details>
-
-          <details class="lab">
-            <summary>
-              <div>
-                <span class="lab-kicker">Lab 2</span>
-                <h3>Scale up and test self-healing</h3>
-                <p>See how the Deployment keeps the actual Pod count aligned with the desired replica count.</p>
-              </div>
+              <div><span class="lab-kicker">Lab 1</span><h3>Deploy & Access</h3><p>Run your first app and reach it from your browser.</p></div>
               <div class="lab-meta">10 min</div>
             </summary>
             <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>Scaling + self-healing</span></div>
-                <pre><code>kubectl create deployment hello --image=nginxdemos/hello
-kubectl scale deployment/hello --replicas=3
-kubectl get pods -o wide
-kubectl delete pod &lt;one-pod-name&gt;
-kubectl rollout status deployment/hello</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What to notice</h4>
-                  <p>Deleting a Pod does not delete the desired state. The controller notices you are below the target and replaces the Pod.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>kubectl delete deployment/hello</code></pre>
-                </div>
-              </aside>
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl create deployment web --image=nginx:alpine
+kubectl expose deployment web --port=80 --type=ClusterIP
+kubectl port-forward svc/web 8080:80</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Notice</h4><p>The Service provides a stable name while Port-Forward bridges the cluster to your laptop.</p></div></aside>
             </div>
           </details>
 
           <details class="lab">
             <summary>
-              <div>
-                <span class="lab-kicker">Lab 3</span>
-                <h3>Force a bad rollout, then recover with rollback</h3>
-                <p>Practice the exact moment that makes Kubernetes feel valuable: safe recovery after a broken image change.</p>
-              </div>
-              <div class="lab-meta">15 min</div>
+              <div><span class="lab-kicker">Lab 2</span><h3>Scale & Self-Heal</h3><p>Watch K8s fight to maintain your desired state.</p></div>
+              <div class="lab-meta">10 min</div>
             </summary>
             <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>Rollout + rollback</span></div>
-                <pre><code>kubectl create deployment hello --image=nginxdemos/hello
-kubectl set image deployment/hello hello=nginx:1.27
-kubectl rollout status deployment/hello
-kubectl rollout history deployment/hello
-kubectl set image deployment/hello hello=nginx:not-a-real-tag
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl scale deployment web --replicas=3
 kubectl get pods
-kubectl describe pod &lt;new-pod-name&gt;
-kubectl rollout undo deployment/hello
-kubectl rollout status deployment/hello</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What to notice</h4>
-                  <p>The bad image triggers an image pull failure. Kubernetes keeps telling you what happened through Pod status and events, then rollback restores the previous revision.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>kubectl delete deployment/hello</code></pre>
-                </div>
-              </aside>
+kubectl delete pod <name>
+kubectl get pods -w</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Notice</h4><p>K8s detects the missing Pod and immediately schedules a replacement.</p></div></aside>
             </div>
           </details>
 
           <details class="lab">
             <summary>
-              <div>
-                <span class="lab-kicker">Lab 4</span>
-                <h3>Test service discovery and in-cluster DNS</h3>
-                <p>Confirm that service names, not Pod IPs, are the normal way workloads find each other.</p>
-              </div>
-              <div class="lab-meta">10 min</div>
-            </summary>
-            <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>DNS and service lookup</span></div>
-                <pre><code>kubectl create deployment hello --image=nginxdemos/hello
-kubectl expose deployment hello --port=80 --type=ClusterIP
-kubectl run dns-check --image=busybox:1.36 -it --rm --restart=Never -- nslookup hello
-kubectl run curl-check --image=curlimages/curl:8.7.1 -it --rm --restart=Never -- curl http://hello</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What to notice</h4>
-                  <p>Service names resolve through cluster DNS. Clients should call <code>hello</code> or the full service DNS name, not raw Pod IPs that can change.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>kubectl delete svc/hello deployment/hello</code></pre>
-                </div>
-              </aside>
-            </div>
-          </details>
-
-          <details class="lab">
-            <summary>
-              <div>
-                <span class="lab-kicker">Lab 5</span>
-                <h3>Create ConfigMaps and Secrets, then inspect them</h3>
-                <p>Separate runtime configuration from container images and get comfortable managing both kinds of data.</p>
-              </div>
-              <div class="lab-meta">10 min</div>
-            </summary>
-            <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>Configuration objects</span></div>
-                <pre><code>kubectl create configmap app-config --from-literal=APP_MODE=demo
-kubectl create secret generic app-secret --from-literal=API_KEY=supersecret
-kubectl get configmap app-config -o yaml
-kubectl get secret app-secret -o yaml</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What to notice</h4>
-                  <p>ConfigMaps are for non-sensitive config. Secrets are a separate object type, but remember that base64 is encoding, not strong security by itself.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>kubectl delete configmap app-config
-kubectl delete secret app-secret</code></pre>
-                </div>
-              </aside>
-            </div>
-          </details>
-
-          <details class="lab">
-            <summary>
-              <div>
-                <span class="lab-kicker">Lab 6</span>
-                <h3>Run a Job and a CronJob like real scheduled work</h3>
-                <p>Get a feel for workloads that finish instead of running forever.</p>
-              </div>
+              <div><span class="lab-kicker">Lab 3</span><h3>Rollout & Rollback</h3><p>Update an app version and undo a mistake.</p></div>
               <div class="lab-meta">15 min</div>
             </summary>
             <div class="lab-body">
-              <div class="code-block">
-                <div class="code-header"><span>Run</span><span>Batch workloads</span></div>
-                <pre><code>kubectl create job demo-job --image=busybox:1.36 -- sh -c 'echo start &amp;&amp; date &amp;&amp; sleep 5 &amp;&amp; echo done'
-kubectl logs job/demo-job -f
-kubectl create cronjob demo-cron --image=busybox:1.36 --schedule="*/5 * * * *" -- sh -c 'date; echo cron tick'
-kubectl get jobs,cronjobs</code></pre>
-              </div>
-              <aside class="lab-side">
-                <div class="lab-box">
-                  <h4>What to notice</h4>
-                  <p>Jobs complete and keep history. CronJobs create Jobs on a schedule. That makes them a better fit for backups or reports than a forever-running Deployment.</p>
-                </div>
-                <div class="lab-box">
-                  <h4>Cleanup</h4>
-                  <pre><code>kubectl delete job demo-job
-kubectl delete cronjob demo-cron</code></pre>
-                </div>
-              </aside>
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl set image deployment web nginx=nginx:1.27
+kubectl rollout status deployment web
+kubectl set image deployment web nginx=nginx:broken-tag
+kubectl rollout undo deployment web</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Notice</h4><p>Deployment controllers manage the transition between versions for you.</p></div></aside>
             </div>
           </details>
         </div>
       </section>
+
+      <section class="section" id="labs-moderate">
+        <div class="section-label">Moderate Labs</div>
+        <h2>Platform Drills (Level: Intermediate)</h2>
+        <p class="section-intro">Master networking, configuration, and stateful workloads.</p>
+
+        <div class="lab-list">
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 4</span><h3>Config & Secrets</h3><p>Inject environment variables and sensitive data.</p></div>
+              <div class="lab-meta">10 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl create configmap app-env --from-literal=DEBUG=true
+kubectl create secret generic db-pass --from-literal=PASSWORD=p@ssword
+kubectl get cm,secret app-env db-pass -o yaml</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Goal</h4><p>Separate your code from your configuration.</p></div></aside>
+            </div>
+          </details>
+
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 5</span><h3>Internal DNS</h3><p>How Pods find each other within the cluster.</p></div>
+              <div class="lab-meta">10 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl run tracer --image=busybox -it --rm -- nslookup web</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Notice</h4><p>Pods reach Services using standard DNS names, not volatile IPs.</p></div></aside>
+            </div>
+          </details>
+
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 6</span><h3>Persistence (PVCs)</h3><p>Make data survive Pod restarts.</p></div>
+              <div class="lab-meta">15 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Apply</span></div><pre><code>apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Notice</h4><p>A PVC allows you to request storage without knowing the underlying disk details.</p></div></aside>
+            </div>
+          </details>
+
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 7</span><h3>Ingress Controller</h3><p>Route external traffic like a pro.</p></div>
+              <div class="lab-meta">20 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+# Wait for pods to be ready
+kubectl get pods -n ingress-nginx</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Goal</h4><p>Move beyond port-forwarding to standard HTTP/S routing.</p></div></aside>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="section" id="labs-senior">
+        <div class="section-label">Senior Labs</div>
+        <h2>Operator Drills (Level: Advanced)</h2>
+        <p class="section-intro">Advanced scheduling, security, and complex patterns.</p>
+
+        <div class="lab-list">
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 8</span><h3>Node Affinity</h3><p>Control exactly where your Pods land.</p></div>
+              <div class="lab-meta">15 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Step 1: Label Node</span></div><pre><code>kubectl label nodes <node-name> disktype=ssd
+# In Deployment YAML:
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: disktype
+          operator: In
+          values: [ssd]</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Goal</h4><p>Ensure high-IOPS apps only run on nodes with SSDs.</p></div></aside>
+            </div>
+          </details>
+
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 9</span><h3>Sidecar Pattern</h3><p>Add a logging agent to your app Pod.</p></div>
+              <div class="lab-meta">15 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Pod Spec</span></div><pre><code>containers:
+- name: app
+  image: my-app
+- name: sidecar
+  image: fluentd</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Notice</h4><p>Containers in the same Pod share the same network (localhost) and storage volumes.</p></div></aside>
+            </div>
+          </details>
+
+          <details class="lab">
+            <summary>
+              <div><span class="lab-kicker">Lab 10</span><h3>RBAC (Role Based Access)</h3><p>Grant limited permissions to a workload.</p></div>
+              <div class="lab-meta">20 min</div>
+            </summary>
+            <div class="lab-body">
+              <div class="code-block"><div class="code-header"><span>Run</span></div><pre><code>kubectl create serviceaccount app-sa
+kubectl create role pod-reader --verb=get,list --resource=pods
+kubectl create rolebinding read-pods --role=pod-reader --serviceaccount=lab:app-sa</code></pre></div>
+              <aside class="lab-side"><div class="lab-box"><h4>Goal</h4><p>Follow the Principle of Least Privilege for your apps.</p></div></aside>
+            </div>
+          </details>
+        </div>
+      </section>
+
 
       <section class="section" id="troubleshooting">
         <div class="section-label">Troubleshooting</div>
