@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Level 14: Kubernetes 0 to Hero | Tech Knowledge Hub</title>
+  <title>Kubernetes Reference & Lab Guide | Tech Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet" />
@@ -1617,7 +1617,7 @@
       <div class="hero-copy">
         <div class="breadcrumb"><a href="index.html">Back to Hub</a> / Cloud &amp; Infrastructure</div>
         <div class="eyebrow">Level 14 / Orchestration</div>
-        <h1>Kubernetes 0 to Hero</h1>
+        <h1>Kubernetes Lab Guide</h1>
         <p class="hero-summary">
           Learn Kubernetes like an operator, not like someone memorizing random YAML. This page
           walks from the mental model to real workloads, networking, storage, security, commands,
@@ -1762,15 +1762,16 @@
           <strong id="chapterState">Roadmap</strong>
         </div>
         <nav class="chapter-track">
-          <a class="chapter-link active" data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
+          <a class="chapter-link active" data-nav-target="quick-start" href="#quick-start">Quick Start</a>
+          <a class="chapter-link" data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
           <a class="chapter-link" data-nav-target="command-atlas" href="#command-atlas">Commands</a>
-          <a class="chapter-link" data-nav-target="labs-basic" href="#labs-basic">Basic Labs</a>
-          <a class="chapter-link" data-nav-target="labs-moderate" href="#labs-moderate">Moderate Labs</a>
-          <a class="chapter-link" data-nav-target="labs-senior" href="#labs-senior">Senior Labs</a>
+          <a class="chapter-link" data-nav-target="labs-basic" href="#labs-basic">Core Operations</a>
+          <a class="chapter-link" data-nav-target="labs-moderate" href="#labs-moderate">Infrastructure & State</a>
+          <a class="chapter-link" data-nav-target="labs-senior" href="#labs-senior">Advanced Orchestration</a>
           <a class="chapter-link" data-nav-target="troubleshooting" href="#troubleshooting">Troubleshooting</a>
           <a class="chapter-link" data-nav-target="simulator" href="#simulator">Simulator</a>
           <a class="chapter-link" data-nav-target="cleanup" href="#cleanup">Cleanup</a>
-          <a class="chapter-link" data-nav-target="finish" href="#finish">Finish</a>
+          <a class="chapter-link" data-nav-target="finish" href="#finish">Next Steps</a>
         </nav>
       </div>
     </div>
@@ -1781,15 +1782,16 @@
       <div class="rail-block">
         <h2>On this page</h2>
         <nav class="rail-links">
-          <a class="active" data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
+          <a class="active" data-nav-target="quick-start" href="#quick-start">Quick Start</a>
+          <a data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
           <a data-nav-target="command-atlas" href="#command-atlas">Command atlas</a>
-          <a data-nav-target="labs-basic" href="#labs-basic">Basic Labs</a>
-          <a data-nav-target="labs-moderate" href="#labs-moderate">Moderate Labs</a>
-          <a data-nav-target="labs-senior" href="#labs-senior">Senior Labs</a>
+          <a data-nav-target="labs-basic" href="#labs-basic">Core Operations</a>
+          <a data-nav-target="labs-moderate" href="#labs-moderate">Infrastructure & State</a>
+          <a data-nav-target="labs-senior" href="#labs-senior">Advanced Orchestration</a>
           <a data-nav-target="troubleshooting" href="#troubleshooting">Troubleshooting</a>
           <a data-nav-target="simulator" href="#simulator">Simulator</a>
           <a data-nav-target="cleanup" href="#cleanup">Cleanup</a>
-          <a data-nav-target="finish" href="#finish">0 to hero finish line</a>
+          <a data-nav-target="finish" href="#finish">Next Steps</a>
         </nav>
       </div>
 
@@ -1809,6 +1811,38 @@
     </aside>
 
     <div class="content">
+      <section class="section" id="quick-start">
+        <div class="section-label">Quick Start</div>
+        <h2>One-Script Environment Setup</h2>
+        <p class="section-intro">
+          Running Kubernetes locally requires Docker, kubectl, and Kind. We've created a fool-proof 
+          script to audit your dependencies and install missing tools automatically.
+        </p>
+
+        <div class="download-section" style="background: linear-gradient(180deg, #161b22 0%, #0d1117 100%); border: 1px solid var(--blue); border-radius: 12px; padding: 2rem; margin-top: 1rem;">
+          <h3 style="color: var(--blue); border-bottom:1px solid rgba(88,166,255,0.2); padding-bottom:10px; margin-bottom: 1.5rem;">
+            Automated Environment Audit
+          </h3>
+          <p style="color:var(--muted); margin-bottom: 1.5rem;">
+            This script works on <strong>macOS</strong>, <strong>Linux</strong>, and <strong>WSL (Windows)</strong>. 
+            It checks if you have the necessary tools and offers interactive installation if something is missing.
+          </p>
+
+          <div class="code-block" style="background: #05080d; border-radius: 8px; padding: 1.2rem; border: 1px solid var(--line);">
+            <div class="code-header" style="color: var(--muted); font-size: 0.8rem; margin-bottom: 0.8rem;"><span>Terminal</span></div>
+            <pre style="color: var(--blue); font-family: var(--font-mono); font-size: 0.95rem; margin: 0;"><code># Download and run the setup script
+curl -fsSL https://raw.githubusercontent.com/bobsnadenica/tech-hub/main/setup_k8s.sh -o setup_k8s.sh
+chmod +x setup_k8s.sh
+./setup_k8s.sh</code></pre>
+          </div>
+          
+          <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <a href="setup_k8s.sh" download class="sim-button" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1.2rem; font-size: 0.9rem;">
+              Download setup_k8s.sh
+            </a>
+          </div>
+        </div>
+      </section>
       <section class="section" id="core-concepts">
         <div class="section-label">Core Concepts</div>
         <h2>The 60-Second Kubernetes Mental Model</h2>
@@ -2071,9 +2105,9 @@
       </section>
 
       <section class="section" id="labs-basic">
-        <div class="section-label">Basic Labs</div>
-        <h2>Foundation Drills (Level: Beginner)</h2>
-        <p class="section-intro">Start here to get comfortable with the core kubectl workflow and the life of a Pod.</p>
+        <div class="section-label">Core Operations</div>
+        <h2>Standard Cluster Drills</h2>
+        <p class="section-intro">Essential workflows for managing pods and deployments in any environment.</p>
         
         <div class="lab-list">
           <details class="lab" open>
@@ -2134,9 +2168,9 @@ kubectl rollout undo deployment web</code></pre></div>
       </section>
 
       <section class="section" id="labs-moderate">
-        <div class="section-label">Moderate Labs</div>
-        <h2>Platform Drills (Level: Intermediate)</h2>
-        <p class="section-intro">Master networking, configuration, and stateful workloads.</p>
+        <div class="section-label">Infrastructure & State</div>
+        <h2>Platform & Persistence Drills</h2>
+        <p class="section-intro">Workflows for managing configuration, internal networking, and stateful storage.</p>
 
         <div class="lab-list">
           <details class="lab">
@@ -2198,9 +2232,9 @@ kubectl get pods -n ingress-nginx</code></pre></div>
       </section>
 
       <section class="section" id="labs-senior">
-        <div class="section-label">Senior Labs</div>
-        <h2>Operator Drills (Level: Advanced)</h2>
-        <p class="section-intro">Advanced scheduling, security, and complex patterns.</p>
+        <div class="section-label">Advanced Orchestration</div>
+        <h2>Operator & Security Drills</h2>
+        <p class="section-intro">Patterns for advanced scheduling, multi-container pods, and workload identity.</p>
 
         <div class="lab-list">
           <details class="lab">
@@ -2481,13 +2515,11 @@ kubectl create rolebinding read-pods --role=pod-reader --serviceaccount=lab:app-
       </section>
 
       <section class="section" id="finish">
-        <div class="section-label">Finish line</div>
-        <h2>Your 0 to hero path after this page</h2>
+        <div class="section-label">Next Steps</div>
+        <h2>Beyond the basics: Your production path</h2>
         <p class="section-intro">
-          If you can explain the control plane, deploy an app, expose it with a Service, trigger a
-          bad rollout, recover with rollback, and clean up your cluster without fear, you are no
-          longer at zero. The next jump is layering in Helm, CI/CD, ingress controllers, autoscaling,
-          and eventually GitOps.
+          If you can manage the control plane, deploy applications, and handle rollbacks, you have
+          the foundation. The next stage involves scaling these patterns with automation and GitOps.
         </p>
 
         <div class="finish-grid">
