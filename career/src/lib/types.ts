@@ -2,6 +2,7 @@ export type UserRole = "client" | "consultant";
 export type PlanTier = "free" | "pro";
 export type BookingStatus = "requested" | "confirmed" | "cancelled";
 export type ConsultantProfileType = "consultant" | "mentor";
+export type ConsultantProfileTheme = "violet" | "sky" | "rose" | "mint" | "amber";
 export type ConsultantMediaKind = "avatar" | "hero";
 export type UserMediaKind = "user-avatar";
 
@@ -16,6 +17,7 @@ export interface ConsultantProfile {
   ownerUserId: string;
   isDemo?: boolean;
   profileType?: ConsultantProfileType;
+  theme?: ConsultantProfileTheme;
   slug: string;
   name: string;
   headline: string;
@@ -37,7 +39,6 @@ export interface ConsultantProfile {
   heroUrl: string;
   avatarStorageKey?: string;
   heroStorageKey?: string;
-  mapImageUrl: string;
   tags: string[];
   availability: string[];
   idealFor?: string[];

@@ -25,6 +25,8 @@ const env = {
   allowedOrigin: process.env.ALLOWED_ORIGIN || "*"
 };
 
+const CONSULTANT_PROFILE_THEMES = new Set(["violet", "sky", "rose", "mint", "amber"]);
+
 function response(statusCode, body, extraHeaders = {}) {
   return {
     statusCode,
@@ -128,6 +130,19 @@ function normalizeStringList(value, fallback = []) {
   return value
     .map((item) => String(item || "").trim())
     .filter(Boolean);
+}
+
+function normalizeConsultantTheme(value, fallback = "") {
+  if (typeof value === "undefined") {
+    return fallback;
+  }
+
+  if (value === null || value === "") {
+    return "";
+  }
+
+  const theme = String(value || "").trim().toLowerCase();
+  return CONSULTANT_PROFILE_THEMES.has(theme) ? theme : fallback;
 }
 
 function normalizeAvailabilitySlots(value, fallback = []) {
@@ -277,6 +292,7 @@ async function decorateConsultantMedia(consultant) {
     experienceSummary: consultant.experienceSummary || "",
     experienceHighlights,
     educationHighlights,
+    theme: normalizeConsultantTheme(consultant.theme),
     languages,
     specializations,
     sessionModes,
@@ -360,7 +376,7 @@ function createConsultantDraft({
     nextAvailable: "",
     avatarUrl: String(avatarUrl || "").trim(),
     heroUrl: "",
-    mapImageUrl: "",
+    theme: "",
     tags: [],
     availability: [],
     idealFor: [],
@@ -625,6 +641,7 @@ async function updateMyConsultant(event) {
     });
 
   const consultantVisibility = getConsultantVisibility(user.plan);
+  const requestedTheme = normalizeConsultantTheme(body.theme, baseConsultant.theme || "");
 
   const normalizedSlug = body.slug ? normalizeSlug(body.slug, baseConsultant.slug) : null;
 
@@ -638,8 +655,10 @@ async function updateMyConsultant(event) {
     }
   }
 
+  const { mapImageUrl, ...baseConsultantWithoutDeprecatedMedia } = baseConsultant;
+
   const nextConsultant = {
-    ...baseConsultant,
+    ...baseConsultantWithoutDeprecatedMedia,
     profileType: body.profileType ?? baseConsultant.profileType ?? "consultant",
     slug: normalizedSlug || baseConsultant.slug,
     name: body.name ?? baseConsultant.name,
@@ -661,11 +680,11 @@ async function updateMyConsultant(event) {
     featured: body.featured ?? baseConsultant.featured ?? false,
     rating: body.rating ?? baseConsultant.rating ?? 0,
     reviewCount: body.reviewCount ?? baseConsultant.reviewCount ?? 0,
+    theme: user.plan === "pro" ? requestedTheme : "",
     avatarUrl: body.avatarUrl ?? baseConsultant.avatarUrl ?? "",
     heroUrl: body.heroUrl ?? baseConsultant.heroUrl ?? "",
     avatarStorageKey: body.avatarStorageKey ?? baseConsultant.avatarStorageKey ?? "",
     heroStorageKey: body.heroStorageKey ?? baseConsultant.heroStorageKey ?? "",
-    mapImageUrl: body.mapImageUrl ?? baseConsultant.mapImageUrl ?? "",
     languages: normalizeStringList(body.languages, baseConsultant.languages ?? []),
     specializations: normalizeStringList(
       body.specializations,

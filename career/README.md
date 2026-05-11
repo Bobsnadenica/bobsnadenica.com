@@ -427,6 +427,7 @@ Stores data such as:
 
 - `ownerUserId`
 - `profileType`
+- `theme`
 - `slug`
 - `name`
 - `headline`
@@ -540,14 +541,35 @@ Stores data such as:
    - `GET /consultants`
    - `GET /consultants/{slug}`
 
-### 9.6 Consultant Avatar / Hero Upload
+### 9.6 Consultant Profile Media
 
-1. the consultant selects an avatar or cover image
+Consultant and mentor profiles use only two image slots:
+
+- profile picture: saved through `avatarUrl` / `avatarStorageKey` and used everywhere the profile appears
+- optional top banner: saved through `heroUrl` / `heroStorageKey` and shown only when present
+
+If the consultant does not add a top banner, the public profile hides the banner area instead of showing an empty placeholder.
+
+Upload flow:
+
+1. the consultant selects a profile picture or optional top banner image
 2. the frontend requests a signed URL via `POST /me/cv/upload-url`
 3. the request includes `kind: "avatar"` or `kind: "hero"`
 4. the browser uploads the file directly to S3
 5. the frontend saves the returned `avatarStorageKey` / `heroStorageKey` through `PUT /consultants/me`
 6. on subsequent reads, the backend returns signed media URLs
+
+### 9.7 Demo Profiles and Paid Profile Themes
+
+The local fallback catalogue in `src/lib/demo-data.ts` includes seeded demo consultants and demo users so the public pages feel populated before production data is ready.
+
+- Fake demo profiles are intentionally named as My Little Pony / Powerpuff Girls inspired demo entries, so they are easy to identify and remove later.
+- The demo images use generic generated avatars or neutral placeholder photography, not copyrighted character artwork.
+- Consultant profiles can include an optional `theme` field.
+- Supported theme values are `violet`, `sky`, `rose`, `mint`, and `amber`.
+- The current UI renders themed consultant cards, hero profiles, spotlight rows, and public profile pages with a small Pro theme marker.
+- The backend only persists a consultant `theme` when the consultant's account plan is `pro`; free saved profiles are normalized back to the standard theme.
+- Theme editing/gating still needs the paid-plan control flow before real users can choose themes in production.
 
 ### 9.7 Public Consultant Browsing
 

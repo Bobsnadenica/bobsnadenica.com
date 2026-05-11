@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
   Navigate,
@@ -293,6 +293,62 @@ const consultantProfileTypeChoices: Record<
   }
 };
 
+type ConsultantThemeToken = NonNullable<ConsultantProfile["theme"]>;
+
+type ConsultantThemeStyle = CSSProperties & {
+  "--profile-theme"?: string;
+  "--profile-theme-soft"?: string;
+  "--profile-theme-border"?: string;
+  "--profile-theme-glow"?: string;
+  "--profile-theme-text"?: string;
+};
+
+const consultantThemeVisuals: Record<
+  ConsultantThemeToken,
+  { label: string; primary: string; soft: string; border: string; glow: string; text: string }
+> = {
+  violet: {
+    label: "Виолетова",
+    primary: "#7c3aed",
+    soft: "rgba(124, 58, 237, 0.12)",
+    border: "rgba(124, 58, 237, 0.32)",
+    glow: "rgba(124, 58, 237, 0.13)",
+    text: "#4c1d95"
+  },
+  sky: {
+    label: "Синя",
+    primary: "#0284c7",
+    soft: "rgba(2, 132, 199, 0.12)",
+    border: "rgba(2, 132, 199, 0.3)",
+    glow: "rgba(2, 132, 199, 0.12)",
+    text: "#075985"
+  },
+  rose: {
+    label: "Розова",
+    primary: "#e11d48",
+    soft: "rgba(225, 29, 72, 0.11)",
+    border: "rgba(225, 29, 72, 0.28)",
+    glow: "rgba(225, 29, 72, 0.11)",
+    text: "#9f1239"
+  },
+  mint: {
+    label: "Ментова",
+    primary: "#0f766e",
+    soft: "rgba(15, 118, 110, 0.12)",
+    border: "rgba(15, 118, 110, 0.28)",
+    glow: "rgba(15, 118, 110, 0.12)",
+    text: "#115e59"
+  },
+  amber: {
+    label: "Кехлибарена",
+    primary: "#b45309",
+    soft: "rgba(180, 83, 9, 0.12)",
+    border: "rgba(180, 83, 9, 0.3)",
+    glow: "rgba(180, 83, 9, 0.12)",
+    text: "#92400e"
+  }
+};
+
 const aboutHighlights = [
   {
     value: "Публични профили",
@@ -547,6 +603,30 @@ function buildDirectoryFilterLabels({
 
 function getConsultantProfileType(consultant: ConsultantProfile) {
   return consultant.profileType || "consultant";
+}
+
+function getConsultantThemeVisual(theme?: ConsultantProfile["theme"]) {
+  return theme ? consultantThemeVisuals[theme] || null : null;
+}
+
+function getConsultantThemeStyle(consultant: ConsultantProfile): ConsultantThemeStyle | undefined {
+  const visual = getConsultantThemeVisual(consultant.theme);
+
+  if (!visual) {
+    return undefined;
+  }
+
+  return {
+    "--profile-theme": visual.primary,
+    "--profile-theme-soft": visual.soft,
+    "--profile-theme-border": visual.border,
+    "--profile-theme-glow": visual.glow,
+    "--profile-theme-text": visual.text
+  };
+}
+
+function getConsultantThemeLabel(consultant: ConsultantProfile) {
+  return getConsultantThemeVisual(consultant.theme)?.label || "";
 }
 
 function formatBookingStatusLabel(status: Booking["status"]) {
@@ -2876,6 +2956,9 @@ export function ConsultantPage() {
   const nextVisibleSlot = visibleAvailability[0] || consultant.nextAvailable;
   const availabilityPreviewSlots = visibleAvailability.slice(0, 4);
   const isDemoConsultant = Boolean(consultant.isDemo);
+  const hasProfileBanner = Boolean((consultant.heroUrl || "").trim());
+  const themeStyle = getConsultantThemeStyle(consultant);
+  const themeLabel = getConsultantThemeLabel(consultant);
   const profileSummary =
     consultant.bio || consultant.experienceSummary || getConsultantWorkApproach(consultant);
   const profileSignals = Array.from(
@@ -2975,15 +3058,22 @@ export function ConsultantPage() {
     <>
       <section className="profile-hero">
         <div className="container profile-stage">
-          <article className="profile-stage__main">
-            <CoverMedia
-              src={consultant.heroUrl}
-              name={consultant.name}
-              className="profile-stage__cover"
-              eyebrow={consultant.featured ? "Подбран профил" : "Публичен профил"}
-              title={consultant.name}
-              subtitle={consultant.headline}
-            />
+          <article
+            className={`profile-stage__main ${
+              hasProfileBanner ? "profile-stage__main--with-cover" : "profile-stage__main--no-cover"
+            } ${themeLabel ? "profile-stage__main--themed" : ""}`}
+            style={themeStyle}
+          >
+            {hasProfileBanner ? (
+              <CoverMedia
+                src={consultant.heroUrl}
+                name={consultant.name}
+                className="profile-stage__cover"
+                eyebrow={consultant.featured ? "Подбран профил" : "Публичен профил"}
+                title={consultant.name}
+                subtitle={consultant.headline}
+              />
+            ) : null}
 
             <div className="profile-stage__content">
               <AvatarMedia
@@ -3000,6 +3090,9 @@ export function ConsultantPage() {
                   <span className={consultant.featured ? "status-badge" : "plan-pill"}>
                     {consultant.featured ? "Подбран профил" : "Активен профил"}
                   </span>
+                  {themeLabel ? (
+                    <span className="theme-pill">Pro тема · {themeLabel}</span>
+                  ) : null}
                 </div>
 
                 <div>
@@ -3082,14 +3175,6 @@ export function ConsultantPage() {
                 </button>
               </div>
             ) : null}
-            <CoverMedia
-              src={consultant.mapImageUrl || consultant.heroUrl}
-              name={consultant.name}
-              className="booking-card__media"
-              eyebrow="Консултация"
-              title={consultant.city || "Онлайн достъп"}
-              subtitle={consultant.sessionModes.join(" · ") || "Онлайн"}
-            />
           </aside>
         </div>
       </section>
@@ -5608,14 +5693,14 @@ export function DashboardPage() {
                       Качи профилна снимка
                       <input name="avatarFile" type="file" accept="image/*" />
                       <span className="form-note">
-                        Портретна снимка, която ще се показва в каталога и профила ти.
+                        Основната снимка за каталога, началната страница, таблото и публичния профил.
                       </span>
                     </label>
                     <label>
-                      Качи снимка за корицата
+                      Качи горен банер (по избор)
                       <input name="heroFile" type="file" accept="image/*" />
                       <span className="form-note">
-                        По-широка снимка за публичната страница на профила.
+                        Ако не добавиш банер, секцията за корица се скрива и профилът започва директно със снимката и текста.
                       </span>
                     </label>
                   </div>
@@ -5634,7 +5719,7 @@ export function DashboardPage() {
                       </span>
                     </label>
                     <label>
-                      Външен линк към снимка за корицата
+                      Външен линк към горен банер
                       <input
                         name="heroUrl"
                         defaultValue={
@@ -5656,17 +5741,22 @@ export function DashboardPage() {
                         className="media-preview-card__image"
                       />
                     </article>
-                    <article className="media-preview-card">
-                      <span className="search-shortcuts__label">Корица на профила</span>
-                      <CoverMedia
-                        src={consultantProfile?.heroUrl || consultantProfile?.avatarUrl}
-                        name={consultantProfile?.name || profile.name}
-                        className="media-preview-card__cover"
-                        eyebrow="Публичен профил"
-                        title={consultantProfile?.name || profile.name}
-                        subtitle={consultantProfile?.headline || "Добави корица и заглавие за по-силно първо впечатление."}
-                      />
-                    </article>
+                    {consultantProfile?.heroUrl ? (
+                      <article className="media-preview-card">
+                        <span className="search-shortcuts__label">Горен банер</span>
+                        <CoverMedia
+                          src={consultantProfile.heroUrl}
+                          name={consultantProfile.name || profile.name}
+                          className="media-preview-card__cover"
+                          eyebrow="Публичен профил"
+                          title={consultantProfile.name || profile.name}
+                          subtitle={
+                            consultantProfile.headline ||
+                            "Банерът персонализира горната част на публичния профил."
+                          }
+                        />
+                      </article>
+                    ) : null}
                   </div>
                   <label>
                     Заглавие
@@ -6161,9 +6251,17 @@ function ConsultantCard({
       ...getConsultationTopics(consultant).slice(0, 2)
     ])
   ).slice(0, 2);
+  const themeStyle = getConsultantThemeStyle(consultant);
+  const themeLabel = getConsultantThemeLabel(consultant);
 
   return (
-    <Link className="consultant-card consultant-card--link" to={`/consultants/${consultant.slug}`}>
+    <Link
+      className={`consultant-card consultant-card--link ${
+        themeLabel ? "consultant-card--themed" : ""
+      }`}
+      style={themeStyle}
+      to={`/consultants/${consultant.slug}`}
+    >
       <div className="consultant-card__body">
         <div className="consultant-card__header">
           <AvatarMedia
@@ -6180,6 +6278,9 @@ function ConsultantCard({
               <span className={consultant.featured ? "status-badge" : "plan-pill"}>
                 {consultant.featured ? "Подбран профил" : "Активен профил"}
               </span>
+              {themeLabel ? (
+                <span className="theme-pill">Pro тема · {themeLabel}</span>
+              ) : null}
               {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
             </div>
             <h3>{consultant.name}</h3>
@@ -6258,15 +6359,21 @@ function HomeHeroProfile({
   variant: "primary" | "secondary";
 }) {
   const isPrimary = variant === "primary";
+  const hasBanner = Boolean((consultant.heroUrl || "").trim());
   const profileTypeLabel = formatConsultantTypeLabel(getConsultantProfileType(consultant));
   const summaryTags = getConsultantSummaryTags(consultant);
+  const themeStyle = getConsultantThemeStyle(consultant);
+  const themeLabel = getConsultantThemeLabel(consultant);
 
   return (
     <Link
-      className={`home-hero-profile home-hero-profile--${variant}`}
+      className={`home-hero-profile home-hero-profile--${variant} ${
+        isPrimary && !hasBanner ? "home-hero-profile--no-cover" : ""
+      } ${themeLabel ? "home-hero-profile--themed" : ""}`}
+      style={themeStyle}
       to={`/consultants/${consultant.slug}`}
     >
-      {isPrimary ? (
+      {isPrimary && hasBanner ? (
         <div className="home-hero-profile__media">
           <CoverMedia
             src={consultant.heroUrl}
@@ -6295,9 +6402,12 @@ function HomeHeroProfile({
             />
           ) : null}
           <div>
-            <span className={consultant.featured ? "status-badge status-badge--success" : "plan-pill"}>
-              {consultant.featured ? `Подбран ${profileTypeLabel.toLowerCase()}` : profileTypeLabel}
-            </span>
+            <div className="home-hero-profile__badges">
+              <span className={consultant.featured ? "status-badge status-badge--success" : "plan-pill"}>
+                {consultant.featured ? `Подбран ${profileTypeLabel.toLowerCase()}` : profileTypeLabel}
+              </span>
+              {themeLabel ? <span className="theme-pill">Pro тема</span> : null}
+            </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
           </div>
@@ -6487,16 +6597,28 @@ function ConsultantCardSkeleton() {
 }
 
 function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
+  const hasBanner = Boolean((consultant.heroUrl || "").trim());
+  const themeStyle = getConsultantThemeStyle(consultant);
+  const themeLabel = getConsultantThemeLabel(consultant);
+
   return (
-    <Link className="hero-spotlight-card" to={`/consultants/${consultant.slug}`}>
-      <CoverMedia
-        src={consultant.heroUrl}
-        name={consultant.name}
-        className="hero-spotlight-card__media"
-        eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
-        title={consultant.name}
-        subtitle={consultant.headline}
-      />
+    <Link
+      className={`hero-spotlight-card ${hasBanner ? "" : "hero-spotlight-card--no-cover"} ${
+        themeLabel ? "hero-spotlight-card--themed" : ""
+      }`}
+      style={themeStyle}
+      to={`/consultants/${consultant.slug}`}
+    >
+      {hasBanner ? (
+        <CoverMedia
+          src={consultant.heroUrl}
+          name={consultant.name}
+          className="hero-spotlight-card__media"
+          eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
+          title={consultant.name}
+          subtitle={consultant.headline}
+        />
+      ) : null}
       <div className="hero-spotlight-card__body">
         <div className="hero-spotlight-card__header">
           <AvatarMedia
@@ -6505,7 +6627,10 @@ function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
             name={consultant.name}
           />
           <div>
-            <span className="status-badge status-badge--success">Подбран профил</span>
+            <div className="hero-spotlight-card__badges">
+              <span className="status-badge status-badge--success">Подбран профил</span>
+              {themeLabel ? <span className="theme-pill">Pro тема · {themeLabel}</span> : null}
+            </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
           </div>
@@ -6533,8 +6658,15 @@ function DirectorySpotlightCard({
   consultant: ConsultantProfile;
   index: number;
 }) {
+  const themeStyle = getConsultantThemeStyle(consultant);
+  const themeLabel = getConsultantThemeLabel(consultant);
+
   return (
-    <Link className="directory-spotlight" to={`/consultants/${consultant.slug}`}>
+    <Link
+      className={`directory-spotlight ${themeLabel ? "directory-spotlight--themed" : ""}`}
+      style={themeStyle}
+      to={`/consultants/${consultant.slug}`}
+    >
       <AvatarMedia
         className="directory-spotlight__avatar"
         src={consultant.avatarUrl}
@@ -6547,6 +6679,7 @@ function DirectorySpotlightCard({
             ? "Подбран профил"
             : `Профил ${String(index + 1).padStart(2, "0")}`}
         </span>
+        {themeLabel ? <span className="theme-pill directory-spotlight__theme">Pro тема</span> : null}
         <strong>{consultant.name}</strong>
         <p>{consultant.headline}</p>
         <div className="directory-spotlight__meta">

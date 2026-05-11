@@ -464,3 +464,128 @@ Guardrail:
 - Before pushing to GitHub Pages, always run `npm run build`.
 - Do not run `node scripts/site-build.mjs prepare` as a deployment step; it is now a compatibility no-op.
 - A deploy-ready `career/index.html` must contain `/career/assets/` script/style references and must not contain `/src/main.tsx`.
+
+## Active Slice: Consultant Media Simplification
+
+Started: 2026-05-11
+
+Scope:
+
+- Reduce consultant/mentor profile media to exactly two image concepts.
+- Keep the profile picture as the image used everywhere.
+- Keep the top banner optional and hide its visual area when missing.
+- Remove the old third `mapImageUrl` media path from the frontend contract and future backend saves.
+
+Status: Completed for this slice.
+
+## Consultant Media Simplification Change Log
+
+- 2026-05-11: Removed `mapImageUrl` from the frontend consultant type, API update input, demo data, and backend consultant draft/update writes.
+- 2026-05-11: Removed the third booking-sidebar media block from public consultant profiles.
+- 2026-05-11: Made public profile top banners conditional: when `heroUrl` is missing, the profile starts directly with the profile picture and text.
+- 2026-05-11: Updated home and directory spotlight media so banner media is only rendered when the consultant has a banner.
+- 2026-05-11: Updated consultant dashboard copy to explain the profile picture is used everywhere and the top banner is optional.
+- 2026-05-11: Hid the top-banner preview card in the dashboard when no banner is present.
+- 2026-05-11: Updated README media documentation to describe the two-image model.
+
+## Consultant Media Simplification Files Changed
+
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Removed the third public profile media block.
+  - Added conditional top-banner rendering.
+  - Updated consultant media upload copy and preview behavior.
+- `src/styles/global.css`
+  - Removed unused booking-card media CSS.
+  - Added no-banner spacing for profile, homepage, and spotlight cards.
+- `src/lib/types.ts`
+  - Removed `mapImageUrl` from `ConsultantProfile`.
+- `src/lib/api.ts`
+  - Removed `mapImageUrl` from consultant update input.
+- `src/lib/demo-data.ts`
+  - Removed third demo image URLs.
+- `backend/api/index.cjs`
+  - Stops creating or preserving `mapImageUrl` on consultant drafts/profile saves.
+- `README.md`
+  - Documents profile picture plus optional top-banner model.
+- `index.html` and `assets/`
+  - Regenerated GitHub Pages deploy artifacts with `npm run build`.
+
+## Consultant Media Simplification QA Notes
+
+- Type check: `./node_modules/.bin/tsc --noEmit` passes.
+- Backend syntax: `node -c backend/api/index.cjs` passes.
+- Build: `npm run build` passes.
+- Static Browser QA:
+  - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html#/consultants/ana-petrova`.
+  - Public consultant profile rendered successfully with one top banner and one profile avatar.
+  - `.booking-card__media` count was `0`, confirming the third media box is gone.
+  - No current console warnings/errors were observed.
+
+## Next Queue After Consultant Media Simplification
+
+- Add authenticated dashboard QA or a fixture path to verify optional banner upload/remove behavior with real saved profiles.
+- Decide whether consultants need an explicit "remove banner" control when a banner already exists.
+- Continue consultant dashboard polish around public profile draft readiness and availability management.
+
+## Active Slice: Demo Population and Paid Theme Preview
+
+Started: 2026-05-11
+
+Scope:
+
+- Populate the local fallback catalogue with enough fake data to evaluate real page density.
+- Add clearly marked My Little Pony / Powerpuff Girls inspired demo consultants and demo users.
+- Introduce a typed consultant profile theme field that can become a paid profile customization feature.
+- Render themed profiles consistently across home, directory, spotlight, and public profile surfaces.
+
+Status: Completed for this slice.
+
+## Demo Population and Paid Theme Preview Change Log
+
+- 2026-05-11: Added 10 fake consultant/mentor profiles to `src/lib/demo-data.ts`.
+- 2026-05-11: Added 10 fake user/client profiles to `src/lib/demo-data.ts` for the user matching preview grid.
+- 2026-05-11: Added optional `theme` support to the frontend consultant type, API update payload, and backend consultant draft/update/decorate flow.
+- 2026-05-11: Added backend validation for supported consultant theme tokens: `violet`, `sky`, `rose`, `mint`, and `amber`.
+- 2026-05-11: Gated saved consultant themes at the backend so only `pro` consultant accounts can persist a non-standard theme.
+- 2026-05-11: Added visible Pro theme styling to consultant cards, home hero profiles, directory spotlight rows, spotlight cards, and public profile pages.
+- 2026-05-11: Updated README data-model notes with the demo-data and paid-theme preview behavior.
+- 2026-05-11: Rebuilt the GitHub Pages deploy artifact so `career/index.html` points to the latest generated CSS/JS assets.
+
+## Demo Population and Paid Theme Preview Files Changed
+
+- `src/lib/demo-data.ts`
+  - Added seeded fake consultants and fake users.
+  - Some fake consultants include paid-theme preview values and some intentionally have no optional banner.
+- `src/lib/types.ts`
+  - Added `ConsultantProfileTheme` and optional `ConsultantProfile.theme`.
+- `src/lib/api.ts`
+  - Allows consultant profile updates to carry `theme`.
+- `backend/api/index.cjs`
+  - Normalizes supported profile theme tokens and persists them only for `pro` consultant accounts.
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Adds shared theme style helpers and renders Pro theme badges on reusable profile surfaces.
+- `src/styles/global.css`
+  - Adds theme badge styles and themed card/profile surface treatment.
+- `README.md`
+  - Documents the demo catalogue and future paid theme behavior.
+- `index.html` and `assets/`
+  - Regenerated static deploy artifacts with `npm run build`.
+
+## Demo Population and Paid Theme Preview QA Notes
+
+- Type check: `./node_modules/.bin/tsc --noEmit` passes.
+- Backend syntax: `node -c backend/api/index.cjs` passes.
+- Build: `npm run build` passes and emits `/career/assets/index-1xpPYvp9.css` plus `/career/assets/index-CAp1ZVL8.js`.
+- Static Browser QA:
+  - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html?qa=demo-themes#/`.
+  - Homepage rendered with 14 active consultant/mentor profiles, the two hero profile choices, and visible Pro theme markers.
+  - `/users` rendered 13 selectable demo user profiles and themed consultant matches with no console warnings/errors.
+  - The themed demo profile `/consultants/blossom-utonium-demo` rendered one top banner, one profile avatar, and the Pro theme marker.
+  - The no-banner demo profile `/consultants/pinkie-pie-demo` rendered with no empty top-banner area.
+  - `.booking-card__media` count stayed `0`, confirming the removed third profile media slot did not return.
+
+## Next Queue After Demo Population and Paid Theme Preview
+
+- Add the real paid-plan UI for consultant theme selection in the dashboard after billing/plan rules are finalized.
+- Add an admin/dev-only seed reset path before moving beyond local fallback demo data.
+- Decide whether demo profiles should be hidden automatically when the backend returns enough real public consultants.

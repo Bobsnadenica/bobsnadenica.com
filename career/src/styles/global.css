@@ -993,8 +993,6 @@ textarea {
 
 .consultant-card__media,
 .profile-card__avatar,
-.booking-card__media,
-.booking-card img,
 .consultant-proof-card__media,
 .consultant-proof-card img,
 .media-preview-card__cover {
@@ -1003,7 +1001,6 @@ textarea {
 }
 
 .profile-card__avatar,
-.booking-card img,
 .consultant-proof-card img {
   object-fit: cover;
 }
@@ -1102,6 +1099,16 @@ textarea {
   box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
 }
 
+.home-hero-profile--themed {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 18px 34px var(--profile-theme-glow);
+}
+
+.home-hero-profile--themed:hover {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 22px 40px var(--profile-theme-glow);
+}
+
 .home-hero-profile__media {
   overflow: hidden;
   aspect-ratio: 1 / 0.7;
@@ -1122,12 +1129,24 @@ textarea {
   padding: 18px;
 }
 
+.home-hero-profile--no-cover .home-hero-profile__body {
+  padding-top: 20px;
+}
+
 .home-hero-profile__header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 14px;
   align-items: start;
   min-width: 0;
+}
+
+.home-hero-profile__badges,
+.hero-spotlight-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .home-hero-profile__avatar {
@@ -1932,6 +1951,34 @@ textarea {
   font-weight: 700;
 }
 
+.theme-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--profile-theme-border, rgba(207, 219, 212, 0.94));
+  background: var(--profile-theme-soft, rgba(232, 242, 237, 0.96));
+  color: var(--profile-theme-text, var(--primary-dark));
+  font-size: 0.76rem;
+  font-weight: 850;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.theme-pill::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--profile-theme, var(--primary));
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.74);
+  flex: 0 0 auto;
+}
+
 .chip--soft {
   color: var(--text-soft);
   background: white;
@@ -2456,13 +2503,6 @@ textarea {
   gap: 16px;
 }
 
-.booking-card img,
-.booking-card__media {
-  aspect-ratio: 1 / 0.86;
-  border-radius: 20px;
-  margin-top: 16px;
-}
-
 .booking-card,
 .booking-panel {
   position: sticky;
@@ -2652,6 +2692,16 @@ textarea {
   box-shadow: 0 22px 36px rgba(15, 23, 42, 0.08);
 }
 
+.directory-spotlight--themed {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 18px 34px var(--profile-theme-glow);
+}
+
+.directory-spotlight--themed:hover {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 22px 40px var(--profile-theme-glow);
+}
+
 .directory-spotlight__avatar {
   width: 88px;
   height: 68px;
@@ -2666,6 +2716,10 @@ textarea {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.directory-spotlight__theme {
+  width: fit-content;
 }
 
 .directory-spotlight__body strong {
@@ -2748,6 +2802,20 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 24px;
   box-shadow: var(--shadow-soft);
+}
+
+.consultant-card--themed {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 20px 38px var(--profile-theme-glow);
+}
+
+.consultant-card--themed:hover {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 24px 44px var(--profile-theme-glow);
+}
+
+.consultant-card--themed .rating-pill {
+  background: linear-gradient(180deg, var(--profile-theme), var(--profile-theme-text));
 }
 
 .consultant-card__body {
@@ -2920,6 +2988,16 @@ textarea {
   box-shadow: 0 24px 40px rgba(15, 23, 42, 0.08);
 }
 
+.hero-spotlight-card--themed {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 22px 42px var(--profile-theme-glow);
+}
+
+.hero-spotlight-card--themed:hover {
+  border-color: var(--profile-theme-border);
+  box-shadow: 0 26px 48px var(--profile-theme-glow);
+}
+
 .hero-spotlight-card__media {
   width: 100%;
   min-height: 240px;
@@ -2935,6 +3013,10 @@ textarea {
 
 .hero-spotlight-card__body {
   padding: 22px;
+}
+
+.hero-spotlight-card--no-cover .hero-spotlight-card__body {
+  padding-top: 24px;
 }
 
 .hero-spotlight-card__header {
@@ -2981,6 +3063,20 @@ textarea {
   display: grid;
 }
 
+.profile-stage__main--themed {
+  border-color: var(--profile-theme-border);
+  box-shadow:
+    0 24px 48px var(--profile-theme-glow),
+    var(--shadow-soft);
+}
+
+.profile-stage__main--themed .profile-stage__avatar {
+  border-color: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 0 0 4px var(--profile-theme-soft),
+    0 22px 40px rgba(15, 23, 42, 0.14);
+}
+
 .profile-stage__cover {
   width: 100%;
   min-height: 250px;
@@ -2995,6 +3091,12 @@ textarea {
   align-items: end;
   padding: 0 28px 28px;
   margin-top: -56px;
+}
+
+.profile-stage__main--no-cover .profile-stage__content {
+  align-items: start;
+  padding-top: 28px;
+  margin-top: 0;
 }
 
 .profile-stage__avatar {
@@ -5614,6 +5716,11 @@ textarea {
     margin-top: -42px;
   }
 
+  .profile-stage__main--no-cover .profile-stage__content {
+    padding-top: 18px;
+    margin-top: 0;
+  }
+
   .hero-spotlight-card__media {
     min-height: 210px;
   }
@@ -5652,8 +5759,7 @@ textarea {
     justify-content: center;
   }
 
-  .consultant-proof-card img,
-  .booking-card img {
+  .consultant-proof-card img {
     aspect-ratio: 1 / 0.92;
   }
 
