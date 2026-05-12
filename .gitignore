@@ -1,5 +1,27 @@
 .terraform/
 .DS_Store
 *.DS_Store
-**/ .DS_Store
-**/.claude/worktrees/
+**/.DS_Store
+
+# Local agent/runtime state
+.claude/
+**/.claude/
+
+# Heavy/generated dependencies and build outputs
+node_modules/
+**/node_modules/
+.dart_tool/
+**/.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/android/.gradle/
+**/android/app/build/
+**/ios/Pods/
+**/ios/Flutter/App.framework/
+**/ios/Flutter/Flutter.framework/
+**/ios/Flutter/Generated.xcconfig
+**/linux/flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/windows/flutter/ephemeral/

@@ -668,3 +668,31 @@ Status: Completed for this slice.
 ## Next Queue After Homepage Avatar-Only Hero Profiles and Theme Label Cleanup
 
 - Decide whether paid theme selection should be shown only in the consultant dashboard, not on public profile cards.
+
+## Active Slice: PR Repository Guardrails
+
+Started: 2026-05-12
+
+Scope:
+
+- Add a GitHub Actions PR check that blocks accidental commits of local state and generated dependency folders.
+- Block `.claude`, `.DS_Store`, `node_modules`, Dart/Flutter tool caches, and common Flutter platform dependency outputs.
+- Clean already-tracked dependency and metadata files from the Git index while keeping local files on disk.
+
+Status: Completed for this slice.
+
+## PR Repository Guardrails Change Log
+
+- 2026-05-12: Added `.github/workflows/pr-guardrails.yml` with a repository hygiene job for pull requests and pushes to `main`.
+- 2026-05-12: Added `scripts/check-repo-guardrails.mjs`, which scans `git ls-files` and fails if forbidden generated/local paths are tracked.
+- 2026-05-12: Expanded the root `.gitignore` for `.claude`, `.DS_Store`, `node_modules`, Dart/Flutter tool cache files, and generated build/dependency outputs.
+- 2026-05-12: Removed already-tracked `career/node_modules`, `career/backend/api/node_modules`, and tracked `.DS_Store` files from the Git index using `git rm --cached`; local files remain on disk.
+
+## PR Repository Guardrails QA Notes
+
+- Local guardrail check: `node scripts/check-repo-guardrails.mjs` passes.
+- After cleanup, `git ls-files` no longer reports tracked `.claude`, `node_modules`, `.DS_Store`, Dart/Flutter tool caches, or common Flutter platform dependency outputs.
+
+## Next Queue After PR Repository Guardrails
+
+- Consider adding a second CI job for the CareerLane app itself: install dependencies from lockfiles, run `npm run build`, and optionally run backend syntax checks.
