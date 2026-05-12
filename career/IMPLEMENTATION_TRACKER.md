@@ -740,6 +740,43 @@ Status: Completed for this slice.
 - Continue the professional-grade pass through the catalogue cards below the hero, especially mobile density and long Bulgarian label wrapping.
 - Add a real CI app job for `npm run build`, backend syntax, and repository guardrails so these checks run automatically with pull requests.
 
+## Active Slice: Portrait Avatar Framing
+
+Started: 2026-05-12
+
+Scope:
+
+- Fix avatar images that felt too zoomed-in after the previous avatar sizing pass.
+- Convert avatar frames from square crops to portrait-ratio surfaces across homepage, `/users`, `/consultants`, and public consultant profile pages.
+- Preserve full uploaded/generated images inside the portrait frame until the product has a dedicated upload cropper.
+- Patch any obvious responsive header polish found during mobile QA.
+
+Status: Completed for this slice.
+
+## Portrait Avatar Framing Change Log
+
+- 2026-05-12: Changed homepage top consultant/mentor avatars from square frames to taller portrait frames.
+- 2026-05-12: Changed user demo cards, selected-user hero avatars, consultant cards, directory spotlights, lead spotlight cards, and public profile avatars to portrait dimensions.
+- 2026-05-12: Switched rendered avatar images to `object-fit: contain` inside their portrait frames so uploaded/generated images are not aggressively cropped before crop tooling exists.
+- 2026-05-12: Tightened the narrow-mobile header auth button width after rendered QA showed it could sit too close to the viewport edge.
+- 2026-05-12: Rebuilt the GitHub Pages deploy artifact so `career/index.html` points to the latest generated CSS/JS assets.
+
+## Portrait Avatar Framing QA Notes
+
+- Build: `npm run build` passes and emits `/career/assets/index-C5jF8ExL.css` plus `/career/assets/index-DVq_4BgN.js`.
+- Static Browser QA:
+  - Homepage at `http://127.0.0.1:8000/career/index.html?qa=portrait-contain#/` rendered two avatar-only top profiles and no homepage banner media.
+  - `/users` rendered `13` demo user avatars and one selected-user avatar with no console warnings/errors.
+  - `/consultants` rendered `14` consultant-card avatars with no console warnings/errors.
+  - `/consultants/blossom-utonium-demo` rendered the public profile avatar as a portrait frame with no console warnings/errors.
+  - Mobile `/consultants` at `390x844` rendered portrait avatars and the header auth button without console warnings/errors.
+  - Mobile `/users` at `390x844` rendered `13` demo avatars and one selected-user avatar without console warnings/errors.
+
+## Next Queue After Portrait Avatar Framing
+
+- Add an actual image crop/preview step to profile editing so real users can control how their avatar fits the portrait frame.
+- Continue mobile header polish if authenticated states with long user names need extra compression.
+
 ## Continuity Checkpoint: Professional-Grade Push
 
 Recorded: 2026-05-12

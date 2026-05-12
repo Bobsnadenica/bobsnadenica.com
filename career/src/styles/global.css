@@ -1158,8 +1158,8 @@ textarea {
 }
 
 .home-hero-profile__avatar {
-  width: 132px;
-  height: 132px;
+  width: 118px;
+  height: 148px;
   border-radius: 34px;
   object-fit: cover;
   object-position: center 16%;
@@ -1215,7 +1215,7 @@ textarea {
 }
 
 .home-hero-profile--secondary {
-  grid-template-columns: 132px minmax(0, 1fr);
+  grid-template-columns: 118px minmax(0, 1fr);
   gap: 14px;
   align-items: stretch;
   padding: 14px;
@@ -1232,7 +1232,7 @@ textarea {
 .home-hero-profile--secondary .home-hero-profile__avatar {
   width: 100%;
   height: 100%;
-  min-height: 132px;
+  min-height: 148px;
   align-self: stretch;
 }
 
@@ -2475,9 +2475,11 @@ textarea {
 
 .profile-card__avatar {
   width: 220px;
-  height: 220px;
+  height: 276px;
   border-radius: 28px;
   flex-shrink: 0;
+  object-fit: cover;
+  object-position: center 16%;
 }
 
 .profile-card > div {
@@ -2655,7 +2657,7 @@ textarea {
 
 .directory-spotlight {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: start;
   padding: 12px;
@@ -2687,8 +2689,8 @@ textarea {
 }
 
 .directory-spotlight__avatar {
-  width: 84px;
-  height: 84px;
+  width: 72px;
+  height: 92px;
   border-radius: 24px;
   object-fit: cover;
   object-position: center 16%;
@@ -2744,15 +2746,15 @@ textarea {
 }
 
 .directory-hero__panel .directory-spotlight {
-  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-columns: 58px minmax(0, 1fr);
   gap: 10px;
   padding: 10px;
 }
 
 .directory-hero__panel .directory-spotlight__avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
+  width: 58px;
+  height: 74px;
+  border-radius: 18px;
 }
 
 .directory-hero__panel .directory-spotlight__label {
@@ -2863,16 +2865,15 @@ textarea {
 
 .consultant-card__header {
   display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
+  grid-template-columns: 132px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
 }
 
 .consultant-card__avatar {
-  width: 148px;
-  height: 148px;
+  width: 132px;
+  height: 166px;
   min-height: 0;
-  aspect-ratio: 1 / 1;
   border-radius: 32px;
   object-fit: cover;
   object-position: center 16%;
@@ -3068,18 +3069,18 @@ textarea {
 }
 
 .hero-spotlight-card__header {
-  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
   align-items: start;
 }
 
 .directory-hero__panel .hero-spotlight-card__header {
-  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-columns: 80px minmax(0, 1fr);
   gap: 12px;
 }
 
 .hero-spotlight-card__avatar {
-  width: 104px;
-  height: 104px;
+  width: 96px;
+  height: 120px;
   border-radius: 30px;
   border: 3px solid rgba(255, 255, 255, 0.92);
   box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
@@ -3088,8 +3089,8 @@ textarea {
 }
 
 .directory-hero__panel .hero-spotlight-card__avatar {
-  width: 88px;
-  height: 88px;
+  width: 80px;
+  height: 102px;
   border-radius: 26px;
 }
 
@@ -3159,8 +3160,8 @@ textarea {
 }
 
 .profile-stage__avatar {
-  width: 176px;
-  height: 176px;
+  width: 156px;
+  height: 196px;
   border-radius: 42px;
   border: 6px solid rgba(255, 255, 255, 0.96);
   background: white;
@@ -3244,7 +3245,7 @@ textarea {
 }
 
 .demo-user-card__header {
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: 68px minmax(0, 1fr);
   align-items: start;
 }
 
@@ -3257,15 +3258,15 @@ textarea {
 }
 
 .demo-user-card__avatar {
-  width: 76px;
-  height: 76px;
+  width: 68px;
+  height: 86px;
   border-radius: 24px;
 }
 
 .user-match-card__avatar {
   display: block;
   width: 112px;
-  height: 112px;
+  height: 142px;
   margin-bottom: 2px;
   border-radius: 32px;
 }
@@ -3275,6 +3276,19 @@ textarea {
   grid-column: 2;
   width: min(100%, 190px);
   justify-content: center;
+}
+
+img.profile-card__avatar,
+img.profile-stage__avatar,
+img.home-hero-profile__avatar,
+img.consultant-card__avatar,
+img.directory-spotlight__avatar,
+img.hero-spotlight-card__avatar,
+img.demo-user-card__avatar,
+img.user-match-card__avatar {
+  object-fit: contain;
+  object-position: center;
+  background: white;
 }
 
 .profile-actions {
@@ -5472,33 +5486,33 @@ textarea {
   .profile-card__avatar {
     width: 100%;
     height: auto;
-    aspect-ratio: 1 / 0.92;
+    aspect-ratio: 4 / 5;
   }
 
   .consultant-card__avatar {
     width: 100%;
-    max-width: 176px;
+    max-width: 148px;
     height: auto;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 5;
   }
 
   .directory-spotlight__avatar {
-    width: 88px;
-    height: 88px;
+    width: 68px;
+    height: 86px;
   }
 
   .profile-stage__avatar {
-    width: 132px;
-    height: 132px;
+    width: 118px;
+    height: 148px;
   }
 
   .demo-user-card__header {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
   }
 
   .demo-user-card__avatar {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 82px;
     border-radius: 22px;
   }
 
@@ -5647,8 +5661,8 @@ textarea {
   }
 
   .home-hero-profile__avatar {
-    width: 96px;
-    height: 96px;
+    width: 84px;
+    height: 106px;
     border-radius: 26px;
   }
 
@@ -5661,13 +5675,13 @@ textarea {
   }
 
   .home-hero-profile--secondary {
-    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-columns: 84px minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__avatar {
-    min-height: 96px;
+    min-height: 106px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__body {
@@ -5758,8 +5772,8 @@ textarea {
   }
 
   .site-header__actions .ghost-button {
-    max-width: 88px;
-    padding-inline: 12px;
+    max-width: 72px;
+    padding-inline: 10px;
     font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
