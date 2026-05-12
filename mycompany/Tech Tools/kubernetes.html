@@ -1087,11 +1087,129 @@
       transform: translateY(-1px);
     }
 
+    /* VISUAL COMMAND EXPLORER */
+    .explorer-grid {
+      display: grid;
+      grid-template-columns: 20rem minmax(0, 1fr);
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    .explorer-nav {
+      display: grid;
+      gap: 0.75rem;
+      align-content: start;
+    }
+    .explorer-btn {
+      text-align: left;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: rgba(110, 168, 255, 0.05);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .explorer-btn:hover, .explorer-btn.active {
+      border-color: rgba(110, 168, 255, 0.4);
+      background: rgba(110, 168, 255, 0.12);
+      color: var(--text);
+    }
+    .explorer-btn strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+    .explorer-btn span {
+      font-size: 0.82rem;
+    }
+    .explorer-viz {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 1.5rem;
+      background: rgba(4, 10, 18, 0.94);
+      padding: 2rem;
+      min-height: 30rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .viz-container {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      align-items: center;
+    }
+    .viz-node {
+      padding: 1rem;
+      border: 2px solid var(--line);
+      border-radius: 1rem;
+      background: var(--panel-strong);
+      text-align: center;
+      transition: all 0.4s;
+      position: relative;
+      z-index: 2;
+    }
+    .viz-node.active {
+      border-color: var(--blue);
+      box-shadow: 0 0 20px rgba(110, 168, 255, 0.3);
+      transform: scale(1.05);
+    }
+    .viz-node strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+    .viz-node span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .viz-arrow {
+      position: absolute;
+      height: 2px;
+      background: var(--line);
+      z-index: 1;
+      transition: all 0.4s;
+    }
+    .viz-arrow.active {
+      background: var(--blue);
+      box-shadow: 0 0 10px var(--blue);
+    }
+    .explorer-desc {
+      margin-top: 2rem;
+      padding: 1.2rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .explorer-desc strong {
+      color: var(--text);
+    }
+
     .command-table td:first-child,
     .matrix-table td:first-child,
     .symptom-table td:first-child {
       color: var(--text);
     }
+
+    /* IMPACT ZONE BADGES */
+    .impact-badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .impact-control { background: rgba(110, 168, 255, 0.1); color: var(--blue); border-color: rgba(110, 168, 255, 0.2); }
+    .impact-worker { background: rgba(255, 200, 111, 0.1); color: var(--warning); border-color: rgba(255, 200, 111, 0.2); }
+    .impact-local { background: rgba(90, 215, 160, 0.1); color: var(--success); border-color: rgba(90, 215, 160, 0.2); }
+    .impact-data { background: rgba(255, 143, 143, 0.1); color: var(--danger); border-color: rgba(255, 143, 143, 0.2); }
 
     .muted-mini {
       color: var(--muted);
@@ -1764,6 +1882,7 @@
         <nav class="chapter-track">
           <a class="chapter-link active" data-nav-target="quick-start" href="#quick-start">Quick Start</a>
           <a class="chapter-link" data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
+          <a class="chapter-link" data-nav-target="visual-explorer" href="#visual-explorer">Visual Explorer</a>
           <a class="chapter-link" data-nav-target="command-atlas" href="#command-atlas">Commands</a>
           <a class="chapter-link" data-nav-target="labs-basic" href="#labs-basic">Core Operations</a>
           <a class="chapter-link" data-nav-target="labs-moderate" href="#labs-moderate">Infrastructure & State</a>
@@ -1784,6 +1903,7 @@
         <nav class="rail-links">
           <a class="active" data-nav-target="quick-start" href="#quick-start">Quick Start</a>
           <a data-nav-target="core-concepts" href="#core-concepts">Core Concepts</a>
+          <a data-nav-target="visual-explorer" href="#visual-explorer">Visual explorer</a>
           <a data-nav-target="command-atlas" href="#command-atlas">Command atlas</a>
           <a data-nav-target="labs-basic" href="#labs-basic">Core Operations</a>
           <a data-nav-target="labs-moderate" href="#labs-moderate">Infrastructure & State</a>
@@ -1898,6 +2018,86 @@ chmod +x setup_k8s.sh
         </div>
       </section>
 
+      <section class="section" id="visual-explorer">
+        <div class="section-label">Interactive Explorer</div>
+        <h2>Visual Command Path</h2>
+        <p class="section-intro">
+          Select a command to see how it moves through the cluster architecture. Understanding the
+          data flow helps you troubleshoot where things might be getting stuck.
+        </p>
+
+        <div class="explorer-grid">
+          <nav class="explorer-nav">
+            <button class="explorer-btn active" onclick="exploreCommand('apply')">
+              <strong>kubectl apply</strong>
+              <span>Update desired state</span>
+            </button>
+            <button class="explorer-btn" onclick="exploreCommand('get')">
+              <strong>kubectl get pods</strong>
+              <span>Fetch current state</span>
+            </button>
+            <button class="explorer-btn" onclick="exploreCommand('logs')">
+              <strong>kubectl logs</strong>
+              <span>Stream container output</span>
+            </button>
+            <button class="explorer-btn" onclick="exploreCommand('exec')">
+              <strong>kubectl exec</strong>
+              <span>Interactive shell access</span>
+            </button>
+            <button class="explorer-btn" onclick="exploreCommand('port-forward')">
+              <strong>kubectl port-forward</strong>
+              <span>Bridge local to cluster</span>
+            </button>
+          </nav>
+
+          <div class="explorer-viz">
+            <div class="viz-container">
+              <!-- Column 1: Client/Edge -->
+              <div style="display: grid; gap: 4rem;">
+                <div class="viz-node" id="node-client">
+                  <strong>Your Laptop</strong>
+                  <span>kubectl client</span>
+                </div>
+              </div>
+
+              <!-- Column 2: Control Plane -->
+              <div style="display: grid; gap: 2rem;">
+                <div class="viz-node" id="node-apiserver">
+                  <strong>API Server</strong>
+                  <span>The gateway</span>
+                </div>
+                <div class="viz-node" id="node-etcd">
+                  <strong>etcd</strong>
+                  <span>The database</span>
+                </div>
+                <div class="viz-node" id="node-controller">
+                  <strong>Controllers</strong>
+                  <span>The logic</span>
+                </div>
+              </div>
+
+              <!-- Column 3: Worker Node -->
+              <div style="display: grid; gap: 2rem;">
+                <div class="viz-node" id="node-kubelet">
+                  <strong>Kubelet</strong>
+                  <span>Node agent</span>
+                </div>
+                <div class="viz-node" id="node-pod">
+                  <strong>Pod / Container</strong>
+                  <span>Workload</span>
+                </div>
+              </div>
+
+              <!-- Static Arrows (simplified positions for now) -->
+              <!-- These will be styled/activated by JS -->
+            </div>
+            <div class="explorer-desc" id="explorerDesc">
+              <strong>kubectl apply:</strong> The client sends a YAML manifest to the <strong>API Server</strong>. The API Server validates it and stores the new desired state in <strong>etcd</strong>. The <strong>Controllers</strong> notice the change and instruct the <strong>Kubelet</strong> on a worker node to start the <strong>Pod</strong>.
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section" id="command-atlas">
         <div class="section-label">Command atlas</div>
         <h2>The kubectl and kind cheat sheet you will actually use</h2>
@@ -1928,6 +2128,7 @@ chmod +x setup_k8s.sh
             <thead>
               <tr>
                 <th>Command</th>
+                <th>Impact Zone</th>
                 <th>What it does</th>
                 <th>When to use it</th>
               </tr>
@@ -1935,166 +2136,199 @@ chmod +x setup_k8s.sh
             <tbody>
               <tr class="command-row" data-category="setup" data-search="kind create cluster local bootstrap laptop">
                 <td><code>kind create cluster --name k8s-lab</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Creates a disposable local cluster with the name <code>k8s-lab</code>.</td>
                 <td>Best starting point for laptop practice if you want a clean reset path.</td>
               </tr>
               <tr class="command-row" data-category="setup observe" data-search="cluster info api server">
                 <td><code>kubectl cluster-info</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows the control plane endpoints and confirms kubectl can reach the cluster.</td>
                 <td>Run it immediately after cluster creation or when you think your context is wrong.</td>
               </tr>
               <tr class="command-row" data-category="observe" data-search="nodes wide workers">
                 <td><code>kubectl get nodes -o wide</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Lists worker nodes and adds extra detail like internal IP and runtime information.</td>
                 <td>Use it to confirm the cluster shape and whether nodes are Ready.</td>
               </tr>
               <tr class="command-row" data-category="setup" data-search="contexts config clusters switch">
                 <td><code>kubectl config get-contexts</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Shows every cluster context kubectl knows about.</td>
                 <td>Useful when you are juggling local, staging, and production clusters.</td>
               </tr>
               <tr class="command-row" data-category="setup" data-search="use context switch">
                 <td><code>kubectl config use-context &lt;name&gt;</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Switches kubectl to a different cluster context.</td>
                 <td>Use this before every serious change so you do not touch the wrong cluster.</td>
               </tr>
               <tr class="command-row" data-category="observe" data-search="namespaces get ns">
                 <td><code>kubectl get ns</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Lists namespaces.</td>
                 <td>Good for orientation and for checking whether your target namespace exists yet.</td>
               </tr>
               <tr class="command-row" data-category="setup" data-search="create namespace isolation">
                 <td><code>kubectl create namespace lab</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Creates a separate workspace called <code>lab</code>.</td>
                 <td>Use namespaces to keep experiments from mixing with other workloads.</td>
               </tr>
               <tr class="command-row" data-category="observe" data-search="pods all namespaces get pods -A">
                 <td><code>kubectl get pods -A</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows every Pod across every namespace.</td>
                 <td>Great when you do not yet know where the problem lives.</td>
               </tr>
               <tr class="command-row" data-category="debug" data-search="describe pod events scheduling">
                 <td><code>kubectl describe pod &lt;pod&gt; -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows detailed Pod information, conditions, and recent events.</td>
                 <td>First stop for <code>Pending</code>, restart loops, probe failures, and scheduling issues.</td>
               </tr>
               <tr class="command-row" data-category="debug" data-search="logs deployment tail">
                 <td><code>kubectl logs deploy/&lt;name&gt; -n &lt;ns&gt; --tail=100</code></td>
+                <td><span class="impact-badge impact-data">Data Plane</span></td>
                 <td>Shows recent logs from one Pod belonging to a Deployment.</td>
                 <td>Use it when an app is starting but behaving strangely.</td>
               </tr>
               <tr class="command-row" data-category="debug" data-search="follow logs container">
                 <td><code>kubectl logs pod/&lt;pod&gt; -c &lt;container&gt; -f -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-data">Data Plane</span></td>
                 <td>Streams logs from a specific container inside a Pod.</td>
                 <td>Use this for multi-container Pods or when you need live output during a test.</td>
               </tr>
               <tr class="command-row" data-category="debug" data-search="exec shell pod deployment">
                 <td><code>kubectl exec -it deploy/&lt;name&gt; -n &lt;ns&gt; -- sh</code></td>
+                <td><span class="impact-badge impact-data">Data Plane</span></td>
                 <td>Opens an interactive shell in one container from the Deployment.</td>
                 <td>Helpful for checking environment variables, DNS, mounted files, or app-local state.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="apply yaml manifest">
                 <td><code>kubectl apply -f app.yaml</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Creates or updates resources from a manifest file.</td>
                 <td>This is the declarative workhorse for repeatable changes.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="diff yaml manifest preview">
                 <td><code>kubectl diff -f app.yaml</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Shows what would change if you applied the manifest.</td>
                 <td>Use it before apply when you want a quick safety check.</td>
               </tr>
               <tr class="command-row" data-category="cleanup" data-search="delete manifest remove resources">
                 <td><code>kubectl delete -f app.yaml</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Deletes resources created from a manifest file.</td>
                 <td>Best cleanup option when you used a file to create the workload.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="scale deployment replicas">
                 <td><code>kubectl scale deploy/&lt;name&gt; --replicas=5 -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Changes the desired replica count of a Deployment.</td>
                 <td>Use it to test horizontal scaling and self-healing behavior.</td>
               </tr>
               <tr class="command-row" data-category="workload observe" data-search="rollout status deployment">
                 <td><code>kubectl rollout status deploy/&lt;name&gt; -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Watches a rollout until it completes or fails.</td>
                 <td>Use it after changing an image or applying a new Deployment spec.</td>
               </tr>
               <tr class="command-row" data-category="workload observe" data-search="rollout history revisions">
                 <td><code>kubectl rollout history deploy/&lt;name&gt; -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows rollout revisions for a Deployment.</td>
                 <td>Useful when you need to understand what changed before rolling back.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="rollout undo rollback">
                 <td><code>kubectl rollout undo deploy/&lt;name&gt; -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Rolls a Deployment back to the previous revision.</td>
                 <td>Use it when a new image or config change breaks the app.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="set image update deployment">
                 <td><code>kubectl set image deploy/&lt;name&gt; &lt;container&gt;=nginx:1.27 -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Updates the image for one container in a Deployment.</td>
                 <td>Fast way to trigger and observe a rollout during a lab or emergency fix.</td>
               </tr>
               <tr class="command-row" data-category="network observe" data-search="services ingress endpoints">
                 <td><code>kubectl get svc,endpoints,ingress -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Lists network entry points and the backend endpoints behind Services.</td>
                 <td>Use it when traffic does not reach your Pods.</td>
               </tr>
               <tr class="command-row" data-category="network" data-search="port forward local browser test">
                 <td><code>kubectl port-forward svc/&lt;name&gt; 8080:80 -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Maps a Service port to your local machine.</td>
                 <td>Best fast path for testing a cluster service from your browser without exposing it publicly.</td>
               </tr>
               <tr class="command-row" data-category="config observe" data-search="persistent volume claims pvc storage">
                 <td><code>kubectl get pvc -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows PersistentVolumeClaims and whether storage was bound successfully.</td>
                 <td>Run this whenever a stateful workload is stuck waiting for storage.</td>
               </tr>
               <tr class="command-row" data-category="config" data-search="configmap create literal env">
                 <td><code>kubectl create configmap app-config --from-literal=MODE=demo -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Creates a ConfigMap from inline key-value data.</td>
                 <td>Great for labs and for separating config from images.</td>
               </tr>
               <tr class="command-row" data-category="config" data-search="secret generic literal">
                 <td><code>kubectl create secret generic app-secret --from-literal=API_KEY=demo -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Creates a Secret from inline key-value data.</td>
                 <td>Use it for sensitive config that should not live in plain manifests.</td>
               </tr>
               <tr class="command-row" data-category="debug observe" data-search="events sort timeline">
                 <td><code>kubectl get events -A --sort-by=.metadata.creationTimestamp</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows cluster events in chronological order.</td>
                 <td>Excellent for spotting image pulls, scheduling failures, or probe flaps across namespaces.</td>
               </tr>
               <tr class="command-row" data-category="observe" data-search="top pod metrics server resource usage">
                 <td><code>kubectl top pod -n &lt;ns&gt;</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Shows CPU and memory usage for Pods if metrics-server is installed.</td>
                 <td>Use it to confirm resource pressure before changing requests or limits.</td>
               </tr>
               <tr class="command-row" data-category="observe config" data-search="explain yaml field help">
                 <td><code>kubectl explain deployment.spec.template.spec.containers</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Prints built-in documentation for a field path in the Kubernetes API.</td>
                 <td>One of the best ways to learn the schema without leaving your terminal.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="cordon node maintenance">
                 <td><code>kubectl cordon &lt;node&gt;</code></td>
+                <td><span class="impact-badge impact-worker">Worker</span></td>
                 <td>Marks a node unschedulable so no new Pods land there.</td>
                 <td>Use it before maintenance or while isolating a suspect node.</td>
               </tr>
               <tr class="command-row" data-category="workload debug" data-search="drain node evict maintenance">
                 <td><code>kubectl drain &lt;node&gt; --ignore-daemonsets --delete-emptydir-data</code></td>
+                <td><span class="impact-badge impact-worker">Worker</span></td>
                 <td>Evicts movable Pods from a node to prepare it for maintenance.</td>
                 <td>Use after cordoning when you need the workloads moved elsewhere.</td>
               </tr>
               <tr class="command-row" data-category="workload" data-search="uncordon node schedule resume">
                 <td><code>kubectl uncordon &lt;node&gt;</code></td>
+                <td><span class="impact-badge impact-worker">Worker</span></td>
                 <td>Makes the node schedulable again.</td>
                 <td>Use it after maintenance is complete.</td>
               </tr>
               <tr class="command-row" data-category="cleanup" data-search="delete namespace lab">
                 <td><code>kubectl delete namespace lab</code></td>
+                <td><span class="impact-badge impact-control">Control Plane</span></td>
                 <td>Deletes the namespace and everything inside it.</td>
                 <td>The safest large cleanup step for labs that were isolated inside one namespace.</td>
               </tr>
               <tr class="command-row" data-category="cleanup" data-search="kind delete cluster local remove">
                 <td><code>kind delete cluster --name k8s-lab</code></td>
+                <td><span class="impact-badge impact-local">Local</span></td>
                 <td>Removes the local kind cluster completely.</td>
                 <td>Use this when you want a full reset and no leftover local cluster state.</td>
               </tr>
@@ -2689,6 +2923,46 @@ kubectl create rolebinding read-pods --role=pod-reader --serviceaccount=lab:app-
 
     commandSearch.addEventListener("input", filterCommands);
 
+    /* VISUAL COMMAND EXPLORER LOGIC */
+    const explorerData = {
+      apply: {
+        nodes: ['node-client', 'node-apiserver', 'node-etcd', 'node-controller', 'node-kubelet', 'node-pod'],
+        desc: "<strong>kubectl apply:</strong> The client sends a YAML manifest to the <strong>API Server</strong>. The API Server validates it and stores the new desired state in <strong>etcd</strong>. The <strong>Controllers</strong> notice the change and instruct the <strong>Kubelet</strong> on a worker node to start the <strong>Pod</strong>."
+      },
+      get: {
+        nodes: ['node-client', 'node-apiserver', 'node-etcd'],
+        desc: "<strong>kubectl get pods:</strong> The client requests current state from the <strong>API Server</strong>. The API Server queries <strong>etcd</strong> (the source of truth) and returns the list of objects back to your terminal."
+      },
+      logs: {
+        nodes: ['node-client', 'node-apiserver', 'node-kubelet', 'node-pod'],
+        desc: "<strong>kubectl logs:</strong> The client connects to the <strong>API Server</strong>, which acts as a proxy. The API Server talks to the <strong>Kubelet</strong> on the node where the pod lives, and the Kubelet streams the container's stdout/stderr back to you."
+      },
+      exec: {
+        nodes: ['node-client', 'node-apiserver', 'node-kubelet', 'node-pod'],
+        desc: "<strong>kubectl exec:</strong> Similar to logs, the <strong>API Server</strong> proxies a persistent SPDY or HTTP/2 connection to the <strong>Kubelet</strong>, which then enters the container's namespaces to start an interactive shell process."
+      },
+      'port-forward': {
+        nodes: ['node-client', 'node-apiserver', 'node-kubelet', 'node-pod'],
+        desc: "<strong>kubectl port-forward:</strong> A tunnel is established between your <strong>Laptop</strong> and the <strong>API Server</strong>, then to the <strong>Kubelet</strong>, and finally to the target <strong>Pod</strong>. Traffic on your local port is tunneled directly into the pod's network namespace."
+      }
+    };
+
+    function exploreCommand(cmd) {
+      // Update buttons
+      document.querySelectorAll('.explorer-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${cmd}'`));
+      });
+
+      // Update description
+      const data = explorerData[cmd];
+      document.getElementById('explorerDesc').innerHTML = data.desc;
+
+      // Update nodes
+      document.querySelectorAll('.viz-node').forEach(node => {
+        node.classList.toggle('active', data.nodes.includes(node.id));
+      });
+    }
+
     const nodes = [
       { id: "a", name: "worker-a", capacity: 3, online: true, mountId: "simPodsA", cardId: "sim-node-a", statusId: "nodeStatusA" },
       { id: "b", name: "worker-b", capacity: 3, online: true, mountId: "simPodsB", cardId: "sim-node-b", statusId: "nodeStatusB" },
@@ -2885,6 +3159,7 @@ kubectl create rolebinding read-pods --role=pod-reader --serviceaccount=lab:app-
     filterCommands();
     logEvent("cluster simulator initialized");
     renderSimulator();
+    exploreCommand('apply');
     setInterval(reconcile, 1100);
   </script>
 </body>
