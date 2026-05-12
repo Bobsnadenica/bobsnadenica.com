@@ -687,6 +687,7 @@ Status: Completed for this slice.
 - 2026-05-12: Added `scripts/check-repo-guardrails.mjs`, which scans `git ls-files` and fails if forbidden generated/local paths are tracked.
 - 2026-05-12: Expanded the root `.gitignore` for `.claude`, `.DS_Store`, `node_modules`, Dart/Flutter tool cache files, and generated build/dependency outputs.
 - 2026-05-12: Removed already-tracked `career/node_modules`, `career/backend/api/node_modules`, and tracked `.DS_Store` files from the Git index using `git rm --cached`; local files remain on disk.
+- 2026-05-12: Updated the PR Guardrails workflow from `actions/checkout@v4` / `actions/setup-node@v4` / Node 20 to `actions/checkout@v6` / `actions/setup-node@v6` / Node 24 to avoid GitHub Actions Node 20 runtime deprecation warnings.
 
 ## PR Repository Guardrails QA Notes
 
