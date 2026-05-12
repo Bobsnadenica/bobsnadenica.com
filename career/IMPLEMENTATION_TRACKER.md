@@ -815,6 +815,35 @@ Status: Completed for this slice.
 - Add upload-time guidance and a crop/fit selector so real users can choose between "fill frame" and "show full image" behavior.
 - Consider marking these local assets as demo-only in admin/dev documentation if the seed data grows.
 
+## Active Slice: Avatar Card Fill Polish
+
+Started: 2026-05-12
+
+Scope:
+
+- Remove the unprofessional empty space inside portrait avatar frames on consultant catalogue cards.
+- Keep the portrait-frame direction, but fill the frame for public display surfaces.
+- Preserve the local portrait, landscape, and square demo upload assets as visual test cases.
+
+Status: Completed for this slice.
+
+## Avatar Card Fill Polish Change Log
+
+- 2026-05-12: Changed rendered avatar images from `object-fit: contain` to `object-fit: cover` with a face-friendly `object-position`.
+- 2026-05-12: Rebuilt the static deploy artifact so the latest CSS is used by `/career/index.html`.
+
+## Avatar Card Fill Polish QA Notes
+
+- Build: `npm run build` passes and emits `/career/assets/index-RtA51r8R.css` plus `/career/assets/index-Cr-s1uIe.js`.
+- Static Browser QA:
+  - `/consultants` rendered meaningful app content with `14` consultant-card avatars, `4` visible local demo avatar images, and no console warnings/errors.
+  - Scrolled to the lower consultant catalogue card section matching the reported screenshot; the avatar frames were filled instead of leaving dead space below the image.
+
+## Next Queue After Avatar Card Fill Polish
+
+- Add an upload crop/position editor so users can control how non-portrait uploads are cropped instead of relying only on automatic `cover` behavior.
+- Consider a per-profile focal point field if users upload many landscape headshots.
+
 ## Continuity Checkpoint: Professional-Grade Push
 
 Recorded: 2026-05-12

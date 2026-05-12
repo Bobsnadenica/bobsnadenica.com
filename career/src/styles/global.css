@@ -3286,8 +3286,8 @@ img.directory-spotlight__avatar,
 img.hero-spotlight-card__avatar,
 img.demo-user-card__avatar,
 img.user-match-card__avatar {
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
+  object-position: center 24%;
   background: white;
 }
 
