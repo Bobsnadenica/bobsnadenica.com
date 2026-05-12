@@ -777,6 +777,44 @@ Status: Completed for this slice.
 - Add an actual image crop/preview step to profile editing so real users can control how their avatar fits the portrait frame.
 - Continue mobile header polish if authenticated states with long user names need extra compression.
 
+## Active Slice: Demo Avatar Upload Test Assets
+
+Started: 2026-05-12
+
+Scope:
+
+- Add local AI/demo avatar assets that simulate uploaded images for portrait, landscape, and square aspect ratios.
+- Use original demo artwork rather than official copyrighted character artwork.
+- Wire the assets into Powerpuff-inspired demo consultant and user accounts so avatar framing can be inspected in real UI surfaces.
+- Ensure the GitHub Pages build copies those local demo assets into the deployed `/career/` directory.
+
+Status: Completed for this slice.
+
+## Demo Avatar Upload Test Assets Change Log
+
+- 2026-05-12: Added three original local SVG demo avatar assets:
+  - `/career/demo-avatars/sugar-pop-portrait.svg`
+  - `/career/demo-avatars/sugar-pop-landscape.svg`
+  - `/career/demo-avatars/sugar-pop-square.svg`
+- 2026-05-12: Updated Blossom, Bubbles, and Buttercup demo consultant avatars to use the local portrait, landscape, and square test assets.
+- 2026-05-12: Updated Bliss, Mojo Jojo, and Princess demo user avatars to use the same local portrait, landscape, and square test assets.
+- 2026-05-12: Updated `scripts/site-build.mjs` to copy the Vite public `demo-avatars` directory into the static GitHub Pages deploy artifact.
+- 2026-05-12: Rebuilt the static deploy artifact so `career/index.html` points at the latest generated JS asset.
+
+## Demo Avatar Upload Test Assets QA Notes
+
+- Build: `npm run build` passes and emits `/career/assets/index-C5jF8ExL.css` plus `/career/assets/index-C5fBJAQw.js`.
+- Static file check: `http://127.0.0.1:8000/career/demo-avatars/sugar-pop-portrait.svg` returns `200 OK`.
+- Static Browser QA:
+  - `/consultants` rendered meaningful app content with `4` currently visible local demo avatar images: portrait `2`, landscape `1`, square `1`, and no console warnings/errors.
+  - `/users` rendered meaningful app content with `13` demo-card avatars and `6` local demo avatar images across the current route state: portrait `2`, landscape `2`, square `2`, and no console warnings/errors.
+  - Scrolling to the `/users` demo card section kept cards rendered without console warnings/errors.
+
+## Next Queue After Demo Avatar Upload Test Assets
+
+- Add upload-time guidance and a crop/fit selector so real users can choose between "fill frame" and "show full image" behavior.
+- Consider marking these local assets as demo-only in admin/dev documentation if the seed data grows.
+
 ## Continuity Checkpoint: Professional-Grade Push
 
 Recorded: 2026-05-12

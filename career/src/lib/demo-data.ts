@@ -85,15 +85,15 @@ const demoImages = {
     hero: ""
   },
   blossom: {
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Blossom%20Demo",
+    avatar: "/demo-avatars/sugar-pop-portrait.svg",
     hero: "https://picsum.photos/id/1067/1600/1000"
   },
   bubbles: {
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Bubbles%20Demo",
+    avatar: "/demo-avatars/sugar-pop-landscape.svg",
     hero: ""
   },
   buttercup: {
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Buttercup%20Demo",
+    avatar: "/demo-avatars/sugar-pop-square.svg",
     hero: "https://picsum.photos/id/1071/1600/1000"
   },
   professor: {
@@ -801,7 +801,7 @@ export const demoUsers: UserProfile[] = [
     name: "Блис (демо потребител)",
     role: "client",
     plan: "free",
-    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=Bliss%20User%20Demo",
+    avatarUrl: "/demo-avatars/sugar-pop-portrait.svg",
     city: "София",
     occupation: "People Operations Specialist",
     age: 28,
@@ -825,7 +825,7 @@ export const demoUsers: UserProfile[] = [
     name: "Моджо Джоджо (демо потребител)",
     role: "client",
     plan: "free",
-    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=Mojo%20User%20Demo",
+    avatarUrl: "/demo-avatars/sugar-pop-landscape.svg",
     city: "Онлайн",
     occupation: "Founder",
     age: 35,
@@ -897,7 +897,7 @@ export const demoUsers: UserProfile[] = [
     name: "Принцеса Морбакс (демо потребител)",
     role: "client",
     plan: "free",
-    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=Princess%20User%20Demo",
+    avatarUrl: "/demo-avatars/sugar-pop-square.svg",
     city: "Онлайн",
     occupation: "Sales Specialist",
     age: 26,
