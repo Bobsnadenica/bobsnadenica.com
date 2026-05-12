@@ -2263,9 +2263,17 @@ export function ConsultantsPage() {
             </p>
 
             <div className="hero-actions">
-              <a className="primary-button" href="#consultant-directory">
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => {
+                  document
+                    .getElementById("consultant-directory")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
                 Виж профилите
-              </a>
+              </button>
               <Link className="ghost-button" to="/auth?tab=register&role=consultant">
                 Създай профил
               </Link>

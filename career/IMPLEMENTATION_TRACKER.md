@@ -697,3 +697,174 @@ Status: Completed for this slice.
 ## Next Queue After PR Repository Guardrails
 
 - Consider adding a second CI job for the CareerLane app itself: install dependencies from lockfiles, run `npm run build`, and optionally run backend syntax checks.
+
+## Continuity Checkpoint: Professional-Grade Push
+
+Recorded: 2026-05-12
+
+This is the current memory checkpoint before the larger professional redesign/polish phase.
+
+Current product shape:
+
+- CareerLane is the nested product at `/career/index.html` inside the main `bobsnadenica.com` GitHub Pages site.
+- The root website remains separate; CareerLane must continue to build as a static GitHub Pages-compatible app under `/career/`.
+- The backend is AWS-based and remains separate from GitHub Pages hosting.
+- The app supports two roles:
+  - users/clients looking for career consultation or mentorship
+  - consultants/mentors publishing profiles and managing their presence
+
+Important product decisions already made:
+
+- Consultant/mentor media model has exactly two image concepts:
+  - `avatarUrl` / `avatarStorageKey`: profile picture used everywhere
+  - `heroUrl` / `heroStorageKey`: optional profile-page top banner
+- The homepage top consultant/mentor hero cards use avatars only; no banner images on the front page.
+- Public profile pages may still render an optional top banner when present.
+- If a consultant has no top banner, the banner area is hidden rather than left as an empty box.
+- Public UI must not show paid-feature copy like "Pro theme" on profile cards.
+- The paid color-theme concept exists in the data/model path, but the user-facing paid setting UI is not built yet.
+- Fake demo profiles are intentionally obvious and use My Little Pony / Powerpuff Girls inspired demo names.
+- Demo images must remain generic generated avatars/placeholders, not copyrighted character artwork.
+- `.claude`, `node_modules`, `.DS_Store`, Dart/Flutter caches, and generated Flutter dependency outputs must not be committed.
+
+Current quality/verification baseline:
+
+- Static deploy artifact must be generated with `npm run build`.
+- A deploy-ready `career/index.html` must reference `/career/assets/index-*.js` and `/career/assets/index-*.css`.
+- It must not reference `/src/main.tsx`.
+- Existing verified checks include:
+  - TypeScript frontend check: `./node_modules/.bin/tsc --noEmit`
+  - Backend syntax check: `node -c backend/api/index.cjs`
+  - Production build: `npm run build`
+  - Static Browser QA via parent-folder static server and `/career/index.html`
+  - Repository guardrail check: `node scripts/check-repo-guardrails.mjs`
+
+Professional-grade improvement priorities:
+
+1. Visual system and layout polish:
+   - Reduce overlap and crowded text across desktop/mobile.
+   - Create a tighter design system for cards, chips, buttons, forms, spacing, and responsive grids.
+   - Make consultant cards, profile pages, dashboards, and auth flows feel consistent and production-grade.
+2. Homepage and discovery experience:
+   - Make the first viewport clearer and more premium.
+   - Keep the two top consultant/mentor profile choices avatar-only.
+   - Improve the catalogue preview, filtering, and empty/error/loading states.
+3. Consultant dashboard:
+   - Improve profile readiness, editing ergonomics, media upload/remove flows, availability management, and preview fidelity.
+   - Add paid color-theme selection later, gated by plan.
+4. User/client experience:
+   - Improve user profile creation, matching explanations, consultant comparison, and booking entry points.
+   - Make demo personalization useful without feeling like production data.
+5. Backend and production hardening:
+   - Add stronger validation for public profile fields.
+   - Add safer auth/profile edge-case handling.
+   - Add booking lifecycle rules and clearer error responses.
+6. CI and release safety:
+   - Keep repository hygiene checks.
+   - Add a CareerLane CI job for install/build/backend syntax.
+   - Consider lightweight browser smoke tests against the static build.
+
+Do-not-regress checklist:
+
+- Do not reintroduce a third consultant image slot.
+- Do not show empty top-banner boxes.
+- Do not show public paid-theme badges/copy.
+- Do not make the homepage top profiles use banners.
+- Do not rewrite `career/index.html` into a dev entry file.
+- Do not commit local dependency folders or agent worktrees.
+
+## Active Slice: Production Readiness And Security Pass
+
+Started: 2026-05-12
+
+Scope:
+
+- Continue from the implementation tracker and audit the repo, frontend build, backend Lambda, Terraform deploy config, and CI guardrails.
+- Fix low-risk production/security issues immediately instead of only recording them as future work.
+- Keep changes compatible with the current GitHub Pages `/career/` frontend and separate AWS backend.
+- Record what is fixed, what was verified, and what still blocks a true production-ready/security-ready claim.
+
+Status: In progress. This pass improves readiness, but the project is **not yet 100% production-grade/security-ready** until the remaining blockers below are finished and verified against the live AWS environment.
+
+## Production Readiness And Security Pass Change Log
+
+- 2026-05-12: Extended repository hygiene guardrails to block Terraform local state, `terraform.tfvars`, Terraform plan files, `.terraform/`, and `.terraform-build/` packaged deployment artifacts.
+- 2026-05-12: Extended repository hygiene guardrails to ignore and block local `.env.local` / `.env.*.local` override files while keeping intentional Vite public environment templates/artifacts separate.
+- 2026-05-12: Removed tracked `infra/terraform/terraform.tfvars` and `infra/terraform/.terraform-build/careerdoc-api.zip` from the Git index while keeping local files on disk.
+- 2026-05-12: Added the CareerLane CI job to `.github/workflows/pr-guardrails.yml`: install frontend deps, run `npm run build`, install backend Lambda deps, and run `node -c backend/api/index.cjs`.
+- 2026-05-12: Confirmed `actions/checkout@v6`, `actions/setup-node@v6`, and Node 24 are the correct current GitHub Actions direction for the Node 20 action-runtime deprecation.
+- 2026-05-12: Hardened backend CORS fallback from permissive `*` to the production origin fallback.
+- 2026-05-12: Changed invalid JSON bodies to return `400` instead of falling through as server errors.
+- 2026-05-12: Stopped self-service role/plan escalation:
+  - existing users keep their stored role during bootstrap
+  - client request bodies can no longer set `plan`
+  - `updateMeProfile` preserves the current server-side plan
+- 2026-05-12: Stopped consultants from self-setting marketplace ranking fields: `featured`, `rating`, and `reviewCount` now preserve server-stored values.
+- 2026-05-12: Restricted profile image uploads to JPEG, PNG, and WebP; SVG and arbitrary `image/*` uploads are no longer accepted.
+- 2026-05-12: Added bounded backend normalization for profile text, string lists, ages, prices, years of experience, and session length.
+- 2026-05-12: Added storage-key ownership checks so users can only attach CV/avatar/banner keys under their own S3 upload prefixes.
+- 2026-05-12: Changed unexpected backend errors to return generic `500` messages while still logging the actual error server-side.
+- 2026-05-12: Reduced booking race risk by writing booking requests through a DynamoDB transaction that records the chosen slot on the consultant item and fails if the slot was already booked.
+- 2026-05-12: Added Terraform IAM permission for `dynamodb:TransactWriteItems` so the Lambda can perform the transactional booking write after deployment.
+- 2026-05-12: Fixed a rendered frontend bug where the `/consultants` hero button linked to `#consultant-directory`, which HashRouter interpreted as a missing route and sent users to the 404 page.
+- 2026-05-12: Normalized CSS typography guardrails by removing negative `letter-spacing` and viewport-scaled font-size rules from `src/styles/global.css`.
+
+## Production Readiness And Security Pass Files Changed
+
+- `.gitignore`
+  - Ignores Terraform state, plans, local variable files, and packaged build artifacts.
+- `.github/workflows/pr-guardrails.yml`
+  - Adds the CareerLane build/backend syntax CI job.
+- `scripts/check-repo-guardrails.mjs`
+  - Blocks tracked Terraform local/deploy artifacts and local environment overrides in addition to existing local-state/dependency rules.
+- `backend/api/index.cjs`
+  - Adds safer CORS fallback, validation, plan/ranking protections, owned storage-key checks, safer upload MIME rules, generic 500 responses, and transactional booking writes.
+- `infra/terraform/main.tf`
+  - Adds Lambda permission for DynamoDB transactional writes.
+- `src/app/legacy/SiteAppLegacy.tsx`
+  - Replaces the hash-anchor catalogue button with a scroll button so HashRouter stays on `/consultants`.
+- `src/styles/global.css`
+  - Removes negative letter spacing and viewport-driven font-size scaling.
+- `infra/terraform/terraform.tfvars`
+  - Removed from Git tracking; remains local and ignored.
+- `infra/terraform/.terraform-build/careerdoc-api.zip`
+  - Removed from Git tracking; remains local and ignored.
+
+## Production Readiness And Security Pass QA Notes
+
+- Repository hygiene: `node scripts/check-repo-guardrails.mjs` passes and reports 192 tracked files.
+- Backend syntax: `node -c backend/api/index.cjs` passes.
+- Terraform formatting: `terraform fmt` passes and formatted `infra/terraform/main.tf`.
+- Terraform checks: `terraform fmt -check` passes and `terraform validate` reports the configuration is valid.
+- Frontend production build: `npm run build` passes and emits `/career/assets/index-CRvtUYmr.css` plus `/career/assets/index-CDHzTufU.js`.
+- Staged diff hygiene: `git diff --cached --check` passes after cleaning generated asset trailing whitespace.
+- In-app browser smoke QA:
+  - `/career/#/` renders `Начало | CareerLane`, shows meaningful homepage content, and has no console warnings/errors.
+  - `/career/#/consultants` renders `Каталог на профили | CareerLane`, shows meaningful catalogue content, and has no console warnings/errors.
+  - Clicking `Виж профилите` on `/consultants` now keeps the URL on `#/consultants`, scrolls to the catalogue controls, and does not show the 404 page.
+  - `/career/#/auth?tab=register&role=consultant` renders `Вход и регистрация | CareerLane`, preselects the consultant flow, and has no console warnings/errors.
+- Static GitHub-Pages-style QA:
+  - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html#/consultants`.
+  - Static `/career/index.html` rendered `Каталог на профили | CareerLane`, loaded the generated CSS/JS assets, and had no console warnings/errors.
+  - The static catalogue `Виж профилите` button stayed on `#/consultants`, exposed the catalogue controls, and did not show the 404 page.
+
+## Remaining Production Blockers
+
+- Deploy/apply required:
+  - The backend and Terraform changes are local until the Lambda package is rebuilt and deployed and Terraform is applied.
+  - After deploy, re-test `/health`, authenticated bootstrap/profile update, upload URL creation, and booking creation against the real AWS API.
+- Secret/state hygiene:
+  - `terraform.tfvars` and `.terraform-build` are no longer tracked, but if any sensitive values were ever pushed previously, rotate them.
+  - Move Terraform state to a remote encrypted backend before serious production use; do not rely on local state files.
+- Backend tests:
+  - Add mocked Lambda tests for role/plan escalation, ranking-field preservation, owned storage-key rejection, upload MIME rejection, invalid JSON, and booking transaction conflicts.
+- Authenticated browser QA:
+  - The current QA is signed-out/public-route QA. Dashboard profile editing, uploads, consultant settings, and bookings need live authenticated QA or a fixture harness.
+- Booking lifecycle:
+  - Transactional slot locking exists for creation, but cancellation/rescheduling endpoints must remove or manage `bookedSlots` before this is a complete booking lifecycle.
+- Abuse/security controls:
+  - Add rate limiting/WAF or API throttling policy, structured audit logs for booking/profile changes, and a production monitoring/alarm plan.
+- CI coverage:
+  - CI now builds and checks syntax, but it still needs automated static browser smoke tests for `/career/index.html` and route-level regression tests.
+- Frontend polish:
+  - Public pages load and are cleaner, but the product still needs a full professional visual pass over auth, dashboard, profile editing, empty states, and mobile breakpoints before user testing.

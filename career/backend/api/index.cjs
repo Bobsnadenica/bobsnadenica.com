@@ -5,7 +5,8 @@ const {
   GetCommand,
   PutCommand,
   QueryCommand,
-  ScanCommand
+  ScanCommand,
+  TransactWriteCommand
 } = require("@aws-sdk/lib-dynamodb");
 const {
   S3Client,
@@ -22,10 +23,14 @@ const env = {
   consultantsTable: process.env.CONSULTANTS_TABLE,
   bookingsTable: process.env.BOOKINGS_TABLE,
   cvBucket: process.env.CV_BUCKET,
-  allowedOrigin: process.env.ALLOWED_ORIGIN || "*"
+  allowedOrigin: process.env.ALLOWED_ORIGIN || "https://www.bobsnadenica.com"
 };
 
 const CONSULTANT_PROFILE_THEMES = new Set(["violet", "sky", "rose", "mint", "amber"]);
+const USER_ROLES = new Set(["client", "consultant"]);
+const CONSULTANT_PROFILE_TYPES = new Set(["consultant", "mentor"]);
+const PLAN_TIERS = new Set(["free", "pro"]);
+const ALLOWED_PROFILE_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function response(statusCode, body, extraHeaders = {}) {
   return {
@@ -61,7 +66,9 @@ function parseBody(event) {
   try {
     return JSON.parse(event.body);
   } catch {
-    throw new Error("Request body must be valid JSON.");
+    throw Object.assign(new Error("Request body must be valid JSON."), {
+      statusCode: 400
+    });
   }
 }
 
@@ -122,14 +129,55 @@ async function getConsultantByOwner(ownerUserId) {
   return result.Items?.[0] || null;
 }
 
-function normalizeStringList(value, fallback = []) {
+function normalizeStringList(value, fallback = [], limit = 24, maxLength = 120) {
   if (!Array.isArray(value)) {
     return fallback;
   }
 
-  return value
-    .map((item) => String(item || "").trim())
-    .filter(Boolean);
+  return Array.from(
+    new Set(
+      value
+        .map((item) => String(item || "").trim().slice(0, maxLength))
+        .filter(Boolean)
+    )
+  ).slice(0, limit);
+}
+
+function normalizeText(value, fallback = "", maxLength = 1200) {
+  if (typeof value === "undefined" || value === null) {
+    return fallback;
+  }
+
+  return String(value).trim().slice(0, maxLength);
+}
+
+function normalizeBoundedNumber(value, fallback, { min = 0, max = 1000, integer = false } = {}) {
+  if (typeof value === "undefined" || value === null || value === "") {
+    return fallback;
+  }
+
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    return fallback;
+  }
+
+  const bounded = Math.min(max, Math.max(min, number));
+  return integer ? Math.round(bounded) : Math.round(bounded * 100) / 100;
+}
+
+function normalizeUserRole(value, fallback = "client") {
+  const role = String(value || "").trim().toLowerCase();
+  return USER_ROLES.has(role) ? role : fallback;
+}
+
+function normalizePlanTier(value, fallback = "free") {
+  const plan = String(value || "").trim().toLowerCase();
+  return PLAN_TIERS.has(plan) ? plan : fallback;
+}
+
+function normalizeConsultantProfileType(value, fallback = "consultant") {
+  const profileType = String(value || "").trim().toLowerCase();
+  return CONSULTANT_PROFILE_TYPES.has(profileType) ? profileType : fallback;
 }
 
 function normalizeConsultantTheme(value, fallback = "") {
@@ -197,6 +245,54 @@ function normalizeUploadKind(value) {
   return null;
 }
 
+function assertOwnedStorageKey(value, fallback, allowedPrefixes, label = "storage key") {
+  if (typeof value === "undefined") {
+    return fallback || "";
+  }
+
+  if (value === null || value === "") {
+    return "";
+  }
+
+  const storageKey = String(value || "").trim();
+  const isOwned = allowedPrefixes.some((prefix) => storageKey.startsWith(prefix));
+
+  if (!storageKey || !isOwned) {
+    throw Object.assign(new Error(`Invalid ${label}.`), { statusCode: 400 });
+  }
+
+  return storageKey;
+}
+
+function normalizeCvDocument(value, fallback, userId) {
+  if (typeof value === "undefined") {
+    return fallback ?? null;
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  if (typeof value !== "object" || Array.isArray(value) || !value.storageKey) {
+    throw Object.assign(new Error("Invalid CV document."), { statusCode: 400 });
+  }
+
+  const storageKey = assertOwnedStorageKey(
+    value.storageKey,
+    "",
+    [`profiles/${userId}/documents/`],
+    "CV storage key"
+  );
+
+  return {
+    fileName: sanitizeFileName(value.fileName || fallback?.fileName || "cv"),
+    storageKey,
+    uploadedAt:
+      normalizeText(value.uploadedAt, fallback?.uploadedAt || "", 40) ||
+      new Date().toISOString()
+  };
+}
+
 function normalizeSlug(value, fallback = "") {
   const normalized = String(value || fallback || "")
     .trim()
@@ -237,8 +333,8 @@ function validateUploadRequest({ kind, contentType, fileSize }) {
     return null;
   }
 
-  if (!safeContentType.startsWith("image/")) {
-    return "Profile media must be an image.";
+  if (!ALLOWED_PROFILE_IMAGE_TYPES.has(safeContentType)) {
+    return "Profile media must be a JPEG, PNG, or WebP image.";
   }
 
   if (safeFileSize > 5 * 1024 * 1024) {
@@ -356,7 +452,7 @@ function createConsultantDraft({
   return {
     consultantId: `consultant-${randomUUID()}`,
     ownerUserId: userId,
-    profileType: profileType || "consultant",
+    profileType: normalizeConsultantProfileType(profileType),
     slug: slug || `consultant-${Date.now()}`,
     name: baseName || "Нов профил",
     headline: String(headline || "").trim() || "Кариерен консултант",
@@ -470,19 +566,31 @@ async function bootstrapUser(event) {
   const now = new Date().toISOString();
 
   const existing = await getUserBySub(claims.sub);
-  const consultantVisibility = getConsultantVisibility(body.plan || existing?.plan || "free");
+  const currentPlan = normalizePlanTier(existing?.plan, "free");
+  const currentRole = normalizeUserRole(existing?.role, "client");
+  const requestedRole = existing
+    ? currentRole
+    : normalizeUserRole(body.role, currentRole);
+  const requestedConsultantProfileType =
+    typeof body.consultantProfileType === "undefined"
+      ? null
+      : normalizeConsultantProfileType(body.consultantProfileType, "consultant");
   const nextUser = {
     userId: claims.sub,
-    email: claims.email || body.email || "",
-    name: body.name || claims.name || existing?.name || "",
-    role: body.role || existing?.role || "client",
-    plan: body.plan || existing?.plan || "free",
-    avatarUrl: body.avatarUrl ?? existing?.avatarUrl ?? claims.picture ?? "",
+    email: claims.email || normalizeText(body.email, "", 320),
+    name: normalizeText(body.name || claims.name, existing?.name || "", 120),
+    role: requestedRole,
+    plan: currentPlan,
+    avatarUrl: normalizeText(
+      body.avatarUrl ?? claims.picture,
+      existing?.avatarUrl ?? "",
+      2000
+    ),
     avatarStorageKey: existing?.avatarStorageKey || "",
-    city: body.city ?? existing?.city ?? "",
-    occupation: body.occupation ?? existing?.occupation ?? "",
+    city: normalizeText(body.city, existing?.city ?? "", 120),
+    occupation: normalizeText(body.occupation, existing?.occupation ?? "", 140),
     age: existing?.age ?? null,
-    headline: body.headline ?? existing?.headline ?? "",
+    headline: normalizeText(body.headline, existing?.headline ?? "", 180),
     bio: existing?.bio || "",
     experienceSummary: existing?.experienceSummary || "",
     experienceHighlights: existing?.experienceHighlights || [],
@@ -496,6 +604,7 @@ async function bootstrapUser(event) {
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };
+  const consultantVisibility = getConsultantVisibility(nextUser.plan);
 
   await dynamo.send(
     new PutCommand({
@@ -516,7 +625,7 @@ async function bootstrapUser(event) {
             name: nextUser.name,
             email: claims.email || body.email || "",
             plan: nextUser.plan,
-            profileType: body.consultantProfileType,
+            profileType: requestedConsultantProfileType || "consultant",
             city: nextUser.city,
             headline: nextUser.headline,
             avatarUrl: nextUser.avatarUrl
@@ -529,7 +638,10 @@ async function bootstrapUser(event) {
           TableName: env.consultantsTable,
           Item: {
             ...existingConsultant,
-            profileType: body.consultantProfileType || existingConsultant.profileType || "consultant",
+            profileType:
+              requestedConsultantProfileType ||
+              existingConsultant.profileType ||
+              "consultant",
             avatarUrl:
               body.avatarUrl ??
               existingConsultant.avatarUrl ??
@@ -567,15 +679,31 @@ async function updateMeProfile(event) {
 
   const nextUser = {
     ...current,
-    name: body.name ?? current.name,
-    avatarUrl: body.avatarUrl ?? current.avatarUrl ?? "",
-    avatarStorageKey: body.avatarStorageKey ?? current.avatarStorageKey ?? "",
-    city: body.city ?? current.city,
-    occupation: body.occupation ?? current.occupation ?? "",
-    age: body.age ?? current.age ?? null,
-    headline: body.headline ?? current.headline,
-    bio: body.bio ?? current.bio,
-    experienceSummary: body.experienceSummary ?? current.experienceSummary ?? "",
+    name: normalizeText(body.name, current.name, 120),
+    avatarUrl: normalizeText(body.avatarUrl, current.avatarUrl ?? "", 2000),
+    avatarStorageKey: assertOwnedStorageKey(
+      body.avatarStorageKey,
+      current.avatarStorageKey,
+      [`profiles/${claims.sub}/avatar/`],
+      "avatar storage key"
+    ),
+    city: normalizeText(body.city, current.city, 120),
+    occupation: normalizeText(body.occupation, current.occupation ?? "", 140),
+    age:
+      body.age === null
+        ? null
+        : normalizeBoundedNumber(body.age, current.age ?? null, {
+            min: 13,
+            max: 120,
+            integer: true
+          }),
+    headline: normalizeText(body.headline, current.headline, 180),
+    bio: normalizeText(body.bio, current.bio, 2400),
+    experienceSummary: normalizeText(
+      body.experienceSummary,
+      current.experienceSummary ?? "",
+      1200
+    ),
     experienceHighlights: normalizeStringList(
       body.experienceHighlights,
       current.experienceHighlights ?? []
@@ -587,13 +715,13 @@ async function updateMeProfile(event) {
     skills: normalizeStringList(body.skills, current.skills ?? []),
     interests: normalizeStringList(body.interests, current.interests ?? []),
     keywords: normalizeStringList(body.keywords, current.keywords ?? []),
-    goals: body.goals ?? current.goals ?? "",
+    goals: normalizeText(body.goals, current.goals ?? "", 1600),
     preferredSessionModes: normalizeStringList(
       body.preferredSessionModes,
       current.preferredSessionModes ?? []
     ),
-    plan: body.plan ?? current.plan,
-    cvDocument: body.cvDocument ?? current.cvDocument,
+    plan: normalizePlanTier(current.plan, "free"),
+    cvDocument: normalizeCvDocument(body.cvDocument, current.cvDocument, claims.sub),
     updatedAt: new Date().toISOString()
   };
 
@@ -635,7 +763,7 @@ async function updateMyConsultant(event) {
       name: user.name,
       email: user.email,
       plan: user.plan,
-      profileType: body.profileType,
+      profileType: normalizeConsultantProfileType(body.profileType),
       city: user.city,
       headline: user.headline
     });
@@ -659,13 +787,19 @@ async function updateMyConsultant(event) {
 
   const nextConsultant = {
     ...baseConsultantWithoutDeprecatedMedia,
-    profileType: body.profileType ?? baseConsultant.profileType ?? "consultant",
+    profileType: normalizeConsultantProfileType(
+      body.profileType,
+      baseConsultant.profileType ?? "consultant"
+    ),
     slug: normalizedSlug || baseConsultant.slug,
-    name: body.name ?? baseConsultant.name,
-    headline: body.headline ?? baseConsultant.headline,
-    bio: body.bio ?? baseConsultant.bio,
-    experienceSummary:
-      body.experienceSummary ?? baseConsultant.experienceSummary ?? "",
+    name: normalizeText(body.name, baseConsultant.name, 120),
+    headline: normalizeText(body.headline, baseConsultant.headline, 180),
+    bio: normalizeText(body.bio, baseConsultant.bio, 2800),
+    experienceSummary: normalizeText(
+      body.experienceSummary,
+      baseConsultant.experienceSummary ?? "",
+      1400
+    ),
     experienceHighlights: normalizeStringList(
       body.experienceHighlights,
       baseConsultant.experienceHighlights ?? []
@@ -674,17 +808,34 @@ async function updateMyConsultant(event) {
       body.educationHighlights,
       baseConsultant.educationHighlights ?? []
     ),
-    city: body.city ?? baseConsultant.city,
-    experienceYears: body.experienceYears ?? baseConsultant.experienceYears ?? 0,
-    priceBgn: body.priceBgn ?? baseConsultant.priceBgn ?? 0,
-    featured: body.featured ?? baseConsultant.featured ?? false,
-    rating: body.rating ?? baseConsultant.rating ?? 0,
-    reviewCount: body.reviewCount ?? baseConsultant.reviewCount ?? 0,
-    theme: user.plan === "pro" ? requestedTheme : "",
-    avatarUrl: body.avatarUrl ?? baseConsultant.avatarUrl ?? "",
-    heroUrl: body.heroUrl ?? baseConsultant.heroUrl ?? "",
-    avatarStorageKey: body.avatarStorageKey ?? baseConsultant.avatarStorageKey ?? "",
-    heroStorageKey: body.heroStorageKey ?? baseConsultant.heroStorageKey ?? "",
+    city: normalizeText(body.city, baseConsultant.city, 120),
+    experienceYears: normalizeBoundedNumber(
+      body.experienceYears,
+      baseConsultant.experienceYears ?? 0,
+      { min: 0, max: 70, integer: true }
+    ),
+    priceBgn: normalizeBoundedNumber(body.priceBgn, baseConsultant.priceBgn ?? 0, {
+      min: 0,
+      max: 5000
+    }),
+    featured: baseConsultant.featured ?? false,
+    rating: baseConsultant.rating ?? 0,
+    reviewCount: baseConsultant.reviewCount ?? 0,
+    theme: normalizePlanTier(user.plan, "free") === "pro" ? requestedTheme : "",
+    avatarUrl: normalizeText(body.avatarUrl, baseConsultant.avatarUrl ?? "", 2000),
+    heroUrl: normalizeText(body.heroUrl, baseConsultant.heroUrl ?? "", 2000),
+    avatarStorageKey: assertOwnedStorageKey(
+      body.avatarStorageKey,
+      baseConsultant.avatarStorageKey,
+      [`consultants/${claims.sub}/avatar/`],
+      "consultant avatar storage key"
+    ),
+    heroStorageKey: assertOwnedStorageKey(
+      body.heroStorageKey,
+      baseConsultant.heroStorageKey,
+      [`consultants/${claims.sub}/hero/`],
+      "consultant banner storage key"
+    ),
     languages: normalizeStringList(body.languages, baseConsultant.languages ?? []),
     specializations: normalizeStringList(
       body.specializations,
@@ -700,9 +851,16 @@ async function updateMyConsultant(event) {
       body.consultationTopics,
       baseConsultant.consultationTopics ?? []
     ),
-    workApproach: body.workApproach ?? baseConsultant.workApproach ?? "",
-    sessionLengthMinutes:
-      body.sessionLengthMinutes ?? baseConsultant.sessionLengthMinutes ?? 60,
+    workApproach: normalizeText(
+      body.workApproach,
+      baseConsultant.workApproach ?? "",
+      1800
+    ),
+    sessionLengthMinutes: normalizeBoundedNumber(
+      body.sessionLengthMinutes,
+      baseConsultant.sessionLengthMinutes ?? 60,
+      { min: 15, max: 240, integer: true }
+    ),
     availability: normalizeAvailabilitySlots(
       body.availability ?? baseConsultant.availability ?? [],
       []
@@ -862,12 +1020,42 @@ async function createBooking(event) {
     createdAt: new Date().toISOString()
   };
 
-  await dynamo.send(
-    new PutCommand({
-      TableName: env.bookingsTable,
-      Item: booking
-    })
-  );
+  try {
+    await dynamo.send(
+      new TransactWriteCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: env.consultantsTable,
+              Key: { consultantId: consultant.consultantId },
+              UpdateExpression:
+                "SET bookedSlots = list_append(if_not_exists(bookedSlots, :emptySlots), :slotList)",
+              ConditionExpression:
+                "contains(availability, :scheduledAt) AND (attribute_not_exists(bookedSlots) OR NOT contains(bookedSlots, :scheduledAt))",
+              ExpressionAttributeValues: {
+                ":scheduledAt": normalizedScheduledAt,
+                ":emptySlots": [],
+                ":slotList": [normalizedScheduledAt]
+              }
+            }
+          },
+          {
+            Put: {
+              TableName: env.bookingsTable,
+              Item: booking,
+              ConditionExpression: "attribute_not_exists(bookingId)"
+            }
+          }
+        ]
+      })
+    );
+  } catch (error) {
+    if (error.name === "TransactionCanceledException") {
+      return badRequest("The selected slot already has an active booking request.");
+    }
+
+    throw error;
+  }
 
   return response(201, booking);
 }
@@ -945,8 +1133,14 @@ exports.handler = async (event) => {
     return notFound("Route not found.");
   } catch (error) {
     const statusCode = error.statusCode || 500;
+    if (statusCode >= 500) {
+      console.error(error);
+    }
     return response(statusCode, {
-      message: error.message || "Unexpected server error."
+      message:
+        statusCode >= 500
+          ? "Unexpected server error."
+          : error.message || "Unexpected server error."
     });
   }
 };

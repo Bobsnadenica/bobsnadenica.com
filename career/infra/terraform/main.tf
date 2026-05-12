@@ -13,14 +13,14 @@ locals {
       "${origin}/career/index.html"
     ]
   ]))
-  oauth_callback_urls   = length(var.frontend_oauth_callback_urls) > 0 ? var.frontend_oauth_callback_urls : local.default_oauth_urls
-  oauth_logout_urls     = length(var.frontend_oauth_logout_urls) > 0 ? var.frontend_oauth_logout_urls : local.default_oauth_urls
-  google_enabled        = nonsensitive(var.google_client_id != "" && var.google_client_secret != "")
-  apple_enabled         = nonsensitive(var.apple_client_id != "" && var.apple_team_id != "" && var.apple_key_id != "" && var.apple_private_key != "")
+  oauth_callback_urls    = length(var.frontend_oauth_callback_urls) > 0 ? var.frontend_oauth_callback_urls : local.default_oauth_urls
+  oauth_logout_urls      = length(var.frontend_oauth_logout_urls) > 0 ? var.frontend_oauth_logout_urls : local.default_oauth_urls
+  google_enabled         = nonsensitive(var.google_client_id != "" && var.google_client_secret != "")
+  apple_enabled          = nonsensitive(var.apple_client_id != "" && var.apple_team_id != "" && var.apple_key_id != "" && var.apple_private_key != "")
   linkedin_provider_name = "LinkedInOIDC"
-  linkedin_enabled      = nonsensitive(var.linkedin_client_id != "" && var.linkedin_client_secret != "")
-  hosted_ui_enabled     = local.google_enabled || local.apple_enabled || local.linkedin_enabled
-  cognito_domain_prefix = var.cognito_domain_prefix != "" ? var.cognito_domain_prefix : "${local.name_prefix}-${random_string.suffix.result}"
+  linkedin_enabled       = nonsensitive(var.linkedin_client_id != "" && var.linkedin_client_secret != "")
+  hosted_ui_enabled      = local.google_enabled || local.apple_enabled || local.linkedin_enabled
+  cognito_domain_prefix  = var.cognito_domain_prefix != "" ? var.cognito_domain_prefix : "${local.name_prefix}-${random_string.suffix.result}"
   supported_identity_providers = concat(
     ["COGNITO"],
     local.google_enabled ? ["Google"] : [],
@@ -343,6 +343,7 @@ resource "aws_iam_role_policy" "lambda" {
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
+          "dynamodb:TransactWriteItems",
           "dynamodb:Query",
           "dynamodb:Scan"
         ]
@@ -373,23 +374,23 @@ data "archive_file" "api" {
 }
 
 resource "aws_lambda_function" "api" {
-  function_name    = "${local.name_prefix}-api"
-  role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs20.x"
-  handler          = "index.handler"
-  filename         = data.archive_file.api.output_path
-  source_code_hash = data.archive_file.api.output_base64sha256
-  architectures    = ["arm64"]
-  timeout          = 15
+  function_name                  = "${local.name_prefix}-api"
+  role                           = aws_iam_role.lambda.arn
+  runtime                        = "nodejs20.x"
+  handler                        = "index.handler"
+  filename                       = data.archive_file.api.output_path
+  source_code_hash               = data.archive_file.api.output_base64sha256
+  architectures                  = ["arm64"]
+  timeout                        = 15
   reserved_concurrent_executions = var.lambda_reserved_concurrency
 
   environment {
     variables = {
-      USERS_TABLE     = aws_dynamodb_table.users.name
+      USERS_TABLE       = aws_dynamodb_table.users.name
       CONSULTANTS_TABLE = aws_dynamodb_table.consultants.name
-      BOOKINGS_TABLE  = aws_dynamodb_table.bookings.name
-      CV_BUCKET       = aws_s3_bucket.cv_documents.bucket
-      ALLOWED_ORIGIN  = element(var.frontend_origins, 0)
+      BOOKINGS_TABLE    = aws_dynamodb_table.bookings.name
+      CV_BUCKET         = aws_s3_bucket.cv_documents.bucket
+      ALLOWED_ORIGIN    = element(var.frontend_origins, 0)
     }
   }
 

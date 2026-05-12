@@ -260,7 +260,7 @@ main {
 .brand-link strong {
   display: block;
   font-size: 1.3rem;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .brand-link span {
@@ -434,7 +434,7 @@ main {
   color: white;
   font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   white-space: nowrap;
   text-align: center;
   line-height: 1;
@@ -641,9 +641,9 @@ main {
 .auth-copy h1,
 .profile-card h1 {
   margin: 0;
-  font-size: clamp(2.35rem, 4.8vw, 4.05rem);
+  font-size: 3.75rem;
   line-height: 1.01;
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
   max-width: 13.5ch;
   text-wrap: balance;
   overflow-wrap: break-word;
@@ -660,7 +660,7 @@ main {
 
 .auth-copy h1 {
   max-width: 100%;
-  font-size: clamp(2.05rem, 4vw, 3.15rem);
+  font-size: 3rem;
   line-height: 1.06;
   overflow-wrap: anywhere;
   hyphens: auto;
@@ -899,7 +899,7 @@ textarea {
   color: var(--text);
   font-size: 1.12rem;
   line-height: 1.18;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
 }
 
 .hero-choice-card p {
@@ -960,7 +960,7 @@ textarea {
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: 1.12rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .hero-stats span,
@@ -1028,7 +1028,7 @@ textarea {
 .visual-cover strong {
   margin: 0;
   font-size: 1.32rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .visual-cover p {
@@ -1046,7 +1046,7 @@ textarea {
     linear-gradient(145deg, #4b6a60 0%, #7f8f89 100%);
   color: white;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .hero__card-top strong,
@@ -1056,7 +1056,7 @@ textarea {
   margin-top: 12px;
   font-size: 1.7rem;
   line-height: 1.1;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .hero__card-top p,
@@ -1154,7 +1154,7 @@ textarea {
   margin: 10px 0 0;
   font-size: 1.32rem;
   line-height: 1.12;
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
 }
 
 .home-hero-profile p {
@@ -1373,7 +1373,7 @@ textarea {
 .consultant-intro-card__list strong {
   display: block;
   margin-bottom: 6px;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .consultant-intro-card__list span {
@@ -1489,9 +1489,9 @@ textarea {
 
 .ad-banner h2 {
   margin: 0;
-  font-size: clamp(1.72rem, 3vw, 2.4rem);
+  font-size: 2.2rem;
   line-height: 1.04;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   max-width: 13ch;
 }
 
@@ -1527,7 +1527,7 @@ textarea {
   color: white;
   font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .ad-banner__actions {
@@ -1539,7 +1539,7 @@ textarea {
 
 .ad-banner__actions strong {
   font-size: 1.02rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .ad-banner__metrics {
@@ -1635,7 +1635,7 @@ textarea {
 .ad-banner__visual-card strong {
   font-size: 1.22rem;
   line-height: 1.15;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .ad-banner__visual-card p {
@@ -1780,14 +1780,14 @@ textarea {
 .info-card h3,
 .pricing-track__intro h3 {
   margin: 0;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 
 .section-heading h2,
 .panel h2,
 .pricing-track__intro h3 {
-  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  font-size: 2.25rem;
   line-height: 1.05;
 }
 
@@ -1912,7 +1912,7 @@ textarea {
 }
 
 .consultant-card h3 {
-  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-size: 1.35rem;
 }
 
 .rating-pill {
@@ -2098,7 +2098,7 @@ textarea {
 .role-experience-card h3 {
   margin: 0;
   font-size: 1.28rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .role-experience-card__eyebrow {
@@ -2284,7 +2284,7 @@ textarea {
   display: block;
   color: var(--text);
   font-size: 1.08rem;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
 }
 
 .directory-controls__header span,
@@ -2368,7 +2368,7 @@ textarea {
 .directory-feedback__copy strong {
   color: var(--text);
   font-size: 1.02rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .directory-feedback__copy p {
@@ -2519,7 +2519,7 @@ textarea {
 
 .availability-calendar__day-header strong {
   text-transform: capitalize;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .availability-calendar__day-header span {
@@ -2606,9 +2606,9 @@ textarea {
 
 .directory-hero__panel-intro h2 {
   margin: 0;
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  font-size: 1.7rem;
   line-height: 1.04;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .directory-hero__panel-intro p,
@@ -2683,7 +2683,7 @@ textarea {
 
 .directory-spotlight__body strong {
   font-size: 1.05rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .directory-spotlight__meta {
@@ -2725,7 +2725,7 @@ textarea {
 .directory-hero__next strong,
 .consultant-card__footer-copy strong {
   font-size: 1.05rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .directory-results-indicator {
@@ -2735,7 +2735,7 @@ textarea {
 
 .directory-results-indicator strong {
   font-size: 1.2rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .directory-hero__stats {
@@ -2804,7 +2804,7 @@ textarea {
 .consultant-card__identity h3,
 .profile-stage__body h1 {
   margin: 0;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .consultant-card__identity p,
@@ -2870,7 +2870,7 @@ textarea {
 .profile-stage__facts strong {
   min-width: 0;
   overflow-wrap: anywhere;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .consultant-card__fact-grid span {
@@ -2888,7 +2888,7 @@ textarea {
 .consultant-card__link-label {
   color: var(--primary-dark);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .consultant-card__slots {
@@ -2996,7 +2996,7 @@ textarea {
 .hero-spotlight-card__header h3,
 .hero-spotlight-card__footer strong {
   margin: 0;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .hero-spotlight-card__header p {
@@ -3070,7 +3070,7 @@ textarea {
 }
 
 .profile-stage__headline {
-  font-size: clamp(1.06rem, 1.8vw, 1.28rem);
+  font-size: 1.18rem;
   line-height: 1.6;
 }
 
@@ -3252,7 +3252,7 @@ textarea {
 }
 
 .dashboard-route-state__copy h2 {
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-size: 2rem;
   line-height: 1.08;
 }
 
@@ -3305,7 +3305,7 @@ textarea {
 .dashboard-empty-state__content strong {
   font-size: 1.08rem;
   line-height: 1.22;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   overflow-wrap: anywhere;
 }
 
@@ -3436,7 +3436,7 @@ textarea {
   margin-top: 12px;
   font-size: 1.3rem;
   line-height: 1.1;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
@@ -3585,7 +3585,7 @@ textarea {
 .choice-card strong {
   font-size: 1.5rem;
   line-height: 1.1;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .choice-card p {
@@ -3610,7 +3610,7 @@ textarea {
 
 .question-flow__intro h2 {
   margin: 0;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .question-flow__meter {
@@ -3635,7 +3635,7 @@ textarea {
 .question-flow__meter strong {
   font-size: 1.9rem;
   line-height: 1;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
   color: var(--primary-dark);
 }
 
@@ -3705,7 +3705,7 @@ textarea {
 
 .question-card__header h3 {
   margin: 0;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .question-card__header p {
@@ -3750,7 +3750,7 @@ textarea {
 }
 
 .question-grid--profile .question-card__header h3 {
-  font-size: clamp(1.2rem, 1.2vw + 0.9rem, 1.5rem);
+  font-size: 1.35rem;
   line-height: 1.15;
 }
 
@@ -3803,7 +3803,7 @@ textarea {
   display: block;
   margin-top: 10px;
   font-size: 1.08rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .profile-setup-shell__header p {
@@ -3874,7 +3874,7 @@ textarea {
   color: var(--text);
   font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .profile-setup-panel {
@@ -3912,7 +3912,7 @@ textarea {
 
 .availability-composer__header strong {
   font-size: 1.02rem;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .availability-composer__header p {
@@ -4076,7 +4076,7 @@ textarea {
   list-style: none;
   padding: 22px 0;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .faq-item summary::-webkit-details-marker {
@@ -4165,7 +4165,7 @@ textarea {
 }
 
 .pricing-track__intro h3 {
-  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  font-size: 1.85rem;
 }
 
 .pricing-grid {
@@ -4365,7 +4365,7 @@ textarea {
   font-size: 0.82rem;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .social-auth__button:hover {
@@ -4399,9 +4399,9 @@ textarea {
 .auth-onboarding-header h2 {
   margin: 0;
   max-width: 18ch;
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-size: 2rem;
   line-height: 1.06;
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 
@@ -4500,7 +4500,7 @@ textarea {
   padding: 0 8px;
   color: var(--text);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .auth-onboarding-section .two-column {
@@ -4574,7 +4574,7 @@ textarea {
 .auth-choice-card strong {
   font-size: 1.06rem;
   line-height: 1.18;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
 }
 
 .auth-choice-card p {
@@ -4732,7 +4732,7 @@ textarea {
 .dashboard-metrics strong {
   display: block;
   font-size: 1.05rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .dashboard-metrics span {
@@ -4757,7 +4757,7 @@ textarea {
 }
 
 .booking-item strong {
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .booking-item:first-child {
@@ -5184,9 +5184,9 @@ textarea {
   .page-intro h1,
   .auth-copy h1,
   .profile-card h1 {
-    font-size: clamp(2rem, 8.6vw, 3.25rem);
+    font-size: 2.8rem;
     line-height: 1.04;
-    letter-spacing: -0.035em;
+    letter-spacing: 0;
     max-width: 16ch;
   }
 
@@ -5432,9 +5432,9 @@ textarea {
   .page-intro h1,
   .auth-copy h1,
   .profile-card h1 {
-    font-size: clamp(1.82rem, 9.2vw, 2.35rem);
+    font-size: 2.08rem;
     line-height: 1.05;
-    letter-spacing: -0.018em;
+    letter-spacing: 0;
     max-width: 100%;
     text-wrap: pretty;
     overflow-wrap: anywhere;

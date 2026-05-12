@@ -1,4 +1,3 @@
-.terraform/
 .DS_Store
 *.DS_Store
 **/.DS_Store
@@ -6,6 +5,12 @@
 # Local agent/runtime state
 .claude/
 **/.claude/
+
+# Local environment overrides
+.env.local
+.env.*.local
+**/.env.local
+**/.env.*.local
 
 # Heavy/generated dependencies and build outputs
 node_modules/
@@ -25,3 +30,14 @@ node_modules/
 **/linux/flutter/ephemeral/
 **/macos/Flutter/ephemeral/
 **/windows/flutter/ephemeral/
+
+# Terraform local state, variables, and packaged build artifacts
+.terraform/
+**/.terraform/
+**/.terraform-build/
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfvars
+!**/terraform.tfvars.example
+**/*.tfplan
+**/*.tfplan.json

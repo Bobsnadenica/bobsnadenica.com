@@ -25,3 +25,36 @@ jobs:
 
       - name: Block local state and generated dependencies
         run: node scripts/check-repo-guardrails.mjs
+
+  career-build:
+    name: CareerLane build and backend syntax
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: |
+            career/package-lock.json
+            career/backend/api/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: career
+        run: npm ci
+
+      - name: Build CareerLane frontend
+        working-directory: career
+        run: npm run build
+
+      - name: Install backend dependencies
+        working-directory: career/backend/api
+        run: npm ci --omit=dev
+
+      - name: Check backend Lambda syntax
+        working-directory: career
+        run: node -c backend/api/index.cjs

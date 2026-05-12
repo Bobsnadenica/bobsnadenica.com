@@ -31,6 +31,13 @@ const blockedRules = [
     test: (path) => hasSuffixSegment(path, ".DS_Store")
   },
   {
+    label: "local environment overrides",
+    reason: "Do not commit machine-specific environment override files.",
+    test: (path) =>
+      hasSuffixSegment(path, ".env.local") ||
+      /\.env\.[^.]+\.local$/.test(path)
+  },
+  {
     label: "Node dependency folders",
     reason: "Do not commit installed npm packages; keep package manifests and lockfiles instead.",
     test: (path) => hasSegment(path, "node_modules")
@@ -57,6 +64,19 @@ const blockedRules = [
       path.includes("/linux/flutter/ephemeral/") ||
       path.includes("/macos/Flutter/ephemeral/") ||
       path.includes("/windows/flutter/ephemeral/")
+  },
+  {
+    label: "Terraform local state and build artifacts",
+    reason: "Do not commit Terraform state, local variable files, plans, or packaged deployment artifacts.",
+    test: (path) =>
+      hasSegment(path, ".terraform") ||
+      hasSegment(path, ".terraform-build") ||
+      hasSuffixSegment(path, "terraform.tfstate") ||
+      path.includes("/terraform.tfstate.") ||
+      (hasSuffixSegment(path, "terraform.tfvars") &&
+        !hasSuffixSegment(path, "terraform.tfvars.example")) ||
+      path.endsWith(".tfplan") ||
+      path.endsWith(".tfplan.json")
   }
 ];
 
