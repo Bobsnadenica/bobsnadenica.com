@@ -1158,9 +1158,9 @@ textarea {
 }
 
 .home-hero-profile__avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 28px;
+  width: 132px;
+  height: 132px;
+  border-radius: 34px;
   object-fit: cover;
   object-position: center 16%;
   box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
@@ -1215,9 +1215,9 @@ textarea {
 }
 
 .home-hero-profile--secondary {
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 132px minmax(0, 1fr);
   gap: 14px;
-  align-items: center;
+  align-items: stretch;
   padding: 14px;
 }
 
@@ -1230,8 +1230,10 @@ textarea {
 }
 
 .home-hero-profile--secondary .home-hero-profile__avatar {
-  width: 92px;
-  height: 92px;
+  width: 100%;
+  height: 100%;
+  min-height: 132px;
+  align-self: stretch;
 }
 
 .home-hero-profile--secondary h3 {
@@ -2605,7 +2607,8 @@ textarea {
 }
 
 .directory-hero__panel {
-  padding: 24px;
+  gap: 12px;
+  padding: 18px;
 }
 
 .directory-hero__panel::after,
@@ -2647,16 +2650,16 @@ textarea {
 
 .directory-spotlight-list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .directory-spotlight {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: start;
-  padding: 16px;
-  border-radius: 24px;
+  padding: 12px;
+  border-radius: 20px;
   border: 1px solid rgba(193, 208, 225, 0.84);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 252, 0.96)),
@@ -2684,9 +2687,9 @@ textarea {
 }
 
 .directory-spotlight__avatar {
-  width: 104px;
-  height: 104px;
-  border-radius: 28px;
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
   object-fit: cover;
   object-position: center 16%;
 }
@@ -2736,11 +2739,51 @@ textarea {
   align-self: center;
 }
 
+.directory-hero__panel .directory-spotlight-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.directory-hero__panel .directory-spotlight {
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.directory-hero__panel .directory-spotlight__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+}
+
+.directory-hero__panel .directory-spotlight__label {
+  font-size: 0.68rem;
+}
+
+.directory-hero__panel .directory-spotlight__body {
+  gap: 8px;
+}
+
+.directory-hero__panel .directory-spotlight__body p {
+  line-height: 1.45;
+}
+
+.directory-hero__panel .directory-spotlight__meta {
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.directory-hero__panel .directory-spotlight__arrow {
+  grid-column: 2;
+  justify-self: start;
+  align-self: start;
+  font-size: 0.86rem;
+}
+
 .directory-hero__next {
   display: grid;
   gap: 8px;
-  padding: 18px;
-  border-radius: 24px;
+  padding: 14px;
+  border-radius: 20px;
   background:
     linear-gradient(180deg, rgba(240, 252, 249, 0.98), rgba(255, 255, 255, 0.98)),
     white;
@@ -2777,6 +2820,7 @@ textarea {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  margin-top: 18px;
 }
 
 .directory-hero__stats > div {
@@ -2999,6 +3043,12 @@ textarea {
   background: linear-gradient(145deg, #4b6a60 0%, #7f8f89 100%);
 }
 
+.directory-hero__panel .hero-spotlight-card__media {
+  height: 112px;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
 .hero-spotlight-card__body,
 .hero-spotlight-card__header {
   display: grid;
@@ -3007,6 +3057,10 @@ textarea {
 
 .hero-spotlight-card__body {
   padding: 22px;
+}
+
+.directory-hero__panel .hero-spotlight-card__body {
+  padding: 16px;
 }
 
 .hero-spotlight-card--no-cover .hero-spotlight-card__body {
@@ -3018,6 +3072,11 @@ textarea {
   align-items: start;
 }
 
+.directory-hero__panel .hero-spotlight-card__header {
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+}
+
 .hero-spotlight-card__avatar {
   width: 104px;
   height: 104px;
@@ -3026,6 +3085,12 @@ textarea {
   box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
   object-fit: cover;
   object-position: center 16%;
+}
+
+.directory-hero__panel .hero-spotlight-card__avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 26px;
 }
 
 .hero-spotlight-card__header h3,
@@ -3179,8 +3244,37 @@ textarea {
 }
 
 .demo-user-card__header {
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 76px minmax(0, 1fr);
   align-items: start;
+}
+
+.demo-user-card__avatar,
+.user-match-card__avatar {
+  object-fit: cover;
+  object-position: center 16%;
+  background: white;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+}
+
+.demo-user-card__avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+}
+
+.user-match-card__avatar {
+  display: block;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 2px;
+  border-radius: 32px;
+}
+
+.demo-user-card__header .primary-button,
+.demo-user-card__header .ghost-button {
+  grid-column: 2;
+  width: min(100%, 190px);
+  justify-content: center;
 }
 
 .profile-actions {
@@ -4745,6 +4839,8 @@ textarea {
 .dashboard-sidebar__avatar.visual-avatar,
 .profile-card__avatar.visual-avatar,
 .home-hero-profile__avatar.visual-avatar,
+.demo-user-card__avatar.visual-avatar,
+.user-match-card__avatar.visual-avatar,
 .media-preview-card__image.visual-avatar {
   font-size: 1.4rem;
 }
@@ -5332,6 +5428,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .directory-hero__panel .directory-spotlight-list {
+    grid-template-columns: 1fr;
+  }
+
   .consultant-card__body .ghost-button,
   .pricing-card .ghost-button,
   .pricing-card .primary-button,
@@ -5393,7 +5493,20 @@ textarea {
   }
 
   .demo-user-card__header {
-    grid-template-columns: 1fr;
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .demo-user-card__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+  }
+
+  .demo-user-card__header .primary-button,
+  .demo-user-card__header .ghost-button {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: center;
   }
 
   .consultant-card__footer {
@@ -5534,9 +5647,9 @@ textarea {
   }
 
   .home-hero-profile__avatar {
-    width: 76px;
-    height: 76px;
-    border-radius: 22px;
+    width: 96px;
+    height: 96px;
+    border-radius: 26px;
   }
 
   .home-hero-profile h3 {
@@ -5548,9 +5661,13 @@ textarea {
   }
 
   .home-hero-profile--secondary {
-    grid-template-columns: 76px minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
+  }
+
+  .home-hero-profile--secondary .home-hero-profile__avatar {
+    min-height: 96px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__body {

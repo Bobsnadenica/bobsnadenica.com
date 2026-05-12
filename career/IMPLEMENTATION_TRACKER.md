@@ -698,6 +698,48 @@ Status: Completed for this slice.
 
 - Consider adding a second CI job for the CareerLane app itself: install dependencies from lockfiles, run `npm run build`, and optionally run backend syntax checks.
 
+## Active Slice: Avatar And Layout Density Polish
+
+Started: 2026-05-12
+
+Scope:
+
+- Make the two homepage top consultant/mentor avatars larger and better fill their cards.
+- Show user profile pictures on the "За потребители" page, including the selected match summary and demo user cards.
+- Reduce unused vertical space in the `/consultants` hero area by tightening the right spotlight panel without removing important content.
+- Keep AI/test account labels visible and avoid public paid-feature wording.
+
+Status: Completed for this slice.
+
+## Avatar And Layout Density Polish Change Log
+
+- 2026-05-12: Added avatar URLs for the first three demo user profiles so every demo user can render a profile picture.
+- 2026-05-12: Added selected-user avatar rendering to the `/users` hero card.
+- 2026-05-12: Added avatars to every demo user selection card while keeping the AI test user label.
+- 2026-05-12: Enlarged homepage top consultant/mentor avatars and made the secondary avatar fill the card height to remove the empty area below it.
+- 2026-05-12: Compacted the `/consultants` hero spotlight panel, secondary spotlight rows, and next-slot card to reduce unused area below the active profile stats.
+- 2026-05-12: Changed the `/consultants` hero secondary spotlight cards to a compact two-column desktop layout, with a single-column fallback on smaller screens.
+- 2026-05-12: Adjusted demo user card headers after rendered QA so AI test labels and profile selection buttons no longer crowd each other.
+
+## Avatar And Layout Density Polish QA Notes
+
+- Build: `npm run build` passes and emits `/career/assets/index-BhA4eiWW.css` plus `/career/assets/index-yfK4Y14d.js`.
+- Backend syntax: `node -c backend/api/index.cjs` passes.
+- Repository guardrail check: `node scripts/check-repo-guardrails.mjs` passes.
+- Diff hygiene: `git diff --check` passes.
+- Static Browser QA:
+  - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html?qa=avatar-density-3#/`.
+  - Homepage title and URL matched the intended static CareerLane page.
+  - Homepage rendered meaningful app content with `.home-hero-profile` count `2`, `.home-hero-profile__avatar` count `2`, and `.home-hero-profile__media` count `0`.
+  - `/users` rendered meaningful app content with `.user-match-card__avatar` count `1`, `.demo-user-card` count `13`, `.demo-user-card__avatar` count `13`, and `.demo-user-card .demo-account-badge` count `13`.
+  - `/users` interaction check: selecting the second demo user changed that card button to "Избран профил" and updated the hero context to Георги Петров.
+  - `/consultants` rendered meaningful app content with one lead hero spotlight, two compact secondary spotlights, visible AI test labels, and no console warnings/errors.
+
+## Next Queue After Avatar And Layout Density Polish
+
+- Continue the professional-grade pass through the catalogue cards below the hero, especially mobile density and long Bulgarian label wrapping.
+- Add a real CI app job for `npm run build`, backend syntax, and repository guardrails so these checks run automatically with pull requests.
+
 ## Continuity Checkpoint: Professional-Grade Push
 
 Recorded: 2026-05-12

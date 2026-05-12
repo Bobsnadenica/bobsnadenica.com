@@ -1849,6 +1849,13 @@ export function UsersPage() {
 
           <aside className="hero__card">
             <div className="hero__card-top">
+              {matchingProfile ? (
+                <AvatarMedia
+                  className="user-match-card__avatar"
+                  src={matchingProfile.avatarUrl}
+                  name={matchingProfile.name}
+                />
+              ) : null}
               <span className={topMatchDetails ? "status-badge status-badge--success" : "plan-pill"}>
                 {topMatchDetails
                   ? topMatchDetails.label
@@ -6699,6 +6706,11 @@ function DemoUserProfileCard({
   return (
     <article className={`demo-user-card ${isActive ? "demo-user-card--active" : ""}`}>
       <div className="demo-user-card__header">
+        <AvatarMedia
+          className="demo-user-card__avatar"
+          src={profile.avatarUrl}
+          name={profile.name}
+        />
         <div>
           <div className="demo-user-card__labels">
             <span className="role-experience-card__eyebrow">Профил</span>
