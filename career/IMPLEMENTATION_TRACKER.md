@@ -547,7 +547,7 @@ Status: Completed for this slice.
 - 2026-05-11: Added optional `theme` support to the frontend consultant type, API update payload, and backend consultant draft/update/decorate flow.
 - 2026-05-11: Added backend validation for supported consultant theme tokens: `violet`, `sky`, `rose`, `mint`, and `amber`.
 - 2026-05-11: Gated saved consultant themes at the backend so only `pro` consultant accounts can persist a non-standard theme.
-- 2026-05-11: Added visible Pro theme styling to consultant cards, home hero profiles, directory spotlight rows, spotlight cards, and public profile pages.
+- 2026-05-11: Added visible theme color styling to consultant cards, home hero profiles, directory spotlight rows, spotlight cards, and public profile pages.
 - 2026-05-11: Updated README data-model notes with the demo-data and paid-theme preview behavior.
 - 2026-05-11: Rebuilt the GitHub Pages deploy artifact so `career/index.html` points to the latest generated CSS/JS assets.
 
@@ -563,7 +563,7 @@ Status: Completed for this slice.
 - `backend/api/index.cjs`
   - Normalizes supported profile theme tokens and persists them only for `pro` consultant accounts.
 - `src/app/legacy/SiteAppLegacy.tsx`
-  - Adds shared theme style helpers and renders Pro theme badges on reusable profile surfaces.
+  - Adds shared theme style helpers for reusable profile surfaces.
 - `src/styles/global.css`
   - Adds theme badge styles and themed card/profile surface treatment.
 - `README.md`
@@ -578,9 +578,9 @@ Status: Completed for this slice.
 - Build: `npm run build` passes and emits `/career/assets/index-1xpPYvp9.css` plus `/career/assets/index-CAp1ZVL8.js`.
 - Static Browser QA:
   - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html?qa=demo-themes#/`.
-  - Homepage rendered with 14 active consultant/mentor profiles, the two hero profile choices, and visible Pro theme markers.
+  - Homepage rendered with 14 active consultant/mentor profiles, the two hero profile choices, and visible theme color treatment.
   - `/users` rendered 13 selectable demo user profiles and themed consultant matches with no console warnings/errors.
-  - The themed demo profile `/consultants/blossom-utonium-demo` rendered one top banner, one profile avatar, and the Pro theme marker.
+  - The themed demo profile `/consultants/blossom-utonium-demo` rendered one top banner, one profile avatar, and theme color treatment.
   - The no-banner demo profile `/consultants/pinkie-pie-demo` rendered with no empty top-banner area.
   - `.booking-card__media` count stayed `0`, confirming the removed third profile media slot did not return.
 
@@ -618,11 +618,53 @@ Status: Completed for this slice.
   - Homepage title and URL matched the intended static CareerLane page.
   - The page rendered meaningful app content and no framework error overlay.
   - `.home-hero-profile` count was `2`.
-  - `.home-hero-profile__media` count was `2`.
-  - `.home-hero-profile--secondary .home-hero-profile__media` count was `1`.
+  - `.home-hero-profile__media` count was `2` during this now-superseded banner-on-homepage pass.
+  - `.home-hero-profile--secondary .home-hero-profile__media` count was `1` during this now-superseded banner-on-homepage pass.
   - `.home-hero-profile--secondary > .home-hero-profile__avatar` count was `0`, confirming the second hero profile uses its banner image instead of the avatar when a banner exists.
   - Browser console had no warnings/errors.
 
 ## Next Queue After Homepage Second Hero Banner
 
 - Decide whether the hero right column should be compressed further so both hero profile cards are visible above the fold on shorter desktop viewports.
+
+## Active Slice: Homepage Avatar-Only Hero Profiles and Theme Label Cleanup
+
+Started: 2026-05-12
+
+Scope:
+
+- Remove public paid-feature labels from profile surfaces.
+- Keep the underlying consultant color theme capability for later paid-plan UI work.
+- Make both top homepage consultant/mentor hero cards avatar-only.
+- Keep optional top banners on actual public consultant profile pages, where the banner belongs.
+
+Status: Completed for this slice.
+
+## Homepage Avatar-Only Hero Profiles and Theme Label Cleanup Change Log
+
+- 2026-05-12: Removed public theme badge markup from public profiles, consultant cards, homepage hero profiles, directory spotlight rows, and spotlight cards.
+- 2026-05-12: Removed the unused `.theme-pill` CSS.
+- 2026-05-12: Updated `HomeHeroProfile` so it never renders `CoverMedia`; homepage hero consultant/mentor cards now use avatars only.
+- 2026-05-12: Removed homepage-only hero banner CSS that became redundant after avatar-only behavior.
+- 2026-05-12: Updated README notes so paid themes are documented as color treatment without public paid-feature copy.
+- 2026-05-12: Rebuilt the GitHub Pages deploy artifact so `career/index.html` points to the latest generated CSS/JS assets.
+
+## Homepage Avatar-Only Hero Profiles and Theme Label Cleanup QA Notes
+
+- Type check: `./node_modules/.bin/tsc --noEmit` passes.
+- Backend syntax: `node -c backend/api/index.cjs` passes.
+- Build: `npm run build` passes and emits `/career/assets/index-DTAtyX1E.css` plus `/career/assets/index-HmHf6GIC.js`.
+- Static Browser QA:
+  - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html?qa=avatar-only-hero#/`.
+  - Homepage title and URL matched the intended static CareerLane page.
+  - The page rendered meaningful app content and no framework error overlay.
+  - `.home-hero-profile` count was `2`.
+  - `.home-hero-profile__media` count was `0`, confirming no homepage hero banner images are rendered.
+  - `.home-hero-profile__avatar` count was `2`, confirming both top consultant/mentor hero cards use avatars.
+  - The homepage DOM contained no public paid-theme wording.
+  - The public profile `/consultants/blossom-utonium-demo` still rendered one `.profile-stage__cover`, confirming profile-page banners remain intact.
+  - Browser console had no warnings/errors.
+
+## Next Queue After Homepage Avatar-Only Hero Profiles and Theme Label Cleanup
+
+- Decide whether paid theme selection should be shown only in the consultant dashboard, not on public profile cards.

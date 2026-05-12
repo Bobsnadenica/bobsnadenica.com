@@ -1109,19 +1109,6 @@ textarea {
   box-shadow: 0 22px 40px var(--profile-theme-glow);
 }
 
-.home-hero-profile__media {
-  overflow: hidden;
-  aspect-ratio: 1 / 0.7;
-  background: #e8eef6;
-}
-
-.home-hero-profile__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
 .home-hero-profile__body {
   display: grid;
   gap: 12px;
@@ -1212,11 +1199,6 @@ textarea {
   padding: 14px;
 }
 
-.home-hero-profile--secondary.home-hero-profile--has-cover {
-  grid-template-columns: minmax(118px, 0.42fr) minmax(0, 1fr);
-  align-items: stretch;
-}
-
 .home-hero-profile--secondary .home-hero-profile__body {
   padding: 0;
 }
@@ -1228,13 +1210,6 @@ textarea {
 .home-hero-profile--secondary .home-hero-profile__avatar {
   width: 78px;
   height: 78px;
-}
-
-.home-hero-profile--secondary .home-hero-profile__media {
-  width: 100%;
-  min-height: 112px;
-  aspect-ratio: auto;
-  border-radius: 18px;
 }
 
 .home-hero-profile--secondary h3 {
@@ -1961,34 +1936,6 @@ textarea {
   border-color: #cfdbd4;
   font-size: 0.92rem;
   font-weight: 700;
-}
-
-.theme-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-width: 0;
-  min-height: 30px;
-  padding: 0 11px;
-  border-radius: 999px;
-  border: 1px solid var(--profile-theme-border, rgba(207, 219, 212, 0.94));
-  background: var(--profile-theme-soft, rgba(232, 242, 237, 0.96));
-  color: var(--profile-theme-text, var(--primary-dark));
-  font-size: 0.76rem;
-  font-weight: 850;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.theme-pill::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--profile-theme, var(--primary));
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.74);
-  flex: 0 0 auto;
 }
 
 .chip--soft {
@@ -5547,10 +5494,6 @@ textarea {
     border-radius: 20px;
   }
 
-  .home-hero-profile__media {
-    aspect-ratio: 1 / 0.68;
-  }
-
   .home-hero-profile__body {
     padding: 16px;
   }
@@ -5577,15 +5520,6 @@ textarea {
     grid-template-columns: 64px minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
-  }
-
-  .home-hero-profile--secondary.home-hero-profile--has-cover {
-    grid-template-columns: minmax(94px, 0.38fr) minmax(0, 1fr);
-  }
-
-  .home-hero-profile--secondary .home-hero-profile__media {
-    min-height: 92px;
-    border-radius: 16px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__body {

@@ -305,10 +305,9 @@ type ConsultantThemeStyle = CSSProperties & {
 
 const consultantThemeVisuals: Record<
   ConsultantThemeToken,
-  { label: string; primary: string; soft: string; border: string; glow: string; text: string }
+  { primary: string; soft: string; border: string; glow: string; text: string }
 > = {
   violet: {
-    label: "Виолетова",
     primary: "#7c3aed",
     soft: "rgba(124, 58, 237, 0.12)",
     border: "rgba(124, 58, 237, 0.32)",
@@ -316,7 +315,6 @@ const consultantThemeVisuals: Record<
     text: "#4c1d95"
   },
   sky: {
-    label: "Синя",
     primary: "#0284c7",
     soft: "rgba(2, 132, 199, 0.12)",
     border: "rgba(2, 132, 199, 0.3)",
@@ -324,7 +322,6 @@ const consultantThemeVisuals: Record<
     text: "#075985"
   },
   rose: {
-    label: "Розова",
     primary: "#e11d48",
     soft: "rgba(225, 29, 72, 0.11)",
     border: "rgba(225, 29, 72, 0.28)",
@@ -332,7 +329,6 @@ const consultantThemeVisuals: Record<
     text: "#9f1239"
   },
   mint: {
-    label: "Ментова",
     primary: "#0f766e",
     soft: "rgba(15, 118, 110, 0.12)",
     border: "rgba(15, 118, 110, 0.28)",
@@ -340,7 +336,6 @@ const consultantThemeVisuals: Record<
     text: "#115e59"
   },
   amber: {
-    label: "Кехлибарена",
     primary: "#b45309",
     soft: "rgba(180, 83, 9, 0.12)",
     border: "rgba(180, 83, 9, 0.3)",
@@ -625,8 +620,8 @@ function getConsultantThemeStyle(consultant: ConsultantProfile): ConsultantTheme
   };
 }
 
-function getConsultantThemeLabel(consultant: ConsultantProfile) {
-  return getConsultantThemeVisual(consultant.theme)?.label || "";
+function hasConsultantTheme(consultant: ConsultantProfile) {
+  return Boolean(getConsultantThemeVisual(consultant.theme));
 }
 
 function formatBookingStatusLabel(status: Booking["status"]) {
@@ -2958,7 +2953,7 @@ export function ConsultantPage() {
   const isDemoConsultant = Boolean(consultant.isDemo);
   const hasProfileBanner = Boolean((consultant.heroUrl || "").trim());
   const themeStyle = getConsultantThemeStyle(consultant);
-  const themeLabel = getConsultantThemeLabel(consultant);
+  const hasTheme = hasConsultantTheme(consultant);
   const profileSummary =
     consultant.bio || consultant.experienceSummary || getConsultantWorkApproach(consultant);
   const profileSignals = Array.from(
@@ -3061,7 +3056,7 @@ export function ConsultantPage() {
           <article
             className={`profile-stage__main ${
               hasProfileBanner ? "profile-stage__main--with-cover" : "profile-stage__main--no-cover"
-            } ${themeLabel ? "profile-stage__main--themed" : ""}`}
+            } ${hasTheme ? "profile-stage__main--themed" : ""}`}
             style={themeStyle}
           >
             {hasProfileBanner ? (
@@ -3090,9 +3085,6 @@ export function ConsultantPage() {
                   <span className={consultant.featured ? "status-badge" : "plan-pill"}>
                     {consultant.featured ? "Подбран профил" : "Активен профил"}
                   </span>
-                  {themeLabel ? (
-                    <span className="theme-pill">Pro тема · {themeLabel}</span>
-                  ) : null}
                 </div>
 
                 <div>
@@ -6252,12 +6244,12 @@ function ConsultantCard({
     ])
   ).slice(0, 2);
   const themeStyle = getConsultantThemeStyle(consultant);
-  const themeLabel = getConsultantThemeLabel(consultant);
+  const hasTheme = hasConsultantTheme(consultant);
 
   return (
     <Link
       className={`consultant-card consultant-card--link ${
-        themeLabel ? "consultant-card--themed" : ""
+        hasTheme ? "consultant-card--themed" : ""
       }`}
       style={themeStyle}
       to={`/consultants/${consultant.slug}`}
@@ -6278,9 +6270,6 @@ function ConsultantCard({
               <span className={consultant.featured ? "status-badge" : "plan-pill"}>
                 {consultant.featured ? "Подбран профил" : "Активен профил"}
               </span>
-              {themeLabel ? (
-                <span className="theme-pill">Pro тема · {themeLabel}</span>
-              ) : null}
               {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
             </div>
             <h3>{consultant.name}</h3>
@@ -6359,36 +6348,20 @@ function HomeHeroProfile({
   variant: "primary" | "secondary";
 }) {
   const isPrimary = variant === "primary";
-  const hasBanner = Boolean((consultant.heroUrl || "").trim());
   const profileTypeLabel = formatConsultantTypeLabel(getConsultantProfileType(consultant));
   const summaryTags = getConsultantSummaryTags(consultant);
   const themeStyle = getConsultantThemeStyle(consultant);
-  const themeLabel = getConsultantThemeLabel(consultant);
+  const hasTheme = hasConsultantTheme(consultant);
 
   return (
     <Link
-      className={`home-hero-profile home-hero-profile--${variant} ${
-        hasBanner ? "home-hero-profile--has-cover" : "home-hero-profile--no-cover"
-      } ${themeLabel ? "home-hero-profile--themed" : ""}`}
+      className={`home-hero-profile home-hero-profile--${variant} home-hero-profile--no-cover ${
+        hasTheme ? "home-hero-profile--themed" : ""
+      }`}
       style={themeStyle}
       to={`/consultants/${consultant.slug}`}
     >
-      {hasBanner ? (
-        <div
-          className={`home-hero-profile__media ${
-            isPrimary ? "" : "home-hero-profile__media--secondary"
-          }`}
-        >
-          <CoverMedia
-            src={consultant.heroUrl}
-            name={consultant.name}
-            className="home-hero-profile__image"
-            eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
-            title={consultant.name}
-            subtitle={consultant.headline}
-          />
-        </div>
-      ) : !isPrimary ? (
+      {!isPrimary ? (
         <AvatarMedia
           className="home-hero-profile__avatar"
           src={consultant.avatarUrl}
@@ -6410,7 +6383,6 @@ function HomeHeroProfile({
               <span className={consultant.featured ? "status-badge status-badge--success" : "plan-pill"}>
                 {consultant.featured ? `Подбран ${profileTypeLabel.toLowerCase()}` : profileTypeLabel}
               </span>
-              {themeLabel ? <span className="theme-pill">Pro тема</span> : null}
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
@@ -6603,12 +6575,12 @@ function ConsultantCardSkeleton() {
 function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
   const hasBanner = Boolean((consultant.heroUrl || "").trim());
   const themeStyle = getConsultantThemeStyle(consultant);
-  const themeLabel = getConsultantThemeLabel(consultant);
+  const hasTheme = hasConsultantTheme(consultant);
 
   return (
     <Link
       className={`hero-spotlight-card ${hasBanner ? "" : "hero-spotlight-card--no-cover"} ${
-        themeLabel ? "hero-spotlight-card--themed" : ""
+        hasTheme ? "hero-spotlight-card--themed" : ""
       }`}
       style={themeStyle}
       to={`/consultants/${consultant.slug}`}
@@ -6633,7 +6605,6 @@ function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
           <div>
             <div className="hero-spotlight-card__badges">
               <span className="status-badge status-badge--success">Подбран профил</span>
-              {themeLabel ? <span className="theme-pill">Pro тема · {themeLabel}</span> : null}
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
@@ -6663,11 +6634,11 @@ function DirectorySpotlightCard({
   index: number;
 }) {
   const themeStyle = getConsultantThemeStyle(consultant);
-  const themeLabel = getConsultantThemeLabel(consultant);
+  const hasTheme = hasConsultantTheme(consultant);
 
   return (
     <Link
-      className={`directory-spotlight ${themeLabel ? "directory-spotlight--themed" : ""}`}
+      className={`directory-spotlight ${hasTheme ? "directory-spotlight--themed" : ""}`}
       style={themeStyle}
       to={`/consultants/${consultant.slug}`}
     >
@@ -6683,7 +6654,6 @@ function DirectorySpotlightCard({
             ? "Подбран профил"
             : `Профил ${String(index + 1).padStart(2, "0")}`}
         </span>
-        {themeLabel ? <span className="theme-pill directory-spotlight__theme">Pro тема</span> : null}
         <strong>{consultant.name}</strong>
         <p>{consultant.headline}</p>
         <div className="directory-spotlight__meta">

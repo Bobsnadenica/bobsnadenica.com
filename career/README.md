@@ -567,7 +567,7 @@ The local fallback catalogue in `src/lib/demo-data.ts` includes seeded demo cons
 - The demo images use generic generated avatars or neutral placeholder photography, not copyrighted character artwork.
 - Consultant profiles can include an optional `theme` field.
 - Supported theme values are `violet`, `sky`, `rose`, `mint`, and `amber`.
-- The current UI renders themed consultant cards, hero profiles, spotlight rows, and public profile pages with a small Pro theme marker.
+- The current UI can render themed consultant cards, hero profiles, spotlight rows, and public profile pages through color treatment only; public cards do not show paid-feature copy.
 - The backend only persists a consultant `theme` when the consultant's account plan is `pro`; free saved profiles are normalized back to the standard theme.
 - Theme editing/gating still needs the paid-plan control flow before real users can choose themes in production.
 
