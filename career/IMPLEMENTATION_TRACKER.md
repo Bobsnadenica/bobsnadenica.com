@@ -788,6 +788,9 @@ Status: In progress. This pass improves readiness, but the project is **not yet 
 
 ## Production Readiness And Security Pass Change Log
 
+- 2026-05-12: Improved profile photo presentation so consultant avatars render as larger portrait blocks on homepage hero cards, directory cards, spotlight cards, and public profile headers instead of feeling like small square thumbnails.
+- 2026-05-12: Moved review count text such as `22 мнения` out of the cramped separate rating column and into a normal review chip inside consultant card identity content.
+- 2026-05-12: Added visible AI/test labels for demo consultant and demo user accounts: `AI тестов профил` and `AI тестов потребител`.
 - 2026-05-12: Extended repository hygiene guardrails to block Terraform local state, `terraform.tfvars`, Terraform plan files, `.terraform/`, and `.terraform-build/` packaged deployment artifacts.
 - 2026-05-12: Extended repository hygiene guardrails to ignore and block local `.env.local` / `.env.*.local` override files while keeping intentional Vite public environment templates/artifacts separate.
 - 2026-05-12: Removed tracked `infra/terraform/terraform.tfvars` and `infra/terraform/.terraform-build/careerdoc-api.zip` from the Git index while keeping local files on disk.
@@ -823,8 +826,10 @@ Status: In progress. This pass improves readiness, but the project is **not yet 
   - Adds Lambda permission for DynamoDB transactional writes.
 - `src/app/legacy/SiteAppLegacy.tsx`
   - Replaces the hash-anchor catalogue button with a scroll button so HashRouter stays on `/consultants`.
+  - Adds AI/test badges for demo accounts and moves consultant card reviews into a non-overlapping chip row.
 - `src/styles/global.css`
   - Removes negative letter spacing and viewport-driven font-size scaling.
+  - Enlarges avatar/profile-photo treatments and adds demo/review badge styling.
 - `infra/terraform/terraform.tfvars`
   - Removed from Git tracking; remains local and ignored.
 - `infra/terraform/.terraform-build/careerdoc-api.zip`
@@ -843,10 +848,14 @@ Status: In progress. This pass improves readiness, but the project is **not yet 
   - `/career/#/consultants` renders `Каталог на профили | CareerLane`, shows meaningful catalogue content, and has no console warnings/errors.
   - Clicking `Виж профилите` on `/consultants` now keeps the URL on `#/consultants`, scrolls to the catalogue controls, and does not show the 404 page.
   - `/career/#/auth?tab=register&role=consultant` renders `Вход и регистрация | CareerLane`, preselects the consultant flow, and has no console warnings/errors.
+  - `/career/#/consultants` shows `AI тестов профил` labels and review-count chips without console warnings/errors.
+  - `/career/#/users` shows `AI тестов потребител` labels for demo users and `AI тестов профил` labels for matched demo consultants without console warnings/errors.
+  - `/career/#/consultants/blossom-utonium-demo` shows the larger public-profile avatar plus the AI/test label without console warnings/errors.
 - Static GitHub-Pages-style QA:
   - Served the parent `bobsnadenica.com` folder and opened `http://127.0.0.1:8000/career/index.html#/consultants`.
   - Static `/career/index.html` rendered `Каталог на профили | CareerLane`, loaded the generated CSS/JS assets, and had no console warnings/errors.
   - The static catalogue `Виж профилите` button stayed on `#/consultants`, exposed the catalogue controls, and did not show the 404 page.
+  - Static `/career/index.html#/consultants/blossom-utonium-demo` rendered the larger public-profile avatar and `AI тестов профил` label without console warnings/errors.
 
 ## Remaining Production Blockers
 

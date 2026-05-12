@@ -1053,6 +1053,14 @@ function AvatarMedia({
   );
 }
 
+function DemoAccountBadge({ kind = "profile" }: { kind?: "profile" | "user" }) {
+  return (
+    <span className="demo-account-badge">
+      {kind === "user" ? "AI тестов потребител" : "AI тестов профил"}
+    </span>
+  );
+}
+
 function CoverMedia({
   src,
   name,
@@ -3093,6 +3101,7 @@ export function ConsultantPage() {
                   <span className={consultant.featured ? "status-badge" : "plan-pill"}>
                     {consultant.featured ? "Подбран профил" : "Активен профил"}
                   </span>
+                  {consultant.isDemo ? <DemoAccountBadge /> : null}
                 </div>
 
                 <div>
@@ -6278,19 +6287,19 @@ function ConsultantCard({
               <span className={consultant.featured ? "status-badge" : "plan-pill"}>
                 {consultant.featured ? "Подбран профил" : "Активен профил"}
               </span>
+              {consultant.isDemo ? <DemoAccountBadge /> : null}
               {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
+            </div>
+            <div className="consultant-card__review-row">
+              <span className="rating-pill">
+                {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
+              </span>
+              <span className="review-count-pill">
+                {consultant.reviewCount ? `${consultant.reviewCount} мнения` : "нов профил"}
+              </span>
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
-          </div>
-
-          <div className="consultant-card__rating">
-            <span className="rating-pill">
-              {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
-            </span>
-            <small>
-              {consultant.reviewCount ? `${consultant.reviewCount} мнения` : "нов профил"}
-            </small>
           </div>
         </div>
 
@@ -6391,6 +6400,7 @@ function HomeHeroProfile({
               <span className={consultant.featured ? "status-badge status-badge--success" : "plan-pill"}>
                 {consultant.featured ? `Подбран ${profileTypeLabel.toLowerCase()}` : profileTypeLabel}
               </span>
+              {consultant.isDemo ? <DemoAccountBadge /> : null}
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
@@ -6613,6 +6623,7 @@ function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
           <div>
             <div className="hero-spotlight-card__badges">
               <span className="status-badge status-badge--success">Подбран профил</span>
+              {consultant.isDemo ? <DemoAccountBadge /> : null}
             </div>
             <h3>{consultant.name}</h3>
             <p>{consultant.headline}</p>
@@ -6662,6 +6673,7 @@ function DirectorySpotlightCard({
             ? "Подбран профил"
             : `Профил ${String(index + 1).padStart(2, "0")}`}
         </span>
+        {consultant.isDemo ? <DemoAccountBadge /> : null}
         <strong>{consultant.name}</strong>
         <p>{consultant.headline}</p>
         <div className="directory-spotlight__meta">
@@ -6688,7 +6700,10 @@ function DemoUserProfileCard({
     <article className={`demo-user-card ${isActive ? "demo-user-card--active" : ""}`}>
       <div className="demo-user-card__header">
         <div>
-          <span className="role-experience-card__eyebrow">Профил</span>
+          <div className="demo-user-card__labels">
+            <span className="role-experience-card__eyebrow">Профил</span>
+            {profile.isDemo ? <DemoAccountBadge kind="user" /> : null}
+          </div>
           <h3>{profile.name}</h3>
         </div>
         <button

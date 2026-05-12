@@ -344,7 +344,9 @@ main {
 .user-chip,
 .status-badge,
 .chip,
-.plan-pill {
+.plan-pill,
+.demo-account-badge,
+.review-count-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -388,7 +390,9 @@ main {
 .user-chip,
 .status-badge,
 .chip,
-.plan-pill {
+.plan-pill,
+.demo-account-badge,
+.review-count-pill {
   background: rgba(255, 255, 255, 0.92);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
@@ -493,7 +497,9 @@ main {
 }
 
 .status-badge,
-.plan-pill {
+.plan-pill,
+.demo-account-badge,
+.review-count-pill {
   font-size: 0.8rem;
   font-weight: 800;
 }
@@ -506,6 +512,21 @@ main {
 
 .plan-pill {
   color: var(--text-soft);
+}
+
+.demo-account-badge {
+  min-height: 34px;
+  padding: 0 12px;
+  color: #6b3d10;
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.review-count-pill {
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .status-badge--success,
@@ -1137,11 +1158,12 @@ textarea {
 }
 
 .home-hero-profile__avatar {
-  width: 74px;
-  height: 74px;
-  border-radius: 20px;
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
   object-fit: cover;
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+  object-position: center 16%;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
 }
 
 .home-hero-profile h3,
@@ -1208,8 +1230,8 @@ textarea {
 }
 
 .home-hero-profile--secondary .home-hero-profile__avatar {
-  width: 78px;
-  height: 78px;
+  width: 92px;
+  height: 92px;
 }
 
 .home-hero-profile--secondary h3 {
@@ -1919,9 +1941,9 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
-  height: 52px;
-  border-radius: 18px;
+  min-width: 48px;
+  height: 42px;
+  border-radius: 999px;
   background: linear-gradient(180deg, #5f7b71 0%, #324840 100%);
   color: white;
   font-weight: 800;
@@ -2630,7 +2652,7 @@ textarea {
 
 .directory-spotlight {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) auto;
+  grid-template-columns: 104px minmax(0, 1fr) auto;
   gap: 14px;
   align-items: start;
   padding: 16px;
@@ -2662,11 +2684,11 @@ textarea {
 }
 
 .directory-spotlight__avatar {
-  width: 88px;
-  height: 68px;
-  border-radius: 20px;
+  width: 104px;
+  height: 104px;
+  border-radius: 28px;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 16%;
 }
 
 .directory-spotlight__label {
@@ -2675,6 +2697,19 @@ textarea {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.directory-spotlight .demo-account-badge {
+  width: fit-content;
+  margin-top: 6px;
+}
+
+.demo-user-card__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .directory-spotlight__theme {
@@ -2784,19 +2819,19 @@ textarea {
 
 .consultant-card__header {
   display: grid;
-  grid-template-columns: 136px minmax(0, 1fr) auto;
+  grid-template-columns: 148px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
 }
 
 .consultant-card__avatar {
-  width: 136px;
-  height: 104px;
+  width: 148px;
+  height: 148px;
   min-height: 0;
-  aspect-ratio: 17 / 13;
-  border-radius: 26px;
+  aspect-ratio: 1 / 1;
+  border-radius: 32px;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 16%;
   justify-self: start;
   box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
 }
@@ -2808,7 +2843,6 @@ textarea {
 }
 
 .consultant-card__identity p,
-.consultant-card__rating small,
 .consultant-card__fact-grid article,
 .profile-stage__headline {
   margin: 0;
@@ -2831,11 +2865,12 @@ textarea {
   -webkit-line-clamp: 3;
 }
 
-.consultant-card__rating {
-  display: grid;
-  justify-items: end;
+.consultant-card__review-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  text-align: right;
+  margin-bottom: 10px;
 }
 
 .consultant-card__match {
@@ -2979,18 +3014,18 @@ textarea {
 }
 
 .hero-spotlight-card__header {
-  grid-template-columns: 84px minmax(0, 1fr);
+  grid-template-columns: 104px minmax(0, 1fr);
   align-items: start;
 }
 
 .hero-spotlight-card__avatar {
-  width: 84px;
-  height: 84px;
-  border-radius: 24px;
+  width: 104px;
+  height: 104px;
+  border-radius: 30px;
   border: 3px solid rgba(255, 255, 255, 0.92);
   box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 16%;
 }
 
 .hero-spotlight-card__header h3,
@@ -3045,11 +3080,11 @@ textarea {
 
 .profile-stage__content {
   display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
+  grid-template-columns: 176px minmax(0, 1fr);
   gap: 24px;
-  align-items: end;
+  align-items: start;
   padding: 0 28px 28px;
-  margin-top: -56px;
+  margin-top: -72px;
 }
 
 .profile-stage__main--no-cover .profile-stage__content {
@@ -3059,14 +3094,14 @@ textarea {
 }
 
 .profile-stage__avatar {
-  width: 148px;
-  height: 148px;
-  border-radius: 36px;
+  width: 176px;
+  height: 176px;
+  border-radius: 42px;
   border: 6px solid rgba(255, 255, 255, 0.96);
   background: white;
   box-shadow: 0 22px 40px rgba(15, 23, 42, 0.14);
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 16%;
 }
 
 .profile-stage__headline {
@@ -5343,22 +5378,18 @@ textarea {
   .consultant-card__avatar {
     width: 100%;
     max-width: 176px;
-    height: 128px;
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
 
   .directory-spotlight__avatar {
     width: 88px;
-    height: 68px;
+    height: 88px;
   }
 
   .profile-stage__avatar {
-    width: 112px;
-    height: 112px;
-  }
-
-  .consultant-card__rating {
-    justify-items: start;
-    text-align: left;
+    width: 132px;
+    height: 132px;
   }
 
   .demo-user-card__header {
@@ -5503,9 +5534,9 @@ textarea {
   }
 
   .home-hero-profile__avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 18px;
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
   }
 
   .home-hero-profile h3 {
@@ -5517,7 +5548,7 @@ textarea {
   }
 
   .home-hero-profile--secondary {
-    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-columns: 76px minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
   }
