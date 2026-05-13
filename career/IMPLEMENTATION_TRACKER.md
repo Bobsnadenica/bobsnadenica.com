@@ -1003,6 +1003,37 @@ Status: In progress. This pass improves readiness, but the project is **not yet 
   - The static catalogue `Виж профилите` button stayed on `#/consultants`, exposed the catalogue controls, and did not show the 404 page.
   - Static `/career/index.html#/consultants/blossom-utonium-demo` rendered the larger public-profile avatar and `AI тестов профил` label without console warnings/errors.
 
+## Mobile Hero Avatar Crop Polish
+
+Started: 2026-05-13
+
+Scope:
+
+- Fix the mobile homepage hero profile cards where the first avatar left too much dead space below the media area.
+- Stop square and landscape avatar uploads from being aggressively cropped and zoomed in on public profile surfaces.
+- Keep the current avatar-only front-page direction, with no hero/banner media on those two profile cards.
+
+Status: Completed for this slice.
+
+Change Log:
+
+- 2026-05-13: Added aspect-ratio detection in `AvatarMedia` so rendered profile images receive portrait, square, or landscape classes after load.
+- 2026-05-13: Kept portrait avatars as filled portrait treatments, while square and landscape uploads now use contained presentation inside the same frame instead of face-cutting cover crops.
+- 2026-05-13: Reworked the mobile homepage hero profile card sizing so both top profile cards use the same larger avatar frame and the secondary card no longer stretches the avatar to the full card height.
+- 2026-05-13: Rebuilt the static deploy artifact for `/career/index.html` so GitHub Pages serves the updated avatar CSS and component code.
+
+QA Notes:
+
+- Build: `npm run build` passes and emits `/career/assets/index-DH7JQZfN.css` plus `/career/assets/index-Fl6H--G1.js`.
+- Static Browser QA:
+  - `/career/index.html?qa=avatar-mobile-polish#/` rendered `Начало | CareerLane` with meaningful homepage content and no console warnings/errors in the in-app browser.
+  - Headless mobile screenshot at `390x1600` showed the first hero avatar card without the previous large dead area, and the second square/DiceBear avatar displayed contained rather than zoomed/cropped.
+
+Next:
+
+- Add a real upload preview/crop-position control in profile editing so users can choose how portrait, square, and landscape images are framed before publishing.
+- Add automated route screenshot checks for the homepage hero cards at mobile width once the static browser smoke-test suite is added to CI.
+
 ## Remaining Production Blockers
 
 - Deploy/apply required:

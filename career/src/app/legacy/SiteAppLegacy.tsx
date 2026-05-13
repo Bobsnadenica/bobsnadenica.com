@@ -1028,26 +1028,42 @@ function AvatarMedia({
   className: string;
 }) {
   const [failed, setFailed] = useState(false);
+  const [aspect, setAspect] = useState<"unknown" | "portrait" | "landscape" | "square">("unknown");
   const resolvedSrc = src && !failed ? resolvePublicUrl(src) : "";
 
   useEffect(() => {
     setFailed(false);
+    setAspect("unknown");
   }, [src]);
 
   if (resolvedSrc) {
+    const imageClassName = `${className} avatar-media avatar-media--${aspect}`;
+
     return (
       <img
-        className={className}
+        className={imageClassName}
         src={resolvedSrc}
         alt={name}
         decoding="async"
+        onLoad={(event) => {
+          const image = event.currentTarget;
+          const ratio = image.naturalWidth / Math.max(image.naturalHeight, 1);
+
+          if (ratio > 1.12) {
+            setAspect("landscape");
+          } else if (ratio < 0.86) {
+            setAspect("portrait");
+          } else {
+            setAspect("square");
+          }
+        }}
         onError={() => setFailed(true)}
       />
     );
   }
 
   return (
-    <div className={`${className} visual-avatar`} aria-label={name}>
+    <div className={`${className} avatar-media avatar-media--fallback visual-avatar`} aria-label={name}>
       <span>{getNameInitials(name)}</span>
     </div>
   );

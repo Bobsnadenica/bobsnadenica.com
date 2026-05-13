@@ -1145,7 +1145,7 @@ textarea {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 14px;
-  align-items: start;
+  align-items: center;
   min-width: 0;
 }
 
@@ -1217,7 +1217,7 @@ textarea {
 .home-hero-profile--secondary {
   grid-template-columns: 118px minmax(0, 1fr);
   gap: 14px;
-  align-items: stretch;
+  align-items: center;
   padding: 14px;
 }
 
@@ -1231,9 +1231,9 @@ textarea {
 
 .home-hero-profile--secondary .home-hero-profile__avatar {
   width: 100%;
-  height: 100%;
-  min-height: 148px;
-  align-self: stretch;
+  height: 148px;
+  min-height: 0;
+  align-self: center;
 }
 
 .home-hero-profile--secondary h3 {
@@ -3289,6 +3289,21 @@ img.user-match-card__avatar {
   object-fit: cover;
   object-position: center 24%;
   background: white;
+}
+
+img.avatar-media--landscape,
+img.avatar-media--square {
+  object-fit: contain;
+  object-position: center;
+  padding: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 248, 0.98)),
+    white;
+}
+
+img.home-hero-profile__avatar.avatar-media--landscape,
+img.home-hero-profile__avatar.avatar-media--square {
+  padding: 6px;
 }
 
 .profile-actions {
@@ -5657,17 +5672,25 @@ img.user-match-card__avatar {
   }
 
   .home-hero-profile__header {
+    grid-template-columns: 104px minmax(0, 1fr);
     gap: 12px;
   }
 
   .home-hero-profile__avatar {
-    width: 84px;
-    height: 106px;
-    border-radius: 26px;
+    width: 104px;
+    height: 132px;
+    border-radius: 28px;
   }
 
   .home-hero-profile h3 {
     font-size: 1.16rem;
+  }
+
+  .home-hero-profile p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 
   .home-hero-profile--primary .home-hero-profile__details {
@@ -5675,13 +5698,14 @@ img.user-match-card__avatar {
   }
 
   .home-hero-profile--secondary {
-    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-columns: 104px minmax(0, 1fr);
     gap: 12px;
     padding: 12px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__avatar {
-    min-height: 106px;
+    height: 132px;
+    min-height: 0;
   }
 
   .home-hero-profile--secondary .home-hero-profile__body {
