@@ -5570,7 +5570,7 @@ img.home-hero-profile__avatar.avatar-media--square {
   }
 
   .container {
-    margin-left: 11px;
+    margin-left: auto;
     margin-right: auto;
   }
 
@@ -5663,23 +5663,41 @@ img.home-hero-profile__avatar.avatar-media--square {
     gap: 12px;
   }
 
+  .home-hero-profile,
+  .home-hero-profile--secondary {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
   .home-hero-profile {
     border-radius: 20px;
   }
 
   .home-hero-profile__body {
+    width: 100%;
+    justify-items: center;
     padding: 16px;
   }
 
   .home-hero-profile__header {
-    grid-template-columns: 104px minmax(0, 1fr);
+    grid-template-columns: 1fr;
+    justify-items: center;
     gap: 12px;
+    text-align: center;
   }
 
   .home-hero-profile__avatar {
     width: 104px;
     height: 132px;
     border-radius: 28px;
+    justify-self: center;
+  }
+
+  .home-hero-profile__badges,
+  .home-hero-profile__details,
+  .home-hero-profile__meta {
+    justify-content: center;
   }
 
   .home-hero-profile h3 {
@@ -5698,12 +5716,12 @@ img.home-hero-profile__avatar.avatar-media--square {
   }
 
   .home-hero-profile--secondary {
-    grid-template-columns: 104px minmax(0, 1fr);
     gap: 12px;
-    padding: 12px;
+    padding: 16px;
   }
 
   .home-hero-profile--secondary .home-hero-profile__avatar {
+    width: 104px;
     height: 132px;
     min-height: 0;
   }
@@ -5714,7 +5732,41 @@ img.home-hero-profile__avatar.avatar-media--square {
 
   .home-hero-profile__meta {
     display: grid;
-    justify-content: stretch;
+    justify-content: center;
+  }
+
+  .consultant-card {
+    text-align: center;
+  }
+
+  .consultant-card__body {
+    justify-items: stretch;
+  }
+
+  .consultant-card__header,
+  .consultant-card__identity {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .consultant-card__avatar {
+    justify-self: center;
+  }
+
+  .consultant-card__status-row,
+  .consultant-card__review-row,
+  .consultant-card__topics,
+  .consultant-card__slots {
+    justify-content: center;
+  }
+
+  .consultant-card__summary,
+  .consultant-card__footer-copy {
+    text-align: left;
+  }
+
+  .consultant-card__footer {
+    justify-content: center;
   }
 
   .directory-controls {

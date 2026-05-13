@@ -16,6 +16,11 @@ Car Vinetka - Expires December 27, 2026
 Contacts:
 A1 - Expires May 1, 2027
 
+Work:
+AWS Certified Solutions Architect Associate - Expires April 18,2029
+AWS Certified Cloud Practitioner - Expires April 18,2029
+Microsoft Certified: Azure Fundamentals - Expires never
+
 
 
 Random:

@@ -1034,6 +1034,38 @@ Next:
 - Add a real upload preview/crop-position control in profile editing so users can choose how portrait, square, and landscape images are framed before publishing.
 - Add automated route screenshot checks for the homepage hero cards at mobile width once the static browser smoke-test suite is added to CI.
 
+## Mobile Profile Card Centering Polish
+
+Started: 2026-05-13
+
+Scope:
+
+- Make the phone layout feel intentionally centered instead of squeezed into a desktop-style side-by-side card.
+- Center homepage hero consultant/mentor avatars, badges, titles, and metadata on narrow screens.
+- Center consultant catalogue card headers, avatar blocks, badges, review pills, and actions on narrow screens while preserving readable left-aligned long summary copy.
+
+Status: Completed for this slice.
+
+Change Log:
+
+- 2026-05-13: Re-centered the mobile container instead of forcing a left margin.
+- 2026-05-13: Changed mobile homepage hero profile cards to a one-column centered layout with consistent avatar sizing for both top profile choices.
+- 2026-05-13: Changed mobile consultant cards to center their profile header, avatar, status chips, review chips, topic chips, slots, and footer action.
+- 2026-05-13: Rebuilt the static deploy artifact for `/career/index.html` so GitHub Pages serves the centered mobile CSS.
+
+QA Notes:
+
+- Build: `npm run build` passes and emits `/career/assets/index-BxMoGNXi.css` plus `/career/assets/index-DZPqyWRM.js`.
+- Static Browser QA:
+  - `/career/index.html?qa=mobile-centered#/` rendered `Начало | CareerLane` with meaningful homepage content and no console warnings/errors.
+  - `/career/index.html?qa=mobile-centered#/consultants` rendered `Каталог на профили | CareerLane` with meaningful catalogue content and no console warnings/errors.
+  - Narrow screenshots at `500x1600` showed centered homepage hero profile cards and centered consultant catalogue profile headers/actions.
+
+Next:
+
+- Re-check on a real iPhone/Safari session after deploy because desktop headless Chrome uses slightly different viewport behavior from the user's phone browser.
+- Continue mobile polish on auth, dashboard, and profile editing after the public profile-card surfaces are stable.
+
 ## Remaining Production Blockers
 
 - Deploy/apply required:
