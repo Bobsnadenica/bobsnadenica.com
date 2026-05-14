@@ -37,30 +37,14 @@ const primaryNavigation = [
   { to: "/users", label: "За потребители" }
 ] as const;
 
-const footerPlatformLinks = [
+const footerLinks = [
+  { to: "/consultants", label: "Каталог" },
   { to: "/users", label: "За потребители" },
-  { to: "/consultants", label: "Каталог на профили" },
-  { to: "/auth", label: "Вход и регистрация" },
-  { to: "/dashboard", label: "Моето табло" }
-] as const;
-
-const footerCompanyLinks = [
+  { to: "/auth", label: "Вход" },
   { to: "/about", label: "За нас" },
   { to: "/faq", label: "FAQ" },
-  { to: "/contact", label: "Контакти" }
-] as const;
-
-const footerLegalLinks = [
-  { to: "/legal", label: "Условия и поверителност" },
-  { to: "/legal", label: "Cookies и комуникации" },
-  { to: "/contact", label: "Правни запитвания" }
-] as const;
-
-const footerBottomLinks = [
-  { to: "/about", label: "За нас" },
-  { to: "/faq", label: "FAQ" },
-  { to: "/legal", label: "Правна информация" },
-  { to: "/contact", label: "Контакти" }
+  { to: "/contact", label: "Контакти" },
+  { to: "/legal", label: "Правна информация" }
 ] as const;
 
 function resolveDocumentTitle(pathname: string) {
@@ -244,10 +228,7 @@ export default function AppShell() {
         <div className="container site-header__inner">
           <Link className="brand-link" to="/">
             {brandMark()}
-            <div>
-              <strong>{config.appName}</strong>
-              <span>Професионална мрежа за кариерно позициониране</span>
-            </div>
+            <strong>{config.appName}</strong>
           </Link>
 
           <nav className="site-nav" aria-label="Основна навигация">
@@ -312,55 +293,12 @@ export default function AppShell() {
       </main>
 
       <footer className="site-footer">
-        <div className="container footer-grid">
-          <div className="footer-brand">
-            <h3>{config.appName}</h3>
-            <p>
-              Професионална платформа за консултации, позициониране и по-ясна следваща
-              стъпка в кариерата.
-            </p>
-            <p className="footer-note">
-              Създадена за по-ясен избор на консултант, по-добро професионално
-              присъствие и по-подреден работен процес.
-            </p>
-          </div>
-          <div className="footer-column">
-            <h4>Платформа</h4>
-            <ul className="footer-links">
-              {footerPlatformLinks.map((item) => (
-                <li key={`${item.to}-${item.label}`}>
-                  <Link to={item.to}>{item.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="footer-column">
-            <h4>Компания</h4>
-            <ul className="footer-links">
-              {footerCompanyLinks.map((item) => (
-                <li key={item.to}>
-                  <Link to={item.to}>{item.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="footer-column">
-            <h4>Правна информация</h4>
-            <ul className="footer-links">
-              {footerLegalLinks.map((item) => (
-                <li key={`${item.to}-${item.label}`}>
-                  <Link to={item.to}>{item.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
         <div className="container footer-bottom">
           <span>
-            {currentYear} {config.appName}. Всички права запазени.
+            © {currentYear} {config.appName}
           </span>
           <div className="footer-bottom__links">
-            {footerBottomLinks.map((item) => (
+            {footerLinks.map((item) => (
               <Link key={`${item.to}-${item.label}`} to={item.to}>
                 {item.label}
               </Link>

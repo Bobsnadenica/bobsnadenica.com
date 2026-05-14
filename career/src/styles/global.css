@@ -35,27 +35,9 @@ body {
   font-family: "Manrope", "Segoe UI", sans-serif;
   color: var(--text);
   overflow-wrap: break-word;
-  background:
-    radial-gradient(circle at top left, rgba(75, 106, 96, 0.14), transparent 24%),
-    radial-gradient(circle at 92% 0%, rgba(127, 143, 137, 0.12), transparent 20%),
-    radial-gradient(circle at 85% 35%, rgba(94, 113, 106, 0.08), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0) 30%),
-    linear-gradient(180deg, #edf1ee 0%, #f6f8f6 18%, #ffffff 46%);
+  background: var(--bg);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.14), transparent 36%);
-  pointer-events: none;
-  z-index: -1;
 }
 
 a {
@@ -111,9 +93,7 @@ summary:focus-visible {
 }
 
 .site-shell--signing-out {
-  opacity: 0.74;
-  transform: translateY(6px) scale(0.996);
-  filter: saturate(0.92) blur(1px);
+  opacity: 0.7;
   pointer-events: none;
 }
 
@@ -159,61 +139,6 @@ main {
 .page-scene {
   position: relative;
   min-width: 0;
-  overflow-x: clip;
-  isolation: isolate;
-  animation: pageSceneFade 360ms ease both;
-}
-
-.page-scene > * {
-  position: relative;
-  z-index: 1;
-}
-
-.page-scene::before,
-.page-scene::after {
-  content: "";
-  position: absolute;
-  border-radius: 999px;
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(8px);
-  opacity: 0.9;
-  animation: pageGlowDrift 14s ease-in-out infinite;
-}
-
-.page-scene::before {
-  inset: -90px auto auto -80px;
-  width: 300px;
-  height: 300px;
-}
-
-.page-scene::after {
-  inset: 120px -110px auto auto;
-  width: 340px;
-  height: 340px;
-  animation-direction: reverse;
-}
-
-.page-scene--home::before,
-.page-scene--directory::before,
-.page-scene--auth::before {
-  background: radial-gradient(circle, rgba(75, 106, 96, 0.18), transparent 68%);
-}
-
-.page-scene--home::after,
-.page-scene--consultant::after,
-.page-scene--dashboard::after {
-  background: radial-gradient(circle, rgba(127, 143, 137, 0.18), transparent 70%);
-}
-
-.page-scene--company::before,
-.page-scene--support::before {
-  background: radial-gradient(circle, rgba(104, 124, 116, 0.14), transparent 68%);
-}
-
-.page-scene--fallback::before,
-.page-scene--fallback::after {
-  background: radial-gradient(circle, rgba(100, 116, 139, 0.14), transparent 70%);
 }
 
 .site-header {
@@ -453,7 +378,7 @@ main {
   padding: 0 18px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(180deg, #5f7b71 0%, var(--primary) 100%);
+  background: var(--primary);
   color: white;
   font-size: 0.95rem;
   font-weight: 800;
@@ -463,12 +388,9 @@ main {
   line-height: 1;
   flex-shrink: 0;
   cursor: pointer;
-  box-shadow: 0 18px 34px rgba(75, 106, 96, 0.22);
-  position: relative;
-  overflow: hidden;
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease;
+    background-color 180ms ease,
+    transform 180ms ease;
 }
 
 .hero-actions > *,
@@ -486,22 +408,7 @@ main {
 }
 
 .primary-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 22px 40px rgba(75, 106, 96, 0.26);
-}
-
-.primary-button::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 -20%;
-  width: 42%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
-  transform: skewX(-18deg);
-  transition: transform 260ms ease;
-}
-
-.primary-button:hover::before {
-  transform: translateX(220%) skewX(-18deg);
+  background: var(--primary-dark);
 }
 
 .primary-button:disabled {
@@ -509,10 +416,6 @@ main {
   opacity: 0.72;
   transform: none;
   box-shadow: 0 12px 24px rgba(75, 106, 96, 0.12);
-}
-
-.primary-button:disabled::before {
-  display: none;
 }
 
 .status-badge,
@@ -4440,6 +4343,11 @@ img.home-hero-profile__avatar.avatar-media--square {
   align-items: start;
 }
 
+.auth-layout--single {
+  grid-template-columns: minmax(0, 560px);
+  justify-content: center;
+}
+
 .auth-card {
   display: grid;
   gap: 16px;
@@ -5035,29 +4943,6 @@ img.home-hero-profile__avatar.avatar-media--square {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes pageSceneFade {
-  from {
-    opacity: 0.72;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pageGlowDrift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(12px, -12px, 0) scale(1.04);
   }
 }
 
