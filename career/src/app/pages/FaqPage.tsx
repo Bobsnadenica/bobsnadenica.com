@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import PageScene from "../layout/PageScene";
 
@@ -45,6 +46,8 @@ const faqItems = [
 ] as const;
 
 export default function FaqPage() {
+  const [openQuestion, setOpenQuestion] = useState<string | null>(faqItems[0]?.question ?? null);
+
   return (
     <PageScene tone="support" pageKey="faq">
       <section className="hero">
@@ -83,12 +86,28 @@ export default function FaqPage() {
 
       <section className="section">
         <div className="container faq-list">
-          {faqItems.map((item, index) => (
-            <details className="faq-item" key={item.question} open={index === 0}>
-              <summary>{item.question}</summary>
-              <p>{item.answer}</p>
-            </details>
-          ))}
+          {faqItems.map((item) => {
+            const isOpen = openQuestion === item.question;
+
+            return (
+              <details
+                className="faq-item"
+                key={item.question}
+                open={isOpen}
+                onToggle={(event) => {
+                  const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
+                  if (nextOpen) {
+                    setOpenQuestion(item.question);
+                  } else if (isOpen) {
+                    setOpenQuestion(null);
+                  }
+                }}
+              >
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            );
+          })}
         </div>
       </section>
     </PageScene>

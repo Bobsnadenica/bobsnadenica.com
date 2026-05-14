@@ -36,7 +36,13 @@ function readStorageItem<T>(key: string) {
     return null;
   }
 
-  const raw = window.localStorage.getItem(key);
+  let raw: string | null = null;
+
+  try {
+    raw = window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 
   if (!raw) {
     return null;
@@ -50,14 +56,26 @@ function readStorageItem<T>(key: string) {
 }
 
 function writeStorageItem(key: string, value: unknown) {
-  if (typeof window !== "undefined") {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
     window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage may be unavailable (Safari private mode, quota, disabled).
   }
 }
 
 function removeStorageItem(key: string) {
-  if (typeof window !== "undefined") {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
     window.localStorage.removeItem(key);
+  } catch {
+    // Storage may be unavailable.
   }
 }
 

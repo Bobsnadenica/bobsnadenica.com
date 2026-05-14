@@ -134,7 +134,7 @@ export default function AppShell() {
 
     const timeout = window.setTimeout(() => {
       setIsRouteTransitioning(false);
-    }, 340);
+    }, 540);
 
     return () => {
       window.clearTimeout(timeout);
@@ -275,9 +275,9 @@ export default function AppShell() {
                 </button>
               </>
             ) : (
-              <Link className="ghost-button" to="/auth">
-                <span className="auth-label auth-label--full">Вход / Регистрация</span>
-                <span className="auth-label auth-label--short">Вход</span>
+              <Link className="ghost-button" to="/auth" aria-label="Вход и регистрация">
+                <span className="auth-label auth-label--full" aria-hidden="true">Вход / Регистрация</span>
+                <span className="auth-label auth-label--short" aria-hidden="true">Вход</span>
               </Link>
             )}
           </div>

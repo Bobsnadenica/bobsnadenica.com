@@ -5,12 +5,13 @@
   "start_url": "/career/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0a66c2",
+  "theme_color": "#4b6a60",
   "icons": [
     {
-      "src": "/career/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
+      "src": "/career/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }

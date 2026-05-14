@@ -26,7 +26,7 @@ async function copyBuildOutput({ keepDist }) {
   await cp(distAssetsDir, rootAssetsDir, { recursive: true });
   await cp(path.join(distDir, "index.html"), deployIndexPath);
 
-  const filesToCopy = ["manifest.json", "sw.js", "favicon.ico", "apple-touch-icon.png", "og-image.png"];
+  const filesToCopy = ["manifest.json", "sw.js", "favicon.svg"];
   const directoriesToCopy = ["demo-avatars"];
 
   for (const file of filesToCopy) {

@@ -46,7 +46,9 @@ export default function ContactPage() {
     }`;
     const body = `Име: ${form.name}\nИмейл: ${form.email}\nТема: ${form.topic}\n\nСъобщение:\n${form.details}`;
 
-    setMessage("Отваряме имейл клиента ти с подготвено съобщение.");
+    setMessage(
+      `Подготвихме съобщение към ${recipient}. Ако имейл клиентът ти не се отвори автоматично, копирай адреса и ни пиши директно.`
+    );
 
     if (typeof window !== "undefined") {
       window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -167,9 +169,9 @@ export default function ContactPage() {
             <p className="eyebrow">Насоки</p>
             <h2>Кога коя тема е правилният избор</h2>
             <ul className="page-list">
-              <li>Използвай `Обща поддръжка` за акаунт, достъп, вход и потребителски въпроси.</li>
-              <li>Използвай `Партньорства и реклама` за рекламната зона и employer branding формати.</li>
-              <li>Използвай `Правни и данни` за privacy заявки, условия и административни въпроси.</li>
+              <li>Използвай „Обща поддръжка" за акаунт, достъп, вход и потребителски въпроси.</li>
+              <li>Използвай „Партньорства и реклама" за рекламната зона и employer branding формати.</li>
+              <li>Използвай „Правни и данни" за privacy заявки, условия и административни въпроси.</li>
             </ul>
           </aside>
         </div>

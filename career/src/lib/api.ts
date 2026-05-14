@@ -94,6 +94,8 @@ function requireBackend() {
   }
 }
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   requireBackend();
 
@@ -107,10 +109,35 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${config.apiBaseUrl}${path}`, {
-    ...options,
-    headers
-  });
+  const controller = new AbortController();
+  const externalSignal = options.signal;
+
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort();
+    } else {
+      externalSignal.addEventListener("abort", () => controller.abort(), { once: true });
+    }
+  }
+
+  const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${config.apiBaseUrl}${path}`, {
+      ...options,
+      headers,
+      signal: controller.signal
+    });
+  } catch (value) {
+    if (controller.signal.aborted && !externalSignal?.aborted) {
+      throw new Error("Сървърът не отговаря навреме. Опитай отново след малко.");
+    }
+    throw value;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const text = await response.text();

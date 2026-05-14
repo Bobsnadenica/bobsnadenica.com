@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 import PageScene from "../layout/PageScene";
 
+const LEGAL_LAST_UPDATED_ISO = "2026-05-14";
+
+const legalLastUpdatedLabel = new Intl.DateTimeFormat("bg-BG", {
+  day: "numeric",
+  month: "long",
+  year: "numeric"
+}).format(new Date(LEGAL_LAST_UPDATED_ISO));
+
 const legalSections = [
   {
     title: "Условия за използване",
@@ -61,7 +69,7 @@ export default function LegalPage() {
 
           <aside className="panel page-side-card">
             <p className="eyebrow">Последна актуализация</p>
-            <h2>20 март 2026</h2>
+            <h2>{legalLastUpdatedLabel}</h2>
             <p>
               При промени по членствата, политиките или начина на работа на платформата
               правната информация следва да бъде обновявана ясно и навреме.

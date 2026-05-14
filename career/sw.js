@@ -32,7 +32,17 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/career/') || caches.match('/career/index.html'))
+      fetch(event.request).catch(async () => {
+        const cached = await caches.match('/career/');
+        if (cached) {
+          return cached;
+        }
+        const indexCached = await caches.match('/career/index.html');
+        if (indexCached) {
+          return indexCached;
+        }
+        return Response.error();
+      })
     );
     return;
   }
