@@ -2200,6 +2200,45 @@ export function ConsultantPage() {
   );
 }
 
+type SimulatedSocialIdentity = {
+  name: string;
+  email: string;
+  city: string;
+  occupation: string;
+  headline: string;
+};
+
+const SIMULATED_SOCIAL_IDENTITIES: Record<
+  (typeof socialProviders)[number]["key"],
+  SimulatedSocialIdentity
+> = {
+  google: {
+    name: "Александър Иванов",
+    email: "alexander.ivanov.google@example.com",
+    city: "София",
+    occupation: "Product Manager",
+    headline: "Product Manager в преход към senior leadership роля"
+  },
+  apple: {
+    name: "Мария Стоянова",
+    email: "maria.stoyanova.apple@example.com",
+    city: "Пловдив",
+    occupation: "UX Designer",
+    headline: "UX Designer с интерес към продуктови екипи и leadership"
+  },
+  linkedin: {
+    name: "Георги Димитров",
+    email: "georgi.dimitrov.linkedin@example.com",
+    city: "София",
+    occupation: "Senior Software Engineer",
+    headline: "Senior Software Engineer, ориентиран към product роли"
+  }
+};
+
+function getProviderLabel(key: (typeof socialProviders)[number]["key"]) {
+  return socialProviders.find((item) => item.key === key)?.label || key;
+}
+
 export function AuthPage() {
   const {
     configured,
@@ -2224,6 +2263,9 @@ export function AuthPage() {
   const isSocialOnboarding = params.get("social") === "1";
 
   const [screen, setScreen] = useState<AuthScreen>(initialTab);
+  const [simulatedProvider, setSimulatedProvider] = useState<
+    (typeof socialProviders)[number]["key"] | null
+  >(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -2293,13 +2335,52 @@ export function AuthPage() {
     setError("");
   }
 
-  async function handleSocialProvider(providerKey: (typeof socialProviders)[number]["key"]) {
+  function simulateSocialPrefill(providerKey: (typeof socialProviders)[number]["key"]) {
     clearFeedback();
+    const identity = SIMULATED_SOCIAL_IDENTITIES[providerKey];
+    if (!identity) return;
 
+    setSimulatedProvider(providerKey);
+    setScreen("register");
+    setForm((current) => ({
+      ...current,
+      name: identity.name,
+      email: identity.email,
+      city: current.city || identity.city,
+      occupation: current.occupation || identity.occupation,
+      headline: current.headline || identity.headline
+    }));
+    setMessage(
+      `Демо: попълнихме данни така, както биха дошли от ${getProviderLabel(providerKey)} профил.`
+    );
+  }
+
+  function clearSimulatedPrefill() {
+    setSimulatedProvider(null);
+    setMessage("");
+    setForm((current) => ({
+      ...current,
+      name: "",
+      email: "",
+      city: "",
+      occupation: "",
+      headline: ""
+    }));
+  }
+
+  async function tryProviderLogin(providerKey: (typeof socialProviders)[number]["key"]) {
     if (!socialConfigured) {
-      setError("Входът с външен профил още не е активиран за тази среда.");
+      simulateSocialPrefill(providerKey);
       return;
     }
+
+    await handleRealSocialProvider(providerKey);
+  }
+
+  async function handleRealSocialProvider(
+    providerKey: (typeof socialProviders)[number]["key"]
+  ) {
+    clearFeedback();
 
     const isRegisterFlow = activeTab === "register";
 
@@ -2550,18 +2631,43 @@ export function AuthPage() {
                 Довърши ролята си и запази първата версия на профила си в CareerLane.
               </p>
             </div>
-          ) : socialConfigured ? (
+          ) : (
             <div className="social-auth">
-              <span className="search-shortcuts__label">Вход с външен профил</span>
+              {simulatedProvider ? (
+                <div className="social-prefill-banner">
+                  <div>
+                    <span className="social-prefill-banner__badge">Демо</span>
+                    <strong>
+                      Симулирахме вход с {getProviderLabel(simulatedProvider)} профил
+                    </strong>
+                    <p>
+                      Попълнихме името, имейла и началния контекст. След като свържем реален
+                      OAuth доставчик, тези данни ще идват автоматично от профила ти.
+                    </p>
+                  </div>
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    onClick={clearSimulatedPrefill}
+                  >
+                    Изчисти
+                  </button>
+                </div>
+              ) : (
+                <span className="search-shortcuts__label">Вход с външен профил</span>
+              )}
               <div className="social-auth__grid">
                 {socialProviders.map((provider) => (
                   <button
-                    className="social-auth__button"
+                    className={`social-auth__button ${
+                      simulatedProvider === provider.key
+                        ? "social-auth__button--active"
+                        : ""
+                    }`}
                     key={provider.key}
                     type="button"
-                    disabled={!availableSocialProviders.includes(provider.key)}
                     onClick={() => {
-                      void handleSocialProvider(provider.key);
+                      void tryProviderLogin(provider.key);
                     }}
                   >
                     <span className="social-auth__button-content">
@@ -2572,11 +2678,12 @@ export function AuthPage() {
                 ))}
               </div>
               <p className="form-note">
-                При първи вход ще прехвърлим наличните име, имейл и снимка от избрания
-                профил и ще довършиш само липсващата информация.
+                {socialConfigured
+                  ? "При първи вход ще прехвърлим наличните име, имейл и снимка от избрания профил и ще довършиш само липсващата информация."
+                  : "Демо: натискането показва как ще се попълват полетата от външен профил. Реалният OAuth поток ще бъде свързан по-късно."}
               </p>
             </div>
-          ) : null}
+          )}
 
           {screen === "login" ? (
             <form className="form-stack" onSubmit={handleLogin}>

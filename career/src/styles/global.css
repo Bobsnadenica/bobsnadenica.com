@@ -4589,6 +4589,54 @@ textarea {
   gap: 12px;
 }
 
+.social-auth__button--active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 10px 20px rgba(75, 106, 96, 0.18);
+}
+
+.social-prefill-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px dashed var(--primary);
+  background: var(--primary-soft);
+  flex-wrap: wrap;
+}
+
+.social-prefill-banner > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.social-prefill-banner strong {
+  letter-spacing: 0;
+}
+
+.social-prefill-banner p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.social-prefill-banner__badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--primary-dark);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .social-auth__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
