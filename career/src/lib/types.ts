@@ -5,6 +5,20 @@ export type ConsultantProfileType = "consultant" | "mentor";
 export type ConsultantProfileTheme = "violet" | "sky" | "rose" | "mint" | "amber";
 export type ConsultantMediaKind = "avatar" | "hero";
 export type UserMediaKind = "user-avatar";
+export type ConsultantProfileStatus = "pending" | "approved" | "rejected";
+
+export interface AdminConsultantSummary {
+  consultantId: string;
+  ownerUserId: string;
+  slug: string;
+  name: string;
+  headline: string;
+  city: string;
+  profileType: ConsultantProfileType;
+  profileStatus: ConsultantProfileStatus | "active";
+  isPublic: boolean;
+  membershipTier: string;
+}
 
 export interface UploadedDocument {
   fileName: string;
@@ -18,6 +32,8 @@ export interface ConsultantProfile {
   isDemo?: boolean;
   profileType?: ConsultantProfileType;
   theme?: ConsultantProfileTheme;
+  profileStatus?: ConsultantProfileStatus | "active";
+  isPublic?: boolean;
   slug: string;
   name: string;
   headline: string;

@@ -43,6 +43,7 @@ type AuthContextValue = {
   loading: boolean;
   user: AuthUser | null;
   token: string;
+  isAdmin: boolean;
   availableSocialProviders: SocialAuthProviderKey[];
   register: (input: RegisterInput) => Promise<{ needsConfirmation: boolean }>;
   confirm: (email: string, code: string) => Promise<void>;
@@ -56,6 +57,19 @@ type AuthContextValue = {
   ) => Promise<void>;
   logout: () => Promise<void>;
 };
+
+function extractGroups(claims: Record<string, unknown> | undefined): string[] {
+  const raw = claims?.["cognito:groups"];
+  if (!raw) return [];
+  if (Array.isArray(raw)) {
+    return raw.map((value) => String(value).trim()).filter(Boolean);
+  }
+  return String(raw)
+    .replace(/^\[|\]$/g, "")
+    .split(/[\s,]+/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 const AUTH_NOT_READY_MESSAGE = "Системата за вход все още не е конфигурирана.";
@@ -117,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState("");
+  const [groups, setGroups] = useState<string[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -141,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setUser(mapAuthUserFromSession(currentUser.userId, claims));
         setToken(idToken);
+        setGroups(extractGroups(claims));
       } catch {
         if (!active) {
           return;
@@ -148,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setUser(null);
         setToken("");
+        setGroups([]);
       } finally {
         if (active) {
           setLoading(false);
@@ -176,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (payload.event === "signedOut") {
         setUser(null);
         setToken("");
+        setGroups([]);
         setLoading(false);
         return;
       }
@@ -201,6 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       user,
       token,
+      isAdmin: groups.includes("admin"),
       availableSocialProviders: socialProviders
         .filter((provider) => config.cognito.socialProviders.includes(provider.label))
         .map((provider) => provider.key),
@@ -243,6 +262,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const claims = session.tokens?.idToken?.payload;
         setUser(mapAuthUserFromSession(email, claims));
         setToken(idToken);
+        setGroups(extractGroups(claims));
         return idToken;
       },
       async loginWithProvider(provider) {
@@ -276,15 +296,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isCognitoConfigured) {
           setUser(null);
           setToken("");
+          setGroups([]);
           return;
         }
 
         await signOut();
         setUser(null);
         setToken("");
+        setGroups([]);
       }
     }),
-    [loading, token, user]
+    [groups, loading, token, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

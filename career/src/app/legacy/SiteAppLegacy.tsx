@@ -3489,6 +3489,10 @@ export function DashboardPage() {
             {error ? <div className="panel panel--error">{error}</div> : null}
           </div>
 
+          {profile.role === "consultant" && consultantProfile ? (
+            <ConsultantStatusBanner consultant={consultantProfile} />
+          ) : null}
+
           <section
             className={`panel dashboard-overview dashboard-overview--${profile.role}`}
             id="overview"
@@ -4889,6 +4893,46 @@ function DashboardRouteState({
           {actionLabel}
         </button>
       ) : null}
+    </div>
+  );
+}
+
+function ConsultantStatusBanner({ consultant }: { consultant: ConsultantProfile }) {
+  const status = consultant.profileStatus || "pending";
+
+  if (status === "approved" || status === "active") {
+    return (
+      <div className="panel panel--subtle status-banner status-banner--success">
+        <div>
+          <strong>Профилът е одобрен и публичен.</strong>
+          <p>Виден е в каталога и приема резервации.</p>
+        </div>
+        <Link className="ghost-button" to={`/consultants/${consultant.slug}`}>
+          Виж публичната страница
+        </Link>
+      </div>
+    );
+  }
+
+  if (status === "rejected") {
+    return (
+      <div className="panel panel--error status-banner status-banner--rejected">
+        <strong>Профилът не беше одобрен.</strong>
+        <p>
+          Свържи се с екипа за повече информация и редактирай профила преди да поискаш
+          повторно разглеждане.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="panel panel--subtle status-banner status-banner--pending">
+      <strong>Профилът чака одобрение.</strong>
+      <p>
+        Профилът ти не е публичен, докато администратор не го прегледа. През това време
+        можеш да го допълваш — промените се запазват.
+      </p>
     </div>
   );
 }

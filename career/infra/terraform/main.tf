@@ -516,6 +516,28 @@ resource "aws_apigatewayv2_route" "bookings_post" {
   authorization_type = "JWT"
 }
 
+resource "aws_apigatewayv2_route" "admin_consultants_list" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "GET /admin/consultants"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+  authorization_type = "JWT"
+}
+
+resource "aws_apigatewayv2_route" "admin_consultant_status" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "PUT /admin/consultants/{consultantId}/status"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+  authorization_type = "JWT"
+}
+
+resource "aws_cognito_user_group" "admin" {
+  name         = "admin"
+  user_pool_id = aws_cognito_user_pool.main.id
+  description  = "Users in this group can approve/reject consultant profiles. Add manually via AWS CLI: aws cognito-idp admin-add-user-to-group --user-pool-id <id> --username <email> --group-name admin"
+}
+
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.http.id
   name        = "$default"

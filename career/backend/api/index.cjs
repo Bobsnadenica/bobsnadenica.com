@@ -31,6 +31,9 @@ const USER_ROLES = new Set(["client", "consultant"]);
 const CONSULTANT_PROFILE_TYPES = new Set(["consultant", "mentor"]);
 const PLAN_TIERS = new Set(["free", "pro"]);
 const ALLOWED_PROFILE_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const CONSULTANT_PROFILE_STATUSES = new Set(["pending", "approved", "rejected"]);
+const VISIBLE_CONSULTANT_STATUSES = new Set(["approved", "active"]);
+const ADMIN_GROUP = "admin";
 
 function response(statusCode, body, extraHeaders = {}) {
   return {
@@ -39,7 +42,7 @@ function response(statusCode, body, extraHeaders = {}) {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": env.allowedOrigin,
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
-      "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS",
+      "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
       ...extraHeaders
     },
     body: JSON.stringify(body)
@@ -81,6 +84,31 @@ function requireAuth(event) {
 
   if (!claims || !claims.sub) {
     throw Object.assign(new Error("Unauthorized"), { statusCode: 401 });
+  }
+
+  return claims;
+}
+
+function getClaimGroups(claims) {
+  const raw = claims?.["cognito:groups"];
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map((value) => String(value).trim()).filter(Boolean);
+  return String(raw)
+    .replace(/^\[|\]$/g, "")
+    .split(/[\s,]+/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function isAdmin(claims) {
+  return getClaimGroups(claims).includes(ADMIN_GROUP);
+}
+
+function requireAdmin(event) {
+  const claims = requireAuth(event);
+
+  if (!isAdmin(claims)) {
+    throw Object.assign(new Error("Admin access required."), { statusCode: 403 });
   }
 
   return claims;
@@ -427,13 +455,28 @@ async function decorateUserMedia(user) {
   };
 }
 
-function getConsultantVisibility(plan) {
+function getConsultantPlanFields(plan) {
   return {
-    isPublic: true,
-    profileStatus: "active",
     subscriptionStatus: "active",
     membershipTier: plan === "pro" ? "enhanced" : "standard"
   };
+}
+
+const INITIAL_CONSULTANT_VISIBILITY = {
+  isPublic: false,
+  profileStatus: "pending"
+};
+
+function isVisibleConsultant(consultant) {
+  if (!consultant) return false;
+  if (consultant.isPublic === false) return false;
+  const status = consultant.profileStatus || "approved";
+  return VISIBLE_CONSULTANT_STATUSES.has(status);
+}
+
+function normalizeConsultantStatus(value) {
+  const status = String(value || "").trim().toLowerCase();
+  return CONSULTANT_PROFILE_STATUSES.has(status) ? status : null;
 }
 
 function createConsultantDraft({
@@ -479,7 +522,8 @@ function createConsultantDraft({
     consultationTopics: [],
     workApproach: "",
     sessionLengthMinutes: 60,
-    ...getConsultantVisibility(plan || "free")
+    ...INITIAL_CONSULTANT_VISIBILITY,
+    ...getConsultantPlanFields(plan || "free")
   };
 }
 
@@ -498,7 +542,7 @@ async function listConsultants(event) {
   );
 
   const items = (result.Items || []).filter((item) => {
-    if (item.isPublic === false) {
+    if (!isVisibleConsultant(item)) {
       return false;
     }
 
@@ -551,7 +595,7 @@ async function getConsultant(event) {
 
   const consultant = await getConsultantBySlug(slug);
 
-  if (!consultant || consultant.isPublic === false) {
+  if (!isVisibleConsultant(consultant)) {
     return notFound("Consultant profile not found.");
   }
 
@@ -604,7 +648,7 @@ async function bootstrapUser(event) {
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };
-  const consultantVisibility = getConsultantVisibility(nextUser.plan);
+  const planFields = getConsultantPlanFields(nextUser.plan);
 
   await dynamo.send(
     new PutCommand({
@@ -647,7 +691,7 @@ async function bootstrapUser(event) {
               existingConsultant.avatarUrl ??
               nextUser.avatarUrl ??
               "",
-            ...consultantVisibility
+            ...planFields
           }
         })
       );
@@ -768,7 +812,12 @@ async function updateMyConsultant(event) {
       headline: user.headline
     });
 
-  const consultantVisibility = getConsultantVisibility(user.plan);
+  const planFields = getConsultantPlanFields(user.plan);
+  const preservedVisibility = {
+    isPublic: baseConsultant.isPublic ?? INITIAL_CONSULTANT_VISIBILITY.isPublic,
+    profileStatus:
+      baseConsultant.profileStatus || INITIAL_CONSULTANT_VISIBILITY.profileStatus
+  };
   const requestedTheme = normalizeConsultantTheme(body.theme, baseConsultant.theme || "");
 
   const normalizedSlug = body.slug ? normalizeSlug(body.slug, baseConsultant.slug) : null;
@@ -865,7 +914,8 @@ async function updateMyConsultant(event) {
       body.availability ?? baseConsultant.availability ?? [],
       []
     ),
-    ...consultantVisibility
+    ...preservedVisibility,
+    ...planFields
   };
 
   nextConsultant.nextAvailable = getNextAvailableSlot(
@@ -973,8 +1023,8 @@ async function createBooking(event) {
     return notFound("Consultant not found.");
   }
 
-  if (consultant.isPublic === false) {
-    return badRequest("Consultant profile is not public yet.");
+  if (!isVisibleConsultant(consultant)) {
+    return badRequest("Consultant profile is not yet approved.");
   }
 
   if (consultant.ownerUserId === user.userId) {
@@ -1103,6 +1153,85 @@ async function listBookings(event) {
   return response(200, result.Items || []);
 }
 
+async function listConsultantsForAdmin(event) {
+  requireAdmin(event);
+
+  const result = await dynamo.send(
+    new ScanCommand({
+      TableName: env.consultantsTable
+    })
+  );
+
+  const items = (result.Items || []).map((item) => ({
+    consultantId: item.consultantId,
+    ownerUserId: item.ownerUserId,
+    slug: item.slug,
+    name: item.name,
+    headline: item.headline,
+    city: item.city,
+    profileType: item.profileType,
+    profileStatus: item.profileStatus || "approved",
+    isPublic: item.isPublic !== false,
+    membershipTier: item.membershipTier || "standard"
+  }));
+
+  items.sort((left, right) => {
+    const order = { pending: 0, approved: 1, rejected: 2 };
+    const leftRank = order[left.profileStatus] ?? 3;
+    const rightRank = order[right.profileStatus] ?? 3;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+    return String(left.name || "").localeCompare(String(right.name || ""), "bg");
+  });
+
+  return response(200, items, { "Cache-Control": "no-store" });
+}
+
+async function setConsultantStatus(event) {
+  requireAdmin(event);
+  const body = parseBody(event);
+  const consultantId = event.pathParameters?.consultantId;
+
+  if (!consultantId) {
+    return badRequest("consultantId is required.");
+  }
+
+  const status = normalizeConsultantStatus(body.status);
+
+  if (!status) {
+    return badRequest("status must be one of: pending, approved, rejected.");
+  }
+
+  const existing = await dynamo.send(
+    new GetCommand({
+      TableName: env.consultantsTable,
+      Key: { consultantId }
+    })
+  );
+
+  if (!existing.Item) {
+    return notFound("Consultant not found.");
+  }
+
+  const updated = {
+    ...existing.Item,
+    profileStatus: status,
+    isPublic: status === "approved"
+  };
+
+  await dynamo.send(
+    new PutCommand({
+      TableName: env.consultantsTable,
+      Item: updated
+    })
+  );
+
+  return response(200, {
+    consultantId: updated.consultantId,
+    profileStatus: updated.profileStatus,
+    isPublic: updated.isPublic
+  });
+}
+
 function health() {
   return response(200, { ok: true, service: "careerlane-api" }, {
     "Cache-Control": "no-store"
@@ -1129,6 +1258,13 @@ exports.handler = async (event) => {
     if (method === "POST" && path === "/me/cv/upload-url") return createUploadUrl(event);
     if (method === "GET" && path === "/bookings") return listBookings(event);
     if (method === "POST" && path === "/bookings") return createBooking(event);
+    if (method === "GET" && path === "/admin/consultants") return listConsultantsForAdmin(event);
+
+    const adminStatusMatch = /^\/admin\/consultants\/([^/]+)\/status$/.exec(path);
+    if (method === "PUT" && adminStatusMatch) {
+      event.pathParameters = { ...(event.pathParameters || {}), consultantId: adminStatusMatch[1] };
+      return setConsultantStatus(event);
+    }
 
     return notFound("Route not found.");
   } catch (error) {

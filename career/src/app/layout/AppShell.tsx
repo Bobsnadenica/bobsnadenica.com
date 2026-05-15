@@ -11,6 +11,7 @@ import {
 import { config } from "../../lib/config";
 import AboutPage from "../pages/AboutPage";
 import AccountPage from "../pages/AccountPage";
+import AdminPage from "../pages/AdminPage";
 import AuthPage from "../pages/AuthPage";
 import ConsultantProfilePage from "../pages/ConsultantProfilePage";
 import ConsultantsPage from "../pages/ConsultantsPage";
@@ -88,6 +89,10 @@ function resolveDocumentTitle(pathname: string) {
     return "Правна информация";
   }
 
+  if (pathname === "/admin") {
+    return "Админ";
+  }
+
   return "CareerLane";
 }
 
@@ -106,7 +111,7 @@ function RouteExperience() {
 }
 
 export default function AppShell() {
-  const { user, token, loading, logout } = useAuth();
+  const { user, token, loading, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const currentYear = new Date().getFullYear();
@@ -243,6 +248,11 @@ export default function AppShell() {
             {user ? (
               <>
                 <span className="user-chip">{user.name}</span>
+                {isAdmin ? (
+                  <Link className="ghost-button" to="/admin">
+                    Админ
+                  </Link>
+                ) : null}
                 <Link className="ghost-button" to="/dashboard">
                   Профил
                 </Link>
@@ -287,6 +297,7 @@ export default function AppShell() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/dashboard" element={<ProfilePage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/pricing" element={<Navigate to="/users" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

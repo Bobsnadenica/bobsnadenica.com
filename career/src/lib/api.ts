@@ -6,9 +6,11 @@ import {
 } from "./demo-data";
 import { getCvUploadContentType } from "./uploads";
 import type {
+  AdminConsultantSummary,
   Booking,
   ConsultantMediaKind,
   ConsultantProfile,
+  ConsultantProfileStatus,
   ConsultantProfileType,
   PlanTier,
   UploadedDocument,
@@ -302,6 +304,30 @@ export const api = {
           kind: "user-avatar"
         })
       },
+      token
+    );
+  },
+
+  async adminListConsultants(token: string) {
+    return request<AdminConsultantSummary[]>(
+      "/admin/consultants",
+      undefined,
+      token
+    );
+  },
+
+  async adminSetConsultantStatus(
+    token: string,
+    consultantId: string,
+    status: ConsultantProfileStatus
+  ) {
+    return request<{
+      consultantId: string;
+      profileStatus: ConsultantProfileStatus;
+      isPublic: boolean;
+    }>(
+      `/admin/consultants/${encodeURIComponent(consultantId)}/status`,
+      { method: "PUT", body: JSON.stringify({ status }) },
       token
     );
   }
