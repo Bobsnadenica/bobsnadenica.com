@@ -729,35 +729,20 @@ function AvatarMedia({
   className: string;
 }) {
   const [failed, setFailed] = useState(false);
-  const [aspect, setAspect] = useState<"unknown" | "portrait" | "landscape" | "square">("unknown");
   const resolvedSrc = src && !failed ? resolvePublicUrl(src) : "";
 
   useEffect(() => {
     setFailed(false);
-    setAspect("unknown");
   }, [src]);
 
   if (resolvedSrc) {
-    const imageClassName = `${className} avatar-media avatar-media--${aspect}`;
-
     return (
       <img
-        className={imageClassName}
+        className={`${className} avatar-media`}
         src={resolvedSrc}
         alt={name}
         decoding="async"
-        onLoad={(event) => {
-          const image = event.currentTarget;
-          const ratio = image.naturalWidth / Math.max(image.naturalHeight, 1);
-
-          if (ratio > 1.12) {
-            setAspect("landscape");
-          } else if (ratio < 0.86) {
-            setAspect("portrait");
-          } else {
-            setAspect("square");
-          }
-        }}
+        loading="lazy"
         onError={() => setFailed(true)}
       />
     );
@@ -4707,74 +4692,6 @@ function ConsultantCard({
   );
 }
 
-function HomeHeroProfile({
-  consultant,
-  variant
-}: {
-  consultant: ConsultantProfile;
-  variant: "primary" | "secondary";
-}) {
-  const isPrimary = variant === "primary";
-  const profileTypeLabel = formatConsultantTypeLabel(getConsultantProfileType(consultant));
-  const summaryTags = getConsultantSummaryTags(consultant);
-  const themeStyle = getConsultantThemeStyle(consultant);
-  const hasTheme = hasConsultantTheme(consultant);
-
-  return (
-    <Link
-      className={`home-hero-profile home-hero-profile--${variant} home-hero-profile--no-cover ${
-        hasTheme ? "home-hero-profile--themed" : ""
-      }`}
-      style={themeStyle}
-      to={`/consultants/${consultant.slug}`}
-    >
-      {!isPrimary ? (
-        <AvatarMedia
-          className="home-hero-profile__avatar"
-          src={consultant.avatarUrl}
-          name={consultant.name}
-        />
-      ) : null}
-
-      <div className="home-hero-profile__body">
-        <div className="home-hero-profile__header">
-          {isPrimary ? (
-            <AvatarMedia
-              className="home-hero-profile__avatar"
-              src={consultant.avatarUrl}
-              name={consultant.name}
-            />
-          ) : null}
-          <div>
-            <div className="home-hero-profile__badges">
-              <span className={consultant.featured ? "status-badge status-badge--success" : "plan-pill"}>
-                {consultant.featured ? `Подбран ${profileTypeLabel.toLowerCase()}` : profileTypeLabel}
-              </span>
-              {consultant.isDemo ? <DemoAccountBadge /> : null}
-            </div>
-            <h3>{consultant.name}</h3>
-            <p>{consultant.headline}</p>
-          </div>
-        </div>
-
-        {isPrimary ? (
-          <div className="home-hero-profile__details">
-            <span>{getConsultantLocationLabel(consultant)}</span>
-            <span>{summaryTags.join(" · ") || profileTypeLabel}</span>
-            <span>{getConsultantTrustLabel(consultant)}</span>
-          </div>
-        ) : null}
-
-        <div className="home-hero-profile__meta">
-          <span>{formatDate(consultant.nextAvailable)}</span>
-          <span>{getSessionLengthLabel(consultant)}</span>
-          <strong>{getConsultantPriceLabel(consultant)}</strong>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 function DirectoryFeedbackState({
   tone = "neutral",
   title,
@@ -4940,102 +4857,6 @@ function ConsultantCardSkeleton() {
   );
 }
 
-function HeroSpotlightCard({ consultant }: { consultant: ConsultantProfile }) {
-  const hasBanner = Boolean((consultant.heroUrl || "").trim());
-  const themeStyle = getConsultantThemeStyle(consultant);
-  const hasTheme = hasConsultantTheme(consultant);
-
-  return (
-    <Link
-      className={`hero-spotlight-card ${hasBanner ? "" : "hero-spotlight-card--no-cover"} ${
-        hasTheme ? "hero-spotlight-card--themed" : ""
-      }`}
-      style={themeStyle}
-      to={`/consultants/${consultant.slug}`}
-    >
-      {hasBanner ? (
-        <CoverMedia
-          src={consultant.heroUrl}
-          name={consultant.name}
-          className="hero-spotlight-card__media"
-          eyebrow={consultant.featured ? "Подбран профил" : "Активен профил"}
-          title={consultant.name}
-          subtitle={consultant.headline}
-        />
-      ) : null}
-      <div className="hero-spotlight-card__body">
-        <div className="hero-spotlight-card__header">
-          <AvatarMedia
-            className="hero-spotlight-card__avatar"
-            src={consultant.avatarUrl}
-            name={consultant.name}
-          />
-          <div>
-            <div className="hero-spotlight-card__badges">
-              <span className="status-badge status-badge--success">Подбран профил</span>
-              {consultant.isDemo ? <DemoAccountBadge /> : null}
-            </div>
-            <h3>{consultant.name}</h3>
-            <p>{consultant.headline}</p>
-          </div>
-        </div>
-
-        <div className="consultant-card__meta">
-          <span>{getConsultantLocationLabel(consultant)}</span>
-          <span>{consultant.experienceYears} години</span>
-          <span>{formatDate(consultant.nextAvailable)}</span>
-        </div>
-
-        <div className="hero-spotlight-card__footer">
-          <strong>{getConsultantPriceLabel(consultant)}</strong>
-          <span>Отвори профила</span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function DirectorySpotlightCard({
-  consultant,
-  index
-}: {
-  consultant: ConsultantProfile;
-  index: number;
-}) {
-  const themeStyle = getConsultantThemeStyle(consultant);
-  const hasTheme = hasConsultantTheme(consultant);
-
-  return (
-    <Link
-      className={`directory-spotlight ${hasTheme ? "directory-spotlight--themed" : ""}`}
-      style={themeStyle}
-      to={`/consultants/${consultant.slug}`}
-    >
-      <AvatarMedia
-        className="directory-spotlight__avatar"
-        src={consultant.avatarUrl}
-        name={consultant.name}
-      />
-
-      <div className="directory-spotlight__body">
-        <span className="directory-spotlight__label">
-          {consultant.featured
-            ? "Подбран профил"
-            : `Профил ${String(index + 1).padStart(2, "0")}`}
-        </span>
-        {consultant.isDemo ? <DemoAccountBadge /> : null}
-        <strong>{consultant.name}</strong>
-        <p>{consultant.headline}</p>
-        <div className="directory-spotlight__meta">
-          <span>{getConsultantLocationLabel(consultant)}</span>
-          <span>{consultant.experienceYears} години</span>
-        </div>
-      </div>
-
-      <span className="directory-spotlight__arrow">Виж</span>
-    </Link>
-  );
-}
 
 function DemoUserProfileCard({
   profile,
