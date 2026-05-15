@@ -245,6 +245,14 @@ export const api = {
     );
   },
 
+  async cancelBooking(token: string, bookingId: string) {
+    return request<Booking>(
+      `/bookings/${encodeURIComponent(bookingId)}/status`,
+      { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) },
+      token
+    );
+  },
+
   async createCvUpload(token: string, file: File) {
     const contentType = getCvUploadContentType(file);
 

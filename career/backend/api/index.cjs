@@ -14,16 +14,20 @@ const {
   PutObjectCommand
 } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { SESv2Client, SendEmailCommand } = require("@aws-sdk/client-sesv2");
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const s3 = new S3Client({});
+const ses = new SESv2Client({});
 
 const env = {
   usersTable: process.env.USERS_TABLE,
   consultantsTable: process.env.CONSULTANTS_TABLE,
   bookingsTable: process.env.BOOKINGS_TABLE,
   cvBucket: process.env.CV_BUCKET,
-  allowedOrigin: process.env.ALLOWED_ORIGIN || "https://www.bobsnadenica.com"
+  allowedOrigin: process.env.ALLOWED_ORIGIN || "https://www.bobsnadenica.com",
+  sesFromEmail: process.env.SES_FROM_EMAIL || "",
+  appUrl: process.env.APP_URL || "https://www.bobsnadenica.com/career/"
 };
 
 const CONSULTANT_PROFILE_THEMES = new Set(["violet", "sky", "rose", "mint", "amber"]);
@@ -245,6 +249,111 @@ function getNextAvailableSlot(value, fallback = "") {
     availability[0] ||
     fallback
   );
+}
+
+function formatBookingDateTimeBg(value) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return String(value || "");
+  }
+  try {
+    return new Intl.DateTimeFormat("bg-BG", {
+      dateStyle: "full",
+      timeStyle: "short",
+      timeZone: "Europe/Sofia"
+    }).format(parsed);
+  } catch {
+    return parsed.toISOString();
+  }
+}
+
+async function sendEmail({ to, subject, text }) {
+  if (!env.sesFromEmail) {
+    console.log("[email] skipped (SES_FROM_EMAIL not set)", { to, subject });
+    return;
+  }
+  if (!to) {
+    return;
+  }
+  try {
+    await ses.send(
+      new SendEmailCommand({
+        FromEmailAddress: env.sesFromEmail,
+        Destination: { ToAddresses: [to] },
+        Content: {
+          Simple: {
+            Subject: { Data: subject, Charset: "UTF-8" },
+            Body: { Text: { Data: text, Charset: "UTF-8" } }
+          }
+        }
+      })
+    );
+  } catch (error) {
+    console.error("[email] send failed", { to, subject, error: error?.message || error });
+  }
+}
+
+async function sendBookingCreatedEmails({ consultantOwner, consultant, client, booking }) {
+  const when = formatBookingDateTimeBg(booking.scheduledAt);
+  const noteLine = booking.note ? `\n\nБележка от потребителя:\n${booking.note}` : "";
+
+  const tasks = [];
+
+  if (consultantOwner?.email) {
+    tasks.push(
+      sendEmail({
+        to: consultantOwner.email,
+        subject: `Нова резервация от ${client.name || client.email}`,
+        text:
+          `Здравей, ${consultantOwner.name || consultant.name},\n\n` +
+          `${client.name || client.email} (${client.email}) резервира консултация с теб.\n\n` +
+          `Час: ${when}\n` +
+          `Продължителност: ${consultant.sessionLengthMinutes || 60} минути\n` +
+          `Статус: потвърдена (можеш да я откажеш от таблото си, ако не можеш да я поемеш)${noteLine}\n\n` +
+          `Виж резервациите си в таблото: ${env.appUrl}#/dashboard`
+      })
+    );
+  }
+
+  if (client?.email) {
+    tasks.push(
+      sendEmail({
+        to: client.email,
+        subject: `Резервацията ти с ${consultant.name} е потвърдена`,
+        text:
+          `Здравей, ${client.name || ""},\n\n` +
+          `Резервацията ти с ${consultant.name} е потвърдена.\n\n` +
+          `Час: ${when}\n` +
+          `Продължителност: ${consultant.sessionLengthMinutes || 60} минути\n` +
+          `Формат: ${(consultant.sessionModes || []).join(", ") || "Онлайн"}\n\n` +
+          `Ако консултантът не може да поеме часа, ще получиш отделно известие.\n\n` +
+          `Виж резервациите си в таблото: ${env.appUrl}#/dashboard`
+      })
+    );
+  }
+
+  await Promise.allSettled(tasks);
+}
+
+async function sendBookingCancelledEmail({ recipient, consultantName, scheduledAt, cancelledBy }) {
+  if (!recipient?.email) return;
+  const when = formatBookingDateTimeBg(scheduledAt);
+  const subject =
+    cancelledBy === "consultant"
+      ? `Консултантът отказа резервацията ти`
+      : `Резервацията беше отказана`;
+  const text =
+    cancelledBy === "consultant"
+      ? `Здравей, ${recipient.name || ""},\n\n` +
+        `${consultantName} не може да поеме резервацията за ${when}.\n\n` +
+        `Можеш да избереш друг свободен час от профила или да опиташ с друг консултант.\n\n` +
+        `Каталог: ${env.appUrl}#/consultants`
+      : `Здравей, ${recipient.name || ""},\n\n` +
+        `Потребителят отказа резервацията за ${when}.\n\n` +
+        `Часът е свободен отново и може да бъде резервиран от друг потребител.\n\n` +
+        `Табло: ${env.appUrl}#/dashboard`;
+
+  await sendEmail({ to: recipient.email, subject, text });
 }
 
 function sanitizeFileName(fileName) {
@@ -1064,8 +1173,10 @@ async function createBooking(event) {
     consultantId: consultant.consultantId,
     consultantName: consultant.name,
     clientId: user.userId,
+    clientName: user.name || "",
+    clientEmail: user.email || "",
     scheduledAt: normalizedScheduledAt,
-    status: "requested",
+    status: "confirmed",
     note: String(body.note || "").trim().slice(0, 1200),
     createdAt: new Date().toISOString()
   };
@@ -1107,7 +1218,130 @@ async function createBooking(event) {
     throw error;
   }
 
+  try {
+    const consultantOwner = await getUserBySub(consultant.ownerUserId);
+    await sendBookingCreatedEmails({
+      consultantOwner,
+      consultant,
+      client: user,
+      booking
+    });
+  } catch (error) {
+    console.error("[booking] notification failure", error?.message || error);
+  }
+
   return response(201, booking);
+}
+
+async function cancelBooking(event) {
+  const claims = requireAuth(event);
+  const bookingId = event.pathParameters?.bookingId;
+  const body = parseBody(event);
+  const requestedStatus = String(body.status || "").trim().toLowerCase();
+
+  if (!bookingId) {
+    return badRequest("bookingId is required.");
+  }
+
+  if (requestedStatus !== "cancelled") {
+    return badRequest("Only cancellation is supported here.");
+  }
+
+  const bookingResult = await dynamo.send(
+    new GetCommand({
+      TableName: env.bookingsTable,
+      Key: { bookingId }
+    })
+  );
+  const booking = bookingResult.Item;
+
+  if (!booking) {
+    return notFound("Booking not found.");
+  }
+
+  const consultantResult = await dynamo.send(
+    new GetCommand({
+      TableName: env.consultantsTable,
+      Key: { consultantId: booking.consultantId }
+    })
+  );
+  const consultant = consultantResult.Item;
+  const isOwnerConsultant = consultant?.ownerUserId === claims.sub;
+  const isClient = booking.clientId === claims.sub;
+
+  if (!isOwnerConsultant && !isClient) {
+    return forbidden("Not allowed to cancel this booking.");
+  }
+
+  if (booking.status === "cancelled") {
+    return response(200, booking);
+  }
+
+  const cancelledBy = isOwnerConsultant ? "consultant" : "client";
+  const nextBookedSlots = Array.isArray(consultant?.bookedSlots)
+    ? consultant.bookedSlots.filter((slot) => slot !== booking.scheduledAt)
+    : [];
+
+  const transactItems = [
+    {
+      Update: {
+        TableName: env.bookingsTable,
+        Key: { bookingId },
+        UpdateExpression:
+          "SET #s = :cancelled, cancelledAt = :now, cancelledBy = :actor",
+        ExpressionAttributeNames: { "#s": "status" },
+        ExpressionAttributeValues: {
+          ":cancelled": "cancelled",
+          ":now": new Date().toISOString(),
+          ":actor": cancelledBy
+        }
+      }
+    }
+  ];
+
+  if (consultant) {
+    transactItems.push({
+      Update: {
+        TableName: env.consultantsTable,
+        Key: { consultantId: booking.consultantId },
+        UpdateExpression: "SET bookedSlots = :slots",
+        ExpressionAttributeValues: { ":slots": nextBookedSlots }
+      }
+    });
+  }
+
+  await dynamo.send(new TransactWriteCommand({ TransactItems: transactItems }));
+
+  const updated = {
+    ...booking,
+    status: "cancelled",
+    cancelledAt: new Date().toISOString(),
+    cancelledBy
+  };
+
+  try {
+    if (cancelledBy === "consultant") {
+      const client = await getUserBySub(booking.clientId);
+      await sendBookingCancelledEmail({
+        recipient: client || { email: booking.clientEmail, name: booking.clientName },
+        consultantName: booking.consultantName || consultant?.name || "",
+        scheduledAt: booking.scheduledAt,
+        cancelledBy: "consultant"
+      });
+    } else if (consultant) {
+      const consultantOwner = await getUserBySub(consultant.ownerUserId);
+      await sendBookingCancelledEmail({
+        recipient: consultantOwner,
+        consultantName: booking.consultantName || consultant.name || "",
+        scheduledAt: booking.scheduledAt,
+        cancelledBy: "client"
+      });
+    }
+  } catch (error) {
+    console.error("[booking] cancellation email failure", error?.message || error);
+  }
+
+  return response(200, updated);
 }
 
 async function listBookings(event) {
@@ -1258,6 +1492,13 @@ exports.handler = async (event) => {
     if (method === "POST" && path === "/me/cv/upload-url") return createUploadUrl(event);
     if (method === "GET" && path === "/bookings") return listBookings(event);
     if (method === "POST" && path === "/bookings") return createBooking(event);
+
+    const bookingStatusMatch = /^\/bookings\/([^/]+)\/status$/.exec(path);
+    if (method === "PATCH" && bookingStatusMatch) {
+      event.pathParameters = { ...(event.pathParameters || {}), bookingId: bookingStatusMatch[1] };
+      return cancelBooking(event);
+    }
+
     if (method === "GET" && path === "/admin/consultants") return listConsultantsForAdmin(event);
 
     const adminStatusMatch = /^\/admin\/consultants\/([^/]+)\/status$/.exec(path);

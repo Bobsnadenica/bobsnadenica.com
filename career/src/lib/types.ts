@@ -95,10 +95,14 @@ export interface Booking {
   consultantId: string;
   consultantName: string;
   clientId: string;
+  clientName?: string;
+  clientEmail?: string;
   scheduledAt: string;
   status: BookingStatus;
   note?: string;
   createdAt: string;
+  cancelledAt?: string;
+  cancelledBy?: "consultant" | "client";
 }
 
 export interface AuthUser {

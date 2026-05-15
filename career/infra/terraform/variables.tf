@@ -96,3 +96,15 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "ses_from_email" {
+  type        = string
+  default     = ""
+  description = "Verified SES sender address for booking notifications. If empty, the Lambda logs emails instead of sending."
+}
+
+variable "app_url" {
+  type        = string
+  default     = "https://www.bobsnadenica.com/career/"
+  description = "Public app URL used in email bodies."
+}

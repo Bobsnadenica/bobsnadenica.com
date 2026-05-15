@@ -362,6 +362,13 @@ resource "aws_iam_role_policy" "lambda" {
           "s3:GetObject"
         ]
         Resource = "${aws_s3_bucket.cv_documents.arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ses:SendEmail"
+        ]
+        Resource = "*"
       }
     ]
   })
@@ -391,6 +398,8 @@ resource "aws_lambda_function" "api" {
       BOOKINGS_TABLE    = aws_dynamodb_table.bookings.name
       CV_BUCKET         = aws_s3_bucket.cv_documents.bucket
       ALLOWED_ORIGIN    = element(var.frontend_origins, 0)
+      SES_FROM_EMAIL    = var.ses_from_email
+      APP_URL           = var.app_url
     }
   }
 
@@ -404,7 +413,7 @@ resource "aws_apigatewayv2_api" "http" {
   cors_configuration {
     allow_credentials = false
     allow_headers     = ["authorization", "content-type"]
-    allow_methods     = ["GET", "POST", "PUT", "OPTIONS"]
+    allow_methods     = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     allow_origins     = var.frontend_origins
     max_age           = 3600
   }
@@ -511,6 +520,14 @@ resource "aws_apigatewayv2_route" "bookings_get" {
 resource "aws_apigatewayv2_route" "bookings_post" {
   api_id             = aws_apigatewayv2_api.http.id
   route_key          = "POST /bookings"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+  authorization_type = "JWT"
+}
+
+resource "aws_apigatewayv2_route" "bookings_cancel" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "PATCH /bookings/{bookingId}/status"
   target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
   authorization_type = "JWT"

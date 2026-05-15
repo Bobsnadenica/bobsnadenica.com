@@ -2967,6 +2967,7 @@ export function DashboardPage() {
   const [error, setError] = useState("");
   const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardReloadKey, setDashboardReloadKey] = useState(0);
+  const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -3079,6 +3080,35 @@ export function DashboardPage() {
         </div>
       </section>
     );
+  }
+
+  async function cancelBookingAction(bookingId: string, role: "consultant" | "client") {
+    if (!token || cancellingBookingId) return;
+    const confirmLabel =
+      role === "consultant"
+        ? "Сигурен ли си, че искаш да откажеш тази резервация? Потребителят ще получи известие."
+        : "Сигурен ли си, че искаш да откажеш тази резервация?";
+    if (typeof window !== "undefined" && !window.confirm(confirmLabel)) {
+      return;
+    }
+    setCancellingBookingId(bookingId);
+    setError("");
+    setMessage("");
+    try {
+      const updated = await api.cancelBooking(token, bookingId);
+      setBookings((current) =>
+        current.map((item) => (item.bookingId === bookingId ? updated : item))
+      );
+      setMessage(
+        role === "consultant"
+          ? "Резервацията е отказана. Потребителят е уведомен."
+          : "Резервацията е отказана."
+      );
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно отказване.");
+    } finally {
+      setCancellingBookingId(null);
+    }
   }
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
@@ -4628,17 +4658,68 @@ export function DashboardPage() {
               />
             ) : (
               <div className="booking-list">
-                {bookings.map((booking) => (
-                  <article className="booking-item" key={booking.bookingId}>
-                    <div>
-                      <strong>{booking.consultantName}</strong>
-                      <p>{formatDate(booking.scheduledAt)}</p>
-                    </div>
-                    <span className={`status-badge status-badge--${booking.status}`}>
-                      {formatBookingStatusLabel(booking.status)}
-                    </span>
-                  </article>
-                ))}
+                {[...bookings]
+                  .sort(
+                    (left, right) =>
+                      new Date(right.scheduledAt).getTime() -
+                      new Date(left.scheduledAt).getTime()
+                  )
+                  .map((booking) => {
+                    const isCancelled = booking.status === "cancelled";
+                    const isPast =
+                      new Date(booking.scheduledAt).getTime() < Date.now();
+                    const canCancel = !isCancelled && !isPast;
+                    const consultantView = profile.role === "consultant";
+                    return (
+                      <article className="booking-item" key={booking.bookingId}>
+                        <div className="booking-item__main">
+                          <strong>
+                            {consultantView
+                              ? booking.clientName || "Потребител"
+                              : booking.consultantName}
+                          </strong>
+                          <p>{formatDate(booking.scheduledAt)}</p>
+                          {consultantView && booking.clientEmail ? (
+                            <p className="form-note">{booking.clientEmail}</p>
+                          ) : null}
+                          {booking.note ? (
+                            <p className="booking-item__note">„{booking.note}"</p>
+                          ) : null}
+                          {isCancelled && booking.cancelledBy ? (
+                            <p className="form-note">
+                              {booking.cancelledBy === "consultant"
+                                ? "Отказана от консултанта"
+                                : "Отказана от потребителя"}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="booking-item__actions">
+                          <span className={`status-badge status-badge--${booking.status}`}>
+                            {formatBookingStatusLabel(booking.status)}
+                          </span>
+                          {canCancel ? (
+                            <button
+                              className="ghost-button"
+                              type="button"
+                              disabled={cancellingBookingId === booking.bookingId}
+                              onClick={() =>
+                                cancelBookingAction(
+                                  booking.bookingId,
+                                  consultantView ? "consultant" : "client"
+                                )
+                              }
+                            >
+                              {cancellingBookingId === booking.bookingId
+                                ? "Отказваме..."
+                                : consultantView
+                                  ? "Откажи"
+                                  : "Откажи резервацията"}
+                            </button>
+                          ) : null}
+                        </div>
+                      </article>
+                    );
+                  })}
               </div>
             )}
           </section>

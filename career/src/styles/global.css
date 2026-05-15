@@ -5067,7 +5067,7 @@ textarea {
 
 .booking-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   padding: 16px 0;
@@ -5084,7 +5084,37 @@ textarea {
 }
 
 .booking-item p {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
+}
+
+.booking-item__main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.booking-item__note {
+  color: var(--text-soft);
+  font-style: italic;
+}
+
+.booking-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .booking-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .booking-item__actions {
+    justify-content: flex-start;
+  }
 }
 
 .site-footer {
