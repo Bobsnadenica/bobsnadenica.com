@@ -1846,7 +1846,7 @@ textarea {
 }
 
 .consultant-card__status-row {
-  margin-bottom: 10px;
+  margin: 0;
 }
 
 .consultant-card__top h3,
@@ -2520,11 +2520,15 @@ textarea {
 .directory-hero__copy,
 .directory-hero__panel,
 .profile-stage__body,
-.consultant-card__identity,
 .consultant-card__footer-copy,
 .directory-spotlight__body {
   display: grid;
   gap: 14px;
+}
+
+.consultant-card__identity {
+  display: grid;
+  gap: 8px;
 }
 
 .directory-hero__panel,
@@ -2796,20 +2800,20 @@ textarea {
 
 .consultant-card__header {
   display: grid;
-  grid-template-columns: 132px minmax(0, 1fr);
-  gap: 18px;
-  align-items: start;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
 }
 
 .consultant-card__avatar {
-  width: 132px;
-  height: 166px;
+  width: 116px;
+  height: 145px;
   min-height: 0;
-  border-radius: 32px;
+  border-radius: 24px;
   object-fit: cover;
-  object-position: center 16%;
+  object-position: center 22%;
   justify-self: start;
-  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
 }
 
 .consultant-card__identity h3,
@@ -2846,7 +2850,6 @@ textarea {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
 }
 
 .consultant-card__match {
@@ -5428,7 +5431,7 @@ textarea {
   }
 
   .consultant-card__header {
-    gap: 14px;
+    gap: 12px;
   }
 
   .consultants-hero .hero-stats,
@@ -5484,10 +5487,9 @@ textarea {
   }
 
   .consultant-card__avatar {
-    width: 100%;
-    max-width: 148px;
-    height: auto;
-    aspect-ratio: 4 / 5;
+    width: 116px;
+    max-width: 116px;
+    height: 145px;
   }
 
   .directory-spotlight__avatar {
