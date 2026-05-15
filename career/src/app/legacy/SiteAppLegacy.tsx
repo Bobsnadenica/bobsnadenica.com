@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
-import { demoUsers } from "../../lib/demo-data";
 import {
   clearPendingBootstrap,
   readPendingBootstrap,
@@ -17,6 +16,7 @@ import {
   writePendingBootstrap,
   writeSocialAuthIntent
 } from "../../lib/auth-flow";
+import { getPersonaById, personaPresets, type PersonaPreset } from "../../lib/personas";
 import {
   CV_UPLOAD_ACCEPT,
   CV_UPLOAD_FORMAT_LABEL,
@@ -890,6 +890,38 @@ function getConsultantMatch(profile: UserProfile | null, consultant: ConsultantP
   } satisfies MatchInsight;
 }
 
+function getPersonaMatch(persona: PersonaPreset | null, consultant: ConsultantProfile) {
+  if (!persona) {
+    return null;
+  }
+
+  if (getConsultantProfileType(consultant) !== persona.type) {
+    return null;
+  }
+
+  const personaTokens = new Set(tokenizeText(persona.tags.join(" ")));
+
+  if (!personaTokens.size) {
+    return null;
+  }
+
+  const consultantTokens = getConsultantSignalTokens(consultant);
+  const overlaps = Array.from(personaTokens).filter((token) => consultantTokens.has(token));
+
+  if (!overlaps.length) {
+    return null;
+  }
+
+  const score = Math.min(98, Math.max(45, overlaps.length * 22));
+  const reasons = overlaps.slice(0, 3).map(formatSignalLabel);
+
+  return {
+    score,
+    label: score >= 72 ? "Силно съвпадение" : "Подходящ профил",
+    note: `Подходящ по ${reasons.join(", ")}.`
+  } satisfies MatchInsight;
+}
+
 function useViewerProfile() {
   const { user, token, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -1222,9 +1254,9 @@ export function UsersPage() {
   const city = searchParams.get("city") || "";
   const kind = searchParams.get("kind") || "all";
   const topOnly = searchParams.get("top") === "1";
-  const { configured, user } = useAuth();
-  const { profile, loading: viewerLoading } = useViewerProfile();
-  const [selectedDemoUserId, setSelectedDemoUserId] = useState(demoUsers[0]?.userId || "");
+  const persona = getPersonaById(searchParams.get("persona"));
+  const { user } = useAuth();
+  const { profile } = useViewerProfile();
   const [consultants, setConsultants] = useState<ConsultantProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1257,16 +1289,12 @@ export function UsersPage() {
     };
   }, [city, query]);
 
-  const activeDemoProfile =
-    !profile && !viewerLoading
-      ? demoUsers.find((item) => item.userId === selectedDemoUserId) || demoUsers[0] || null
-      : null;
-  const matchingProfile = profile || activeDemoProfile;
-  const usingDemoProfile = Boolean(activeDemoProfile);
-
   const rankedConsultants = useMemo(() => {
     return consultants
       .filter((consultant) => {
+        if (persona && getConsultantProfileType(consultant) !== persona.type) {
+          return false;
+        }
         const matchesType =
           kind === "all" ||
           getConsultantProfileType(consultant) === kind;
@@ -1275,7 +1303,9 @@ export function UsersPage() {
       })
       .map((consultant) => ({
         consultant,
-        match: getConsultantMatch(matchingProfile, consultant)
+        match: persona
+          ? getPersonaMatch(persona, consultant)
+          : getConsultantMatch(profile, consultant)
       }))
       .sort((left, right) => {
         const leftScore = left.match?.score || 0;
@@ -1291,24 +1321,41 @@ export function UsersPage() {
 
         return right.consultant.rating - left.consultant.rating;
       });
-  }, [consultants, kind, matchingProfile, topOnly]);
+  }, [consultants, kind, persona, profile, topOnly]);
   const visibleConsultants = rankedConsultants;
-  const hasActiveFilters = Boolean(query || city || kind !== "all" || topOnly);
-  const activeFilterLabels = buildDirectoryFilterLabels({ query, city, kind, topOnly });
+  const hasActiveFilters = Boolean(
+    query || city || kind !== "all" || topOnly || persona
+  );
+  const activeFilterLabels = persona
+    ? [`Архетип: ${persona.name}`, ...buildDirectoryFilterLabels({ query, city, kind, topOnly })]
+    : buildDirectoryFilterLabels({ query, city, kind, topOnly });
   const profileCtaTo = user ? "/dashboard" : "/auth?tab=register";
   const isConsultantViewer = profile?.role === "consultant";
 
+  function buildSearchParams(nextFilters: {
+    query?: string;
+    city?: string;
+    kind?: string;
+    topOnly?: boolean;
+    persona?: string | null;
+  }) {
+    const nextQuery = nextFilters.query ?? query;
+    const nextCity = nextFilters.city ?? city;
+    const nextKind = nextFilters.kind ?? kind;
+    const nextTopOnly = nextFilters.topOnly ?? topOnly;
+    const nextPersona = nextFilters.persona ?? persona?.id ?? null;
+
+    const params: Record<string, string> = {};
+    if (nextQuery) params.q = nextQuery;
+    if (nextCity) params.city = nextCity;
+    if (nextKind !== "all") params.kind = nextKind;
+    if (nextTopOnly) params.top = "1";
+    if (nextPersona) params.persona = nextPersona;
+    return params;
+  }
+
   function applyPresetQuery(nextQuery: string) {
-    setSearchParams(
-      nextQuery || city || kind !== "all" || topOnly
-        ? {
-            q: nextQuery,
-            city,
-            ...(kind !== "all" ? { kind } : {}),
-            ...(topOnly ? { top: "1" } : {})
-          }
-        : {}
-    );
+    setSearchParams(buildSearchParams({ query: nextQuery }));
   }
 
   function applyDirectoryFilters(nextFilters: {
@@ -1316,22 +1363,17 @@ export function UsersPage() {
     city?: string;
     kind?: string;
     topOnly?: boolean;
+    persona?: string | null;
   }) {
-    const nextQuery = nextFilters.query ?? query;
-    const nextCity = nextFilters.city ?? city;
-    const nextKind = nextFilters.kind ?? kind;
-    const nextTopOnly = nextFilters.topOnly ?? topOnly;
+    setSearchParams(buildSearchParams(nextFilters));
+  }
 
-    setSearchParams(
-      nextQuery || nextCity || nextKind !== "all" || nextTopOnly
-        ? {
-            ...(nextQuery ? { q: nextQuery } : {}),
-            ...(nextCity ? { city: nextCity } : {}),
-            ...(nextKind !== "all" ? { kind: nextKind } : {}),
-            ...(nextTopOnly ? { top: "1" } : {})
-          }
-        : {}
-    );
+  function selectPersona(next: PersonaPreset) {
+    if (persona?.id === next.id) {
+      applyDirectoryFilters({ persona: null });
+      return;
+    }
+    applyDirectoryFilters({ persona: next.id, kind: next.type });
   }
 
   return (
@@ -1344,30 +1386,50 @@ export function UsersPage() {
             <p className="hero__lede">
               {isConsultantViewer
                 ? "Това е потребителският изглед на CareerLane. Подходящите професионалисти за теб се подреждат в профила и таблото ти."
-                : usingDemoProfile && activeDemoProfile
-                  ? `Каталогът е персонализиран спрямо профила на ${activeDemoProfile.name}.`
-                  : "Попълненият профил помага да виждаш по-подходящите експерти по-напред."}
+                : persona
+                  ? `Каталогът показва ${persona.type === "mentor" ? "ментори" : "консултанти"} за „${persona.name}".`
+                  : "Избери архетип по-долу или попълни профила си, за да виждаш по-подходящите експерти."}
             </p>
           </div>
         </div>
       </section>
 
-      {!profile && !viewerLoading ? (
-        <section className="section section--tight">
-          <div className="container">
-            <div className="demo-user-grid">
-              {demoUsers.map((demoProfile) => (
-                <DemoUserProfileCard
-                  isActive={activeDemoProfile?.userId === demoProfile.userId}
-                  key={demoProfile.userId}
-                  profile={demoProfile}
-                  onSelect={() => setSelectedDemoUserId(demoProfile.userId)}
-                />
-              ))}
-            </div>
+      <section className="section section--tight">
+        <div className="container">
+          <div className="persona-grid">
+            {personaPresets.map((preset) => {
+              const isActive = persona?.id === preset.id;
+              return (
+                <button
+                  className={`persona-card ${isActive ? "persona-card--active" : ""}`}
+                  key={preset.id}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => selectPersona(preset)}
+                >
+                  <div className="persona-card__head">
+                    <span className="persona-card__code" aria-hidden="true">
+                      {preset.code}
+                    </span>
+                    <span className="persona-card__type">
+                      {preset.type === "mentor" ? "Ментор" : "Консултант"}
+                    </span>
+                  </div>
+                  <strong>{preset.name}</strong>
+                  <p>{preset.description}</p>
+                  <div className="chip-row">
+                    {preset.tags.slice(0, 3).map((tag) => (
+                      <span className="chip chip--soft" key={tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        </section>
-      ) : null}
+        </div>
+      </section>
 
       <section className="section">
         <div className="container">
@@ -1409,7 +1471,9 @@ export function UsersPage() {
                     className={`shortcut-chip ${kind === option.value ? "shortcut-chip--active" : ""}`}
                     key={option.value}
                     type="button"
-                    onClick={() => applyDirectoryFilters({ kind: option.value })}
+                    onClick={() =>
+                      applyDirectoryFilters({ kind: option.value, persona: null })
+                    }
                   >
                     {option.label}
                   </button>
@@ -1437,7 +1501,7 @@ export function UsersPage() {
                   <button
                     className="ghost-button"
                     type="button"
-                    onClick={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })}
+                    onClick={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false, persona: null })}
                     disabled={!hasActiveFilters}
                   >
                     Изчисти филтрите
@@ -1471,7 +1535,7 @@ export function UsersPage() {
               title="Няма съвпадения за избраните филтри"
               message="Разшири търсенето или изчисти филтрите."
               actionLabel="Изчисти филтрите"
-              onAction={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false })}
+              onAction={() => applyDirectoryFilters({ query: "", city: "", kind: "all", topOnly: false, persona: null })}
             />
           ) : null}
 
@@ -4853,60 +4917,6 @@ function ConsultantCardSkeleton() {
           ))}
         </div>
       </div>
-    </article>
-  );
-}
-
-
-function DemoUserProfileCard({
-  profile,
-  isActive,
-  onSelect
-}: {
-  profile: UserProfile;
-  isActive: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <article className={`demo-user-card ${isActive ? "demo-user-card--active" : ""}`}>
-      <div className="demo-user-card__header">
-        <AvatarMedia
-          className="demo-user-card__avatar"
-          src={profile.avatarUrl}
-          name={profile.name}
-        />
-        <div>
-          <div className="demo-user-card__labels">
-            <span className="role-experience-card__eyebrow">Профил</span>
-            {profile.isDemo ? <DemoAccountBadge kind="user" /> : null}
-          </div>
-          <h3>{profile.name}</h3>
-        </div>
-        <button
-          className={isActive ? "primary-button" : "ghost-button"}
-          type="button"
-          onClick={onSelect}
-        >
-          {isActive ? "Избран профил" : "Избери профил"}
-        </button>
-      </div>
-
-      <p>{profile.headline || profile.experienceSummary}</p>
-
-      <div className="demo-user-card__meta">
-        <span>{profile.occupation || "Потребителски профил"}</span>
-        <span>{profile.city || "Онлайн"}</span>
-      </div>
-
-      <div className="chip-row">
-        {(profile.interests || []).slice(0, 4).map((item) => (
-          <span className="chip chip--soft" key={item}>
-            {item}
-          </span>
-        ))}
-      </div>
-
-      {profile.goals ? <p className="demo-user-card__goal">{profile.goals}</p> : null}
     </article>
   );
 }

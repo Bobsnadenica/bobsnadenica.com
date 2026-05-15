@@ -3141,6 +3141,89 @@ textarea {
   gap: 18px;
 }
 
+.persona-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.persona-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  text-align: left;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.persona-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.persona-card--active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 14px 28px rgba(75, 106, 96, 0.18);
+}
+
+.persona-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.persona-card__code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--primary);
+  color: white;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+.persona-card--active .persona-card__code {
+  background: var(--primary-dark);
+}
+
+.persona-card__type {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.persona-card--active .persona-card__type {
+  color: var(--primary-dark);
+}
+
+.persona-card strong {
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.persona-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
 .demo-user-card,
 .demo-user-card__header,
 .demo-user-card__meta {
@@ -5064,6 +5147,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .persona-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .site-nav {
     display: none;
   }
@@ -5177,6 +5264,7 @@ textarea {
   .auth-choice-grid,
   .profile-stage__facts,
   .demo-user-grid,
+  .persona-grid,
   .journey-grid,
   .pricing-grid,
   .role-experience-grid,
