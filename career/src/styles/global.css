@@ -5065,6 +5065,54 @@ textarea {
   justify-items: start;
 }
 
+.profile-documents {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-documents__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  flex-wrap: wrap;
+}
+
+.profile-documents__item > div:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.profile-documents__item strong {
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-documents__item span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.profile-documents__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-documents__empty {
+  display: grid;
+  gap: 4px;
+}
+
 .booking-item {
   display: flex;
   align-items: flex-start;

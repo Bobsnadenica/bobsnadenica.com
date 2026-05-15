@@ -20,8 +20,13 @@ import { getPersonaById, personaPresets, type PersonaPreset } from "../../lib/pe
 import {
   CV_UPLOAD_ACCEPT,
   CV_UPLOAD_FORMAT_LABEL,
+  DOCUMENT_UPLOAD_ACCEPT,
+  DOCUMENT_UPLOAD_FORMAT_LABEL,
+  DOCUMENT_UPLOAD_MAX_COUNT,
   getCvUploadContentType,
-  getCvUploadValidationError
+  getCvUploadValidationError,
+  getDocumentUploadContentType,
+  getDocumentUploadValidationError
 } from "../../lib/uploads";
 import { resolvePublicUrl } from "../../lib/url";
 import type {
@@ -3194,6 +3199,70 @@ export function DashboardPage() {
     }
   }
 
+  async function uploadDocument(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    const formElement = event.currentTarget;
+    const formData = new FormData(formElement);
+    const file = formData.get("document") as File | null;
+
+    if (!file || !file.name) {
+      setError("Избери файл за качване.");
+      return;
+    }
+
+    if ((profile.documents || []).length >= DOCUMENT_UPLOAD_MAX_COUNT) {
+      setError(`Достигна лимита от ${DOCUMENT_UPLOAD_MAX_COUNT} документа.`);
+      return;
+    }
+
+    const validationError = getDocumentUploadValidationError(file);
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    try {
+      const contentType = getDocumentUploadContentType(file);
+      const result = await api.createDocumentUpload(token, file);
+
+      await uploadFileToSignedUrl(result.uploadUrl, file, "документа", contentType);
+
+      const nextDocuments = [
+        ...(profile.documents || []),
+        result.document as UploadedDocument
+      ];
+      const updated = await api.updateMyProfile(token, { documents: nextDocuments });
+
+      setProfile(updated);
+      setMessage("Документът е добавен в профила ти.");
+      formElement.reset();
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно качване.");
+    }
+  }
+
+  async function removeDocument(storageKey: string) {
+    if (typeof window !== "undefined" && !window.confirm("Да премахна документа?")) {
+      return;
+    }
+    setError("");
+    setMessage("");
+    try {
+      const nextDocuments = (profile.documents || []).filter(
+        (doc) => doc.storageKey !== storageKey
+      );
+      const updated = await api.updateMyProfile(token, { documents: nextDocuments });
+      setProfile(updated);
+      setMessage("Документът е премахнат.");
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "Неуспешно премахване.");
+    }
+  }
+
   async function saveConsultantProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -4069,6 +4138,39 @@ export function DashboardPage() {
             </button>
           </form>
 
+          <form className="panel form-stack" id="documents-extra" onSubmit={uploadDocument}>
+            <h2>Допълнителни документи</h2>
+            <p className="section-caption">
+              Дипломи, сертификати, портфолио или други материали. Максимум{" "}
+              {DOCUMENT_UPLOAD_MAX_COUNT} документа.
+            </p>
+
+            <ProfileDocumentList
+              documents={profile.documents || []}
+              onRemove={removeDocument}
+            />
+
+            {(profile.documents || []).length < DOCUMENT_UPLOAD_MAX_COUNT ? (
+              <>
+                <label className="dashboard-upload-field">
+                  <span>Добави нов документ</span>
+                  <input name="document" type="file" accept={DOCUMENT_UPLOAD_ACCEPT} />
+                  <span className="form-note">
+                    Поддържани формати: {DOCUMENT_UPLOAD_FORMAT_LABEL}.
+                  </span>
+                </label>
+                <button className="primary-button" type="submit">
+                  Качи документ
+                </button>
+              </>
+            ) : (
+              <p className="form-note">
+                Достигна лимита от {DOCUMENT_UPLOAD_MAX_COUNT} документа. Премахни някой, за
+                да добавиш нов.
+              </p>
+            )}
+          </form>
+
           {profile.role === "consultant" ? (
             <form
               className="panel form-stack"
@@ -4920,6 +5022,55 @@ function DashboardDocumentCard({
         </dl>
       </div>
     </div>
+  );
+}
+
+function ProfileDocumentList({
+  documents,
+  onRemove
+}: {
+  documents: UploadedDocument[];
+  onRemove: (storageKey: string) => Promise<void> | void;
+}) {
+  if (!documents.length) {
+    return (
+      <div className="panel panel--subtle profile-documents__empty">
+        <strong>Все още няма допълнителни документи.</strong>
+        <p>Качи диплома, сертификат или портфолио, ако имаш.</p>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="profile-documents" aria-label="Допълнителни документи">
+      {documents.map((doc) => (
+        <li className="profile-documents__item" key={doc.storageKey}>
+          <div>
+            <strong>{doc.fileName}</strong>
+            <span>{formatDocumentUploadedAt(doc.uploadedAt)}</span>
+          </div>
+          <div className="profile-documents__actions">
+            {doc.downloadUrl ? (
+              <a
+                className="ghost-button"
+                href={doc.downloadUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Отвори
+              </a>
+            ) : null}
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => onRemove(doc.storageKey)}
+            >
+              Премахни
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 

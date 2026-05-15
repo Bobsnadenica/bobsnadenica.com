@@ -4,7 +4,7 @@ import {
   getFilteredDemoConsultants,
   mergeConsultantLists
 } from "./demo-data";
-import { getCvUploadContentType } from "./uploads";
+import { getCvUploadContentType, getDocumentUploadContentType } from "./uploads";
 import type {
   AdminConsultantSummary,
   Booking,
@@ -51,6 +51,7 @@ type UpdateProfileInput = Partial<
     | "preferredSessionModes"
     | "plan"
     | "cvDocument"
+    | "documents"
   >
 >;
 
@@ -268,6 +269,28 @@ export const api = {
           fileName: file.name,
           contentType,
           fileSize: file.size || 0
+        })
+      },
+      token
+    );
+  },
+
+  async createDocumentUpload(token: string, file: File) {
+    const contentType = getDocumentUploadContentType(file);
+
+    return request<{
+      uploadUrl: string;
+      storageKey: string;
+      document: UploadedDocument;
+    }>(
+      "/me/cv/upload-url",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          fileName: file.name,
+          contentType,
+          fileSize: file.size || 0,
+          kind: "document"
         })
       },
       token

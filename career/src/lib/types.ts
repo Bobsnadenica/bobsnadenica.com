@@ -24,6 +24,7 @@ export interface UploadedDocument {
   fileName: string;
   storageKey: string;
   uploadedAt: string;
+  downloadUrl?: string;
 }
 
 export interface ConsultantProfile {
@@ -86,6 +87,7 @@ export interface UserProfile {
   goals?: string;
   preferredSessionModes?: string[];
   cvDocument?: UploadedDocument | null;
+  documents?: UploadedDocument[];
   createdAt: string;
   updatedAt: string;
 }

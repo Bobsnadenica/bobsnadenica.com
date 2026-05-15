@@ -35,6 +35,14 @@ const USER_ROLES = new Set(["client", "consultant"]);
 const CONSULTANT_PROFILE_TYPES = new Set(["consultant", "mentor"]);
 const PLAN_TIERS = new Set(["free", "pro"]);
 const ALLOWED_PROFILE_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_DOCUMENT_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain"
+]);
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
+const MAX_USER_DOCUMENTS = 10;
 const CONSULTANT_PROFILE_STATUSES = new Set(["pending", "approved", "rejected"]);
 const VISIBLE_CONSULTANT_STATUSES = new Set(["approved", "active"]);
 const ADMIN_GROUP = "admin";
@@ -372,6 +380,7 @@ function normalizeUploadKind(value) {
 
   if (
     kind === "cv" ||
+    kind === "document" ||
     kind === "avatar" ||
     kind === "hero" ||
     kind === "user-avatar"
@@ -430,6 +439,57 @@ function normalizeCvDocument(value, fallback, userId) {
   };
 }
 
+function normalizeUserDocuments(value, fallback, userId) {
+  if (typeof value === "undefined") {
+    return Array.isArray(fallback) ? fallback : [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw Object.assign(new Error("documents must be a list."), { statusCode: 400 });
+  }
+
+  const fallbackByKey = new Map(
+    (Array.isArray(fallback) ? fallback : []).map((item) => [item.storageKey, item])
+  );
+
+  const seenKeys = new Set();
+  const sanitized = [];
+
+  for (const item of value) {
+    if (!item || typeof item !== "object" || Array.isArray(item) || !item.storageKey) {
+      throw Object.assign(new Error("Invalid document entry."), { statusCode: 400 });
+    }
+    const storageKey = assertOwnedStorageKey(
+      item.storageKey,
+      "",
+      [`profiles/${userId}/documents/`],
+      "document storage key"
+    );
+    if (seenKeys.has(storageKey)) {
+      continue;
+    }
+    seenKeys.add(storageKey);
+    const previous = fallbackByKey.get(storageKey);
+    sanitized.push({
+      fileName: sanitizeFileName(item.fileName || previous?.fileName || "document"),
+      storageKey,
+      uploadedAt:
+        normalizeText(item.uploadedAt, previous?.uploadedAt || "", 40) ||
+        previous?.uploadedAt ||
+        new Date().toISOString()
+    });
+  }
+
+  if (sanitized.length > MAX_USER_DOCUMENTS) {
+    throw Object.assign(
+      new Error(`Можеш да качиш до ${MAX_USER_DOCUMENTS} документа.`),
+      { statusCode: 400 }
+    );
+  }
+
+  return sanitized;
+}
+
 function normalizeSlug(value, fallback = "") {
   const normalized = String(value || fallback || "")
     .trim()
@@ -453,18 +513,24 @@ function validateUploadRequest({ kind, contentType, fileSize }) {
   }
 
   if (kind === "cv") {
-    const allowedDocumentTypes = new Set([
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ]);
-
-    if (!allowedDocumentTypes.has(safeContentType)) {
+    if (!ALLOWED_DOCUMENT_TYPES.has(safeContentType) || safeContentType === "text/plain") {
       return "Unsupported CV file type.";
     }
 
     if (safeFileSize > 8 * 1024 * 1024) {
       return "CV files must be 8 MB or smaller.";
+    }
+
+    return null;
+  }
+
+  if (kind === "document") {
+    if (!ALLOWED_DOCUMENT_TYPES.has(safeContentType)) {
+      return "Unsupported document type.";
+    }
+
+    if (safeFileSize > MAX_DOCUMENT_BYTES) {
+      return "Documents must be 10 MB or smaller.";
     }
 
     return null;
@@ -545,9 +611,18 @@ async function decorateUserMedia(user) {
     return user;
   }
 
-  const avatarUrl = user.avatarStorageKey
-    ? await getSignedObjectUrl(user.avatarStorageKey)
-    : "";
+  const [avatarUrl, cvDownloadUrl, documents] = await Promise.all([
+    user.avatarStorageKey ? getSignedObjectUrl(user.avatarStorageKey) : Promise.resolve(""),
+    user.cvDocument?.storageKey
+      ? getSignedObjectUrl(user.cvDocument.storageKey)
+      : Promise.resolve(""),
+    Promise.all(
+      (Array.isArray(user.documents) ? user.documents : []).map(async (item) => ({
+        ...item,
+        downloadUrl: item.storageKey ? await getSignedObjectUrl(item.storageKey) : ""
+      }))
+    )
+  ]);
 
   return {
     ...user,
@@ -560,7 +635,11 @@ async function decorateUserMedia(user) {
     interests: normalizeStringList(user.interests, []),
     keywords: normalizeStringList(user.keywords, []),
     preferredSessionModes: normalizeStringList(user.preferredSessionModes, []),
-    avatarUrl: avatarUrl || user.avatarUrl || ""
+    avatarUrl: avatarUrl || user.avatarUrl || "",
+    cvDocument: user.cvDocument
+      ? { ...user.cvDocument, downloadUrl: cvDownloadUrl }
+      : null,
+    documents
   };
 }
 
@@ -754,6 +833,7 @@ async function bootstrapUser(event) {
     goals: existing?.goals || "",
     preferredSessionModes: existing?.preferredSessionModes || [],
     cvDocument: existing?.cvDocument || null,
+    documents: Array.isArray(existing?.documents) ? existing.documents : [],
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };
@@ -875,6 +955,7 @@ async function updateMeProfile(event) {
     ),
     plan: normalizePlanTier(current.plan, "free"),
     cvDocument: normalizeCvDocument(body.cvDocument, current.cvDocument, claims.sub),
+    documents: normalizeUserDocuments(body.documents, current.documents, claims.sub),
     updatedAt: new Date().toISOString()
   };
 
@@ -1068,7 +1149,7 @@ async function createUploadUrl(event) {
 
   const safeFileName = sanitizeFileName(body.fileName);
   const storageKey =
-    kind === "cv"
+    kind === "cv" || kind === "document"
       ? `profiles/${claims.sub}/documents/${Date.now()}-${safeFileName}`
       : kind === "user-avatar"
         ? `profiles/${claims.sub}/avatar/${Date.now()}-${safeFileName}`
