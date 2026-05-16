@@ -4997,51 +4997,28 @@ function ConsultantCard({
         {match ? <p className="consultant-card__match">{match.note}</p> : null}
         <p className="consultant-card__summary">{summary}</p>
 
-        <div className="consultant-card__fact-grid consultant-card__fact-grid--compact">
-          <article>
-            <span>Локация</span>
-            <strong>{getConsultantLocationLabel(consultant)}</strong>
-          </article>
-          <article>
-            <span>Опит</span>
-            <strong>{consultant.experienceYears} години</strong>
-          </article>
-          <article>
-            <span>Следващ час</span>
-            <strong>{formatDate(consultant.nextAvailable)}</strong>
-          </article>
-          <article>
-            <span>Формат</span>
-            <strong>{consultant.sessionModes[0] || "Онлайн"}</strong>
-          </article>
-        </div>
-
-        <div className="chip-row consultant-card__topics">
-          {profileSignals.map((item) => (
-            <span className="chip" key={item}>
-              {item}
-            </span>
-          ))}
-        </div>
+        <ul className="consultant-card__meta">
+          <li>{getConsultantLocationLabel(consultant)}</li>
+          <li>{getSessionLengthLabel(consultant)}</li>
+          <li>{consultant.sessionModes[0] || "Онлайн"}</li>
+        </ul>
 
         {upcomingSlots.length ? (
-          <div className="consultant-card__slots" aria-label="Следващи свободни часове">
-            {upcomingSlots.map((slot) => (
-              <span className="consultant-slot-pill" key={slot}>
-                {formatAvailabilityShortLabel(slot)}
-              </span>
-            ))}
+          <div className="consultant-card__slots-block">
+            <span className="consultant-card__slots-label">Свободни часове</span>
+            <div className="consultant-card__slots" aria-label="Следващи свободни часове">
+              {upcomingSlots.map((slot) => (
+                <span className="consultant-slot-pill" key={slot}>
+                  {formatAvailabilityShortLabel(slot)}
+                </span>
+              ))}
+            </div>
           </div>
         ) : null}
 
         <div className="consultant-card__footer">
-          <div className="consultant-card__footer-copy">
-            <strong>{getConsultantPriceLabel(consultant)}</strong>
-            <span>
-              {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
-            </span>
-          </div>
-          <span className="consultant-card__link-label">Отвори профила</span>
+          <strong>{getConsultantPriceLabel(consultant)}</strong>
+          <span className="consultant-card__link-label">Виж профила →</span>
         </div>
       </div>
     </Link>

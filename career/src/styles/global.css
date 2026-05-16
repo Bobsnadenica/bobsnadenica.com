@@ -3091,8 +3091,44 @@ textarea {
   text-transform: uppercase;
 }
 
-.consultant-card__topics {
-  gap: 10px;
+.consultant-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0;
+  padding: 10px 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.consultant-card__meta li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.consultant-card__meta li + li::before {
+  content: "·";
+  margin-right: 10px;
+  color: var(--border-strong);
+  font-weight: 700;
+}
+
+.consultant-card__slots-block {
+  display: grid;
+  gap: 8px;
+}
+
+.consultant-card__slots-label {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .consultant-card__link-label {
@@ -3104,30 +3140,41 @@ textarea {
 .consultant-card__slots {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
 .consultant-slot-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(193, 208, 225, 0.9);
-  color: var(--text-soft);
-  font-size: 0.88rem;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  border: 1px solid transparent;
+  color: var(--primary-dark);
+  font-size: 0.82rem;
   font-weight: 700;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.consultant-card:hover .consultant-slot-pill {
+  border-color: var(--primary);
 }
 
 .consultant-card__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
   margin-top: auto;
+  padding-top: 4px;
+}
+
+.consultant-card__footer > strong {
+  font-size: 1rem;
+  letter-spacing: 0;
 }
 
 .consultant-card:hover .consultant-card__avatar {
