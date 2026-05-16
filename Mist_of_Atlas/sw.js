@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mist-of-atlas-v2';
+const CACHE_NAME = 'mist-of-atlas-v4';
 const ASSETS = [
   'index.html',
   'styles.css',
@@ -14,6 +14,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(ASSETS);
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -26,6 +27,7 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {

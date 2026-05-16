@@ -78,6 +78,9 @@ spotlightSurfaces.forEach((surface) => {
 
 const defaultCenter = [51.505, -0.09];
 const heroMapElement = document.getElementById("heroMap");
+const atlasMapSurface = document.querySelector(".atlas-map");
+const atlasFogCanvas = document.querySelector(".atlas-fog");
+const atlasWalker = document.querySelector(".atlas-walker");
 const chronicleMapElement = document.getElementById("chronicleMapBase");
 const locationStatus = document.getElementById("locationStatus");
 const useLocationBtn = document.getElementById("useLocationBtn");
@@ -99,6 +102,7 @@ let currentMode = "solo";
 let usingUserLocation = false;
 let heroMap = null;
 let chronicleMap = null;
+let atlasRevealSimulation = null;
 const heroLayers = [];
 const chronicleLayers = [];
 
@@ -202,6 +206,14 @@ const addMarker = (map, store, latlng, style = {}) => {
   }).addTo(map);
 
   store.push(marker);
+};
+
+const getCanvasContext = (canvas) => {
+  if (!canvas || typeof canvas.getContext !== "function") {
+    return null;
+  }
+
+  return canvas.getContext("2d");
 };
 
 const createMap = (element, center, zoom) => {
@@ -356,6 +368,291 @@ const buildChronicleScene = (center) => {
   };
 };
 
+const createAtlasRevealSimulation = ({ surface, fogCanvas, walker }) => {
+  const ctx = getCanvasContext(fogCanvas);
+
+  if (!surface || !fogCanvas || !walker) {
+    return null;
+  }
+
+  const hasCanvasFog = Boolean(ctx);
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let animationFrame = null;
+  let pathPoints = [];
+  let activeMode = "solo";
+  let lastPoint = null;
+
+  surface.classList.toggle("uses-canvas-fog", hasCanvasFog);
+
+  const stop = () => {
+    if (animationFrame) {
+      window.clearTimeout(animationFrame);
+      animationFrame = null;
+    }
+  };
+
+  const drawFog = () => {
+    if (!ctx) {
+      return;
+    }
+
+    const rect = surface.getBoundingClientRect();
+    const width = rect.width || fogCanvas.width;
+    const height = rect.height || fogCanvas.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const baseGradient = ctx.createLinearGradient(0, 0, 0, height);
+    baseGradient.addColorStop(0, "rgba(222, 230, 221, 0.72)");
+    baseGradient.addColorStop(0.48, "rgba(192, 205, 196, 0.66)");
+    baseGradient.addColorStop(1, "rgba(124, 142, 134, 0.62)");
+
+    ctx.fillStyle = baseGradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const cloudLayers = [
+      [0.14, 0.18, 0.34, 0.24, "rgba(245, 247, 240, 0.24)"],
+      [0.74, 0.2, 0.3, 0.22, "rgba(232, 238, 229, 0.22)"],
+      [0.42, 0.62, 0.46, 0.28, "rgba(226, 232, 224, 0.2)"],
+      [0.86, 0.76, 0.24, 0.2, "rgba(240, 244, 236, 0.16)"],
+    ];
+
+    cloudLayers.forEach(([x, y, radiusX, radiusY, color]) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(width * x, height * y, width * radiusX, height * radiusY, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.lineWidth = Math.max(1, Math.round(width * 0.0018));
+
+    for (let offset = 0; offset < width + height; offset += 42) {
+      ctx.beginPath();
+      ctx.moveTo(offset, 0);
+      ctx.lineTo(offset - height, height);
+      ctx.stroke();
+    }
+  };
+
+  const resizeFog = () => {
+    if (!ctx) {
+      return;
+    }
+
+    const rect = surface.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fogCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+    fogCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    drawFog();
+  };
+
+  const stampReveal = (x, y, radius = 23) => {
+    if (!ctx) {
+      return;
+    }
+
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, "rgba(0, 0, 0, 1)");
+    gradient.addColorStop(0.5, "rgba(0, 0, 0, 0.88)");
+    gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  const revealTrail = (fromPoint, toPoint, radius = 21) => {
+    if (!fromPoint) {
+      stampReveal(toPoint.x, toPoint.y, radius);
+      return;
+    }
+
+    const dx = toPoint.x - fromPoint.x;
+    const dy = toPoint.y - fromPoint.y;
+    const distance = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.ceil(distance / 5));
+
+    for (let step = 0; step <= steps; step += 1) {
+      const progress = step / steps;
+      stampReveal(fromPoint.x + dx * progress, fromPoint.y + dy * progress, radius);
+    }
+  };
+
+  const setWalkerPosition = (point) => {
+    surface.style.setProperty("--walker-x", `${point.x}px`);
+    surface.style.setProperty("--walker-y", `${point.y}px`);
+    surface.style.setProperty("--fog-x", `${point.x}px`);
+    surface.style.setProperty("--fog-y", `${point.y}px`);
+    walker.classList.add("is-active");
+  };
+
+  const getActiveRoute = (mode) => {
+    const scene = buildHeroScenes(currentCenter)[mode] ?? buildHeroScenes(currentCenter).solo;
+
+    if (mode === "party") {
+      return scene.routes[1] ?? scene.routes[0];
+    }
+
+    if (mode === "treasure") {
+      return scene.routes[scene.routes.length - 1] ?? scene.routes[0];
+    }
+
+    return scene.routes[0];
+  };
+
+  const getFallbackPoints = (mode) => {
+    const rect = surface.getBoundingClientRect();
+    const paths = {
+      solo: [
+        [0.16, 0.74],
+        [0.28, 0.62],
+        [0.42, 0.54],
+        [0.58, 0.42],
+        [0.72, 0.28],
+      ],
+      party: [
+        [0.18, 0.68],
+        [0.32, 0.56],
+        [0.48, 0.45],
+        [0.64, 0.34],
+        [0.82, 0.22],
+      ],
+      treasure: [
+        [0.36, 0.66],
+        [0.45, 0.54],
+        [0.56, 0.42],
+        [0.68, 0.3],
+      ],
+    };
+
+    return (paths[mode] ?? paths.solo).map(([x, y]) => ({
+      x: rect.width * x,
+      y: rect.height * y,
+    }));
+  };
+
+  const smoothPath = (rawPoints) => {
+    const smoothedPoints = [];
+
+    rawPoints.forEach((point, index) => {
+      const previous = rawPoints[index - 1];
+
+      if (!previous) {
+        smoothedPoints.push(point);
+        return;
+      }
+
+      const dx = point.x - previous.x;
+      const dy = point.y - previous.y;
+      const distance = Math.hypot(dx, dy);
+      const steps = Math.max(1, Math.ceil(distance / 5));
+
+      for (let step = 1; step <= steps; step += 1) {
+        const progress = step / steps;
+        smoothedPoints.push({
+          x: previous.x + dx * progress,
+          y: previous.y + dy * progress,
+        });
+      }
+    });
+
+    return smoothedPoints;
+  };
+
+  const buildPath = (mode) => {
+    if (heroMap && typeof heroMap.latLngToContainerPoint === "function") {
+      const activeRoute = getActiveRoute(mode);
+      const rawPoints = activeRoute.coordinates.map((latlng) => {
+        const point = heroMap.latLngToContainerPoint(latlng);
+        return { x: point.x, y: point.y };
+      });
+
+      return smoothPath(rawPoints);
+    }
+
+    return smoothPath(getFallbackPoints(mode));
+  };
+
+  const revealReducedMotionPath = () => {
+    pathPoints.slice(0, Math.ceil(pathPoints.length * 0.38)).forEach((point, index) => {
+      revealTrail(pathPoints[index - 1], point, 20);
+    });
+    setWalkerPosition(pathPoints[Math.min(pathPoints.length - 1, Math.floor(pathPoints.length * 0.38))]);
+  };
+
+  const restart = (mode = activeMode) => {
+    activeMode = mode;
+    stop();
+    resizeFog();
+    pathPoints = buildPath(mode);
+    surface.dataset.simulationMode = mode;
+    surface.dataset.simulationPoints = String(pathPoints.length);
+    lastPoint = null;
+
+    if (!pathPoints.length) {
+      surface.dataset.simulationState = "empty";
+      walker.classList.remove("is-active");
+      return;
+    }
+
+    setWalkerPosition(pathPoints[0]);
+    if (hasCanvasFog) {
+      revealTrail(null, pathPoints[0], 21);
+    }
+
+    if (prefersReducedMotion) {
+      surface.dataset.simulationState = "reduced-motion";
+      revealReducedMotionPath();
+      return;
+    }
+
+    surface.dataset.simulationState = hasCanvasFog ? "canvas" : "css-fallback";
+    const duration = Math.max(6200, pathPoints.length * 24);
+    const startedAt = performance.now();
+
+    const tick = () => {
+      const time = performance.now();
+      const elapsed = time - startedAt;
+      const progress = Math.min(elapsed / duration, 1);
+      const pointIndex = Math.min(pathPoints.length - 1, Math.floor(progress * pathPoints.length));
+      const point = pathPoints[pointIndex];
+
+      if (hasCanvasFog) {
+        revealTrail(lastPoint, point, 21);
+      }
+      setWalkerPosition(point);
+      lastPoint = point;
+
+      if (progress >= 1) {
+        animationFrame = null;
+        return;
+      }
+
+      animationFrame = window.setTimeout(tick, 72);
+    };
+
+    animationFrame = window.setTimeout(tick, 72);
+  };
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      restart(activeMode);
+    }, 120);
+  });
+
+  return { restart, stop };
+};
+
 const renderHeroScene = (mode = currentMode) => {
   if (!heroMap || !hasLeaflet) {
     return;
@@ -378,6 +675,8 @@ const renderHeroScene = (mode = currentMode) => {
     padding: [30, 30],
     maxZoom: 15,
   });
+
+  atlasRevealSimulation?.restart(mode);
 };
 
 const renderChronicleScene = () => {
@@ -462,6 +761,12 @@ const requestUserLocation = (silent = false) => {
   );
 };
 
+atlasRevealSimulation = createAtlasRevealSimulation({
+  surface: atlasMapSurface,
+  fogCanvas: atlasFogCanvas,
+  walker: atlasWalker,
+});
+
 if (hasLeaflet && heroMapElement && chronicleMapElement) {
   heroMap = createMap(heroMapElement, currentCenter, 13.75);
   chronicleMap = createMap(chronicleMapElement, offsetLatLng(currentCenter, 220, 320), 14.25);
@@ -485,6 +790,10 @@ if (hasLeaflet && heroMapElement && chronicleMapElement) {
   setLocationButtonState("Map Unavailable", true);
 }
 
+if (!heroMap) {
+  atlasRevealSimulation?.restart(currentMode);
+}
+
 if (useLocationBtn) {
   useLocationBtn.addEventListener("click", () => {
     requestUserLocation(false);
@@ -501,7 +810,7 @@ chronicleMaps.forEach((map) => {
     return;
   }
 
-  const ctx = fogCanvas.getContext("2d");
+  const ctx = getCanvasContext(fogCanvas);
 
   if (!ctx) {
     return;
@@ -510,6 +819,7 @@ chronicleMaps.forEach((map) => {
   let resetTimer = null;
   let lastPoint = null;
   let hasRevealed = false;
+  const revealRadius = window.matchMedia("(max-width: 680px)").matches ? 20 : 25;
 
   const clearResetTimer = () => {
     window.clearTimeout(resetTimer);
@@ -572,7 +882,7 @@ chronicleMaps.forEach((map) => {
     drawFog();
   };
 
-  const stampReveal = (x, y, radius = 46) => {
+  const stampReveal = (x, y, radius = revealRadius) => {
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
 
@@ -597,7 +907,7 @@ chronicleMaps.forEach((map) => {
     const dx = toPoint.x - fromPoint.x;
     const dy = toPoint.y - fromPoint.y;
     const distance = Math.hypot(dx, dy);
-    const steps = Math.max(1, Math.ceil(distance / 12));
+    const steps = Math.max(1, Math.ceil(distance / 8));
 
     for (let step = 0; step <= steps; step += 1) {
       const progress = step / steps;
@@ -652,7 +962,7 @@ chronicleMaps.forEach((map) => {
   };
 
   resizeFog();
-  stampReveal(map.getBoundingClientRect().width / 2, map.getBoundingClientRect().height / 2, 28);
+  stampReveal(map.getBoundingClientRect().width / 2, map.getBoundingClientRect().height / 2, Math.round(revealRadius * 0.72));
 
   map.addEventListener("pointerenter", (event) => {
     revealAtClientPoint(event.clientX, event.clientY);
@@ -766,7 +1076,7 @@ if (
     cycleTimer = window.setInterval(() => {
       currentIndex = (currentIndex + 1) % modes.length;
       applyDemoState(modes[currentIndex]);
-    }, 4200);
+    }, 7600);
   };
 
   demoButtons.forEach((button) => {
