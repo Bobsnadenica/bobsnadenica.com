@@ -4965,35 +4965,32 @@ function ConsultantCard({
       to={`/consultants/${consultant.slug}`}
     >
       <div className="consultant-card__body">
-        <div className="chip-row consultant-card__status-row">
-          <span className="plan-pill">
-            {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
-          </span>
-          <span className={consultant.featured ? "status-badge" : "plan-pill"}>
-            {consultant.featured ? "Подбран профил" : "Активен профил"}
-          </span>
-          {consultant.isDemo ? <DemoAccountBadge /> : null}
-          {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
-        </div>
-
-        <div className="consultant-card__header">
+        <div className="consultant-card__portrait">
           <AvatarMedia
             className="consultant-card__avatar"
             src={consultant.avatarUrl}
             name={consultant.name}
           />
+          <div className="chip-row consultant-card__status-row">
+            <span className="plan-pill">
+              {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
+            </span>
+            {consultant.featured ? <span className="status-badge">Подбран</span> : null}
+            {consultant.isDemo ? <DemoAccountBadge /> : null}
+            {match ? <span className="plan-pill">{match.score}%</span> : null}
+          </div>
+        </div>
 
-          <div className="consultant-card__identity">
-            <div className="consultant-card__review-row">
-              <span className="rating-pill">
-                {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
-              </span>
-              <span className="review-count-pill">
-                {consultant.reviewCount ? `${consultant.reviewCount} мнения` : "нов профил"}
-              </span>
-            </div>
-            <h3>{consultant.name}</h3>
-            <p>{consultant.headline}</p>
+        <div className="consultant-card__identity">
+          <h3>{consultant.name}</h3>
+          <p>{consultant.headline}</p>
+          <div className="consultant-card__review-row">
+            <span className="rating-pill">
+              {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
+            </span>
+            <span className="review-count-pill">
+              {consultant.reviewCount ? `${consultant.reviewCount} мнения` : "нов профил"}
+            </span>
           </div>
         </div>
 
@@ -5281,14 +5278,13 @@ function ConsultantCardSkeleton() {
   return (
     <article className="consultant-card consultant-card--skeleton" aria-hidden="true">
       <div className="consultant-card__body">
-        <div className="consultant-card__header">
+        <div className="consultant-card__portrait">
           <span className="skeleton-block skeleton-block--avatar" />
-          <div className="consultant-card__identity">
-            <span className="skeleton-line skeleton-line--short" />
-            <span className="skeleton-line skeleton-line--title" />
-            <span className="skeleton-line" />
-          </div>
-          <span className="skeleton-block skeleton-block--rating" />
+        </div>
+        <div className="consultant-card__identity">
+          <span className="skeleton-line skeleton-line--title" />
+          <span className="skeleton-line" />
+          <span className="skeleton-line skeleton-line--short" />
         </div>
         <span className="skeleton-line" />
         <span className="skeleton-line skeleton-line--wide" />
