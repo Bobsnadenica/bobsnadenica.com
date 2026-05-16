@@ -17,7 +17,7 @@
   --warning: #b45309;
   --shadow: 0 20px 52px rgba(15, 23, 42, 0.06);
   --shadow-soft: 0 14px 30px rgba(15, 23, 42, 0.05);
-  --container: min(1220px, calc(100% - 40px));
+  --container: min(1320px, calc(100% - 40px));
 }
 
 * {
@@ -84,6 +84,7 @@ summary:focus-visible {
 
 .site-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   transition:
@@ -2923,7 +2924,14 @@ textarea {
 }
 
 .consultant-grid--directory {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (min-width: 1500px) {
+  .consultant-grid,
+  .consultant-grid--directory {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .consultant-card--link {
@@ -5215,7 +5223,7 @@ textarea {
 
 .site-footer {
   margin-top: 56px;
-  padding: 56px 0;
+  padding: 32px 0 calc(32px + env(safe-area-inset-bottom, 0px));
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.22), transparent 24%),
     radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.14), transparent 24%),
@@ -5538,6 +5546,17 @@ textarea {
 @media (max-width: 820px) {
   :root {
     --container: calc(100% - 22px);
+  }
+
+  .hero,
+  .section,
+  .profile-hero {
+    padding-top: 28px;
+  }
+
+  .site-footer {
+    margin-top: 36px;
+    padding: 28px 0 calc(28px + env(safe-area-inset-bottom, 0px));
   }
 
   .site-header {
