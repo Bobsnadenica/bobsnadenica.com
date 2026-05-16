@@ -262,6 +262,170 @@
       </div>
     </section>
 
+    <section>
+      <h2>04. Productivity Hacks</h2>
+      <div class="grid">
+        <div class="setup-item">
+          <div class="item-title">Touch ID for Sudo</div>
+          <div class="item-desc">Use your fingerprint for terminal commands.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">sudo sed -i '' '2i\'$'\n''auth sufficient pam_tid.so' /etc/pam.d/sudo</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Magic Clipboard (Copy)</div>
+          <div class="item-desc">Pipe any output directly to your clipboard.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">ls -la | pbcopy</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Magic Clipboard (Paste)</div>
+          <div class="item-desc">Paste clipboard content into a file.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">pbpaste > my_clipboard.txt</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Keep Mac Awake</div>
+          <div class="item-desc">Prevent sleep during long tasks (1 hour).</div>
+          <div class="code-block" onclick="copyToClipboard(this)">caffeinate -u -t 3600</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Instant Web Server</div>
+          <div class="item-desc">Serve current folder over local network.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">python3 -m http.server 8000</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Quick Look from CLI</div>
+          <div class="item-desc">Open a preview window for any file.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">qlmanage -p filename.pdf</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Open current folder in Finder</div>
+          <div class="item-desc">Quick jump from terminal to GUI.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">open .</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>05. Everyday Scripts</h2>
+      <div class="grid">
+        <div class="setup-item">
+          <div class="item-title">Flush DNS Cache</div>
+          <div class="item-desc">Fix internet/domain resolution issues.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Clear Inactive RAM</div>
+          <div class="item-desc">Force macOS to free up memory.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">sudo purge</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Find Top 10 Large Files</div>
+          <div class="item-desc">Identify what is eating your disk space.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">du -ah . | sort -rh | head -n 10</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Clean DS_Store Files</div>
+          <div class="item-desc">Recursively delete hidden metadata files.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">find . -name ".DS_Store" -depth -exec rm {} \;</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Check Public IP</div>
+          <div class="item-desc">Get your external IP address.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">curl -s ifconfig.me</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Battery Health (CLI)</div>
+          <div class="item-desc">Get a detailed battery report.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">pmset -g batt</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Say Completion</div>
+          <div class="item-desc">Make your Mac notify you when a task finishes.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">sleep 10; say "Task is done"</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>06. Essential Keyboard Shortcuts</h2>
+      <div class="grid">
+        <div class="setup-item">
+          <div class="item-title">Spotlight Search</div>
+          <div class="item-desc">The fastest way to open apps and files.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Cmd + Space</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Force Quit Menu</div>
+          <div class="item-desc">Kill unresponsive applications.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Cmd + Option + Esc</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Screenshot Selection</div>
+          <div class="item-desc">Select an area to capture.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Cmd + Shift + 4</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Emoji & Symbols</div>
+          <div class="item-desc">Quickly insert emojis anywhere.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Control + Cmd + Space</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Switch App Windows</div>
+          <div class="item-desc">Cycle through windows of the SAME app.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Cmd + `</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Hide Current App</div>
+          <div class="item-desc">Instantly clear the app from view.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Cmd + H</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Lock Screen</div>
+          <div class="item-desc">Instantly lock your Mac.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">Control + Cmd + Q</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>07. Developer Automations</h2>
+      <div class="grid">
+        <div class="setup-item">
+          <div class="item-title">Configure Git Identity</div>
+          <div class="item-desc">Set your global name and email.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">git config --global user.name "Your Name" && git config --global user.email "mail@example.com"</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Generate SSH Key</div>
+          <div class="item-desc">Modern Ed25519 key for GitHub/GitLab.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">ssh-keygen -t ed25519 -C "mail@example.com"</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Copy SSH Key</div>
+          <div class="item-desc">Quickly copy your public key for pasting.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">pbcopy < ~/.ssh/id_ed25519.pub</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">List Open Ports</div>
+          <div class="item-desc">See which processes are listening on which ports.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">sudo lsof -i -P -n | grep LISTEN</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Kill Process on Port</div>
+          <div class="item-desc">Force stop whatever is using port 8080.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">lsof -ti:8080 | xargs kill -9</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Check CPU Architecture</div>
+          <div class="item-desc">Verify if you are on Intel or Apple Silicon (arm64).</div>
+          <div class="code-block" onclick="copyToClipboard(this)">uname -m</div>
+        </div>
+        <div class="setup-item">
+          <div class="item-title">Xcode Select Install</div>
+          <div class="item-desc">Install Command Line Tools for dev work.</div>
+          <div class="code-block" onclick="copyToClipboard(this)">xcode-select --install</div>
+        </div>
+      </div>
+    </section>
+
     <footer>
       <p>&copy; 2026 Tech Knowledge Hub. Minimalist Setup Guide.</p>
     </footer>
