@@ -6,12 +6,14 @@ const {
   PutCommand,
   QueryCommand,
   ScanCommand,
-  TransactWriteCommand
+  TransactWriteCommand,
+  UpdateCommand
 } = require("@aws-sdk/lib-dynamodb");
 const {
   S3Client,
   GetObjectCommand,
-  PutObjectCommand
+  PutObjectCommand,
+  DeleteObjectCommand
 } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { SESv2Client, SendEmailCommand } = require("@aws-sdk/client-sesv2");
@@ -343,6 +345,117 @@ async function sendBookingCreatedEmails({ consultantOwner, consultant, client, b
   await Promise.allSettled(tasks);
 }
 
+async function sendBookingReminderEmails({ consultantOwner, consultant, client, booking }) {
+  const when = formatBookingDateTimeBg(booking.scheduledAt);
+  const tasks = [];
+
+  if (client?.email) {
+    tasks.push(
+      sendEmail({
+        to: client.email,
+        subject: `Напомняне: консултация с ${booking.consultantName || consultant?.name || ""} утре`,
+        text:
+          `Здравей, ${client.name || ""},\n\n` +
+          `Напомняме ти за резервираната консултация:\n\n` +
+          `Час: ${when}\n` +
+          `Консултант: ${booking.consultantName || consultant?.name || ""}\n` +
+          (consultant?.sessionModes?.length
+            ? `Формат: ${consultant.sessionModes.join(", ")}\n`
+            : "") +
+          `\nАко не можеш да присъстваш, моля откажи резервацията от таблото:\n` +
+          `${env.appUrl}#/dashboard`
+      })
+    );
+  }
+
+  if (consultantOwner?.email) {
+    tasks.push(
+      sendEmail({
+        to: consultantOwner.email,
+        subject: `Напомняне: консултация с ${booking.clientName || "потребител"} утре`,
+        text:
+          `Здравей, ${consultantOwner.name || consultant?.name || ""},\n\n` +
+          `Напомняме ти за резервираната консултация:\n\n` +
+          `Час: ${when}\n` +
+          `Потребител: ${booking.clientName || ""} (${booking.clientEmail || ""})\n` +
+          (booking.note ? `\nБележка: ${booking.note}\n` : "") +
+          `\nТабло: ${env.appUrl}#/dashboard`
+      })
+    );
+  }
+
+  await Promise.allSettled(tasks);
+}
+
+async function sendDueReminders() {
+  const now = Date.now();
+  const windowStart = now + 22 * 60 * 60 * 1000;
+  const windowEnd = now + 26 * 60 * 60 * 1000;
+
+  const result = await dynamo.send(
+    new ScanCommand({
+      TableName: env.bookingsTable,
+      FilterExpression:
+        "#s = :confirmed AND attribute_not_exists(reminderSentAt) AND scheduledAt BETWEEN :start AND :end",
+      ExpressionAttributeNames: { "#s": "status" },
+      ExpressionAttributeValues: {
+        ":confirmed": "confirmed",
+        ":start": new Date(windowStart).toISOString(),
+        ":end": new Date(windowEnd).toISOString()
+      }
+    })
+  );
+
+  const due = result.Items || [];
+  if (!due.length) {
+    console.log("[reminders] no bookings due");
+    return { processed: 0 };
+  }
+
+  let processed = 0;
+  for (const booking of due) {
+    try {
+      const consultantResult = await dynamo.send(
+        new GetCommand({
+          TableName: env.consultantsTable,
+          Key: { consultantId: booking.consultantId }
+        })
+      );
+      const consultant = consultantResult.Item || null;
+      const consultantOwner = consultant?.ownerUserId
+        ? await getUserBySub(consultant.ownerUserId)
+        : null;
+      const client = await getUserBySub(booking.clientId);
+
+      await sendBookingReminderEmails({
+        consultantOwner,
+        consultant,
+        client: client || { email: booking.clientEmail, name: booking.clientName },
+        booking
+      });
+
+      await dynamo.send(
+        new UpdateCommand({
+          TableName: env.bookingsTable,
+          Key: { bookingId: booking.bookingId },
+          UpdateExpression: "SET reminderSentAt = :now",
+          ConditionExpression: "attribute_not_exists(reminderSentAt)",
+          ExpressionAttributeValues: { ":now": new Date().toISOString() }
+        })
+      );
+      processed += 1;
+    } catch (error) {
+      console.error("[reminders] booking failed", {
+        bookingId: booking.bookingId,
+        error: error?.message || error
+      });
+    }
+  }
+
+  console.log(`[reminders] processed ${processed} of ${due.length}`);
+  return { processed };
+}
+
 async function sendBookingCancelledEmail({ recipient, consultantName, scheduledAt, cancelledBy }) {
   if (!recipient?.email) return;
   const when = formatBookingDateTimeBg(scheduledAt);
@@ -560,6 +673,32 @@ async function getSignedObjectUrl(storageKey) {
     }),
     { expiresIn: 3600 }
   );
+}
+
+async function deleteS3Object(storageKey) {
+  if (!storageKey) return;
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: env.cvBucket,
+        Key: storageKey
+      })
+    );
+  } catch (error) {
+    console.error("[s3] delete failed", { storageKey, error: error?.message || error });
+  }
+}
+
+async function deleteOrphanedStorageKeys(previous, next) {
+  const nextKeys = new Set();
+  for (const key of next) {
+    if (key) nextKeys.add(key);
+  }
+  const orphans = [];
+  for (const key of previous) {
+    if (key && !nextKeys.has(key)) orphans.push(key);
+  }
+  await Promise.allSettled(orphans.map((key) => deleteS3Object(key)));
 }
 
 async function decorateConsultantMedia(consultant) {
@@ -966,6 +1105,20 @@ async function updateMeProfile(event) {
     })
   );
 
+  try {
+    const previousKeys = [
+      current.cvDocument?.storageKey,
+      ...(Array.isArray(current.documents) ? current.documents.map((d) => d.storageKey) : [])
+    ].filter(Boolean);
+    const nextKeys = [
+      nextUser.cvDocument?.storageKey,
+      ...(Array.isArray(nextUser.documents) ? nextUser.documents.map((d) => d.storageKey) : [])
+    ].filter(Boolean);
+    await deleteOrphanedStorageKeys(previousKeys, nextKeys);
+  } catch (error) {
+    console.error("[profile] orphan cleanup failed", error?.message || error);
+  }
+
   return response(200, await decorateUserMedia(nextUser));
 }
 
@@ -1239,14 +1392,26 @@ async function createBooking(event) {
     })
   );
 
-  const hasConflictingBooking = (existingBookings.Items || []).some(
-    (item) =>
-      item.scheduledAt === normalizedScheduledAt &&
-      item.status !== "cancelled"
-  );
+  const sessionLengthMinutes =
+    Number(consultant.sessionLengthMinutes) > 0
+      ? Number(consultant.sessionLengthMinutes)
+      : 60;
+  const sessionMs = sessionLengthMinutes * 60 * 1000;
+  const newStart = scheduledDate.getTime();
+  const newEnd = newStart + sessionMs;
+
+  const hasConflictingBooking = (existingBookings.Items || []).some((item) => {
+    if (item.status === "cancelled") return false;
+    const existingStart = new Date(item.scheduledAt).getTime();
+    if (Number.isNaN(existingStart)) return false;
+    const existingEnd = existingStart + sessionMs;
+    return newStart < existingEnd && existingStart < newEnd;
+  });
 
   if (hasConflictingBooking) {
-    return badRequest("The selected slot already has an active booking request.");
+    return badRequest(
+      "Този час се припокрива с друга активна резервация. Избери различен час."
+    );
   }
 
   const booking = {
@@ -1555,6 +1720,13 @@ function health() {
 
 exports.handler = async (event) => {
   try {
+    if (
+      event?.source === "aws.events" ||
+      event?.["detail-type"] === "Scheduled Event"
+    ) {
+      return sendDueReminders();
+    }
+
     if (event.requestContext?.http?.method === "OPTIONS") {
       return response(204, {});
     }

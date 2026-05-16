@@ -359,7 +359,8 @@ resource "aws_iam_role_policy" "lambda" {
         Effect = "Allow"
         Action = [
           "s3:PutObject",
-          "s3:GetObject"
+          "s3:GetObject",
+          "s3:DeleteObject"
         ]
         Resource = "${aws_s3_bucket.cv_documents.arn}/*"
       },
@@ -574,4 +575,26 @@ resource "aws_lambda_permission" "api_gateway" {
   function_name = aws_lambda_function.api.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http.execution_arn}/*/*"
+}
+
+resource "aws_cloudwatch_event_rule" "booking_reminders" {
+  name                = "${local.name_prefix}-booking-reminders"
+  description         = "Hourly trigger to send day-before booking reminder emails."
+  schedule_expression = "rate(1 hour)"
+
+  tags = local.common_tags
+}
+
+resource "aws_cloudwatch_event_target" "booking_reminders" {
+  rule      = aws_cloudwatch_event_rule.booking_reminders.name
+  target_id = "${local.name_prefix}-booking-reminders-target"
+  arn       = aws_lambda_function.api.arn
+}
+
+resource "aws_lambda_permission" "booking_reminders" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.api.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.booking_reminders.arn
 }
