@@ -2516,9 +2516,11 @@ textarea {
 
 .skeleton-block--avatar {
   width: 100%;
+  max-width: 380px;
   height: auto;
   aspect-ratio: 4 / 5;
   border-radius: 0;
+  margin: 0 auto;
 }
 
 .skeleton-block--rating {
@@ -2887,10 +2889,11 @@ textarea {
 .consultant-card__fact-grid span,
 .profile-stage__facts span {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .directory-hero__next strong,
@@ -2978,11 +2981,13 @@ textarea {
 .consultant-card__avatar {
   display: block;
   width: 100%;
+  max-width: 380px;
   height: auto;
   aspect-ratio: 4 / 5;
   border-radius: 0;
   object-fit: cover;
   object-position: center 28%;
+  margin: 0 auto;
 }
 
 .consultant-card__status-row {
@@ -3051,7 +3056,7 @@ textarea {
 .profile-stage__facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 
 .consultant-card__fact-grid--compact {
@@ -3061,10 +3066,10 @@ textarea {
 .consultant-card__fact-grid article,
 .profile-stage__facts article {
   display: grid;
-  gap: 8px;
+  gap: 2px;
   min-width: 0;
-  padding: 14px 16px;
-  border-radius: 20px;
+  padding: 8px 12px;
+  border-radius: 12px;
   border: 1px solid rgba(213, 222, 233, 0.92);
   background: rgba(248, 251, 254, 0.96);
 }
@@ -3074,6 +3079,8 @@ textarea {
   min-width: 0;
   overflow-wrap: anywhere;
   letter-spacing: 0;
+  font-size: 0.95rem;
+  line-height: 1.3;
 }
 
 .consultant-card__fact-grid span {
@@ -5814,8 +5821,10 @@ textarea {
 
   .consultant-card__avatar {
     width: 100%;
+    max-width: 380px;
     height: auto;
     aspect-ratio: 4 / 5;
+    margin: 0 auto;
   }
 
   .directory-spotlight__avatar {
