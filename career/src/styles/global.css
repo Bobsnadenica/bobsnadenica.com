@@ -2004,10 +2004,6 @@ textarea {
   min-width: 0;
 }
 
-.consultant-card__status-row {
-  margin: 0;
-}
-
 .consultant-card__top h3,
 .consultant-proof-card__body h3,
 .profile-card h1 {
@@ -2968,7 +2964,11 @@ textarea {
   display: grid;
   grid-template-columns: 116px minmax(0, 1fr);
   gap: 16px;
-  align-items: center;
+  align-items: start;
+}
+
+.consultant-card__status-row {
+  margin: 0 0 4px;
 }
 
 .consultant-card__avatar {

@@ -4965,6 +4965,17 @@ function ConsultantCard({
       to={`/consultants/${consultant.slug}`}
     >
       <div className="consultant-card__body">
+        <div className="chip-row consultant-card__status-row">
+          <span className="plan-pill">
+            {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
+          </span>
+          <span className={consultant.featured ? "status-badge" : "plan-pill"}>
+            {consultant.featured ? "Подбран профил" : "Активен профил"}
+          </span>
+          {consultant.isDemo ? <DemoAccountBadge /> : null}
+          {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
+        </div>
+
         <div className="consultant-card__header">
           <AvatarMedia
             className="consultant-card__avatar"
@@ -4973,16 +4984,6 @@ function ConsultantCard({
           />
 
           <div className="consultant-card__identity">
-            <div className="chip-row consultant-card__status-row">
-              <span className="plan-pill">
-                {formatConsultantTypeLabel(getConsultantProfileType(consultant))}
-              </span>
-              <span className={consultant.featured ? "status-badge" : "plan-pill"}>
-                {consultant.featured ? "Подбран профил" : "Активен профил"}
-              </span>
-              {consultant.isDemo ? <DemoAccountBadge /> : null}
-              {match ? <span className="plan-pill">{match.score}% съвпадение</span> : null}
-            </div>
             <div className="consultant-card__review-row">
               <span className="rating-pill">
                 {consultant.reviewCount ? consultant.rating.toFixed(1) : "Нов"}
