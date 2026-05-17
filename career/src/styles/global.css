@@ -957,6 +957,154 @@ textarea {
   align-items: center;
 }
 
+.hero--centered .container,
+.hero-centered {
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.hero--centered .hero__copy,
+.hero--centered .page-intro {
+  text-align: center;
+}
+
+.hero--centered h1 {
+  max-width: 22ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero--centered .hero__lede,
+.hero--centered .page-intro p {
+  max-width: 62ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero--centered .hero-actions,
+.hero--centered .hero-choice-grid {
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero--centered .hero-stats {
+  justify-items: center;
+  text-align: left;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.section-heading--centered {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.section-heading--centered .eyebrow {
+  display: block;
+}
+
+.section-heading--centered h2 {
+  max-width: 22ch;
+  margin: 8px auto 0;
+}
+
+.about-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.about-highlights article {
+  display: grid;
+  gap: 6px;
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+}
+
+.about-highlights strong {
+  font-size: 1.1rem;
+  letter-spacing: 0;
+}
+
+.about-highlights span {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.faq-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 340px);
+  gap: 24px;
+  align-items: start;
+}
+
+.faq-aside {
+  display: grid;
+  gap: 16px;
+  position: sticky;
+  top: 96px;
+}
+
+.faq-aside .panel {
+  display: grid;
+  gap: 8px;
+}
+
+.faq-aside .panel h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+.faq-aside .panel p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+@media (max-width: 1120px) {
+  .faq-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-aside {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-highlights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .faq-aside {
+    grid-template-columns: 1fr;
+  }
+
+  .about-highlights {
+    grid-template-columns: 1fr;
+  }
+}
+
 .home-hero__visual {
   display: flex;
   align-items: center;

@@ -57,35 +57,16 @@ export default function ContactPage() {
 
   return (
     <PageScene tone="company" pageKey="contact">
-      <section className="hero">
-        <div className="container page-hero__grid">
+      <section className="hero hero--centered">
+        <div className="container">
           <div className="page-intro">
             <p className="eyebrow">Контакти</p>
-            <h1>Ясни канали за поддръжка, партньорства и правни въпроси.</h1>
+            <h1>Свържи се с нас.</h1>
             <p className="hero__lede">
               Общите въпроси, партньорствата и правните запитвания са разделени в ясни
-              канали, за да започва разговорът по-лесно.
+              канали, за да започва разговорът по-лесно. Отговаряме до 1 работен ден.
             </p>
           </div>
-
-          <aside className="panel page-side-card">
-            <p className="eyebrow">Работен стандарт</p>
-            <h2>Бърза ориентация по тип запитване.</h2>
-            <p>
-              Общите въпроси, партньорствата и правните запитвания са разделени в различни
-              канали, за да се насочват по-точно и по-лесно.
-            </p>
-            <div className="hero__points">
-              <div>
-                <span>Отговор</span>
-                <strong>до 1 работен ден</strong>
-              </div>
-              <div>
-                <span>Формат</span>
-                <strong>имейл или форма</strong>
-              </div>
-            </div>
-          </aside>
         </div>
       </section>
 

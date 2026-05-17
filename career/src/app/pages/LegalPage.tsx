@@ -55,29 +55,20 @@ const legalSections = [
 export default function LegalPage() {
   return (
     <PageScene tone="support" pageKey="legal">
-      <section className="hero">
-        <div className="container page-hero__grid">
+      <section className="hero hero--centered">
+        <div className="container">
           <div className="page-intro">
             <p className="eyebrow">Правна информация</p>
-            <h1>Правна информация, условия за използване и насоки за поверителност.</h1>
+            <h1>Условия за използване и насоки за поверителност.</h1>
             <p className="hero__lede">
-              Тази страница обобщава основните правила за използване на платформата,
-              обработката на данни и ролята на CareerLane като професионална среда за
-              свързване и организация на консултации.
+              Обобщение на основните правила за използване, обработката на данни и
+              ролята на CareerLane като професионална среда за свързване и организация
+              на консултации.
             </p>
+            <span className="hero-tag">
+              Последна актуализация: {legalLastUpdatedLabel}
+            </span>
           </div>
-
-          <aside className="panel page-side-card">
-            <p className="eyebrow">Последна актуализация</p>
-            <h2>{legalLastUpdatedLabel}</h2>
-            <p>
-              При промени по членствата, политиките или начина на работа на платформата
-              правната информация следва да бъде обновявана ясно и навреме.
-            </p>
-            <a className="ghost-button" href="mailto:legal@careerlane.eu">
-              legal@careerlane.eu
-            </a>
-          </aside>
         </div>
       </section>
 

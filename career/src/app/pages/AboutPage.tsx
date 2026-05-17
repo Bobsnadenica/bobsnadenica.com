@@ -33,51 +33,47 @@ const aboutPrinciples = [
 export default function AboutPage() {
   return (
     <PageScene tone="company" pageKey="about">
-      <section className="hero">
-        <div className="container page-hero__grid">
+      <section className="hero hero--centered">
+        <div className="container">
           <div className="page-intro">
             <p className="eyebrow">За нас</p>
-            <h1>CareerLane е създадена като професионална среда за по-ясни кариерни решения.</h1>
+            <h1>Професионална среда за по-ясни кариерни решения.</h1>
             <p className="hero__lede">
-              Платформата свързва професионалисти, консултанти и партньори в по-подреден
-              и представителен онлайн формат. Целта ни е хората да намират правилната
-              подкрепа по-лесно и да работят от едно ясно място.
+              CareerLane свързва професионалисти, консултанти и партньори в подреден и
+              представителен онлайн формат. Целта ни е хората да намират правилната
+              подкрепа по-лесно — от едно ясно място.
             </p>
-
-            <div className="hero-stats">
-              {aboutHighlights.map((item) => (
-                <div key={item.label}>
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </div>
-              ))}
-            </div>
           </div>
+        </div>
+      </section>
 
-          <aside className="panel page-side-card">
-            <p className="eyebrow">Какво стои зад продукта</p>
-            <h2>Професионална структура, а не шумен списък.</h2>
-            <p>
-              В основата на CareerLane са ясно разграничени роли, добра навигация и
-              подредено представяне на профили, документи и следващи действия.
-            </p>
-            <div className="chip-row">
-              <span className="chip">Подредено изживяване</span>
-              <span className="chip">Ясни роли и профили</span>
-              <span className="chip">Професионално присъствие</span>
-            </div>
-          </aside>
+      <section className="section section--tight">
+        <div className="container">
+          <div className="about-highlights">
+            {aboutHighlights.map((item) => (
+              <article key={item.label}>
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="section">
-        <div className="container info-grid">
-          {aboutPrinciples.map((item) => (
-            <article className="info-card" key={item.title}>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
+        <div className="container">
+          <div className="section-heading section-heading--centered">
+            <p className="eyebrow">Принципи</p>
+            <h2>Как е устроена платформата.</h2>
+          </div>
+          <div className="info-grid">
+            {aboutPrinciples.map((item) => (
+              <article className="info-card" key={item.title}>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
     </PageScene>

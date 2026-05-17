@@ -1401,7 +1401,7 @@ export function UsersPage() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero hero--centered">
         <div className="container">
           <div className="hero__copy">
             <p className="eyebrow">За потребители</p>
@@ -1692,7 +1692,7 @@ export function ConsultantsPage() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero hero--centered">
         <div className="container">
           <div className="hero__copy">
             <p className="eyebrow">Публичен каталог</p>
@@ -1704,7 +1704,7 @@ export function ConsultantsPage() {
 
             <div className="hero-actions">
               <Link className="ghost-button" to="/auth?tab=register&role=consultant">
-                Създай профил
+                Стани консултант
               </Link>
             </div>
           </div>

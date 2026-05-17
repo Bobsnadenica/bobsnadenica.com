@@ -50,42 +50,22 @@ export default function FaqPage() {
 
   return (
     <PageScene tone="support" pageKey="faq">
-      <section className="hero">
-        <div className="container page-hero__grid">
+      <section className="hero hero--centered">
+        <div className="container">
           <div className="page-intro">
             <p className="eyebrow">FAQ</p>
-            <h1>Отговори на най-честите въпроси за платформата, акаунтите и достъпа.</h1>
+            <h1>Отговори на най-честите въпроси.</h1>
             <p className="hero__lede">
-              FAQ страницата е подредена така, че нов потребител, консултант или партньор
-              да получи бърза ориентация без да търси информация в отделни секции.
+              Бърза ориентация за нови потребители, консултанти и партньори — без да
+              търсиш информацията в отделни секции.
             </p>
           </div>
-
-          <aside className="panel page-side-card">
-            <p className="eyebrow">Полезни връзки</p>
-            <h2>Още помощ</h2>
-            <div className="helper-grid helper-grid--single">
-              <article className="helper-card">
-                <strong>Контакти</strong>
-                <p>За въпроси извън FAQ използвай страницата за контакти.</p>
-                <Link className="ghost-button" to="/contact">
-                  Отвори контактите
-                </Link>
-              </article>
-              <article className="helper-card">
-                <strong>Правна информация</strong>
-                <p>За условия, privacy и правни детайли виж правната страница.</p>
-                <Link className="ghost-button" to="/legal">
-                  Отвори правната страница
-                </Link>
-              </article>
-            </div>
-          </aside>
         </div>
       </section>
 
       <section className="section">
-        <div className="container faq-list">
+        <div className="container faq-layout">
+          <div className="faq-list">
           {faqItems.map((item) => {
             const isOpen = openQuestion === item.question;
 
@@ -108,6 +88,32 @@ export default function FaqPage() {
               </details>
             );
           })}
+          </div>
+
+          <aside className="faq-aside">
+            <article className="panel">
+              <p className="eyebrow">Не намираш отговор?</p>
+              <h2>Свържи се с нас</h2>
+              <p>
+                За въпроси извън FAQ — използвай страницата за контакти. Отговаряме до
+                1 работен ден.
+              </p>
+              <Link className="primary-button" to="/contact">
+                Към контактите
+              </Link>
+            </article>
+            <article className="panel">
+              <p className="eyebrow">Правни детайли</p>
+              <h2>Условия и поверителност</h2>
+              <p>
+                За условията за ползване, обработката на данни и политиката за
+                поверителност виж правната страница.
+              </p>
+              <Link className="ghost-button" to="/legal">
+                Към правната страница
+              </Link>
+            </article>
+          </aside>
         </div>
       </section>
     </PageScene>
