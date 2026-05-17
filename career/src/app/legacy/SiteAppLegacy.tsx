@@ -2200,43 +2200,16 @@ export function ConsultantPage() {
   );
 }
 
-type SimulatedSocialIdentity = {
-  name: string;
-  email: string;
-  city: string;
-  occupation: string;
-  headline: string;
-};
-
-const SIMULATED_SOCIAL_IDENTITIES: Record<
-  (typeof socialProviders)[number]["key"],
-  SimulatedSocialIdentity
-> = {
-  google: {
-    name: "Александър Иванов",
-    email: "alexander.ivanov.google@example.com",
-    city: "София",
-    occupation: "Product Manager",
-    headline: "Product Manager в преход към senior leadership роля"
-  },
-  apple: {
-    name: "Мария Стоянова",
-    email: "maria.stoyanova.apple@example.com",
-    city: "Пловдив",
-    occupation: "UX Designer",
-    headline: "UX Designer с интерес към продуктови екипи и leadership"
-  },
-  linkedin: {
-    name: "Георги Димитров",
-    email: "georgi.dimitrov.linkedin@example.com",
-    city: "София",
-    occupation: "Senior Software Engineer",
-    headline: "Senior Software Engineer, ориентиран към product роли"
-  }
-};
-
 function getProviderLabel(key: (typeof socialProviders)[number]["key"]) {
   return socialProviders.find((item) => item.key === key)?.label || key;
+}
+
+function scorePasswordStrength(value: string) {
+  const length = value.length >= 8;
+  const lower = /[a-zа-я]/.test(value);
+  const upper = /[A-ZА-Я]/.test(value);
+  const digit = /\d/.test(value);
+  return { length, lower, upper, digit };
 }
 
 export function AuthPage() {
@@ -2263,39 +2236,30 @@ export function AuthPage() {
   const isSocialOnboarding = params.get("social") === "1";
 
   const [screen, setScreen] = useState<AuthScreen>(initialTab);
-  const [simulatedProvider, setSimulatedProvider] = useState<
-    (typeof socialProviders)[number]["key"] | null
-  >(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    role: initialRole as UserRole,
-    plan: "free" as PlanTier,
-    city: "",
-    occupation: "",
-    headline: "",
-    consultantProfileType: "consultant" as ConsultantProfileType,
     code: "",
-    newPassword: ""
+    newPassword: "",
+    role: initialRole as UserRole,
+    consultantProfileType: "consultant" as ConsultantProfileType
   });
 
   useEffect(() => {
     setScreen(initialTab);
-    setForm((current) => ({
-      ...current,
-      role: initialRole as UserRole,
-      plan: "free"
-    }));
+    setForm((current) => ({ ...current, role: initialRole as UserRole }));
   }, [initialRole, initialTab]);
 
   useEffect(() => {
     if (!isSocialOnboarding || !user) {
       return;
     }
-
     setScreen("register");
     setForm((current) => ({
       ...current,
@@ -2310,77 +2274,66 @@ export function AuthPage() {
 
   const activeTab =
     screen === "register" || screen === "confirm" ? "register" : "login";
-  const authHeroTitle =
+
+  const passwordChecks = scorePasswordStrength(form.password);
+  const passwordValid =
+    passwordChecks.length && passwordChecks.lower && passwordChecks.upper && passwordChecks.digit;
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+
+  const canRegister = isSocialOnboarding && user
+    ? Boolean(user)
+    : Boolean(
+        form.name.trim().length >= 2 &&
+          emailValid &&
+          passwordValid &&
+          acceptedTerms
+      );
+
+  const headerLabel =
     screen === "register"
       ? form.role === "consultant"
-        ? "Създай експертен профил в CareerLane."
-        : "Създай профил в CareerLane."
+        ? "Създай експертен профил"
+        : "Създай профил"
       : screen === "confirm"
-        ? "Потвърди регистрацията си."
-        : screen === "forgot-request" || screen === "forgot-confirm"
-          ? "Възстанови достъпа си."
-          : "Влез в CareerLane.";
-  const canRegister = isSocialOnboarding && user
-    ? Boolean((form.name.trim() || user.name) && (form.email.trim() || user.email))
-    : Boolean(
-        form.name.trim() &&
-          form.email.trim() &&
-          form.password.trim().length >= 8 &&
-          form.city.trim() &&
-          form.headline.trim()
-      );
+        ? "Потвърди регистрацията"
+        : screen === "forgot-request"
+          ? "Възстанови достъпа"
+          : screen === "forgot-confirm"
+            ? "Нова парола"
+            : "Вход в CareerLane";
+
+  const headerSubtitle =
+    screen === "register"
+      ? "Минута за регистрация. Профилът се довършва след вход."
+      : screen === "confirm"
+        ? "Изпратихме 6-значен код на имейла ти."
+        : screen === "forgot-request"
+          ? "Ще ти изпратим код за нова парола."
+          : screen === "forgot-confirm"
+            ? "Въведи получения код и нова парола."
+            : "Влез с имейл и парола или с външен профил.";
 
   function clearFeedback() {
     setMessage("");
     setError("");
   }
 
-  function simulateSocialPrefill(providerKey: (typeof socialProviders)[number]["key"]) {
+  function switchScreen(next: AuthScreen) {
     clearFeedback();
-    const identity = SIMULATED_SOCIAL_IDENTITIES[providerKey];
-    if (!identity) return;
-
-    setSimulatedProvider(providerKey);
-    setScreen("register");
-    setForm((current) => ({
-      ...current,
-      name: identity.name,
-      email: identity.email,
-      city: current.city || identity.city,
-      occupation: current.occupation || identity.occupation,
-      headline: current.headline || identity.headline
-    }));
-    setMessage(
-      `Демо: попълнихме данни така, както биха дошли от ${getProviderLabel(providerKey)} профил.`
-    );
+    setShowPassword(false);
+    setScreen(next);
   }
 
-  function clearSimulatedPrefill() {
-    setSimulatedProvider(null);
-    setMessage("");
-    setForm((current) => ({
-      ...current,
-      name: "",
-      email: "",
-      city: "",
-      occupation: "",
-      headline: ""
-    }));
-  }
-
-  async function tryProviderLogin(providerKey: (typeof socialProviders)[number]["key"]) {
-    if (!socialConfigured) {
-      simulateSocialPrefill(providerKey);
-      return;
-    }
-
-    await handleRealSocialProvider(providerKey);
-  }
-
-  async function handleRealSocialProvider(
+  async function handleSocialProvider(
     providerKey: (typeof socialProviders)[number]["key"]
   ) {
     clearFeedback();
+
+    if (!socialConfigured) {
+      setError("Входът с външен профил все още не е активиран.");
+      return;
+    }
 
     const isRegisterFlow = activeTab === "register";
 
@@ -2389,9 +2342,6 @@ export function AuthPage() {
       email: form.email.trim(),
       role: form.role,
       plan: "free",
-      city: form.city.trim(),
-      occupation: form.occupation.trim(),
-      headline: form.headline.trim(),
       consultantProfileType:
         form.role === "consultant" ? form.consultantProfileType : undefined
     });
@@ -2407,8 +2357,47 @@ export function AuthPage() {
       await loginWithProvider(providerKey);
     } catch (value) {
       setError(
-        value instanceof Error ? value.message : "Неуспешно пренасочване към външен вход."
+        value instanceof Error
+          ? value.message
+          : "Неуспешно пренасочване към външен вход."
       );
+    }
+  }
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    clearFeedback();
+
+    if (!form.email.trim() || !form.password.trim()) {
+      setError("Въведи имейл и парола.");
+      return;
+    }
+
+    if (!configured) {
+      setError("Системата за вход не е конфигурирана.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const idToken = await loginWithAuth(form.email.trim(), form.password.trim());
+      const pendingBootstrap = readPendingBootstrap();
+
+      if (
+        pendingBootstrap &&
+        pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()
+      ) {
+        await api.bootstrapUser(idToken, pendingBootstrap);
+        clearPendingBootstrap();
+      }
+
+      navigate(resolvedRedirect);
+    } catch (value) {
+      setError(
+        value instanceof Error ? value.message : "Неуспешен вход. Провери имейла и паролата."
+      );
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -2417,7 +2406,15 @@ export function AuthPage() {
     clearFeedback();
 
     if (!canRegister) {
-      setError("Попълни нужните полета, за да продължиш.");
+      if (!emailValid) {
+        setError("Въведи валиден имейл адрес.");
+      } else if (!passwordValid) {
+        setError("Паролата трябва да съдържа минимум 8 символа, малка и главна буква и цифра.");
+      } else if (!acceptedTerms) {
+        setError("Моля, приеми Условията и Политиката за поверителност.");
+      } else {
+        setError("Попълни име, имейл и парола.");
+      }
       return;
     }
 
@@ -2427,6 +2424,7 @@ export function AuthPage() {
         return;
       }
 
+      setSubmitting(true);
       try {
         await api.bootstrapUser(token, {
           name: form.name.trim() || user.name,
@@ -2434,18 +2432,18 @@ export function AuthPage() {
           role: form.role,
           plan: "free",
           avatarUrl: user.avatarUrl || "",
-          city: form.city.trim(),
-          occupation: form.occupation.trim(),
-          headline: form.headline.trim(),
           consultantProfileType:
             form.role === "consultant" ? form.consultantProfileType : undefined
         });
         clearPendingBootstrap();
         navigate(resolvedRedirect);
       } catch (value) {
-        setError(value instanceof Error ? value.message : "Неуспешно довършване на профила.");
+        setError(
+          value instanceof Error ? value.message : "Неуспешно довършване на профила."
+        );
+      } finally {
+        setSubmitting(false);
       }
-
       return;
     }
 
@@ -2454,6 +2452,7 @@ export function AuthPage() {
       return;
     }
 
+    setSubmitting(true);
     try {
       await registerWithAuth({
         name: form.name.trim(),
@@ -2468,17 +2467,16 @@ export function AuthPage() {
         email: form.email.trim(),
         role: form.role,
         plan: "free",
-        city: form.city.trim(),
-        occupation: form.occupation.trim(),
-        headline: form.headline.trim(),
         consultantProfileType:
           form.role === "consultant" ? form.consultantProfileType : undefined
       });
 
-      setScreen("confirm");
-      setMessage("Изпратихме код за потвърждение на посочения имейл.");
+      switchScreen("confirm");
+      setMessage("Изпратихме код на " + form.email.trim() + ".");
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешна регистрация.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -2491,53 +2489,63 @@ export function AuthPage() {
       return;
     }
 
-    if (!form.password.trim()) {
-      setError("Въведи паролата си, за да завършиш регистрацията.");
+    if (!form.code.trim()) {
+      setError("Въведи кода от имейла.");
       return;
     }
 
+    if (!form.password.trim()) {
+      setError("Не намерихме запазената ти парола. Влез ръчно от таба за вход.");
+      switchScreen("login");
+      return;
+    }
+
+    setSubmitting(true);
     try {
       await confirmWithAuth(form.email.trim(), form.code.trim());
-      const token = await loginWithAuth(form.email.trim(), form.password.trim());
+      const idToken = await loginWithAuth(form.email.trim(), form.password.trim());
       const pendingBootstrap = readPendingBootstrap();
 
-      if (pendingBootstrap && pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()) {
-        await api.bootstrapUser(token, pendingBootstrap);
+      if (
+        pendingBootstrap &&
+        pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()
+      ) {
+        await api.bootstrapUser(idToken, pendingBootstrap);
         clearPendingBootstrap();
       }
 
       navigate(resolvedRedirect);
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешно потвърждение.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
-  async function handleLogin(event: FormEvent) {
-    event.preventDefault();
+  async function handleResendCode() {
     clearFeedback();
 
-    if (!form.password.trim()) {
-      setError("Въведи паролата си, за да продължиш.");
+    if (!form.email.trim() || !form.password.trim()) {
+      setError("За да изпратим нов код, върни се в Регистрация и започни отново.");
       return;
     }
 
-    if (!configured) {
-      setError("Системата за вход не е конфигурирана.");
-      return;
-    }
-
+    setSubmitting(true);
     try {
-      const token = await loginWithAuth(form.email.trim(), form.password.trim());
-      const pendingBootstrap = readPendingBootstrap();
-
-      if (pendingBootstrap && pendingBootstrap.email.toLowerCase() === form.email.trim().toLowerCase()) {
-        await api.bootstrapUser(token, pendingBootstrap);
-        clearPendingBootstrap();
-      }
-
-      navigate(resolvedRedirect);
+      await registerWithAuth({
+        name: form.name.trim() || form.email.trim(),
+        email: form.email.trim(),
+        password: form.password.trim(),
+        role: form.role,
+        plan: "free"
+      });
+      setMessage("Изпратихме нов код на " + form.email.trim() + ".");
     } catch (value) {
-      setError(value instanceof Error ? value.message : "Неуспешен вход.");
+      setError(
+        value instanceof Error ? value.message : "Неуспешно повторно изпращане на код."
+      );
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -2545,17 +2553,25 @@ export function AuthPage() {
     event.preventDefault();
     clearFeedback();
 
+    if (!emailValid) {
+      setError("Въведи валиден имейл.");
+      return;
+    }
+
     if (!configured) {
       setError("Системата за вход не е конфигурирана.");
       return;
     }
 
+    setSubmitting(true);
     try {
       await requestPasswordReset(form.email.trim());
-      setScreen("forgot-confirm");
-      setMessage("Изпратихме код за нова парола. Въведи го заедно с новата си парола.");
+      switchScreen("forgot-confirm");
+      setMessage("Изпратихме код на " + form.email.trim() + ".");
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешно изпращане на код.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -2563,8 +2579,19 @@ export function AuthPage() {
     event.preventDefault();
     clearFeedback();
 
-    if (!form.code.trim() || !form.newPassword.trim()) {
-      setError("Попълни кода и новата парола.");
+    if (!form.code.trim()) {
+      setError("Въведи кода от имейла.");
+      return;
+    }
+
+    const newPasswordChecks = scorePasswordStrength(form.newPassword);
+    if (
+      !newPasswordChecks.length ||
+      !newPasswordChecks.lower ||
+      !newPasswordChecks.upper ||
+      !newPasswordChecks.digit
+    ) {
+      setError("Новата парола трябва да съдържа минимум 8 символа, малка и главна буква и цифра.");
       return;
     }
 
@@ -2573,48 +2600,62 @@ export function AuthPage() {
       return;
     }
 
+    setSubmitting(true);
     try {
       await completePasswordReset(
         form.email.trim(),
         form.code.trim(),
         form.newPassword.trim()
       );
-      setScreen("login");
+      switchScreen("login");
       setForm((current) => ({ ...current, code: "", newPassword: "", password: "" }));
-      setMessage("Паролата е обновена успешно. Можеш да влезеш отново.");
+      setMessage("Паролата е обновена. Влез с новата парола.");
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешно обновяване на паролата.");
+    } finally {
+      setSubmitting(false);
     }
   }
+
+  const showTabs = screen === "login" || screen === "register";
+  const showSocial =
+    socialConfigured &&
+    availableSocialProviders.length > 0 &&
+    (screen === "login" || screen === "register") &&
+    !isSocialOnboarding;
 
   return (
     <section className="section auth-section">
       <div className="container auth-layout auth-layout--single">
         <div className="panel auth-card">
-          <p className="eyebrow">Вход и регистрация</p>
-          <h1>{authHeroTitle}</h1>
-          <div className="tab-row">
-            <button
-              type="button"
-              className={activeTab === "login" ? "tab-row__active" : ""}
-              onClick={() => {
-                clearFeedback();
-                setScreen("login");
-              }}
-            >
-              Вход
-            </button>
-            <button
-              type="button"
-              className={activeTab === "register" ? "tab-row__active" : ""}
-              onClick={() => {
-                clearFeedback();
-                setScreen("register");
-              }}
-            >
-              Регистрация
-            </button>
-          </div>
+          <header className="auth-card__header">
+            <p className="eyebrow">CareerLane</p>
+            <h1>{headerLabel}</h1>
+            <p className="auth-card__subtitle">{headerSubtitle}</p>
+          </header>
+
+          {showTabs ? (
+            <div className="tab-row" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "login"}
+                className={activeTab === "login" ? "tab-row__active" : ""}
+                onClick={() => switchScreen("login")}
+              >
+                Вход
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "register"}
+                className={activeTab === "register" ? "tab-row__active" : ""}
+                onClick={() => switchScreen("register")}
+              >
+                Регистрация
+              </button>
+            </div>
+          ) : null}
 
           <div role="status" aria-live="polite">
             {message ? <div className="panel panel--success">{message}</div> : null}
@@ -2623,51 +2664,19 @@ export function AuthPage() {
             {error ? <div className="panel panel--error">{error}</div> : null}
           </div>
 
-          {isSocialOnboarding && user ? (
-            <div className="panel panel--subtle">
-              <strong>Профилът ти е разпознат.</strong>
-              <p>
-                Прехвърлихме наличните име, имейл и снимка от външния профил.
-                Довърши ролята си и запази първата версия на профила си в CareerLane.
-              </p>
-            </div>
-          ) : (
+          {showSocial ? (
             <div className="social-auth">
-              {simulatedProvider ? (
-                <div className="social-prefill-banner">
-                  <div>
-                    <span className="social-prefill-banner__badge">Демо</span>
-                    <strong>
-                      Симулирахме вход с {getProviderLabel(simulatedProvider)} профил
-                    </strong>
-                    <p>
-                      Попълнихме името, имейла и началния контекст. След като свържем реален
-                      OAuth доставчик, тези данни ще идват автоматично от профила ти.
-                    </p>
-                  </div>
-                  <button
-                    className="ghost-button"
-                    type="button"
-                    onClick={clearSimulatedPrefill}
-                  >
-                    Изчисти
-                  </button>
-                </div>
-              ) : (
-                <span className="search-shortcuts__label">Вход с външен профил</span>
-              )}
+              <span className="search-shortcuts__label">или продължи с</span>
               <div className="social-auth__grid">
                 {socialProviders.map((provider) => (
                   <button
-                    className={`social-auth__button ${
-                      simulatedProvider === provider.key
-                        ? "social-auth__button--active"
-                        : ""
-                    }`}
                     key={provider.key}
                     type="button"
+                    className="social-auth__button"
+                    disabled={!availableSocialProviders.includes(provider.key) || submitting}
+                    aria-label={`Продължи с ${getProviderLabel(provider.key)}`}
                     onClick={() => {
-                      void tryProviderLogin(provider.key);
+                      void handleSocialProvider(provider.key);
                     }}
                   >
                     <span className="social-auth__button-content">
@@ -2677,85 +2686,101 @@ export function AuthPage() {
                   </button>
                 ))}
               </div>
-              <p className="form-note">
-                {socialConfigured
-                  ? "При първи вход ще прехвърлим наличните име, имейл и снимка от избрания профил и ще довършиш само липсващата информация."
-                  : "Демо: натискането показва как ще се попълват полетата от външен профил. Реалният OAuth поток ще бъде свързан по-късно."}
+            </div>
+          ) : null}
+
+          {isSocialOnboarding && user ? (
+            <div className="panel panel--subtle">
+              <strong>Профилът ти е свързан.</strong>
+              <p>
+                Избери ролята си и довърши създаването на профила. Останалите детайли можеш
+                да добавиш от таблото си.
               </p>
             </div>
-          )}
+          ) : null}
 
           {screen === "login" ? (
-            <form className="form-stack" onSubmit={handleLogin}>
+            <form className="form-stack" onSubmit={handleLogin} noValidate>
               <label>
                 Имейл
                 <input
                   type="email"
                   value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, email: event.target.value }))
+                  }
                   autoComplete="email"
+                  inputMode="email"
                   placeholder="name@example.com"
                   required
+                  disabled={submitting}
                 />
               </label>
-              <label>
-                Парола
+              <label className="auth-password-field">
+                <span className="auth-password-field__label">
+                  Парола
+                  <button
+                    type="button"
+                    className="text-button auth-password-field__toggle"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-pressed={showPassword}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? "Скрий" : "Покажи"}
+                  </button>
+                </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={form.password}
-                  onChange={(event) => setForm({ ...form, password: event.target.value })}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, password: event.target.value }))
+                  }
                   autoComplete="current-password"
                   placeholder="Въведи паролата си"
                   required
+                  disabled={submitting}
                 />
               </label>
               <div className="auth-inline-actions">
                 <button
                   type="button"
                   className="text-button"
-                  onClick={() => {
-                    clearFeedback();
-                    setScreen("forgot-request");
-                  }}
+                  onClick={() => switchScreen("forgot-request")}
                 >
                   Забравена парола?
                 </button>
+              </div>
+              <button className="primary-button" type="submit" disabled={submitting}>
+                {submitting ? "Влизаме..." : "Вход"}
+              </button>
+              <p className="auth-card__switch">
+                Нямаш акаунт?{" "}
                 <button
                   type="button"
                   className="text-button"
-                  onClick={() => {
-                    clearFeedback();
-                    setScreen("register");
-                  }}
+                  onClick={() => switchScreen("register")}
                 >
-                  Нямаш акаунт?
+                  Регистрирай се
                 </button>
-              </div>
-              <button className="primary-button" type="submit">
-                Вход
-              </button>
+              </p>
             </form>
           ) : null}
 
           {screen === "register" ? (
-            <form className="form-stack auth-register-form" onSubmit={handleRegister}>
+            <form className="form-stack auth-register-form" onSubmit={handleRegister} noValidate>
               <fieldset className="auth-onboarding-section">
-                <legend>Избери поток</legend>
-                <p>
-                  CareerLane разделя регистрацията според това дали търсиш подкрепа
-                  или създаваш публичен профил като експерт.
-                </p>
+                <legend>Аз съм</legend>
                 <div className="auth-choice-grid">
                   {(Object.entries(authRoleChoices) as Array<
                     [UserRole, (typeof authRoleChoices)[UserRole]]
                   >).map(([role, choice]) => (
                     <button
+                      key={role}
+                      type="button"
+                      aria-pressed={form.role === role}
                       className={`auth-choice-card${
                         form.role === role ? " auth-choice-card--active" : ""
                       }`}
-                      type="button"
-                      aria-pressed={form.role === role}
-                      key={role}
                       onClick={() => {
                         clearFeedback();
                         setForm((current) => ({
@@ -2769,7 +2794,6 @@ export function AuthPage() {
                       <span>{choice.badge}</span>
                       <strong>{choice.title}</strong>
                       <p>{choice.text}</p>
-                      <em>{choice.meta}</em>
                     </button>
                   ))}
                 </div>
@@ -2777,12 +2801,7 @@ export function AuthPage() {
 
               {form.role === "consultant" ? (
                 <fieldset className="auth-onboarding-section">
-                  <legend>Какъв профил създаваш?</legend>
-                  <p>
-                    И двете опции могат да бъдат откривани в каталога. Разликата е в
-                    очакването към услугата и начина, по който потребителите ще те
-                    разпознават.
-                  </p>
+                  <legend>Тип публичен профил</legend>
                   <div className="auth-choice-grid auth-choice-grid--compact">
                     {(Object.entries(consultantProfileTypeChoices) as Array<
                       [
@@ -2791,14 +2810,14 @@ export function AuthPage() {
                       ]
                     >).map(([profileType, choice]) => (
                       <button
+                        key={profileType}
+                        type="button"
+                        aria-pressed={form.consultantProfileType === profileType}
                         className={`auth-choice-card${
                           form.consultantProfileType === profileType
                             ? " auth-choice-card--active"
                             : ""
                         }`}
-                        type="button"
-                        aria-pressed={form.consultantProfileType === profileType}
-                        key={profileType}
                         onClick={() => {
                           clearFeedback();
                           setForm((current) => ({
@@ -2807,18 +2826,20 @@ export function AuthPage() {
                           }));
                         }}
                       >
-                        <span>{choice.meta}</span>
                         <strong>{choice.title}</strong>
                         <p>{choice.text}</p>
                       </button>
                     ))}
                   </div>
+                  <p className="form-note">
+                    Профилите на консултанти и ментори се преглеждат ръчно преди да станат
+                    публични в каталога.
+                  </p>
                 </fieldset>
               ) : null}
 
-              <fieldset className="auth-onboarding-section">
-                <legend>Основен професионален контекст</legend>
-                <div className="two-column">
+              {!isSocialOnboarding ? (
+                <>
                   <label>
                     Име и фамилия
                     <input
@@ -2829,6 +2850,7 @@ export function AuthPage() {
                       autoComplete="name"
                       placeholder="Например: Елица Маринова"
                       required
+                      disabled={submitting}
                     />
                   </label>
                   <label>
@@ -2840,59 +2862,27 @@ export function AuthPage() {
                         setForm((current) => ({ ...current, email: event.target.value }))
                       }
                       autoComplete="email"
+                      inputMode="email"
                       placeholder="name@example.com"
                       required
-                      readOnly={isSocialOnboarding}
+                      disabled={submitting}
                     />
                   </label>
-                </div>
-                <div className="two-column">
-                  <label>
-                    Град
+                  <label className="auth-password-field">
+                    <span className="auth-password-field__label">
+                      Парола
+                      <button
+                        type="button"
+                        className="text-button auth-password-field__toggle"
+                        onClick={() => setShowPassword((value) => !value)}
+                        aria-pressed={showPassword}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? "Скрий" : "Покажи"}
+                      </button>
+                    </span>
                     <input
-                      value={form.city}
-                      onChange={(event) =>
-                        setForm((current) => ({ ...current, city: event.target.value }))
-                      }
-                      placeholder="Например: София"
-                      required={!isSocialOnboarding}
-                    />
-                  </label>
-                  <label>
-                    Професия / роля
-                    <input
-                      value={form.occupation}
-                      onChange={(event) =>
-                        setForm((current) => ({ ...current, occupation: event.target.value }))
-                      }
-                      placeholder="Например: Product manager"
-                    />
-                  </label>
-                </div>
-                <label>
-                  Професионално headline
-                  <input
-                    value={form.headline}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, headline: event.target.value }))
-                    }
-                    placeholder={
-                      form.role === "consultant"
-                        ? "Например: Кариерен консултант за CV, интервюта и leadership роли"
-                        : "Например: Product manager в преход към leadership роля"
-                    }
-                    required={!isSocialOnboarding}
-                  />
-                </label>
-              </fieldset>
-
-              {!isSocialOnboarding ? (
-                <fieldset className="auth-onboarding-section">
-                  <legend>Достъп до профила</legend>
-                  <label>
-                    Парола
-                    <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={form.password}
                       onChange={(event) =>
                         setForm((current) => ({ ...current, password: event.target.value }))
@@ -2901,84 +2891,145 @@ export function AuthPage() {
                       placeholder="Минимум 8 символа"
                       minLength={8}
                       required
+                      disabled={submitting}
+                      aria-describedby="register-password-hints"
                     />
+                    {form.password.length > 0 ? (
+                      <ul
+                        id="register-password-hints"
+                        className="password-checklist"
+                        aria-label="Изисквания за парола"
+                      >
+                        <li className={passwordChecks.length ? "is-valid" : ""}>
+                          {passwordChecks.length ? "✓" : "·"} 8+ символа
+                        </li>
+                        <li
+                          className={
+                            passwordChecks.lower && passwordChecks.upper ? "is-valid" : ""
+                          }
+                        >
+                          {passwordChecks.lower && passwordChecks.upper ? "✓" : "·"} Малка и
+                          главна буква
+                        </li>
+                        <li className={passwordChecks.digit ? "is-valid" : ""}>
+                          {passwordChecks.digit ? "✓" : "·"} Цифра
+                        </li>
+                      </ul>
+                    ) : null}
                   </label>
-                </fieldset>
+                  <label className="auth-terms">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(event) => setAcceptedTerms(event.target.checked)}
+                      disabled={submitting}
+                    />
+                    <span>
+                      Съгласявам се с{" "}
+                      <Link to="/legal" target="_blank" rel="noreferrer">
+                        Условията за ползване
+                      </Link>{" "}
+                      и{" "}
+                      <Link to="/legal" target="_blank" rel="noreferrer">
+                        Политиката за поверителност
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                </>
               ) : null}
 
-              <button className="primary-button" type="submit" disabled={!canRegister}>
-                {isSocialOnboarding ? "Запази профила" : "Създай профил"}
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={submitting || !canRegister}
+              >
+                {submitting
+                  ? "Записваме..."
+                  : isSocialOnboarding
+                    ? "Запази профила"
+                    : "Създай профил"}
               </button>
+
+              {!isSocialOnboarding ? (
+                <p className="auth-card__switch">
+                  Вече имаш акаунт?{" "}
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => switchScreen("login")}
+                  >
+                    Влез
+                  </button>
+                </p>
+              ) : null}
             </form>
           ) : null}
 
           {screen === "confirm" ? (
-            <form className="form-stack auth-state-panel" onSubmit={handleConfirm}>
+            <form
+              className="form-stack auth-state-panel"
+              onSubmit={handleConfirm}
+              noValidate
+            >
               <div className="auth-state-header">
-                <h2>Потвърждение на регистрацията</h2>
+                <h2>Потвърждение</h2>
                 <button
                   type="button"
                   className="text-button"
-                  onClick={() => {
-                    clearFeedback();
-                    setScreen("register");
-                  }}
+                  onClick={() => switchScreen("register")}
                 >
                   Назад
                 </button>
               </div>
-              <label>
-                Имейл
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
-                  required
-                />
-              </label>
+              <p className="form-note">
+                Изпратихме код на <strong>{form.email}</strong>. Провери и спам папката.
+              </p>
               <label>
                 Код за потвърждение
                 <input
                   value={form.code}
-                  onChange={(event) => setForm({ ...form, code: event.target.value })}
-                  placeholder="Въведи получения код"
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, code: event.target.value }))
+                  }
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   pattern="[0-9]*"
+                  placeholder="6-значен код"
+                  maxLength={10}
                   required
+                  disabled={submitting}
+                  autoFocus
                 />
               </label>
-              <label>
-                Парола
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(event) => setForm({ ...form, password: event.target.value })}
-                  autoComplete="current-password"
-                  placeholder="Същата парола, която избра при регистрация"
-                  required
-                />
-                <span className="form-note">
-                  Това е паролата, която избра преди малко при регистрацията.
-                </span>
-              </label>
-              <button className="primary-button" type="submit">
-                Потвърди и влез
+              <button className="primary-button" type="submit" disabled={submitting}>
+                {submitting ? "Потвърждаваме..." : "Потвърди и влез"}
               </button>
+              <div className="auth-inline-actions">
+                <button
+                  type="button"
+                  className="text-button"
+                  disabled={submitting}
+                  onClick={handleResendCode}
+                >
+                  Изпрати нов код
+                </button>
+              </div>
             </form>
           ) : null}
 
           {screen === "forgot-request" ? (
-            <form className="form-stack auth-state-panel" onSubmit={handlePasswordResetRequest}>
+            <form
+              className="form-stack auth-state-panel"
+              onSubmit={handlePasswordResetRequest}
+              noValidate
+            >
               <div className="auth-state-header">
                 <h2>Забравена парола</h2>
                 <button
                   type="button"
                   className="text-button"
-                  onClick={() => {
-                    clearFeedback();
-                    setScreen("login");
-                  }}
+                  onClick={() => switchScreen("login")}
                 >
                   Назад към вход
                 </button>
@@ -2988,68 +3039,84 @@ export function AuthPage() {
                 <input
                   type="email"
                   value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, email: event.target.value }))
+                  }
                   autoComplete="email"
+                  inputMode="email"
                   placeholder="name@example.com"
                   required
+                  disabled={submitting}
                 />
               </label>
-              <button className="primary-button" type="submit">
-                Изпрати код
+              <button className="primary-button" type="submit" disabled={submitting}>
+                {submitting ? "Изпращаме..." : "Изпрати код"}
               </button>
             </form>
           ) : null}
 
           {screen === "forgot-confirm" ? (
-            <form className="form-stack auth-state-panel" onSubmit={handlePasswordResetConfirm}>
+            <form
+              className="form-stack auth-state-panel"
+              onSubmit={handlePasswordResetConfirm}
+              noValidate
+            >
               <div className="auth-state-header">
                 <h2>Нова парола</h2>
                 <button
                   type="button"
                   className="text-button"
-                  onClick={() => {
-                    clearFeedback();
-                    setScreen("login");
-                  }}
+                  onClick={() => switchScreen("login")}
                 >
                   Назад към вход
                 </button>
               </div>
-              <label>
-                Имейл
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(event) => setForm({ ...form, email: event.target.value })}
-                  autoComplete="email"
-                  required
-                />
-              </label>
+              <p className="form-note">
+                Изпратихме код на <strong>{form.email}</strong>.
+              </p>
               <label>
                 Код
                 <input
                   value={form.code}
-                  onChange={(event) => setForm({ ...form, code: event.target.value })}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, code: event.target.value }))
+                  }
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   pattern="[0-9]*"
+                  maxLength={10}
                   required
+                  disabled={submitting}
                 />
               </label>
-              <label>
-                Нова парола
+              <label className="auth-password-field">
+                <span className="auth-password-field__label">
+                  Нова парола
+                  <button
+                    type="button"
+                    className="text-button auth-password-field__toggle"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-pressed={showPassword}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? "Скрий" : "Покажи"}
+                  </button>
+                </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={form.newPassword}
-                  onChange={(event) => setForm({ ...form, newPassword: event.target.value })}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, newPassword: event.target.value }))
+                  }
                   autoComplete="new-password"
                   placeholder="Минимум 8 символа"
                   minLength={8}
                   required
+                  disabled={submitting}
                 />
               </label>
-              <button className="primary-button" type="submit">
-                Запази новата парола
+              <button className="primary-button" type="submit" disabled={submitting}>
+                {submitting ? "Запазваме..." : "Запази новата парола"}
               </button>
             </form>
           ) : null}
