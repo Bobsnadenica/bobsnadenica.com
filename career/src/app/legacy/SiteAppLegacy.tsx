@@ -1,4 +1,14 @@
-import { type CSSProperties, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  FormEvent,
+  ReactNode,
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   Link,
   Navigate,
@@ -7,6 +17,8 @@ import {
   useParams,
   useSearchParams
 } from "react-router-dom";
+
+const HeroAnimation = lazy(() => import("./HeroAnimation"));
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import {
@@ -1200,7 +1212,7 @@ export function HomePage() {
   return (
     <>
       <section className="hero">
-        <div className="container">
+        <div className="container home-hero">
           <div className="hero__copy">
             <p className="eyebrow">Консултации и менторство за кариера</p>
             <h1>Избери своята следваща кариерна стъпка.</h1>
@@ -1220,6 +1232,12 @@ export function HomePage() {
               ))}
             </div>
           </div>
+
+          <aside className="home-hero__visual" aria-hidden="true">
+            <Suspense fallback={<div className="home-hero__visual-skeleton" />}>
+              <HeroAnimation />
+            </Suspense>
+          </aside>
         </div>
       </section>
 

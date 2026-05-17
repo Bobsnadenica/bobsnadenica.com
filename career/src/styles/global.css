@@ -950,6 +950,35 @@ textarea {
   flex-wrap: wrap;
 }
 
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.home-hero__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.home-hero__visual svg,
+.home-hero__visual > div {
+  width: 100% !important;
+  max-width: 560px;
+  height: auto !important;
+}
+
+.home-hero__visual-skeleton {
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1 / 1;
+  border-radius: 32px;
+  background: linear-gradient(180deg, rgba(75, 106, 96, 0.08), rgba(75, 106, 96, 0.02));
+}
+
 .hero-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5603,8 +5632,13 @@ textarea {
   .info-grid,
   .auth-layout,
   .dashboard-grid,
-  .footer-grid {
+  .footer-grid,
+  .home-hero {
     grid-template-columns: 1fr;
+  }
+
+  .home-hero__visual {
+    display: none;
   }
 
   .consultant-grid {
