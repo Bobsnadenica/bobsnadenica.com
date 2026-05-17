@@ -1903,7 +1903,6 @@ export function ConsultantPage() {
   const visibleAvailability = getUpcomingAvailabilitySlots(consultant.availability, 12);
   const availabilityCalendar = groupAvailabilityByDay(visibleAvailability);
   const isDemoConsultant = Boolean(consultant.isDemo);
-  const hasProfileBanner = Boolean((consultant.heroUrl || "").trim());
   const themeStyle = getConsultantThemeStyle(consultant);
   const hasTheme = hasConsultantTheme(consultant);
   const profileSummary =
@@ -1993,22 +1992,9 @@ export function ConsultantPage() {
       <section className="profile-hero">
         <div className="container profile-stage">
           <article
-            className={`profile-stage__main ${
-              hasProfileBanner ? "profile-stage__main--with-cover" : "profile-stage__main--no-cover"
-            } ${hasTheme ? "profile-stage__main--themed" : ""}`}
+            className={`profile-stage__main ${hasTheme ? "profile-stage__main--themed" : ""}`}
             style={themeStyle}
           >
-            {hasProfileBanner ? (
-              <CoverMedia
-                src={consultant.heroUrl}
-                name={consultant.name}
-                className="profile-stage__cover"
-                eyebrow={consultant.featured ? "Подбран профил" : "Публичен профил"}
-                title={consultant.name}
-                subtitle={consultant.headline}
-              />
-            ) : null}
-
             <div className="profile-stage__content">
               <AvatarMedia
                 className="profile-stage__avatar"
