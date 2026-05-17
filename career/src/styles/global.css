@@ -4821,6 +4821,7 @@ textarea {
 }
 
 .social-auth__button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -4839,6 +4840,30 @@ textarea {
     box-shadow 180ms ease,
     background-color 180ms ease,
     color 180ms ease;
+}
+
+.social-auth__button--soon {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.social-auth__button--soon .social-auth__button-content {
+  opacity: 0.7;
+}
+
+.social-auth__soon-tag {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 .social-auth__button-content {

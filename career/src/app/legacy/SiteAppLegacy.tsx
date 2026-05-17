@@ -2618,11 +2618,7 @@ export function AuthPage() {
   }
 
   const showTabs = screen === "login" || screen === "register";
-  const showSocial =
-    socialConfigured &&
-    availableSocialProviders.length > 0 &&
-    (screen === "login" || screen === "register") &&
-    !isSocialOnboarding;
+  const showSocial = (screen === "login" || screen === "register") && !isSocialOnboarding;
 
   return (
     <section className="section auth-section">
@@ -2668,24 +2664,41 @@ export function AuthPage() {
             <div className="social-auth">
               <span className="search-shortcuts__label">или продължи с</span>
               <div className="social-auth__grid">
-                {socialProviders.map((provider) => (
-                  <button
-                    key={provider.key}
-                    type="button"
-                    className="social-auth__button"
-                    disabled={!availableSocialProviders.includes(provider.key) || submitting}
-                    aria-label={`Продължи с ${getProviderLabel(provider.key)}`}
-                    onClick={() => {
-                      void handleSocialProvider(provider.key);
-                    }}
-                  >
-                    <span className="social-auth__button-content">
-                      {renderSocialProviderIcon(provider.key)}
-                      <span>{provider.label}</span>
-                    </span>
-                  </button>
-                ))}
+                {socialProviders.map((provider) => {
+                  const isAvailable =
+                    socialConfigured && availableSocialProviders.includes(provider.key);
+                  return (
+                    <button
+                      key={provider.key}
+                      type="button"
+                      className={`social-auth__button ${isAvailable ? "" : "social-auth__button--soon"}`}
+                      disabled={!isAvailable || submitting}
+                      aria-label={
+                        isAvailable
+                          ? `Продължи с ${getProviderLabel(provider.key)}`
+                          : `${getProviderLabel(provider.key)} — скоро`
+                      }
+                      onClick={() => {
+                        if (!isAvailable) return;
+                        void handleSocialProvider(provider.key);
+                      }}
+                    >
+                      <span className="social-auth__button-content">
+                        {renderSocialProviderIcon(provider.key)}
+                        <span>{provider.label}</span>
+                      </span>
+                      {!isAvailable ? (
+                        <span className="social-auth__soon-tag">Скоро</span>
+                      ) : null}
+                    </button>
+                  );
+                })}
               </div>
+              {!socialConfigured ? (
+                <p className="form-note">
+                  Входът с външен профил ще бъде активиран скоро.
+                </p>
+              ) : null}
             </div>
           ) : null}
 
