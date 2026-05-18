@@ -3759,14 +3759,55 @@ export function DashboardPage() {
     <section className="section">
       <div className={`container dashboard-grid dashboard-grid--${profile.role}`}>
         <aside className={`panel dashboard-sidebar dashboard-sidebar--${profile.role}`}>
-          <p className="eyebrow">Табло</p>
-          <AvatarMedia
-            src={profile.avatarUrl}
-            name={profile.name}
-            className="dashboard-sidebar__avatar"
-          />
-          <h2>{profile.name}</h2>
-          <p>{profile.headline || "Допълни кратък професионален текст за по-силно присъствие."}</p>
+          <div className="dashboard-sidebar__profile">
+            <AvatarMedia
+              src={profile.avatarUrl}
+              name={profile.name}
+              className="dashboard-sidebar__avatar"
+            />
+            <div className="dashboard-sidebar__identity">
+              <p className="eyebrow">Табло</p>
+              <strong>{profile.name}</strong>
+              <span>
+                {profile.headline ||
+                  (profile.role === "consultant"
+                    ? "Добави headline за публичния си профил"
+                    : "Добави headline за по-силно присъствие")}
+              </span>
+            </div>
+          </div>
+
+          <dl className="dashboard-sidebar__stats">
+            <div>
+              <dt>Завършеност</dt>
+              <dd>{profileCompletion}%</dd>
+            </div>
+            {profile.role === "consultant" ? (
+              <div>
+                <dt>Свободни часове</dt>
+                <dd>{consultantAvailability.length}</dd>
+              </div>
+            ) : (
+              <div>
+                <dt>Резервации</dt>
+                <dd>
+                  {bookings.filter((b) => b.status !== "cancelled").length}
+                </dd>
+              </div>
+            )}
+          </dl>
+
+          <nav className="dashboard-sidebar__nav" aria-label="Секции в таблото">
+            <a href="#overview">Преглед</a>
+            <a href="#profile-basics">Основен профил</a>
+            <a href="#documents">Документи</a>
+            {profile.role === "consultant" ? (
+              <a href="#consultant-profile">Публичен профил</a>
+            ) : (
+              <a href="#matches">Подходящи консултанти</a>
+            )}
+            <a href="#sessions">Сесии</a>
+          </nav>
 
           <p className="form-note">{membershipNote}</p>
         </aside>
@@ -3787,15 +3828,27 @@ export function DashboardPage() {
             className={`panel dashboard-overview dashboard-overview--${profile.role}`}
             id="overview"
           >
-            <div className="section-heading">
+            <div className="dashboard-overview__head">
               <div>
-                <p className="eyebrow">Работно табло</p>
                 <h2>Добре дошъл, {firstName}.</h2>
-                <p className="section-heading__copy">
-                  Всичко важно е събрано на едно място: профил, документи, публично
-                  представяне и предстоящи сесии.
+                <p className="section-caption">
+                  {profileCompletion >= 80
+                    ? "Профилът е добре структуриран."
+                    : "Допълни секциите по-долу, за да изглежда профилът ти по-пълен."}
                 </p>
               </div>
+              <Link
+                className="primary-button"
+                to={
+                  profile.role === "consultant" && consultantProfile
+                    ? `/consultants/${consultantProfile.slug}`
+                    : "/users"
+                }
+              >
+                {profile.role === "consultant" && consultantProfile
+                  ? "Виж публичната страница"
+                  : "Търси консултант"}
+              </Link>
             </div>
 
             <div className="summary-grid summary-grid--compact">
@@ -3804,8 +3857,8 @@ export function DashboardPage() {
                 <strong>{profileCompletion}%</strong>
                 <p>
                   {profileCompletion >= 80
-                    ? "Профилът ти вече изглежда добре структуриран."
-                    : "Остава още малко, за да изглежда профилът ти по-пълен и професионален."}
+                    ? "Готово за публикуване."
+                    : "Подреди няколко детайла."}
                 </p>
               </article>
               {profile.role === "consultant" ? (
@@ -3816,8 +3869,8 @@ export function DashboardPage() {
                   </strong>
                   <p>
                     {consultantAvailability.length
-                      ? `${consultantAvailability.length} активни слота за резервация`
-                      : "Добави поне няколко часа, за да могат хората да резервират веднага."}
+                      ? `${consultantAvailability.length} активни слота`
+                      : "Добави поне няколко часа."}
                   </p>
                 </article>
               ) : (
@@ -3827,25 +3880,10 @@ export function DashboardPage() {
                   <p>
                     {nextBooking
                       ? `С ${nextBooking.consultantName}`
-                      : "След като резервираш консултация, тя ще се покаже тук."}
+                      : "След резервация ще се покаже тук."}
                   </p>
                 </article>
               )}
-            </div>
-
-            <div className="dashboard-actions">
-              <Link
-                className="primary-button"
-                to={
-                  profile.role === "consultant" && consultantProfile
-                    ? `/consultants/${consultantProfile.slug}`
-                    : "/users"
-                }
-              >
-                {profile.role === "consultant" && consultantProfile
-                  ? "Виж страницата"
-                  : "Търси консултант"}
-              </Link>
             </div>
           </section>
 
