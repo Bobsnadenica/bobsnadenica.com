@@ -176,33 +176,122 @@ class ScrambleText {
  * System Health Simulation
  */
 const initHealthCheck = () => {
-    const nodes = ['neural', 'ingress', 'seo', 'shield', 'cipher', 'latency', 'ztm', 'threat'];
-    const statuses = ['ONLINE', 'ACTIVE', 'STABLE', 'READY', 'SYNCED', 'ENFORCED', 'CLEAR', 'SECURE'];
-
-    setInterval(() => {
-        const node = nodes[Math.floor(Math.random() * nodes.length)];
-        let status = statuses[Math.floor(Math.random() * statuses.length)];
-        if (node === 'latency') {
-             status = Math.floor(Math.random() * 20 + 5) + 'ms';
-        }
-
-        const el = document.getElementById(`status-${node}`);
-        if (el) {
-            el.innerHTML = `<div class="status-dot pulse"></div> ${status}`;
-            setTimeout(() => {
-                const dot = el.querySelector('.status-dot');
-                if (dot) dot.classList.remove('pulse');
-            }, 1000);
-        }
-    }, 3000);
-
-    const toggleBtn = document.getElementById('health-header-toggle');
     const dashboard = document.getElementById('health-dashboard');
-    if (toggleBtn && dashboard) {
-        toggleBtn.addEventListener('click', () => {
-            dashboard.classList.toggle('minimized');
-        });
-    }
+    const toggleBtn = document.getElementById('health-header-toggle');
+    const commandEl = document.getElementById('diagnostic-command');
+    const outputEl = document.getElementById('diagnostic-output');
+    if (!dashboard || !toggleBtn || !commandEl || !outputEl) return;
+
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const statusMap = {
+        http: 'status-http',
+        traffic: 'status-traffic',
+        seo: 'status-seo',
+        shield: 'status-shield',
+        assets: 'status-assets',
+        latency: 'status-latency',
+        cache: 'status-cache',
+        errors: 'status-errors'
+    };
+
+    const checks = [
+        () => {
+            const ttfb = rand(32, 74);
+            return {
+                command: 'curl -I https://mycompany.com/',
+                output: `HTTP/2 200 OK | ttfb=${ttfb}ms | content-type=text/html`,
+                updates: { http: '200 OK', latency: `${ttfb}ms` }
+            };
+        },
+        () => {
+            const pages = rand(7, 10);
+            return {
+                command: 'curl -s /sitemap.xml | xmllint --noout -',
+                output: `sitemap valid | ${pages} routes indexed | robots=allow`,
+                updates: { seo: `${pages} URLS`, cache: 'ROBOTS OK' }
+            };
+        },
+        () => {
+            const req = rand(126, 420);
+            return {
+                command: "tail -n 1000 access.log | awk '{print $7}'",
+                output: `${req} req/min | top=/manifest | crawl traffic normal`,
+                updates: { traffic: `${req}/MIN`, http: 'SERVING' }
+            };
+        },
+        () => {
+            const miss = rand(1, 6);
+            return {
+                command: 'check-assets --critical styles.css script.js views/',
+                output: `critical assets reachable | cache-miss=${miss}% | no stale bundles`,
+                updates: { assets: 'READY', cache: `${100 - miss}% HIT` }
+            };
+        },
+        () => {
+            const errors = (Math.random() * 0.08).toFixed(2);
+            return {
+                command: "grep -E ' 5[0-9]{2} ' access.log | wc -l",
+                output: `5xx rate=${errors}% | last incident=none | fallback healthy`,
+                updates: { errors: `${errors}%`, http: 'STABLE' }
+            };
+        },
+        () => {
+            return {
+                command: 'curl -I /privacy | grep -i policy',
+                output: 'privacy route live | referrer-policy strict | no trackers detected',
+                updates: { shield: 'ACTIVE', seo: 'CLEAN' }
+            };
+        }
+    ];
+
+    let checkIndex = 0;
+    let diagnosticsTimer;
+
+    const updateStatus = (key, value) => {
+        const target = document.getElementById(statusMap[key]);
+        if (!target) return;
+
+        const dot = document.createElement('span');
+        dot.className = 'status-dot pulse';
+        target.replaceChildren(dot, document.createTextNode(` ${value}`));
+
+        setTimeout(() => {
+            dot.classList.remove('pulse');
+        }, 900);
+    };
+
+    const runDiagnostic = () => {
+        const result = checks[checkIndex % checks.length]();
+        checkIndex += 1;
+
+        commandEl.textContent = result.command;
+        outputEl.textContent = result.output;
+        Object.entries(result.updates).forEach(([key, value]) => updateStatus(key, value));
+    };
+
+    const startDiagnostics = () => {
+        runDiagnostic();
+        diagnosticsTimer = setInterval(runDiagnostic, 2400);
+    };
+
+    const stopDiagnostics = () => {
+        clearInterval(diagnosticsTimer);
+        diagnosticsTimer = null;
+    };
+
+    const syncExpandedState = () => {
+        const isExpanded = !dashboard.classList.contains('minimized');
+        toggleBtn.setAttribute('aria-expanded', String(isExpanded));
+        if (isExpanded && !diagnosticsTimer) startDiagnostics();
+        if (!isExpanded && diagnosticsTimer) stopDiagnostics();
+    };
+
+    syncExpandedState();
+
+    toggleBtn.addEventListener('click', () => {
+        dashboard.classList.toggle('minimized');
+        syncExpandedState();
+    });
 };
 
 /**

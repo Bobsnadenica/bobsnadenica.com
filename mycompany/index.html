@@ -56,7 +56,7 @@
             <div id="hub-view" class="view-container">
                 <section class="monolith-hero">
                     <div class="hero-content">
-                        <div class="reveal-mask">
+                        <div class="reveal-mask hero-title-mask">
                             <h1 class="display-huge" data-scramble>Computational Sovereignty.</h1>
                         </div>
                         <div class="reveal-mask">
@@ -99,46 +99,55 @@
         </main>
 
         <!-- System Health Dashboard -->
-        <div id="health-dashboard">
-            <div class="health-header" id="health-header-toggle" style="cursor: pointer;">
+        <div id="health-dashboard" class="minimized">
+            <button class="health-header" id="health-header-toggle" type="button" aria-expanded="false" aria-controls="health-grid-content">
                 <span class="health-title">System Diagnostics</span>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="health-toggle-meta">
                     <span class="status-pulse"></span>
-                    <button id="minimize-dashboard" style="background:none; border:none; color:var(--c-dim); cursor:pointer;">&#9660;</button>
+                    <span class="health-chevron" aria-hidden="true">&#9660;</span>
+                </span>
+            </button>
+            <div class="health-body" id="health-grid-content">
+                <div class="health-terminal" aria-live="polite">
+                    <div class="terminal-line command-line">
+                        <span class="terminal-prompt">$</span>
+                        <span id="diagnostic-command">standby --open-panel</span>
+                    </div>
+                    <div class="terminal-line terminal-output" id="diagnostic-output">Diagnostics idle.</div>
                 </div>
-            </div>
-            <div class="health-grid" id="health-grid-content">
-                <div class="health-node">
-                    <span class="node-label">Neural Engine</span>
-                    <span class="node-status" id="status-neural"><div class="status-dot pulse"></div> ONLINE</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">Data Ingress</span>
-                    <span class="node-status" id="status-ingress"><div class="status-dot pulse"></div> ACTIVE</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">SEO Core</span>
-                    <span class="node-status" id="status-seo"><div class="status-dot"></div> STABLE</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">Privacy Shield</span>
-                    <span class="node-status" id="status-shield"><div class="status-dot"></div> ACTIVE</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">Quantum Cipher</span>
-                    <span class="node-status" id="status-cipher"><div class="status-dot pulse"></div> SYNCING</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">Edge Node Latency</span>
-                    <span class="node-status" id="status-latency"><div class="status-dot"></div> 12ms</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">Zero-Trust Matrix</span>
-                    <span class="node-status" id="status-ztm"><div class="status-dot pulse"></div> ENFORCED</span>
-                </div>
-                <div class="health-node">
-                    <span class="node-label">Threat Heuristics</span>
-                    <span class="node-status" id="status-threat"><div class="status-dot"></div> CLEAR</span>
+                <div class="health-grid">
+                    <div class="health-node">
+                        <span class="node-label">HTTP Status</span>
+                        <span class="node-status" id="status-http"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">Traffic Pulse</span>
+                        <span class="node-status" id="status-traffic"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">SEO Index</span>
+                        <span class="node-status" id="status-seo"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">Privacy Headers</span>
+                        <span class="node-status" id="status-shield"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">Asset Pipeline</span>
+                        <span class="node-status" id="status-assets"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">Edge Latency</span>
+                        <span class="node-status" id="status-latency"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">Cache Policy</span>
+                        <span class="node-status" id="status-cache"><span class="status-dot"></span> STANDBY</span>
+                    </div>
+                    <div class="health-node">
+                        <span class="node-label">Error Rate</span>
+                        <span class="node-status" id="status-errors"><span class="status-dot"></span> STANDBY</span>
+                    </div>
                 </div>
             </div>
         </div>
