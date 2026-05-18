@@ -2081,10 +2081,14 @@ export function ConsultantPage() {
           </div>
 
           <form className="panel booking-panel" onSubmit={submitBooking}>
-            <h2>Заяви консултация</h2>
-            <p className="section-caption">
-              Избери свободен час и изпрати кратък контекст, за да започне разговорът по-лесно.
-            </p>
+            <header className="booking-panel__head">
+              <p className="eyebrow">Резервация</p>
+              <h2>Избери свободен час</h2>
+              <p className="section-caption">
+                {getSessionLengthLabel(consultant)} · {consultant.sessionModes.join(" · ")}
+              </p>
+            </header>
+
             {isDemoConsultant ? (
               <div className="panel panel--subtle role-guard-panel">
                 <strong>Заявките за този профил ще бъдат активни скоро.</strong>
@@ -2093,8 +2097,7 @@ export function ConsultantPage() {
                   достъпни след следващата активация на графика.
                 </p>
               </div>
-            ) : null}
-            {visibleAvailability.length ? (
+            ) : visibleAvailability.length ? (
               <div className="availability-calendar" id="availability-calendar">
                 {availabilityCalendar.map((day) => (
                   <article className="availability-calendar__day" key={day.key}>
@@ -2111,6 +2114,7 @@ export function ConsultantPage() {
                           key={slot}
                           type="button"
                           onClick={() => setSelectedSlot(slot)}
+                          aria-pressed={selectedSlot === slot}
                         >
                           {formatAvailabilityTimeLabel(slot)}
                         </button>
@@ -2128,30 +2132,56 @@ export function ConsultantPage() {
                 </p>
               </div>
             )}
+
             {isConsultantViewer ? (
               <div className="panel panel--subtle role-guard-panel">
                 <strong>Тази стъпка е активна за потребители.</strong>
                 <p>
                   CareerLane съпоставя консултантите с потребители, а не с други
-                  консултанти. Подходящите професионалисти за теб се показват в профила и таблото ти.
+                  консултанти. Подходящите професионалисти за теб се показват в профила
+                  и таблото ти.
                 </p>
                 <Link className="ghost-button" to={bookingCtaTo}>
                   {user ? "Отвори таблото си" : "Отвори профила си"}
                 </Link>
               </div>
-            ) : (
+            ) : !isDemoConsultant && visibleAvailability.length ? (
               <>
                 <label>
-                  Кратка бележка
+                  Кратка бележка <span className="form-note">(по избор)</span>
                   <textarea
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
-                    rows={5}
-                    placeholder="Например: искам преглед на LinkedIn, интервю подготовка и позициониране за leadership роли."
+                    rows={3}
+                    placeholder="Какво искаш да обсъдиш в сесията?"
                   />
                 </label>
+
+                <div
+                  className={`booking-summary ${
+                    selectedSlot ? "booking-summary--ready" : ""
+                  }`}
+                >
+                  {selectedSlot ? (
+                    <>
+                      <span className="booking-summary__label">Избран час</span>
+                      <strong>
+                        {formatAvailabilityDayLabel(selectedSlot)},{" "}
+                        {formatAvailabilityTimeLabel(selectedSlot)}
+                      </strong>
+                      <span className="booking-summary__hint">
+                        {getSessionLengthLabel(consultant)} ·{" "}
+                        {getConsultantPriceLabel(consultant)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="booking-summary__hint">
+                      Избери час от календара по-горе, за да продължиш.
+                    </span>
+                  )}
+                </div>
               </>
-            )}
+            ) : null}
 
             {message ? <div className="panel panel--success">{message}</div> : null}
             {error ? <div className="panel panel--error">{error}</div> : null}
@@ -2162,7 +2192,11 @@ export function ConsultantPage() {
                 type="submit"
                 disabled={viewerProfileLoading || !visibleAvailability.length || !selectedSlot}
               >
-                {user ? "Изпрати заявка" : "Влез и изпрати заявка"}
+                {!user
+                  ? "Влез, за да резервираш"
+                  : selectedSlot
+                    ? `Заяви ${formatAvailabilityShortLabel(selectedSlot)}`
+                    : "Избери час"}
               </button>
             ) : null}
           </form>
