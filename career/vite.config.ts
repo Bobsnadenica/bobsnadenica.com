@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: path.join(projectDir, "src"),
+    envDir: projectDir,
     publicDir: path.join(projectDir, "public"),
     plugins: [react()],
     base: env.VITE_BASE_PATH || "/career/",
