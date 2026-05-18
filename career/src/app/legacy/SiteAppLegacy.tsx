@@ -1797,26 +1797,24 @@ export function ConsultantsPage() {
 
 export function NotFoundPage() {
   return (
-    <section className="section">
-      <div className="container">
-        <div className="panel empty-state empty-state--centered">
-          <p className="eyebrow">404</p>
-          <h2>Тази страница не беше намерена.</h2>
-          <p>
-            Възможно е адресът да е променен или страницата вече да не е активна. Използвай
-            някоя от основните секции, за да продължиш.
-          </p>
-          <div className="dashboard-actions">
-            <Link className="primary-button" to="/">
-              Към началото
-            </Link>
-            <Link className="ghost-button" to="/users">
-              За потребители
-            </Link>
-            <Link className="ghost-button" to="/contact">
-              Контакти
-            </Link>
-          </div>
+    <section className="section not-found">
+      <div className="container not-found__container">
+        <p className="not-found__code" aria-hidden="true">404</p>
+        <h1>Тази страница не беше намерена.</h1>
+        <p className="not-found__lede">
+          Възможно е адресът да е променен или страницата вече да не е активна. Опитай
+          с някоя от основните секции по-долу.
+        </p>
+        <div className="not-found__actions">
+          <Link className="primary-button" to="/">
+            Към началото
+          </Link>
+          <Link className="ghost-button" to="/consultants">
+            Каталог
+          </Link>
+          <Link className="ghost-button" to="/contact">
+            Контакти
+          </Link>
         </div>
       </div>
     </section>

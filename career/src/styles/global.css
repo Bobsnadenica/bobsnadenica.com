@@ -273,11 +273,149 @@ main {
   gap: 10px;
 }
 
-.site-nav--mobile {
+.menu-toggle {
   display: none;
-  margin-left: 0;
-  margin: 0 0 14px;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  position: relative;
+  z-index: 35;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.menu-toggle:hover {
+  background: var(--surface-alt);
+  border-color: var(--border-strong);
+}
+
+.menu-toggle span {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 220ms ease, opacity 220ms ease, top 220ms ease;
+}
+
+.menu-toggle span:nth-child(1) {
+  top: 14px;
+}
+
+.menu-toggle span:nth-child(2) {
+  top: 21px;
+}
+
+.menu-toggle span:nth-child(3) {
+  top: 28px;
+}
+
+.menu-toggle--open span:nth-child(1) {
+  top: 21px;
+  transform: rotate(45deg);
+}
+
+.menu-toggle--open span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle--open span:nth-child(3) {
+  top: 21px;
+  transform: rotate(-45deg);
+}
+
+.mobile-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 40;
+  animation: fadeIn 180ms ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 86vw);
+  z-index: 45;
+  background: var(--surface);
+  box-shadow: -22px 0 44px rgba(15, 23, 42, 0.18);
+  padding: 80px 24px 32px;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  animation: slideInRight 240ms ease both;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-menu__group {
+  display: grid;
+  gap: 4px;
+}
+
+.mobile-menu__label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+.mobile-menu__user {
+  padding: 8px 12px;
+  font-weight: 700;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.mobile-menu__link {
+  display: block;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.mobile-menu__link:hover,
+.mobile-menu__link:focus-visible,
+.mobile-menu__link.active {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.mobile-menu__link--button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .site-nav a,
@@ -527,42 +665,41 @@ main {
   background: linear-gradient(180deg, rgba(252, 232, 232, 0.96), rgba(253, 246, 246, 0.98));
 }
 
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-
-.admin-header h1 {
-  margin: 0;
-}
-
 .admin-stats {
   display: grid;
-  grid-auto-flow: column;
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
 }
 
-.admin-stats span {
+.admin-stats > div {
   display: grid;
-  gap: 2px;
-  padding: 12px 18px;
+  gap: 4px;
+  padding: 14px 18px;
   border-radius: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  font-size: 0.82rem;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
-.admin-stats strong {
-  font-size: 1.4rem;
+.admin-stats dt {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-stats dd {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
   letter-spacing: 0;
   color: var(--text);
+}
+
+.admin-filter {
+  margin-bottom: 12px;
 }
 
 .admin-list {
@@ -3831,6 +3968,58 @@ textarea {
   scroll-margin-top: 88px;
 }
 
+.not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+  text-align: center;
+}
+
+.not-found__container {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  max-width: 540px;
+}
+
+.not-found__code {
+  margin: 0;
+  font-size: 5.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--primary);
+  background:
+    linear-gradient(180deg, var(--primary), var(--primary-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.not-found h1 {
+  margin: 0;
+  max-width: 18ch;
+  font-size: 1.85rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.not-found__lede {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
 .dashboard-overview__head {
   display: flex;
   align-items: center;
@@ -6057,32 +6246,13 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .site-nav {
+  .site-nav,
+  .site-header__actions {
     display: none;
   }
 
-  .site-nav--mobile {
-    display: flex;
-    gap: 8px;
-    margin-top: 0;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .site-nav--mobile::-webkit-scrollbar {
-    display: none;
-  }
-
-  .site-nav--mobile a {
-    flex: 0 0 auto;
-    min-height: 38px;
-    padding: 0 14px;
-    font-size: 0.88rem;
+  .menu-toggle {
+    display: inline-flex;
   }
 
   .question-grid {
@@ -6455,10 +6625,6 @@ textarea {
     justify-content: center;
   }
 
-  .site-nav--mobile a {
-    width: auto;
-    justify-content: center;
-  }
 }
 
 @media (max-width: 640px) {
@@ -6759,11 +6925,6 @@ textarea {
 
   .auth-label--short {
     display: inline;
-  }
-
-  .site-nav--mobile {
-    margin-bottom: 4px;
-    padding-bottom: 4px;
   }
 
   .question-card__header {

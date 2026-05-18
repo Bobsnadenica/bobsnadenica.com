@@ -113,33 +113,37 @@ export default function AdminPage() {
 
   return (
     <PageScene tone="dashboard" pageKey="admin">
-      <section className="section">
+      <section className="hero hero--centered">
         <div className="container">
-          <div className="admin-header">
-            <div>
-              <p className="eyebrow">Админ</p>
-              <h1>Одобряване на консултантски профили</h1>
-              <p className="hero__lede">
-                Преглеждаш заявките от консултанти и ментори преди публикуване.
-              </p>
-            </div>
-            <div className="admin-stats">
-              <span>
-                <strong>{counts.pending}</strong>
-                Чакащи
-              </span>
-              <span>
-                <strong>{counts.approved}</strong>
-                Одобрени
-              </span>
-              <span>
-                <strong>{counts.rejected}</strong>
-                Отказани
-              </span>
-            </div>
+          <div className="page-intro">
+            <p className="eyebrow">Админ</p>
+            <h1>Одобряване на консултантски профили</h1>
+            <p className="hero__lede">
+              Преглеждаш заявките от консултанти и ментори преди да станат публични в
+              каталога.
+            </p>
           </div>
+        </div>
+      </section>
 
-          <div className="search-shortcuts">
+      <section className="section section--tight">
+        <div className="container">
+          <dl className="admin-stats">
+            <div>
+              <dt>Чакащи</dt>
+              <dd>{counts.pending}</dd>
+            </div>
+            <div>
+              <dt>Одобрени</dt>
+              <dd>{counts.approved}</dd>
+            </div>
+            <div>
+              <dt>Отказани</dt>
+              <dd>{counts.rejected}</dd>
+            </div>
+          </dl>
+
+          <div className="search-shortcuts admin-filter">
             <div className="search-shortcuts__list">
               <button
                 type="button"
@@ -163,12 +167,17 @@ export default function AdminPage() {
           </div>
 
           {listLoading ? (
-            <div className="panel">Зареждаме заявките...</div>
+            <div className="panel empty-state">Зареждаме заявките...</div>
           ) : visible.length === 0 ? (
             <div className="panel empty-state">
-              {filter === "pending"
-                ? "Няма чакащи заявки."
-                : "Няма консултантски профили в системата."}
+              <strong>
+                {filter === "pending"
+                  ? "Няма чакащи заявки."
+                  : "Няма консултантски профили в системата."}
+              </strong>
+              {filter === "pending" ? (
+                <p>Всички профили са прегледани.</p>
+              ) : null}
             </div>
           ) : (
             <div className="admin-list">

@@ -117,6 +117,27 @@ export default function AppShell() {
   const currentYear = new Date().getFullYear();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isRouteTransitioning, setIsRouteTransitioning] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     setIsRouteTransitioning(true);
@@ -272,17 +293,93 @@ export default function AppShell() {
               </Link>
             )}
           </div>
-        </div>
-        <div className="container">
-          <nav className="site-nav site-nav--mobile" aria-label="Мобилна навигация">
-            {primaryNavigation.map((item) => (
-              <NavLink key={item.to} to={item.to}>
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+
+          <button
+            type="button"
+            className={`menu-toggle ${isMenuOpen ? "menu-toggle--open" : ""}`}
+            aria-label={isMenuOpen ? "Затвори менюто" : "Отвори менюто"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setIsMenuOpen((value) => !value)}
+          >
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+          </button>
         </div>
       </header>
+
+      {isMenuOpen ? (
+        <>
+          <div
+            className="mobile-menu__backdrop"
+            aria-hidden="true"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          <nav
+            id="mobile-menu"
+            className="mobile-menu"
+            aria-label="Мобилно меню"
+          >
+            <div className="mobile-menu__group">
+              <span className="mobile-menu__label">Навигация</span>
+              {primaryNavigation.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className="mobile-menu__link"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+            <div className="mobile-menu__group">
+              <span className="mobile-menu__label">Профил</span>
+              {user ? (
+                <>
+                  <span className="mobile-menu__user">{user.name}</span>
+                  {isAdmin ? (
+                    <Link
+                      to="/admin"
+                      className="mobile-menu__link"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Админ
+                    </Link>
+                  ) : null}
+                  <Link
+                    to="/dashboard"
+                    className="mobile-menu__link"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Моят профил
+                  </Link>
+                  <button
+                    type="button"
+                    className="mobile-menu__link mobile-menu__link--button"
+                    disabled={isLoggingOut}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      void handleLogout();
+                    }}
+                  >
+                    {isLoggingOut ? "Излизаме..." : "Изход"}
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/auth"
+                  className="mobile-menu__link"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Вход / Регистрация
+                </Link>
+              )}
+            </div>
+          </nav>
+        </>
+      ) : null}
 
       <main id="main-content" className="page-main">
         <Routes>
