@@ -1016,38 +1016,6 @@ function QuestionBlock({
   );
 }
 
-function QuestionFlowIntro({
-  eyebrow,
-  title,
-  description,
-  completion
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  completion: number;
-}) {
-  return (
-    <div className="question-flow__intro">
-      <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h2>{title}</h2>
-        <p className="section-caption">{description}</p>
-      </div>
-      <div className="question-flow__meter">
-        <span>Завършеност</span>
-        <strong>{completion}%</strong>
-        <div
-          aria-hidden="true"
-          className="question-flow__progress"
-        >
-          <span style={{ width: `${Math.max(8, Math.min(100, completion))}%` }} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function SuggestionPills({
   label,
   fieldName,
@@ -3946,12 +3914,10 @@ export function DashboardPage() {
           ) : null}
 
           <form className="panel form-stack" id="profile-basics" noValidate onSubmit={saveProfile}>
-            <QuestionFlowIntro
-              eyebrow="Основен профил"
-              title="Подреди профила си ясно и професионално."
-              description="Най-важни са няколко точни детайла: кой си, какво търсиш и какъв тип консултация предпочиташ."
-              completion={profileCompletion}
-            />
+            <header className="dashboard-form-head">
+              <p className="eyebrow">Основен профил</p>
+              <h2>Подреди профила си ясно и професионално.</h2>
+            </header>
             <div className="profile-setup-shell">
               <div className="profile-setup-shell__header">
                 <div>
@@ -4346,59 +4312,62 @@ export function DashboardPage() {
             </div>
           </form>
 
-          <form className="panel form-stack" id="documents" onSubmit={uploadCv}>
-            <h2>Основен документ</h2>
-            <p className="section-caption">
-              Дръж CV-то си на едно място, за да е лесно за обновяване и споделяне.
-            </p>
+          <section className="panel form-stack" id="documents">
+            <header className="dashboard-form-head">
+              <p className="eyebrow">Документи</p>
+              <h2>Дръж всички материали на едно място.</h2>
+            </header>
 
-            <DashboardDocumentCard document={profile.cvDocument} plan={profile.plan} />
-
-            <label className="dashboard-upload-field">
-              <span>Качи CV или резюме</span>
-              <input name="cv" type="file" accept={CV_UPLOAD_ACCEPT} />
-              <span className="form-note">
-                Поддържани формати: {CV_UPLOAD_FORMAT_LABEL}. Новото качване заменя активния
-                документ.
-              </span>
-            </label>
-            <button className="primary-button" type="submit">
-              Качи CV
-            </button>
-          </form>
-
-          <form className="panel form-stack" id="documents-extra" onSubmit={uploadDocument}>
-            <h2>Допълнителни документи</h2>
-            <p className="section-caption">
-              Дипломи, сертификати, портфолио или други материали. Максимум{" "}
-              {DOCUMENT_UPLOAD_MAX_COUNT} документа.
-            </p>
-
-            <ProfileDocumentList
-              documents={profile.documents || []}
-              onRemove={removeDocument}
-            />
-
-            {(profile.documents || []).length < DOCUMENT_UPLOAD_MAX_COUNT ? (
-              <>
+            <div className="documents-zone">
+              <div className="documents-zone__head">
+                <span className="eyebrow">Основно CV</span>
+                <span className="form-note">
+                  Качването заменя активния документ
+                </span>
+              </div>
+              <DashboardDocumentCard document={profile.cvDocument} plan={profile.plan} />
+              <form className="documents-upload" onSubmit={uploadCv}>
                 <label className="dashboard-upload-field">
-                  <span>Добави нов документ</span>
-                  <input name="document" type="file" accept={DOCUMENT_UPLOAD_ACCEPT} />
-                  <span className="form-note">
-                    Поддържани формати: {DOCUMENT_UPLOAD_FORMAT_LABEL}.
-                  </span>
+                  <span>Качи CV или резюме</span>
+                  <input name="cv" type="file" accept={CV_UPLOAD_ACCEPT} />
+                  <span className="form-note">{CV_UPLOAD_FORMAT_LABEL}</span>
                 </label>
                 <button className="primary-button" type="submit">
-                  Качи документ
+                  Качи CV
                 </button>
-              </>
-            ) : (
-              <p className="form-note">
-                Достигна лимита от {DOCUMENT_UPLOAD_MAX_COUNT} документа. Премахни някой, за
-                да добавиш нов.
-              </p>
-            )}
-          </form>
+              </form>
+            </div>
+
+            <div className="documents-zone">
+              <div className="documents-zone__head">
+                <span className="eyebrow">Допълнителни документи</span>
+                <span className="form-note">
+                  {(profile.documents || []).length} / {DOCUMENT_UPLOAD_MAX_COUNT}
+                </span>
+              </div>
+              <ProfileDocumentList
+                documents={profile.documents || []}
+                onRemove={removeDocument}
+              />
+              {(profile.documents || []).length < DOCUMENT_UPLOAD_MAX_COUNT ? (
+                <form className="documents-upload" onSubmit={uploadDocument}>
+                  <label className="dashboard-upload-field">
+                    <span>Добави нов документ</span>
+                    <input name="document" type="file" accept={DOCUMENT_UPLOAD_ACCEPT} />
+                    <span className="form-note">{DOCUMENT_UPLOAD_FORMAT_LABEL}</span>
+                  </label>
+                  <button className="primary-button" type="submit">
+                    Качи документ
+                  </button>
+                </form>
+              ) : (
+                <p className="form-note">
+                  Достигна лимита от {DOCUMENT_UPLOAD_MAX_COUNT} документа. Премахни някой,
+                  за да добавиш нов.
+                </p>
+              )}
+            </div>
+          </section>
 
           {profile.role === "consultant" ? (
             <form
@@ -4407,12 +4376,10 @@ export function DashboardPage() {
               noValidate
               onSubmit={saveConsultantProfile}
             >
-              <QuestionFlowIntro
-                eyebrow="Публичен профил"
-                title="Подготви страницата, която хората ще намират и резервират."
-                description="Фокусът е върху ясно позициониране, добър портрет и реални свободни часове."
-                completion={profileCompletion}
-              />
+              <header className="dashboard-form-head">
+                <p className="eyebrow">Публичен профил</p>
+                <h2>Подготви страницата, която хората ще намират и резервират.</h2>
+              </header>
               <div className="profile-setup-shell">
                 <div className="profile-setup-shell__header">
                   <div>
