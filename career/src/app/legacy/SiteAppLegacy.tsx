@@ -17,8 +17,6 @@ import {
   useParams,
   useSearchParams
 } from "react-router-dom";
-
-const HeroAnimation = lazy(() => import("./HeroAnimation"));
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import {
@@ -51,6 +49,8 @@ import type {
   UserProfile,
   UserRole
 } from "../../lib/types";
+
+const HeroAnimation = lazy(() => import("./HeroAnimation"));
 
 async function uploadFileToSignedUrl(
   uploadUrl: string,
