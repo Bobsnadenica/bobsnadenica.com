@@ -268,14 +268,17 @@ export default function AppShell() {
           <div className="site-header__actions">
             {user ? (
               <>
-                <span className="user-chip">{user.name}</span>
                 {isAdmin ? (
                   <Link className="ghost-button" to="/admin">
                     Админ
                   </Link>
                 ) : null}
-                <Link className="ghost-button" to="/dashboard">
-                  Профил
+                <Link
+                  className="ghost-button user-chip"
+                  to="/dashboard"
+                  aria-label={`Отвори профила на ${user.name}`}
+                >
+                  {user.name}
                 </Link>
                 <button
                   className="ghost-button"
