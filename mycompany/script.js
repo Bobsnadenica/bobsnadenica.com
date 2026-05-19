@@ -181,7 +181,8 @@ const initHealthCheck = () => {
     const toggleBtn = document.getElementById('health-header-toggle');
     const commandEl = document.getElementById('diagnostic-command');
     const outputEl = document.getElementById('diagnostic-output');
-    if (!dashboard || !toggleBtn || !commandEl || !outputEl) return;
+    const logEl = document.getElementById('diagnostic-log');
+    if (!dashboard || !toggleBtn || !commandEl || !outputEl || !logEl) return;
 
     const statusMap = {
         http: 'status-http',
@@ -283,6 +284,8 @@ const initHealthCheck = () => {
 
     let checkIndex = 0;
     let diagnosticsTimer;
+    let diagnosticsRunning = false;
+    let diagnosticsHasRun = false;
 
     const updateStatus = (key, value) => {
         const target = document.getElementById(statusMap[key]);
@@ -297,6 +300,23 @@ const initHealthCheck = () => {
         }, 900);
     };
 
+    const appendLog = (result) => {
+        const entry = document.createElement('div');
+        entry.className = 'diagnostic-log-entry';
+
+        const command = document.createElement('div');
+        command.className = 'diagnostic-log-command';
+        command.textContent = `$ ${result.command}`;
+
+        const output = document.createElement('div');
+        output.className = 'diagnostic-log-output';
+        output.textContent = result.output;
+
+        entry.append(command, output);
+        logEl.append(entry);
+        logEl.scrollTop = logEl.scrollHeight;
+    };
+
     const runDiagnostic = () => {
         const result = checks[checkIndex % checks.length]();
         checkIndex += 1;
@@ -304,23 +324,39 @@ const initHealthCheck = () => {
         commandEl.textContent = result.command;
         outputEl.textContent = result.output;
         Object.entries(result.updates).forEach(([key, value]) => updateStatus(key, value));
+        appendLog(result);
     };
 
     const startDiagnostics = () => {
-        runDiagnostic();
-        diagnosticsTimer = setInterval(runDiagnostic, 2400);
-    };
+        if (diagnosticsRunning || diagnosticsHasRun) return;
 
-    const stopDiagnostics = () => {
-        clearInterval(diagnosticsTimer);
-        diagnosticsTimer = null;
+        diagnosticsRunning = true;
+        checkIndex = 0;
+        logEl.replaceChildren();
+        commandEl.textContent = 'run website-probe-checklist';
+        outputEl.textContent = 'Running each probe example once...';
+
+        const runNext = () => {
+            if (checkIndex >= checks.length) {
+                commandEl.textContent = 'diagnostics complete';
+                outputEl.textContent = 'Probe examples logged below. Run them from a terminal against sites you own or are allowed to test.';
+                diagnosticsRunning = false;
+                diagnosticsHasRun = true;
+                diagnosticsTimer = null;
+                return;
+            }
+
+            runDiagnostic();
+            diagnosticsTimer = setTimeout(runNext, 700);
+        };
+
+        runNext();
     };
 
     const syncExpandedState = () => {
         const isExpanded = !dashboard.classList.contains('minimized');
         toggleBtn.setAttribute('aria-expanded', String(isExpanded));
-        if (isExpanded && !diagnosticsTimer) startDiagnostics();
-        if (!isExpanded && diagnosticsTimer) stopDiagnostics();
+        if (isExpanded) startDiagnostics();
     };
 
     syncExpandedState();
@@ -348,8 +384,8 @@ const initCursor = () => {
     });
 
     const loop = () => {
-        followerX += (mouseX - followerX - 20) * 0.1;
-        followerY += (mouseY - followerY - 20) * 0.1;
+        followerX += (mouseX - followerX - 20) * 0.22;
+        followerY += (mouseY - followerY - 20) * 0.22;
         follower.style.transform = `translate3d(${followerX}px, ${followerY}px, 0)`;
         requestAnimationFrame(loop);
     };
@@ -425,13 +461,13 @@ class QuantumWeb {
             const dist = Math.sqrt(dx*dx + dy*dy);
             if (dist < 200) {
                 const force = (200 - dist) / 200;
-                p.ox += this.mouse.vx * force * 0.1;
-                p.oy += this.mouse.vy * force * 0.1;
+                p.ox += this.mouse.vx * force * 0.18;
+                p.oy += this.mouse.vy * force * 0.18;
             }
 
             // Dampen offset
-            p.ox *= 0.95;
-            p.oy *= 0.95;
+            p.ox *= 0.9;
+            p.oy *= 0.9;
 
             p.x += p.vx + p.ox;
             p.y += p.vy + p.oy;
