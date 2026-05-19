@@ -138,8 +138,7 @@ const initArchitectureCanvas = () => {
 class ScrambleText {
     constructor(selector) {
         this.elements = document.querySelectorAll(selector);
-        // Use a set of characters that have similar widths to reduce "jerk"
-        this.chars = 'ABCDEF0123456789!@#$%^&*()_+';
+        this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         this.init();
     }
 
@@ -147,7 +146,7 @@ class ScrambleText {
         this.elements.forEach(el => {
             if (el.dataset.scrambled) return;
             el.dataset.scrambled = "true";
-            const originalText = el.innerText;
+            const originalText = el.textContent;
             el.addEventListener('mouseenter', () => this.scramble(el, originalText));
         });
     }
@@ -158,13 +157,15 @@ class ScrambleText {
 
         let iteration = 0;
         const interval = setInterval(() => {
-            el.innerText = original.split('').map((char, index) => {
+            el.textContent = original.split('').map((char, index) => {
+                if (/\s/.test(char)) return char;
                 if (index < iteration) return original[index];
                 return this.chars[Math.floor(Math.random() * this.chars.length)];
             }).join('');
 
             if (iteration >= original.length) {
                 clearInterval(interval);
+                el.textContent = original;
                 el.scrambling = false;
             }
             iteration += 1 / 2;
@@ -182,7 +183,6 @@ const initHealthCheck = () => {
     const outputEl = document.getElementById('diagnostic-output');
     if (!dashboard || !toggleBtn || !commandEl || !outputEl) return;
 
-    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
     const statusMap = {
         http: 'status-http',
         traffic: 'status-traffic',
@@ -194,52 +194,89 @@ const initHealthCheck = () => {
         errors: 'status-errors'
     };
 
+    const targetHost = 'theprivilegedcompany.com';
+    const targetUrl = `https://${targetHost}`;
+    const getPageSnapshot = () => {
+        const navigation = performance.getEntriesByType('navigation')[0];
+        const resources = performance.getEntriesByType('resource');
+        return {
+            assets: resources.length,
+            links: document.querySelectorAll('a[href]').length,
+            loadMs: Math.round(navigation?.duration || performance.now()),
+            title: document.title
+        };
+    };
+
     const checks = [
         () => {
-            const ttfb = rand(32, 74);
             return {
-                command: 'curl -I https://theprivilegedcompany.com/',
-                output: `HTTP/2 200 OK | ttfb=${ttfb}ms | content-type=text/html`,
-                updates: { http: '200 OK', latency: `${ttfb}ms` }
-            };
-        },
-        () => {
-            const pages = rand(7, 10);
-            return {
-                command: 'curl -s /sitemap.xml | xmllint --noout -',
-                output: `sitemap valid | ${pages} routes indexed | robots=allow`,
-                updates: { seo: `${pages} URLS`, cache: 'ROBOTS OK' }
-            };
-        },
-        () => {
-            const req = rand(126, 420);
-            return {
-                command: "tail -n 1000 access.log | awk '{print $7}'",
-                output: `${req} req/min | top=/manifest | crawl traffic normal`,
-                updates: { traffic: `${req}/MIN`, http: 'SERVING' }
-            };
-        },
-        () => {
-            const miss = rand(1, 6);
-            return {
-                command: 'check-assets --critical styles.css script.js views/',
-                output: `critical assets reachable | cache-miss=${miss}% | no stale bundles`,
-                updates: { assets: 'READY', cache: `${100 - miss}% HIT` }
-            };
-        },
-        () => {
-            const errors = (Math.random() * 0.08).toFixed(2);
-            return {
-                command: "grep -E ' 5[0-9]{2} ' access.log | wc -l",
-                output: `5xx rate=${errors}% | last incident=none | fallback healthy`,
-                updates: { errors: `${errors}%`, http: 'STABLE' }
+                command: `curl -I ${targetUrl}/`,
+                output: 'reveals: status, redirects, CDN/cache, HSTS, CSP, content-type',
+                updates: { http: 'HEADERS', shield: 'POLICY' }
             };
         },
         () => {
             return {
-                command: 'curl -I /privacy | grep -i policy',
-                output: 'privacy route live | referrer-policy strict | no trackers detected',
-                updates: { shield: 'ACTIVE', seo: 'CLEAN' }
+                command: `dig +short A ${targetHost} && dig +short NS ${targetHost}`,
+                output: 'reveals: DNS records, host routing, nameservers, CDN edge clues',
+                updates: { latency: 'DNS', errors: 'SURFACE' }
+            };
+        },
+        () => {
+            return {
+                command: `echo | openssl s_client -connect ${targetHost}:443 -servername ${targetHost}`,
+                output: 'reveals: certificate chain, expiry window, TLS version, ALPN',
+                updates: { latency: 'TLS', shield: 'CERT' }
+            };
+        },
+        () => {
+            return {
+                command: `curl -s ${targetUrl}/robots.txt && curl -s ${targetUrl}/sitemap.xml`,
+                output: 'reveals: crawl rules, public routes, sitemap coverage, indexing hints',
+                updates: { seo: 'CRAWL', cache: 'ROUTES' }
+            };
+        },
+        () => {
+            return {
+                command: `npx lighthouse ${targetUrl} --view`,
+                output: 'reveals: Core Web Vitals, accessibility, SEO, best-practice gaps',
+                updates: { assets: 'CWV', seo: 'AUDIT' }
+            };
+        },
+        () => {
+            return {
+                command: `curl -sL ${targetUrl}/ | pup 'title,meta[name=description],a attr{href}'`,
+                output: 'reveals: page title, meta description, links, content structure',
+                updates: { cache: 'CONTENT', seo: 'META' }
+            };
+        },
+        () => {
+            return {
+                command: `nmap -Pn -sV ${targetHost}`,
+                output: 'reveals: exposed ports, service versions, unexpected public surface',
+                updates: { errors: 'PORTS', shield: 'SCAN' }
+            };
+        },
+        () => {
+            return {
+                command: `curl -s 'https://crt.sh/?q=${targetHost}&output=json'`,
+                output: 'reveals: certificate-transparency subdomains and shadow assets',
+                updates: { errors: 'SUBDOMAINS', shield: 'CT LOGS' }
+            };
+        },
+        () => {
+            return {
+                command: 'goaccess access.log --log-format=COMBINED',
+                output: 'requires owned logs; reveals real visits, referrers, bots, 404s, top pages',
+                updates: { traffic: 'OWN LOGS', errors: '4XX/5XX' }
+            };
+        },
+        () => {
+            const snapshot = getPageSnapshot();
+            return {
+                command: 'browser performance + DOM snapshot',
+                output: `current render: ${snapshot.assets} assets, ${snapshot.links} links, ${snapshot.loadMs}ms load, title="${snapshot.title}"`,
+                updates: { assets: `${snapshot.assets} ASSETS`, cache: `${snapshot.links} LINKS` }
             };
         }
     ];
