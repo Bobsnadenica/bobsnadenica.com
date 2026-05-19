@@ -1,6 +1,6 @@
-# MyCompany Next-Gen Portal
+# ThePrivilegedCompany Next-Gen Portal
 
-A sophisticated, data-informed "portal" built at the intersection of high-scale enterprise engineering and elite personal digital advisory. This repository houses the flagship digital presence for MyCompany, adhering to "The Studio" standard of Dark Mode Precision.
+A sophisticated, data-informed "portal" built at the intersection of high-scale enterprise engineering and elite personal digital advisory. This repository houses the flagship digital presence for ThePrivilegedCompany, adhering to "The Studio" standard of Dark Mode Precision.
 
 ## 🏛 Architecture & Engineering
 
@@ -27,7 +27,7 @@ The portal is structured around three core pillars:
 
 ### GitHub Pages Optimization
 The portal is optimized for static hosting on GitHub Pages:
-- **Relative Path Resolution:** The router automatically detects subfolder deployments (e.g., `username.github.io/mycompany/`) and adjusts fetch paths accordingly.
+- **Relative Path Resolution:** The router automatically detects subfolder deployments (e.g., `username.github.io/theprivilegedcompany/`) and adjusts fetch paths accordingly.
 - **SPA Fallback:** To support deep-linking on GitHub Pages, use the `404.html` fallback method (copy `index.html` to `404.html`).
 
 ## 📁 File Structure
@@ -53,4 +53,4 @@ The portal is optimized for static hosting on GitHub Pages:
 - **Absolute Optimization:** Optimized for "Time to Interactive" and zero Layout Shift.
 
 ---
-*Empirical Engineering. Absolute Resolution. © 2026 MyCompany.*
+*Empirical Engineering. Absolute Resolution. © 2026 ThePrivilegedCompany.*

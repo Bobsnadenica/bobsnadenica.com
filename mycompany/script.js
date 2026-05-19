@@ -1,5 +1,5 @@
 /**
- * MyCompany Monolith Engine [Final Boss Tier]
+ * ThePrivilegedCompany Monolith Engine [Final Boss Tier]
  * Senior Engineering Standard.
  */
 
@@ -68,7 +68,7 @@ const router = async () => {
         }
     }
 
-    document.title = `MyCompany | ${route.title}`;
+    document.title = `ThePrivilegedCompany | ${route.title}`;
     window.scrollTo(0, 0);
 
     // End Transition Mask
@@ -198,7 +198,7 @@ const initHealthCheck = () => {
         () => {
             const ttfb = rand(32, 74);
             return {
-                command: 'curl -I https://mycompany.com/',
+                command: 'curl -I https://theprivilegedcompany.com/',
                 output: `HTTP/2 200 OK | ttfb=${ttfb}ms | content-type=text/html`,
                 updates: { http: '200 OK', latency: `${ttfb}ms` }
             };

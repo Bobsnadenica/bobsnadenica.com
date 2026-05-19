@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://mycompany.com/sitemap.xml
+Sitemap: https://theprivilegedcompany.com/sitemap.xml
