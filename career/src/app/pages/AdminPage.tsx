@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
@@ -8,7 +8,7 @@ import type {
 } from "../../lib/types";
 import PageScene from "../layout/PageScene";
 
-type Filter = "pending" | "all";
+type Filter = "pending" | "approved" | "rejected" | "all";
 
 function statusLabel(status: AdminConsultantSummary["profileStatus"]) {
   if (status === "approved" || status === "active") return "Одобрен";
@@ -22,6 +22,20 @@ function statusBadgeClass(status: AdminConsultantSummary["profileStatus"]) {
   }
   if (status === "rejected") return "status-badge status-badge--cancelled";
   return "plan-pill";
+}
+
+function formatAuditDate(value: string) {
+  if (!value) return "";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "";
+  try {
+    return new Intl.DateTimeFormat("bg-BG", {
+      dateStyle: "medium",
+      timeStyle: "short"
+    }).format(parsed);
+  } catch {
+    return parsed.toISOString();
+  }
 }
 
 export default function AdminPage() {
@@ -51,12 +65,33 @@ export default function AdminPage() {
     void reload();
   }, [isAdmin, reload, token]);
 
+  const counts = useMemo(() => {
+    return {
+      pending: items.filter((item) => item.profileStatus === "pending").length,
+      approved: items.filter(
+        (item) => item.profileStatus === "approved" || item.profileStatus === "active"
+      ).length,
+      rejected: items.filter((item) => item.profileStatus === "rejected").length,
+      all: items.length
+    };
+  }, [items]);
+
+  const visible = useMemo(() => {
+    if (filter === "all") return items;
+    if (filter === "approved") {
+      return items.filter(
+        (item) => item.profileStatus === "approved" || item.profileStatus === "active"
+      );
+    }
+    return items.filter((item) => item.profileStatus === filter);
+  }, [items, filter]);
+
   if (loading) {
     return (
       <PageScene tone="dashboard" pageKey="admin">
         <section className="section">
           <div className="container">
-            <div className="panel">Проверяваме достъпа...</div>
+            <div className="panel empty-state">Проверяваме достъпа...</div>
           </div>
         </section>
       </PageScene>
@@ -98,17 +133,30 @@ export default function AdminPage() {
     }
   }
 
-  const visible = items.filter((item) => {
-    if (filter === "pending") return item.profileStatus === "pending";
-    return true;
-  });
+  const filterChips: { key: Filter; label: string; count: number }[] = [
+    { key: "pending", label: "Чакащи", count: counts.pending },
+    { key: "approved", label: "Одобрени", count: counts.approved },
+    { key: "rejected", label: "Отказани", count: counts.rejected },
+    { key: "all", label: "Всички", count: counts.all }
+  ];
 
-  const counts = {
-    pending: items.filter((item) => item.profileStatus === "pending").length,
-    approved: items.filter(
-      (item) => item.profileStatus === "approved" || item.profileStatus === "active"
-    ).length,
-    rejected: items.filter((item) => item.profileStatus === "rejected").length
+  const emptyCopy: Record<Filter, { title: string; hint: string }> = {
+    pending: {
+      title: "Няма чакащи заявки.",
+      hint: "Всички профили са прегледани. Връщай се периодично, за да обработваш нови подавания."
+    },
+    approved: {
+      title: "Все още няма одобрени профили.",
+      hint: "Одобрените профили се показват тук с информация кой и кога ги е приел."
+    },
+    rejected: {
+      title: "Няма отказани профили.",
+      hint: "Отказаните профили остават достъпни за повторен преглед."
+    },
+    all: {
+      title: "Няма консултантски профили в системата.",
+      hint: "След като консултанти и ментори се регистрират, ще се появят тук."
+    }
   };
 
   return (
@@ -120,7 +168,8 @@ export default function AdminPage() {
             <h1>Одобряване на консултантски профили</h1>
             <p className="hero__lede">
               Преглеждаш заявките от консултанти и ментори преди да станат публични в
-              каталога.
+              каталога. Не можеш да променяш собствения си профил — помоли друг
+              администратор.
             </p>
           </div>
         </div>
@@ -145,20 +194,16 @@ export default function AdminPage() {
 
           <div className="search-shortcuts admin-filter">
             <div className="search-shortcuts__list">
-              <button
-                type="button"
-                className={`shortcut-chip ${filter === "pending" ? "shortcut-chip--active" : ""}`}
-                onClick={() => setFilter("pending")}
-              >
-                Чакащи ({counts.pending})
-              </button>
-              <button
-                type="button"
-                className={`shortcut-chip ${filter === "all" ? "shortcut-chip--active" : ""}`}
-                onClick={() => setFilter("all")}
-              >
-                Всички ({items.length})
-              </button>
+              {filterChips.map((chip) => (
+                <button
+                  key={chip.key}
+                  type="button"
+                  className={`shortcut-chip ${filter === chip.key ? "shortcut-chip--active" : ""}`}
+                  onClick={() => setFilter(chip.key)}
+                >
+                  {chip.label} ({chip.count})
+                </button>
+              ))}
             </div>
           </div>
 
@@ -170,14 +215,8 @@ export default function AdminPage() {
             <div className="panel empty-state">Зареждаме заявките...</div>
           ) : visible.length === 0 ? (
             <div className="panel empty-state">
-              <strong>
-                {filter === "pending"
-                  ? "Няма чакащи заявки."
-                  : "Няма консултантски профили в системата."}
-              </strong>
-              {filter === "pending" ? (
-                <p>Всички профили са прегледани.</p>
-              ) : null}
+              <strong>{emptyCopy[filter].title}</strong>
+              <p>{emptyCopy[filter].hint}</p>
             </div>
           ) : (
             <div className="admin-list">
@@ -186,20 +225,41 @@ export default function AdminPage() {
                   item.profileStatus === "approved" || item.profileStatus === "active";
                 const isRejected = item.profileStatus === "rejected";
                 const busy = pendingActionId === item.consultantId;
+                const isOwnProfile = item.ownerUserId === user.id;
+                const audit = item.statusUpdatedAt
+                  ? `${isApproved ? "Одобрен" : isRejected ? "Отказан" : "Върнат"} от ${
+                      item.statusUpdatedByEmail || "администратор"
+                    } на ${formatAuditDate(item.statusUpdatedAt)}`
+                  : "";
+
                 return (
                   <article className="panel admin-card" key={item.consultantId}>
                     <div className="admin-card__head">
                       <div>
-                        <span className="plan-pill">
-                          {item.profileType === "mentor" ? "Ментор" : "Консултант"}
-                        </span>
+                        <div className="admin-card__top-row">
+                          <span className="plan-pill">
+                            {item.profileType === "mentor" ? "Ментор" : "Консултант"}
+                          </span>
+                          {isOwnProfile ? (
+                            <span className="status-badge admin-card__own-badge">
+                              Твой профил
+                            </span>
+                          ) : null}
+                        </div>
                         <h3>{item.name}</h3>
                         <p>{item.headline || "Без описание"}</p>
+                        {item.ownerEmail ? (
+                          <p className="admin-card__owner">
+                            <span>Собственик:</span>{" "}
+                            <a href={`mailto:${item.ownerEmail}`}>{item.ownerEmail}</a>
+                          </p>
+                        ) : null}
                       </div>
                       <span className={statusBadgeClass(item.profileStatus)}>
                         {statusLabel(item.profileStatus)}
                       </span>
                     </div>
+
                     <dl className="admin-card__meta">
                       <div>
                         <dt>Slug</dt>
@@ -214,37 +274,51 @@ export default function AdminPage() {
                         <dd>{item.isPublic ? "Да" : "Не"}</dd>
                       </div>
                     </dl>
+
+                    {audit ? (
+                      <p className="admin-card__audit">{audit}</p>
+                    ) : null}
+
                     <div className="admin-card__actions">
-                      {!isApproved ? (
-                        <button
-                          className="primary-button"
-                          type="button"
-                          disabled={busy}
-                          onClick={() => setStatus(item.consultantId, "approved")}
-                        >
-                          {busy ? "Записваме..." : "Одобри"}
-                        </button>
-                      ) : null}
-                      {!isRejected ? (
-                        <button
-                          className="ghost-button"
-                          type="button"
-                          disabled={busy}
-                          onClick={() => setStatus(item.consultantId, "rejected")}
-                        >
-                          {busy ? "Записваме..." : "Откажи"}
-                        </button>
-                      ) : null}
-                      {(isApproved || isRejected) ? (
-                        <button
-                          className="ghost-button"
-                          type="button"
-                          disabled={busy}
-                          onClick={() => setStatus(item.consultantId, "pending")}
-                        >
-                          Върни в чакащи
-                        </button>
-                      ) : null}
+                      {isOwnProfile ? (
+                        <p className="form-note">
+                          Промените на статуса на собствения ти профил трябва да се
+                          направят от друг администратор.
+                        </p>
+                      ) : (
+                        <>
+                          {!isApproved ? (
+                            <button
+                              className="primary-button"
+                              type="button"
+                              disabled={busy}
+                              onClick={() => setStatus(item.consultantId, "approved")}
+                            >
+                              {busy ? "Записваме..." : "Одобри"}
+                            </button>
+                          ) : null}
+                          {!isRejected ? (
+                            <button
+                              className="ghost-button"
+                              type="button"
+                              disabled={busy}
+                              onClick={() => setStatus(item.consultantId, "rejected")}
+                            >
+                              {busy ? "Записваме..." : "Откажи"}
+                            </button>
+                          ) : null}
+                          {(isApproved || isRejected) ? (
+                            <button
+                              className="ghost-button"
+                              type="button"
+                              disabled={busy}
+                              onClick={() => setStatus(item.consultantId, "pending")}
+                            >
+                              Върни в чакащи
+                            </button>
+                          ) : null}
+                        </>
+                      )}
                     </div>
                   </article>
                 );

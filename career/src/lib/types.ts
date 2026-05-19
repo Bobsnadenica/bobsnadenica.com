@@ -10,6 +10,8 @@ export type ConsultantProfileStatus = "pending" | "approved" | "rejected";
 export interface AdminConsultantSummary {
   consultantId: string;
   ownerUserId: string;
+  ownerEmail: string;
+  ownerName: string;
   slug: string;
   name: string;
   headline: string;
@@ -18,6 +20,11 @@ export interface AdminConsultantSummary {
   profileStatus: ConsultantProfileStatus | "active";
   isPublic: boolean;
   membershipTier: string;
+  createdAt: string;
+  updatedAt: string;
+  statusUpdatedAt: string;
+  statusUpdatedBy: string;
+  statusUpdatedByEmail: string;
 }
 
 export interface UploadedDocument {

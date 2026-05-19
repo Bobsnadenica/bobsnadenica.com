@@ -1643,18 +1643,46 @@ async function listConsultantsForAdmin(event) {
     })
   );
 
-  const items = (result.Items || []).map((item) => ({
-    consultantId: item.consultantId,
-    ownerUserId: item.ownerUserId,
-    slug: item.slug,
-    name: item.name,
-    headline: item.headline,
-    city: item.city,
-    profileType: item.profileType,
-    profileStatus: item.profileStatus || "approved",
-    isPublic: item.isPublic !== false,
-    membershipTier: item.membershipTier || "standard"
-  }));
+  const consultants = result.Items || [];
+  const ownerIds = Array.from(
+    new Set(consultants.map((item) => item.ownerUserId).filter(Boolean))
+  );
+
+  const owners = new Map();
+  await Promise.all(
+    ownerIds.map(async (ownerId) => {
+      const ownerRecord = await getUserBySub(ownerId);
+      if (ownerRecord) {
+        owners.set(ownerId, {
+          email: ownerRecord.email || "",
+          name: ownerRecord.name || ""
+        });
+      }
+    })
+  );
+
+  const items = consultants.map((item) => {
+    const owner = owners.get(item.ownerUserId);
+    return {
+      consultantId: item.consultantId,
+      ownerUserId: item.ownerUserId,
+      ownerEmail: owner?.email || "",
+      ownerName: owner?.name || "",
+      slug: item.slug,
+      name: item.name,
+      headline: item.headline,
+      city: item.city,
+      profileType: item.profileType,
+      profileStatus: item.profileStatus || "approved",
+      isPublic: item.isPublic !== false,
+      membershipTier: item.membershipTier || "standard",
+      createdAt: item.createdAt || "",
+      updatedAt: item.updatedAt || "",
+      statusUpdatedAt: item.statusUpdatedAt || "",
+      statusUpdatedBy: item.statusUpdatedBy || "",
+      statusUpdatedByEmail: item.statusUpdatedByEmail || ""
+    };
+  });
 
   items.sort((left, right) => {
     const order = { pending: 0, approved: 1, rejected: 2 };
@@ -1668,7 +1696,7 @@ async function listConsultantsForAdmin(event) {
 }
 
 async function setConsultantStatus(event) {
-  requireAdmin(event);
+  const claims = requireAdmin(event);
   const body = parseBody(event);
   const consultantId = event.pathParameters?.consultantId;
 
@@ -1693,10 +1721,21 @@ async function setConsultantStatus(event) {
     return notFound("Consultant not found.");
   }
 
+  // Admins can't approve / reject / re-queue their own consultant profile.
+  // Self-approval is a conflict of interest — another admin has to do it.
+  if (existing.Item.ownerUserId === claims.sub) {
+    return forbidden("Не можеш да променяш статуса на собствения си профил. Помоли друг администратор.");
+  }
+
+  const now = new Date().toISOString();
   const updated = {
     ...existing.Item,
     profileStatus: status,
-    isPublic: status === "approved"
+    isPublic: status === "approved",
+    statusUpdatedAt: now,
+    statusUpdatedBy: claims.sub,
+    statusUpdatedByEmail: claims.email || "",
+    updatedAt: now
   };
 
   await dynamo.send(
@@ -1709,7 +1748,10 @@ async function setConsultantStatus(event) {
   return response(200, {
     consultantId: updated.consultantId,
     profileStatus: updated.profileStatus,
-    isPublic: updated.isPublic
+    isPublic: updated.isPublic,
+    statusUpdatedAt: updated.statusUpdatedAt,
+    statusUpdatedBy: updated.statusUpdatedBy,
+    statusUpdatedByEmail: updated.statusUpdatedByEmail
   });
 }
 
