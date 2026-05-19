@@ -15,16 +15,25 @@ export interface AdminConsultantSummary {
   slug: string;
   name: string;
   headline: string;
+  bio: string;
   city: string;
   profileType: ConsultantProfileType;
   profileStatus: ConsultantProfileStatus | "active";
   isPublic: boolean;
   membershipTier: string;
+  avatarUrl: string;
+  experienceYears: number;
+  languages: string[];
+  sessionModes: string[];
+  specializations: string[];
+  consultationTopics: string[];
+  availabilityCount: number;
   createdAt: string;
   updatedAt: string;
   statusUpdatedAt: string;
   statusUpdatedBy: string;
   statusUpdatedByEmail: string;
+  statusSelfApproved: boolean;
 }
 
 export interface UploadedDocument {

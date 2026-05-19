@@ -1661,28 +1661,44 @@ async function listConsultantsForAdmin(event) {
     })
   );
 
-  const items = consultants.map((item) => {
-    const owner = owners.get(item.ownerUserId);
-    return {
-      consultantId: item.consultantId,
-      ownerUserId: item.ownerUserId,
-      ownerEmail: owner?.email || "",
-      ownerName: owner?.name || "",
-      slug: item.slug,
-      name: item.name,
-      headline: item.headline,
-      city: item.city,
-      profileType: item.profileType,
-      profileStatus: item.profileStatus || "approved",
-      isPublic: item.isPublic !== false,
-      membershipTier: item.membershipTier || "standard",
-      createdAt: item.createdAt || "",
-      updatedAt: item.updatedAt || "",
-      statusUpdatedAt: item.statusUpdatedAt || "",
-      statusUpdatedBy: item.statusUpdatedBy || "",
-      statusUpdatedByEmail: item.statusUpdatedByEmail || ""
-    };
-  });
+  const items = await Promise.all(
+    consultants.map(async (item) => {
+      const owner = owners.get(item.ownerUserId);
+      const avatarUrl = item.avatarStorageKey
+        ? await getSignedObjectUrl(item.avatarStorageKey)
+        : item.avatarUrl || "";
+      return {
+        consultantId: item.consultantId,
+        ownerUserId: item.ownerUserId,
+        ownerEmail: owner?.email || "",
+        ownerName: owner?.name || "",
+        slug: item.slug,
+        name: item.name,
+        headline: item.headline || "",
+        bio: item.bio || "",
+        city: item.city || "",
+        profileType: item.profileType,
+        profileStatus: item.profileStatus || "approved",
+        isPublic: item.isPublic !== false,
+        membershipTier: item.membershipTier || "standard",
+        avatarUrl,
+        experienceYears: item.experienceYears || 0,
+        languages: Array.isArray(item.languages) ? item.languages : [],
+        sessionModes: Array.isArray(item.sessionModes) ? item.sessionModes : [],
+        specializations: Array.isArray(item.specializations) ? item.specializations : [],
+        consultationTopics: Array.isArray(item.consultationTopics)
+          ? item.consultationTopics
+          : [],
+        availabilityCount: Array.isArray(item.availability) ? item.availability.length : 0,
+        createdAt: item.createdAt || "",
+        updatedAt: item.updatedAt || "",
+        statusUpdatedAt: item.statusUpdatedAt || "",
+        statusUpdatedBy: item.statusUpdatedBy || "",
+        statusUpdatedByEmail: item.statusUpdatedByEmail || "",
+        statusSelfApproved: Boolean(item.statusSelfApproved)
+      };
+    })
+  );
 
   items.sort((left, right) => {
     const order = { pending: 0, approved: 1, rejected: 2 };
@@ -1721,12 +1737,10 @@ async function setConsultantStatus(event) {
     return notFound("Consultant not found.");
   }
 
-  // Admins can't approve / reject / re-queue their own consultant profile.
-  // Self-approval is a conflict of interest — another admin has to do it.
-  if (existing.Item.ownerUserId === claims.sub) {
-    return forbidden("Не можеш да променяш статуса на собствения си профил. Помоли друг администратор.");
-  }
-
+  // Self-approval is allowed — single-admin teams need an escape hatch. We
+  // record it as `selfApproved: true` so the audit trail makes the decision
+  // visible to anyone reviewing later.
+  const isSelfApproval = existing.Item.ownerUserId === claims.sub;
   const now = new Date().toISOString();
   const updated = {
     ...existing.Item,
@@ -1735,6 +1749,7 @@ async function setConsultantStatus(event) {
     statusUpdatedAt: now,
     statusUpdatedBy: claims.sub,
     statusUpdatedByEmail: claims.email || "",
+    statusSelfApproved: isSelfApproval,
     updatedAt: now
   };
 
@@ -1751,7 +1766,8 @@ async function setConsultantStatus(event) {
     isPublic: updated.isPublic,
     statusUpdatedAt: updated.statusUpdatedAt,
     statusUpdatedBy: updated.statusUpdatedBy,
-    statusUpdatedByEmail: updated.statusUpdatedByEmail
+    statusUpdatedByEmail: updated.statusUpdatedByEmail,
+    statusSelfApproved: updated.statusSelfApproved
   });
 }
 

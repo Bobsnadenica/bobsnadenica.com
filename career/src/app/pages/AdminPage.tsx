@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import type {
@@ -38,6 +38,17 @@ function formatAuditDate(value: string) {
   }
 }
 
+function getInitials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || "")
+      .join("") || "?"
+  );
+}
+
 export default function AdminPage() {
   const { token, isAdmin, loading, user } = useAuth();
   const [items, setItems] = useState<AdminConsultantSummary[]>([]);
@@ -45,6 +56,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<Filter>("pending");
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!token) return;
@@ -117,14 +129,31 @@ export default function AdminPage() {
   }
 
   async function setStatus(
-    consultantId: string,
+    item: AdminConsultantSummary,
     nextStatus: ConsultantProfileStatus
   ) {
     if (!token) return;
-    setPendingActionId(consultantId);
+    const isOwnProfile = item.ownerUserId === user!.id;
+
+    if (typeof window !== "undefined") {
+      const labelMap: Record<ConsultantProfileStatus, string> = {
+        approved: "одобриш",
+        rejected: "откажеш",
+        pending: "върнеш в чакащи"
+      };
+      const action = labelMap[nextStatus];
+      const confirmCopy = isOwnProfile && nextStatus === "approved"
+        ? `Сигурен ли си, че искаш да одобриш СОБСТВЕНИЯ си профил? Действието ще бъде записано в одита като самостоятелно одобрение.`
+        : `Сигурен ли си, че искаш да ${action} профила на ${item.name}?`;
+      if (!window.confirm(confirmCopy)) {
+        return;
+      }
+    }
+
+    setPendingActionId(item.consultantId);
     setError("");
     try {
-      await api.adminSetConsultantStatus(token, consultantId, nextStatus);
+      await api.adminSetConsultantStatus(token, item.consultantId, nextStatus);
       await reload();
     } catch (value) {
       setError(value instanceof Error ? value.message : "Действието не успя.");
@@ -168,8 +197,8 @@ export default function AdminPage() {
             <h1>Одобряване на консултантски профили</h1>
             <p className="hero__lede">
               Преглеждаш заявките от консултанти и ментори преди да станат публични в
-              каталога. Не можеш да променяш собствения си профил — помоли друг
-              администратор.
+              каталога. Можеш да одобряваш и собствения си профил — действието се
+              записва в одита.
             </p>
           </div>
         </div>
@@ -226,34 +255,54 @@ export default function AdminPage() {
                 const isRejected = item.profileStatus === "rejected";
                 const busy = pendingActionId === item.consultantId;
                 const isOwnProfile = item.ownerUserId === user.id;
+                const isExpanded = expandedId === item.consultantId;
+                const auditWho =
+                  item.statusUpdatedByEmail || (item.statusSelfApproved ? "самостоятелно" : "администратор");
+                const auditAction = isApproved
+                  ? "Одобрен"
+                  : isRejected
+                    ? "Отказан"
+                    : "Върнат в чакащи";
                 const audit = item.statusUpdatedAt
-                  ? `${isApproved ? "Одобрен" : isRejected ? "Отказан" : "Върнат"} от ${
-                      item.statusUpdatedByEmail || "администратор"
-                    } на ${formatAuditDate(item.statusUpdatedAt)}`
+                  ? `${auditAction} от ${auditWho} на ${formatAuditDate(item.statusUpdatedAt)}`
                   : "";
 
                 return (
                   <article className="panel admin-card" key={item.consultantId}>
                     <div className="admin-card__head">
-                      <div>
-                        <div className="admin-card__top-row">
-                          <span className="plan-pill">
-                            {item.profileType === "mentor" ? "Ментор" : "Консултант"}
-                          </span>
-                          {isOwnProfile ? (
-                            <span className="status-badge admin-card__own-badge">
-                              Твой профил
+                      <div className="admin-card__identity">
+                        <div className="admin-card__avatar" aria-hidden="true">
+                          {item.avatarUrl ? (
+                            <img src={item.avatarUrl} alt="" />
+                          ) : (
+                            <span>{getInitials(item.name)}</span>
+                          )}
+                        </div>
+                        <div className="admin-card__identity-body">
+                          <div className="admin-card__top-row">
+                            <span className="plan-pill">
+                              {item.profileType === "mentor" ? "Ментор" : "Консултант"}
                             </span>
+                            {isOwnProfile ? (
+                              <span className="status-badge admin-card__own-badge">
+                                Твой профил
+                              </span>
+                            ) : null}
+                            {item.statusSelfApproved && isApproved ? (
+                              <span className="status-badge admin-card__self-badge">
+                                Самостоятелно одобрен
+                              </span>
+                            ) : null}
+                          </div>
+                          <h3>{item.name}</h3>
+                          <p>{item.headline || "Без описание"}</p>
+                          {item.ownerEmail ? (
+                            <p className="admin-card__owner">
+                              <span>Собственик:</span>{" "}
+                              <a href={`mailto:${item.ownerEmail}`}>{item.ownerEmail}</a>
+                            </p>
                           ) : null}
                         </div>
-                        <h3>{item.name}</h3>
-                        <p>{item.headline || "Без описание"}</p>
-                        {item.ownerEmail ? (
-                          <p className="admin-card__owner">
-                            <span>Собственик:</span>{" "}
-                            <a href={`mailto:${item.ownerEmail}`}>{item.ownerEmail}</a>
-                          </p>
-                        ) : null}
                       </div>
                       <span className={statusBadgeClass(item.profileStatus)}>
                         {statusLabel(item.profileStatus)}
@@ -270,55 +319,103 @@ export default function AdminPage() {
                         <dd>{item.city || "—"}</dd>
                       </div>
                       <div>
+                        <dt>Опит</dt>
+                        <dd>{item.experienceYears ? `${item.experienceYears} години` : "—"}</dd>
+                      </div>
+                      <div>
+                        <dt>Слотове</dt>
+                        <dd>{item.availabilityCount}</dd>
+                      </div>
+                      <div>
                         <dt>Публичен</dt>
                         <dd>{item.isPublic ? "Да" : "Не"}</dd>
                       </div>
                     </dl>
 
+                    {(item.specializations.length || item.languages.length || item.sessionModes.length) ? (
+                      <div className="admin-card__chips">
+                        {item.specializations.slice(0, 4).map((spec) => (
+                          <span className="chip chip--soft" key={`spec-${spec}`}>
+                            {spec}
+                          </span>
+                        ))}
+                        {item.languages.slice(0, 3).map((lang) => (
+                          <span className="chip" key={`lang-${lang}`}>
+                            {lang}
+                          </span>
+                        ))}
+                        {item.sessionModes.slice(0, 2).map((mode) => (
+                          <span className="chip chip--soft" key={`mode-${mode}`}>
+                            {mode}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {item.bio ? (
+                      <div className="admin-card__bio">
+                        <p className={isExpanded ? "admin-card__bio-text admin-card__bio-text--open" : "admin-card__bio-text"}>
+                          {item.bio}
+                        </p>
+                        {item.bio.length > 220 ? (
+                          <button
+                            type="button"
+                            className="text-button"
+                            onClick={() => setExpandedId(isExpanded ? null : item.consultantId)}
+                          >
+                            {isExpanded ? "Скрий биографията" : "Прочети цялата биография"}
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
+
                     {audit ? (
-                      <p className="admin-card__audit">{audit}</p>
+                      <p className={`admin-card__audit ${item.statusSelfApproved ? "admin-card__audit--self" : ""}`}>
+                        {audit}
+                      </p>
                     ) : null}
 
                     <div className="admin-card__actions">
-                      {isOwnProfile ? (
-                        <p className="form-note">
-                          Промените на статуса на собствения ти профил трябва да се
-                          направят от друг администратор.
-                        </p>
-                      ) : (
-                        <>
-                          {!isApproved ? (
-                            <button
-                              className="primary-button"
-                              type="button"
-                              disabled={busy}
-                              onClick={() => setStatus(item.consultantId, "approved")}
-                            >
-                              {busy ? "Записваме..." : "Одобри"}
-                            </button>
-                          ) : null}
-                          {!isRejected ? (
-                            <button
-                              className="ghost-button"
-                              type="button"
-                              disabled={busy}
-                              onClick={() => setStatus(item.consultantId, "rejected")}
-                            >
-                              {busy ? "Записваме..." : "Откажи"}
-                            </button>
-                          ) : null}
-                          {(isApproved || isRejected) ? (
-                            <button
-                              className="ghost-button"
-                              type="button"
-                              disabled={busy}
-                              onClick={() => setStatus(item.consultantId, "pending")}
-                            >
-                              Върни в чакащи
-                            </button>
-                          ) : null}
-                        </>
-                      )}
+                      {!isApproved ? (
+                        <button
+                          className="primary-button"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setStatus(item, "approved")}
+                        >
+                          {busy ? "Записваме..." : "Одобри"}
+                        </button>
+                      ) : null}
+                      {!isRejected ? (
+                        <button
+                          className="ghost-button"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setStatus(item, "rejected")}
+                        >
+                          {busy ? "Записваме..." : "Откажи"}
+                        </button>
+                      ) : null}
+                      {(isApproved || isRejected) ? (
+                        <button
+                          className="ghost-button"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setStatus(item, "pending")}
+                        >
+                          Върни в чакащи
+                        </button>
+                      ) : null}
+                      {isApproved && item.slug ? (
+                        <Link
+                          className="ghost-button"
+                          to={`/consultants/${item.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Виж публичния профил
+                        </Link>
+                      ) : null}
                     </div>
                   </article>
                 );
