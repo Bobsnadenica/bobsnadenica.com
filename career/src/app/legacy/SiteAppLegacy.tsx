@@ -3147,6 +3147,23 @@ export function AccountPage() {
   return <Navigate to="/dashboard" replace />;
 }
 
+async function fetchProfileWithRetry(token: string) {
+  // The dashboard mounts right after register → bootstrap → navigate.
+  // Even with strongly-consistent reads on the backend, the API gateway
+  // + Lambda cold start window can race the PutItem write. One short
+  // retry covers it. Backoff: ~600ms.
+  try {
+    return await api.getMyProfile(token);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (!message.toLowerCase().includes("not found")) {
+      throw error;
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 600));
+    return api.getMyProfile(token);
+  }
+}
+
 export function DashboardPage() {
   const { user, token, loading } = useAuth();
   const navigate = useNavigate();
@@ -3181,7 +3198,7 @@ export function DashboardPage() {
     setError("");
 
     Promise.all([
-      api.getMyProfile(token),
+      fetchProfileWithRetry(token),
       api.listBookings(token),
       api
         .getMyConsultantProfile(token)

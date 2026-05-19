@@ -132,7 +132,8 @@ async function getUserBySub(userId) {
   const result = await dynamo.send(
     new GetCommand({
       TableName: env.usersTable,
-      Key: { userId }
+      Key: { userId },
+      ConsistentRead: true
     })
   );
 
