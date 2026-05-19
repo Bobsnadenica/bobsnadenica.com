@@ -6,6 +6,7 @@ import {
 } from "./demo-data";
 import { getCvUploadContentType, getDocumentUploadContentType } from "./uploads";
 import type {
+  AdminConsultantDetail,
   AdminConsultantSummary,
   Booking,
   ConsultantMediaKind,
@@ -342,6 +343,14 @@ export const api = {
   async adminListConsultants(token: string) {
     return request<AdminConsultantSummary[]>(
       "/admin/consultants",
+      undefined,
+      token
+    );
+  },
+
+  async adminGetConsultant(token: string, consultantId: string) {
+    return request<AdminConsultantDetail>(
+      `/admin/consultants/${encodeURIComponent(consultantId)}`,
       undefined,
       token
     );

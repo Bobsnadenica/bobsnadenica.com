@@ -376,9 +376,15 @@ export default function AdminPage() {
                     ) : null}
 
                     <div className="admin-card__actions">
+                      <Link
+                        className="primary-button"
+                        to={`/admin/preview/${item.consultantId}`}
+                      >
+                        Виж и провери
+                      </Link>
                       {!isApproved ? (
                         <button
-                          className="primary-button"
+                          className="ghost-button"
                           type="button"
                           disabled={busy}
                           onClick={() => setStatus(item, "approved")}
@@ -405,16 +411,6 @@ export default function AdminPage() {
                         >
                           Върни в чакащи
                         </button>
-                      ) : null}
-                      {isApproved && item.slug ? (
-                        <Link
-                          className="ghost-button"
-                          to={`/consultants/${item.slug}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Виж публичния профил
-                        </Link>
                       ) : null}
                     </div>
                   </article>

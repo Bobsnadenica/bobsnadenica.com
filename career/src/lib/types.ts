@@ -7,6 +7,19 @@ export type ConsultantMediaKind = "avatar" | "hero";
 export type UserMediaKind = "user-avatar";
 export type ConsultantProfileStatus = "pending" | "approved" | "rejected";
 
+export interface AdminConsultantDetail extends ConsultantProfile {
+  ownerEmail: string;
+  ownerName: string;
+  profileStatus: ConsultantProfileStatus | "active";
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+  statusUpdatedAt: string;
+  statusUpdatedBy: string;
+  statusUpdatedByEmail: string;
+  statusSelfApproved: boolean;
+}
+
 export interface AdminConsultantSummary {
   consultantId: string;
   ownerUserId: string;

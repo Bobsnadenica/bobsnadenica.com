@@ -1711,6 +1711,49 @@ async function listConsultantsForAdmin(event) {
   return response(200, items, { "Cache-Control": "no-store" });
 }
 
+async function getConsultantForAdmin(event) {
+  requireAdmin(event);
+  const consultantId = event.pathParameters?.consultantId;
+
+  if (!consultantId) {
+    return badRequest("consultantId is required.");
+  }
+
+  const result = await dynamo.send(
+    new GetCommand({
+      TableName: env.consultantsTable,
+      Key: { consultantId }
+    })
+  );
+
+  if (!result.Item) {
+    return notFound("Consultant not found.");
+  }
+
+  const consultant = result.Item;
+  const decorated = await decorateConsultantMedia(consultant);
+
+  // Owner info + audit metadata — surface what the list endpoint shows so
+  // the preview page has the same admin context as the card.
+  const owner = consultant.ownerUserId
+    ? await getUserBySub(consultant.ownerUserId)
+    : null;
+
+  return response(200, {
+    ...decorated,
+    ownerEmail: owner?.email || "",
+    ownerName: owner?.name || "",
+    profileStatus: consultant.profileStatus || "approved",
+    isPublic: consultant.isPublic !== false,
+    createdAt: consultant.createdAt || "",
+    updatedAt: consultant.updatedAt || "",
+    statusUpdatedAt: consultant.statusUpdatedAt || "",
+    statusUpdatedBy: consultant.statusUpdatedBy || "",
+    statusUpdatedByEmail: consultant.statusUpdatedByEmail || "",
+    statusSelfApproved: Boolean(consultant.statusSelfApproved)
+  }, { "Cache-Control": "no-store" });
+}
+
 async function setConsultantStatus(event) {
   const claims = requireAdmin(event);
   const body = parseBody(event);
@@ -1817,6 +1860,12 @@ exports.handler = async (event) => {
     if (method === "PUT" && adminStatusMatch) {
       event.pathParameters = { ...(event.pathParameters || {}), consultantId: adminStatusMatch[1] };
       return setConsultantStatus(event);
+    }
+
+    const adminGetMatch = /^\/admin\/consultants\/([^/]+)$/.exec(path);
+    if (method === "GET" && adminGetMatch) {
+      event.pathParameters = { ...(event.pathParameters || {}), consultantId: adminGetMatch[1] };
+      return getConsultantForAdmin(event);
     }
 
     return notFound("Route not found.");

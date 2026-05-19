@@ -11,6 +11,7 @@ import {
 import { config } from "../../lib/config";
 import AboutPage from "../pages/AboutPage";
 import AccountPage from "../pages/AccountPage";
+import AdminConsultantPreviewPage from "../pages/AdminConsultantPreviewPage";
 import AdminPage from "../pages/AdminPage";
 import AuthPage from "../pages/AuthPage";
 import ConsultantProfilePage from "../pages/ConsultantProfilePage";
@@ -398,6 +399,10 @@ export default function AppShell() {
           <Route path="/account" element={<AccountPage />} />
           <Route path="/dashboard" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/admin/preview/:consultantId"
+            element={<AdminConsultantPreviewPage />}
+          />
           <Route path="/pricing" element={<Navigate to="/users" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

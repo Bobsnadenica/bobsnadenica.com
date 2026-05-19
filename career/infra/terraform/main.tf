@@ -602,6 +602,14 @@ resource "aws_apigatewayv2_route" "admin_consultant_status" {
   authorization_type = "JWT"
 }
 
+resource "aws_apigatewayv2_route" "admin_consultant_get" {
+  api_id             = aws_apigatewayv2_api.http.id
+  route_key          = "GET /admin/consultants/{consultantId}"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
+  authorization_type = "JWT"
+}
+
 resource "aws_cognito_user_group" "admin" {
   name         = "admin"
   user_pool_id = aws_cognito_user_pool.main.id
