@@ -1268,8 +1268,15 @@ input[readonly] {
 }
 
 input[type="file"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   padding: 10px 12px;
   line-height: 1.4;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 input[type="file"]::file-selector-button {
@@ -2320,7 +2327,7 @@ textarea {
 
 .media-preview-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
@@ -2868,6 +2875,18 @@ textarea {
 
 .three-column {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* When stacked inside a parent that already paces children via gap
+   (form-stack, question-card__body, panel grids), drop the inline margin
+   so spacing isn't doubled. */
+.form-stack > .two-column,
+.form-stack > .three-column,
+.question-card__body > .two-column,
+.question-card__body > .three-column,
+.profile-setup-panel > .two-column,
+.profile-setup-panel > .three-column {
+  margin-bottom: 0;
 }
 
 .filter-actions,
@@ -4250,6 +4269,41 @@ textarea {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+}
+
+.dashboard-overview__head > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.dashboard-overview__head h2 {
+  overflow-wrap: anywhere;
+}
+
+.dashboard-content {
+  min-width: 0;
+}
+
+.dashboard-content > section,
+.dashboard-content > form {
+  min-width: 0;
+}
+
+/* Wider safety net: any panel hosting form fields shouldn't let its
+   children blow past the container width. */
+.panel.form-stack,
+.panel.dashboard-overview {
+  min-width: 0;
+}
+
+.summary-card {
+  min-width: 0;
+}
+
+.summary-card strong {
+  overflow-wrap: anywhere;
 }
 
 .dashboard-form-head {
@@ -5959,6 +6013,8 @@ textarea {
 .dashboard-sidebar {
   position: sticky;
   top: 106px;
+  max-height: calc(100dvh - 130px);
+  overflow-y: auto;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 248, 252, 0.98)),
     var(--surface);
