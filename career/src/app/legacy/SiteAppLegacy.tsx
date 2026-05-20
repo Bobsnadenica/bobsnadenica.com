@@ -2023,49 +2023,51 @@ export function ConsultantPage() {
           <div className="panel-stack">
             <article className="panel consultant-detail-panel consultant-detail-panel--wide">
               <h2>За консултанта</h2>
-              <p>{consultant.bio}</p>
+              {consultant.bio ? <p>{consultant.bio}</p> : null}
+              {consultant.experienceSummary ? (
+                <p>{consultant.experienceSummary}</p>
+              ) : null}
+              {(consultant.experienceHighlights || []).length ? (
+                <ul className="feature-list">
+                  {(consultant.experienceHighlights || []).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : null}
             </article>
 
-            {consultant.experienceSummary || (consultant.experienceHighlights || []).length ? (
-              <article className="panel consultant-detail-panel consultant-detail-panel--wide">
-                <h2>Професионален опит</h2>
-                {consultant.experienceSummary ? <p>{consultant.experienceSummary}</p> : null}
-                {(consultant.experienceHighlights || []).length ? (
-                  <ul className="feature-list">
-                    {(consultant.experienceHighlights || []).map((item) => (
-                      <li key={item}>{item}</li>
+            <article className="panel consultant-detail-panel consultant-detail-panel--wide consultant-expertise">
+              <h2>Експертиза и фокус</h2>
+
+              {getConsultantIdealFor(consultant).length ? (
+                <section className="consultant-expertise__block">
+                  <h3>Подходящо за</h3>
+                  <div className="chip-row">
+                    {getConsultantIdealFor(consultant).map((item) => (
+                      <span className="chip chip--soft" key={item}>
+                        {item}
+                      </span>
                     ))}
-                  </ul>
-                ) : null}
-              </article>
-            ) : null}
+                  </div>
+                </section>
+              ) : null}
 
-            <div className="consultant-detail-cards">
-              <article className="panel consultant-detail-panel">
-                <h2>Подходящо за</h2>
-                <div className="chip-row">
-                  {getConsultantIdealFor(consultant).map((item) => (
-                    <span className="chip chip--soft" key={item}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </article>
-
-              <article className="panel consultant-detail-panel">
-                <h2>Теми на консултацията</h2>
-                <div className="chip-row">
-                  {getConsultationTopics(consultant).map((item) => (
-                    <span className="chip" key={item}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </article>
+              {getConsultationTopics(consultant).length ? (
+                <section className="consultant-expertise__block">
+                  <h3>Теми на консултацията</h3>
+                  <div className="chip-row">
+                    {getConsultationTopics(consultant).map((item) => (
+                      <span className="chip" key={item}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
               {(consultant.educationHighlights || []).length ? (
-                <article className="panel consultant-detail-panel">
-                  <h2>Образование и сертификати</h2>
+                <section className="consultant-expertise__block">
+                  <h3>Образование и сертификати</h3>
                   <div className="chip-row">
                     {(consultant.educationHighlights || []).map((item) => (
                       <span className="chip chip--soft" key={item}>
@@ -2073,9 +2075,9 @@ export function ConsultantPage() {
                       </span>
                     ))}
                   </div>
-                </article>
+                </section>
               ) : null}
-            </div>
+            </article>
           </div>
 
           <form className="panel booking-panel" onSubmit={submitBooking}>

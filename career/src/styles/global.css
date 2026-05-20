@@ -3989,6 +3989,40 @@ textarea {
   padding: 24px;
 }
 
+.consultant-detail-panel p + p {
+  margin-top: 12px;
+}
+
+.consultant-detail-panel .feature-list {
+  margin-top: 14px;
+}
+
+.consultant-expertise {
+  display: grid;
+  gap: 18px;
+}
+
+.consultant-expertise__block {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.consultant-expertise__block:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+.consultant-expertise__block h3 {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .demo-user-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
