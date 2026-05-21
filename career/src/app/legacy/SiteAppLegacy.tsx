@@ -1832,6 +1832,11 @@ export function ConsultantPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [shareMessage, setShareMessage] = useState("");
+  const [confirmedBooking, setConfirmedBooking] = useState<{
+    slot: string;
+    sessionLength: string;
+    format: string;
+  } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -1964,11 +1969,24 @@ export function ConsultantPage() {
         scheduledAt: selectedSlot,
         note: note.trim()
       });
-      setMessage("Консултацията е заявена успешно. Ще я видиш в профила си.");
+      setConfirmedBooking({
+        slot: selectedSlot,
+        sessionLength: getSessionLengthLabel(consultant),
+        format: consultant.sessionModes.join(" · ")
+      });
       setNote("");
+      setSelectedSlot("");
+      setMessage("");
     } catch (value) {
       setError(value instanceof Error ? value.message : "Неуспешно създаване на заявка.");
     }
+  };
+
+  const resetBookingFlow = () => {
+    setConfirmedBooking(null);
+    setError("");
+    setMessage("");
+    setSelectedSlot(getUpcomingAvailabilitySlots(consultant.availability, 1)[0] || "");
   };
 
   return (
@@ -2080,6 +2098,58 @@ export function ConsultantPage() {
             </article>
           </div>
 
+          {confirmedBooking ? (
+            <aside className="panel booking-success" aria-live="polite">
+              <div className="booking-success__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 12.5l4.5 4.5L19 7.5"
+                  />
+                </svg>
+              </div>
+              <p className="eyebrow">Резервация изпратена</p>
+              <h2>Запазихме часа ти с {consultant.name}</h2>
+              <dl className="booking-success__facts">
+                <div>
+                  <dt>Дата и час</dt>
+                  <dd>
+                    {formatAvailabilityDayLabel(confirmedBooking.slot)},{" "}
+                    {formatAvailabilityTimeLabel(confirmedBooking.slot)}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Продължителност</dt>
+                  <dd>{confirmedBooking.sessionLength}</dd>
+                </div>
+                <div>
+                  <dt>Формат</dt>
+                  <dd>{confirmedBooking.format}</dd>
+                </div>
+              </dl>
+              <p className="booking-success__hint">
+                Изпратихме потвърждение и ще ти напомним преди срещата. Можеш да
+                проследиш статуса от таблото си.
+              </p>
+              <div className="booking-success__actions">
+                <Link className="primary-button" to="/dashboard">
+                  Виж резервациите в таблото
+                </Link>
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={resetBookingFlow}
+                  disabled={!visibleAvailability.length}
+                >
+                  Заяви още един час
+                </button>
+              </div>
+            </aside>
+          ) : (
           <form className="panel booking-panel" onSubmit={submitBooking}>
             <header className="booking-panel__head">
               <p className="eyebrow">Резервация</p>
@@ -2200,6 +2270,7 @@ export function ConsultantPage() {
               </button>
             ) : null}
           </form>
+          )}
         </div>
       </section>
     </>
