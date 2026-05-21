@@ -15,7 +15,6 @@ import AdminConsultantPreviewPage from "../pages/AdminConsultantPreviewPage";
 import AdminPage from "../pages/AdminPage";
 import AuthPage from "../pages/AuthPage";
 import ConsultantProfilePage from "../pages/ConsultantProfilePage";
-import ConsultantsPage from "../pages/ConsultantsPage";
 import ContactPage from "../pages/ContactPage";
 import FaqPage from "../pages/FaqPage";
 import HomePage from "../pages/HomePage";
@@ -35,12 +34,10 @@ function brandMark() {
 
 const primaryNavigation = [
   { to: "/", label: "Начало" },
-  { to: "/consultants", label: "Каталог" },
   { to: "/users", label: "За потребители" }
 ] as const;
 
 const footerLinks = [
-  { to: "/consultants", label: "Каталог" },
   { to: "/users", label: "За потребители" },
   { to: "/auth", label: "Вход" },
   { to: "/about", label: "За нас" },
@@ -56,10 +53,6 @@ function resolveDocumentTitle(pathname: string) {
 
   if (pathname === "/users") {
     return "За потребители";
-  }
-
-  if (pathname === "/consultants") {
-    return "Каталог на профили";
   }
 
   if (pathname.startsWith("/consultants/")) {
@@ -389,7 +382,9 @@ export default function AppShell() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/users" element={<UsersPage />} />
-          <Route path="/consultants" element={<ConsultantsPage />} />
+          {/* Legacy /consultants catalog merged into /users — keep the path
+             as a redirect for any bookmarks or external links. */}
+          <Route path="/consultants" element={<Navigate to="/users" replace />} />
           <Route path="/consultants/:slug" element={<ConsultantProfilePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />

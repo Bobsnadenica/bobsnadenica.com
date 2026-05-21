@@ -1216,8 +1216,8 @@ export function HomePage() {
               <p className="eyebrow">Подбрани профили</p>
               <h2>Силните профили, готови за бърз избор.</h2>
             </div>
-            <Link className="ghost-button" to="/consultants">
-              Виж целия каталог
+            <Link className="ghost-button" to="/users">
+              Виж всички профили
             </Link>
           </div>
 
@@ -1809,8 +1809,8 @@ export function NotFoundPage() {
           <Link className="primary-button" to="/">
             Към началото
           </Link>
-          <Link className="ghost-button" to="/consultants">
-            Каталог
+          <Link className="ghost-button" to="/users">
+            За потребители
           </Link>
           <Link className="ghost-button" to="/contact">
             Контакти
@@ -2022,8 +2022,8 @@ export function ConsultantPage() {
                 </div>
 
                 <div className="profile-actions">
-                  <Link className="ghost-button" to="/consultants">
-                    Назад към каталога
+                  <Link className="ghost-button" to="/users">
+                    Назад към профилите
                   </Link>
                   <button className="ghost-button" type="button" onClick={shareProfile}>
                     Сподели профила
@@ -5162,10 +5162,10 @@ export function DashboardPage() {
                     }
                     actionLabel={
                       consultantView
-                        ? "Виж публичния каталог"
+                        ? "Виж публичните профили"
                         : "Разгледай консултантите"
                     }
-                    actionTo={consultantView ? "/consultants" : "/users"}
+                    actionTo="/users"
                   />
                 ) : (
                   <div className="dashboard-bookings">
