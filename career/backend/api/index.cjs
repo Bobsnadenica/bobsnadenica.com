@@ -236,6 +236,8 @@ function normalizeConsultantTheme(value, fallback = "") {
   return CONSULTANT_PROFILE_THEMES.has(theme) ? theme : fallback;
 }
 
+const MAX_AVAILABILITY_SLOTS = 400;
+
 function normalizeAvailabilitySlots(value, fallback = []) {
   if (!Array.isArray(value)) {
     return fallback;
@@ -248,7 +250,9 @@ function normalizeAvailabilitySlots(value, fallback = []) {
         .filter(Boolean)
         .filter((item) => !Number.isNaN(new Date(item).getTime()))
     )
-  ).sort((left, right) => new Date(left).getTime() - new Date(right).getTime());
+  )
+    .sort((left, right) => new Date(left).getTime() - new Date(right).getTime())
+    .slice(0, MAX_AVAILABILITY_SLOTS);
 }
 
 function getNextAvailableSlot(value, fallback = "") {
@@ -702,6 +706,29 @@ async function deleteOrphanedStorageKeys(previous, next) {
   await Promise.allSettled(orphans.map((key) => deleteS3Object(key)));
 }
 
+// Fields that exist on the DynamoDB consultant item but must never leak to
+// unauthenticated/public callers. Removed from listConsultants + getConsultant
+// responses. Admin and owner endpoints get the full object.
+const PUBLIC_CONSULTANT_HIDDEN_FIELDS = [
+  "ownerUserId",
+  "bookedSlots",
+  "statusUpdatedAt",
+  "statusUpdatedBy",
+  "statusUpdatedByEmail",
+  "statusSelfApproved",
+  "avatarStorageKey",
+  "heroStorageKey"
+];
+
+function stripSensitiveConsultantFields(consultant) {
+  if (!consultant) return consultant;
+  const cleaned = { ...consultant };
+  for (const key of PUBLIC_CONSULTANT_HIDDEN_FIELDS) {
+    delete cleaned[key];
+  }
+  return cleaned;
+}
+
 async function decorateConsultantMedia(consultant) {
   if (!consultant) {
     return consultant;
@@ -909,7 +936,7 @@ async function listConsultants(event) {
     orderedItems.map((item) => decorateConsultantMedia(item))
   );
 
-  return response(200, decoratedItems, {
+  return response(200, decoratedItems.map(stripSensitiveConsultantFields), {
     "Cache-Control": "public, max-age=60, stale-while-revalidate=300"
   });
 }
@@ -927,9 +954,13 @@ async function getConsultant(event) {
     return notFound("Consultant profile not found.");
   }
 
-  return response(200, await decorateConsultantMedia(consultant), {
-    "Cache-Control": "public, max-age=120, stale-while-revalidate=600"
-  });
+  return response(
+    200,
+    stripSensitiveConsultantFields(await decorateConsultantMedia(consultant)),
+    {
+      "Cache-Control": "public, max-age=120, stale-while-revalidate=600"
+    }
+  );
 }
 
 async function bootstrapUser(event) {
