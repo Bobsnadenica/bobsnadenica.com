@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4b6a60">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.amazonaws.com https://randomuser.me https://api.dicebear.com https://picsum.photos https://i.pravatar.cc; connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -32,38 +34,5 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module">
-      function cleanLocalCareerLaneCaches() {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations()
-            .then((registrations) => Promise.all(
-              registrations
-                .filter((registration) => registration.scope.includes('/career/'))
-                .map((registration) => registration.unregister())
-            ))
-            .catch(() => {});
-        }
-
-        if ('caches' in window) {
-          caches.keys()
-            .then((keys) => Promise.all(
-              keys
-                .filter((key) => key.startsWith('careerlane-'))
-                .map((key) => caches.delete(key))
-            ))
-            .catch(() => {});
-        }
-      }
-
-      if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register(new URL('sw.js', window.location.href));
-        });
-      }
-
-      if (import.meta.env.DEV) {
-        window.addEventListener('load', cleanLocalCareerLaneCaches);
-      }
-    </script>
   </body>
 </html>
