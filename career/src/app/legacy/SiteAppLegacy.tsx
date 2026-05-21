@@ -5052,97 +5052,157 @@ export function DashboardPage() {
             </form>
           ) : null}
 
-          <section className="panel" id="sessions">
-            <h2>Предстоящи сесии</h2>
-            <p className="section-caption">
-              Всички заявки и потвърдени срещи са събрани тук.
-            </p>
-            {bookings.length === 0 ? (
-              <DashboardEmptyState
-                title={
-                  profile.role === "consultant"
-                    ? "Все още няма заявки към профила ти."
-                    : "Все още нямаш предстоящи консултации."
-                }
-                description={
-                  profile.role === "consultant"
-                    ? "Когато потребител изпрати заявка за свободен час, тя ще се появи тук със статус и дата."
-                    : "След като избереш консултант или ментор и изпратиш заявка, срещата ще се показва в този списък."
-                }
-                actionLabel={
-                  profile.role === "consultant"
-                    ? "Виж публичния каталог"
-                    : "Разгледай консултантите"
-                }
-                actionTo={profile.role === "consultant" ? "/consultants" : "/users"}
-              />
-            ) : (
-              <div className="booking-list">
-                {[...bookings]
-                  .sort(
-                    (left, right) =>
-                      new Date(right.scheduledAt).getTime() -
-                      new Date(left.scheduledAt).getTime()
-                  )
-                  .map((booking) => {
-                    const isCancelled = booking.status === "cancelled";
-                    const isPast =
-                      new Date(booking.scheduledAt).getTime() < Date.now();
-                    const canCancel = !isCancelled && !isPast;
-                    const consultantView = profile.role === "consultant";
-                    return (
-                      <article className="booking-item" key={booking.bookingId}>
-                        <div className="booking-item__main">
-                          <strong>
-                            {consultantView
-                              ? booking.clientName || "Потребител"
-                              : booking.consultantName}
-                          </strong>
-                          <p>{formatDate(booking.scheduledAt)}</p>
-                          {consultantView && booking.clientEmail ? (
-                            <p className="form-note">{booking.clientEmail}</p>
-                          ) : null}
-                          {booking.note ? (
-                            <p className="booking-item__note">„{booking.note}"</p>
-                          ) : null}
-                          {isCancelled && booking.cancelledBy ? (
-                            <p className="form-note">
-                              {booking.cancelledBy === "consultant"
-                                ? "Отказана от консултанта"
-                                : "Отказана от потребителя"}
-                            </p>
-                          ) : null}
+          {(() => {
+            const consultantView = profile.role === "consultant";
+            const now = Date.now();
+            const sortedAsc = [...bookings].sort(
+              (left, right) =>
+                new Date(left.scheduledAt).getTime() -
+                new Date(right.scheduledAt).getTime()
+            );
+            const upcoming = sortedAsc.filter(
+              (item) =>
+                item.status !== "cancelled" &&
+                new Date(item.scheduledAt).getTime() >= now
+            );
+            const pastOrCancelled = [...bookings]
+              .filter(
+                (item) =>
+                  item.status === "cancelled" ||
+                  new Date(item.scheduledAt).getTime() < now
+              )
+              .sort(
+                (left, right) =>
+                  new Date(right.scheduledAt).getTime() -
+                  new Date(left.scheduledAt).getTime()
+              );
+
+            const renderBookingItem = (booking: Booking) => {
+              const isCancelled = booking.status === "cancelled";
+              const isPast = new Date(booking.scheduledAt).getTime() < now;
+              const canCancel = !isCancelled && !isPast;
+              return (
+                <article className="booking-item" key={booking.bookingId}>
+                  <div className="booking-item__main">
+                    <strong>
+                      {consultantView
+                        ? booking.clientName || "Потребител"
+                        : booking.consultantName}
+                    </strong>
+                    <p>{formatDate(booking.scheduledAt)}</p>
+                    {consultantView && booking.clientEmail ? (
+                      <p className="form-note">{booking.clientEmail}</p>
+                    ) : null}
+                    {booking.note ? (
+                      <p className="booking-item__note">„{booking.note}"</p>
+                    ) : null}
+                    {isCancelled && booking.cancelledBy ? (
+                      <p className="form-note">
+                        {booking.cancelledBy === "consultant"
+                          ? "Отказана от консултанта"
+                          : "Отказана от потребителя"}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="booking-item__actions">
+                    <span className={`status-badge status-badge--${booking.status}`}>
+                      {formatBookingStatusLabel(booking.status)}
+                    </span>
+                    {canCancel ? (
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        disabled={cancellingBookingId === booking.bookingId}
+                        onClick={() =>
+                          cancelBookingAction(
+                            booking.bookingId,
+                            consultantView ? "consultant" : "client"
+                          )
+                        }
+                      >
+                        {cancellingBookingId === booking.bookingId
+                          ? "Отказваме..."
+                          : consultantView
+                            ? "Откажи"
+                            : "Откажи резервацията"}
+                      </button>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            };
+
+            return (
+              <section className="panel" id="sessions">
+                <header className="dashboard-bookings__head">
+                  <div>
+                    <h2>Предстоящи сесии</h2>
+                    <p className="section-caption">
+                      Всички заявки и потвърдени срещи са събрани тук.
+                    </p>
+                  </div>
+                  {bookings.length ? (
+                    <span className="dashboard-bookings__count">
+                      {upcoming.length} предстоящи · {pastOrCancelled.length} архив
+                    </span>
+                  ) : null}
+                </header>
+
+                {bookings.length === 0 ? (
+                  <DashboardEmptyState
+                    title={
+                      consultantView
+                        ? "Все още няма заявки към профила ти."
+                        : "Все още нямаш предстоящи консултации."
+                    }
+                    description={
+                      consultantView
+                        ? "Когато потребител изпрати заявка за свободен час, тя ще се появи тук със статус и дата."
+                        : "След като избереш консултант или ментор и изпратиш заявка, срещата ще се показва в този списък."
+                    }
+                    actionLabel={
+                      consultantView
+                        ? "Виж публичния каталог"
+                        : "Разгледай консултантите"
+                    }
+                    actionTo={consultantView ? "/consultants" : "/users"}
+                  />
+                ) : (
+                  <div className="dashboard-bookings">
+                    <section className="dashboard-bookings__group">
+                      <header className="dashboard-bookings__group-head">
+                        <h3>Предстоящи</h3>
+                        <span>{upcoming.length}</span>
+                      </header>
+                      {upcoming.length ? (
+                        <div className="booking-list">
+                          {upcoming.map(renderBookingItem)}
                         </div>
-                        <div className="booking-item__actions">
-                          <span className={`status-badge status-badge--${booking.status}`}>
-                            {formatBookingStatusLabel(booking.status)}
-                          </span>
-                          {canCancel ? (
-                            <button
-                              className="ghost-button"
-                              type="button"
-                              disabled={cancellingBookingId === booking.bookingId}
-                              onClick={() =>
-                                cancelBookingAction(
-                                  booking.bookingId,
-                                  consultantView ? "consultant" : "client"
-                                )
-                              }
-                            >
-                              {cancellingBookingId === booking.bookingId
-                                ? "Отказваме..."
-                                : consultantView
-                                  ? "Откажи"
-                                  : "Откажи резервацията"}
-                            </button>
-                          ) : null}
+                      ) : (
+                        <p className="dashboard-bookings__empty">
+                          {consultantView
+                            ? "Няма предстоящи заявки. Добавянето на свободни часове ще ти помогне."
+                            : "Няма предстоящи срещи. Прегледай каталога и заяви час."}
+                        </p>
+                      )}
+                    </section>
+
+                    {pastOrCancelled.length ? (
+                      <section className="dashboard-bookings__group dashboard-bookings__group--archive">
+                        <header className="dashboard-bookings__group-head">
+                          <h3>Архив</h3>
+                          <span>{pastOrCancelled.length}</span>
+                        </header>
+                        <div className="booking-list">
+                          {pastOrCancelled.map(renderBookingItem)}
                         </div>
-                      </article>
-                    );
-                  })}
-              </div>
-            )}
-          </section>
+                      </section>
+                    ) : null}
+                  </div>
+                )}
+              </section>
+            );
+          })()}
         </div>
       </div>
     </section>
