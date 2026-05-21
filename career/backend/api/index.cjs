@@ -57,6 +57,15 @@ function response(statusCode, body, extraHeaders = {}) {
       "Access-Control-Allow-Origin": env.allowedOrigin,
       "Access-Control-Allow-Headers": "Content-Type,Authorization",
       "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+      // Defense-in-depth headers. Even though API responses are JSON consumed
+      // by fetch(), an attacker who tricks a victim into pasting a URL into
+      // the browser or who finds an HTML-injection sink would otherwise rely
+      // on these being unset. Cheap to set, defends multiple sinks.
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Cache-Control": "no-store",
       ...extraHeaders
     },
     body: JSON.stringify(body)
