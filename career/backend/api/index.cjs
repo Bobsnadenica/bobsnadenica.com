@@ -1415,6 +1415,24 @@ async function createBooking(event) {
     );
   }
 
+  // Per-(client, consultant) rate limit: at most 5 active bookings against the
+  // same consultant in any rolling 24h window. Defends against accidental
+  // duplicate submits and intentional spam without locking out legit re-bookings.
+  const last24h = Date.now() - 24 * 60 * 60 * 1000;
+  const recentBookings = (existingBookings.Items || []).filter((item) => {
+    if (item.clientId !== user.userId) return false;
+    if (item.status === "cancelled") return false;
+    const createdAt = new Date(item.createdAt || 0).getTime();
+    return createdAt >= last24h;
+  });
+
+  if (recentBookings.length >= 5) {
+    return response(429, {
+      message:
+        "Достигна лимита от 5 активни резервации с този консултант за 24 часа. Опитай отново по-късно."
+    });
+  }
+
   const booking = {
     bookingId: `booking-${randomUUID()}`,
     consultantId: consultant.consultantId,
